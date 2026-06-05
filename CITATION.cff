@@ -1,0 +1,79 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
+abstract: >-
+  DemoCreate generates audio-visual demos of software — codebase tours, website
+  walkthroughs, and terminal/CLI demos — from a single declarative,
+  deterministic spine. A Demo is an ordered action stream plus narration chunks,
+  merging CodeVideo's event-sourced virtual-IDE model with VSpeak's
+  chunk/trigger model. Every heavy backend (TTS, transcription, screen/browser
+  capture, animation, assembly) sits behind an abstract interface with a
+  pure-Python deterministic default, so the package produces a real demo with
+  only light dependencies and upgrades transparently when extras are installed.
+  On-screen actions are anchored to spoken trigger words via TTS→STT
+  synchronization: narration audio is generated, transcribed back to word-level
+  timestamps, and used to align the action stream with the narration.
+type: software
+version: "0.6.2"
+date-released: "2026-06-04"
+doi: 10.5281/zenodo.0000000
+license: MIT
+repository-code: "https://github.com/docxology/democreate"
+url: "https://github.com/docxology/democreate"
+authors:
+  - family-names: Friedman
+    given-names: Daniel Ari
+    orcid: "https://orcid.org/0000-0001-6232-9096"
+    affiliation: "Active Inference Institute"
+keywords:
+  - demo-generation
+  - screencast
+  - text-to-speech
+  - code-walkthrough
+  - video
+  - narration
+  - whisper
+  - manim
+  - playwright
+  - reproducible
+  - deterministic
+  - tts-stt-synchronization
+  - virtual-ide
+preferred-citation:
+  type: software
+  title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
+  version: "0.6.2"
+  doi: 10.5281/zenodo.0000000
+  license: MIT
+  url: "https://github.com/docxology/democreate"
+  authors:
+    - family-names: Friedman
+      given-names: Daniel Ari
+      orcid: "https://orcid.org/0000-0001-6232-9096"
+      affiliation: "Active Inference Institute"
+  year: 2026
+references:
+  - type: software
+    title: "CodeVideo: An event-sourced virtual-IDE model for code walkthroughs"
+    notes: "Prior art — event-sourced virtual-IDE action stream."
+  - type: software
+    title: "VSpeak: Chunk/trigger narration model"
+    notes: "Prior art — chunk/trigger narration synchronization."
+  - type: software
+    title: "asciinema: Terminal session recorder"
+    notes: "Prior art — terminal capture and replay."
+  - type: software
+    title: "termtosvg: Terminal recorder producing SVG animations"
+    notes: "Prior art — terminal-to-vector capture."
+  - type: software
+    title: "Recordly: Screen and demo recording"
+    notes: "Prior art — screen capture demo tooling."
+  - type: software
+    title: "code-video-generator: Manim-based code walkthrough videos"
+    notes: "Prior art — animated code video generation."
+  - type: article
+    title: "Code2Video: Generating videos from code"
+    notes: "Prior art — code-to-video generation."
+  - type: article
+    title: "Paper2Video: Generating presentation videos from papers"
+    notes: "Prior art — document-to-video generation."

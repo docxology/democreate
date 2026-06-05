@@ -1,0 +1,367 @@
+{
+  "schema_version": "1.0",
+  "title": "DemoCreate — The Showcase",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "voice": "Samantha",
+  "metadata": {
+    "author": "Daniel Ari Friedman",
+    "self_referential": true,
+    "version": "0.6.2"
+  },
+  "scenes": [
+    {
+      "id": "title",
+      "title": "DemoCreate",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "title-c",
+          "text": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "DemoCreate",
+        "subtitle": "Declarative, deterministic narrated demos"
+      }
+    },
+    {
+      "id": "abstract",
+      "title": "The whole idea",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "abstract-c",
+          "text": "One declarative artifact — describing a codebase or a research paper — compiles through a deterministic pipeline into a verified, provenance-signed video. Here is the whole idea on one screen.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "The whole idea"
+              },
+              "trigger_word": "glance"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "At a glance",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/graphical_abstract.png"
+      }
+    },
+    {
+      "id": "what",
+      "title": "A demo is a value, not a recording",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "what-c",
+          "text": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "What it is",
+        "bullets": [
+          "Rendering is a pure function of the artifact — edit it and re-render, never re-record.",
+          "Every heavy backend has a pure-Python or system-binary default, so a real demo needs zero heavy installs.",
+          "Audio is the single source of timing truth: frames are locked to the measured voiceover."
+        ]
+      }
+    },
+    {
+      "id": "spine",
+      "title": "src/democreate/schema.py",
+      "kind": "codebase",
+      "chunks": [
+        {
+          "id": "spine-c",
+          "text": "The spine is plain data. A demo is scenes; a scene is chunks; a chunk is typed actions. Rendering never mutates it.",
+          "actions": [
+            {
+              "type": "create_file",
+              "params": {
+                "path": "src/democreate/schema.py",
+                "code": "@dataclass\nclass Demo:\n    title: str\n    scenes: list[Scene]\n    width: int = 1920\n    height: int = 1080\n\n@dataclass\nclass Action:\n    type: ActionType\n    params: dict\n    trigger_word: str | None = None"
+              },
+              "trigger_word": "data"
+            },
+            {
+              "type": "highlight_lines",
+              "params": {
+                "lines": [
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "trigger_word": "data"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "The Spine"
+      }
+    },
+    {
+      "id": "backends",
+      "title": "src/democreate/narration/tts.py",
+      "kind": "codebase",
+      "chunks": [
+        {
+          "id": "backends-c",
+          "text": "Every capability hides behind an interface with a deterministic default. Silent gives you zero dependencies; the system voice is a real OS binary; neural backends are an optional upgrade.",
+          "actions": [
+            {
+              "type": "create_file",
+              "params": {
+                "path": "src/democreate/narration/tts.py",
+                "code": "class TTSBackend(ABC):\n    @abstractmethod\n    def synth(self, text: str) -> AudioClip: ...\n\nclass SilentTTSBackend(TTSBackend):   # zero deps\nclass SystemTTSBackend(TTSBackend):   # macOS say / espeak\nclass KokoroTTSBackend(TTSBackend):   # neural, optional"
+              },
+              "trigger_word": "interface"
+            },
+            {
+              "type": "highlight_lines",
+              "params": {
+                "lines": [
+                  5,
+                  6
+                ]
+              },
+              "trigger_word": "interface"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Backends"
+      }
+    },
+    {
+      "id": "sync",
+      "title": "src/democreate/narration/sync.py",
+      "kind": "codebase",
+      "chunks": [
+        {
+          "id": "sync-c",
+          "text": "Timing is measured, never guessed. We synthesize the narration, measure its real duration, transcribe it back to word timestamps, and anchor each action to the word it is spoken on.",
+          "actions": [
+            {
+              "type": "create_file",
+              "params": {
+                "path": "src/democreate/narration/sync.py",
+                "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)        # TTS -> STT\nfor action in chunk.actions:\n    action.timestamp_ms = word_time(action.trigger_word)\n# every frame is held for its measured clip"
+              },
+              "trigger_word": "measured"
+            },
+            {
+              "type": "highlight_lines",
+              "params": {
+                "lines": [
+                  2,
+                  4
+                ]
+              },
+              "trigger_word": "measured"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Sync"
+      }
+    },
+    {
+      "id": "craft",
+      "title": "What you are seeing, right now",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "craft-c",
+          "text": "Everything you are watching is generated from that spine. The code you just saw typed itself in. Look at this frame.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "The Craft",
+        "bullets": [
+          "The narration is a real spoken voice — macOS say, zero pip.",
+          "The waveform below sweeps in lockstep with the audio.",
+          "Nothing is cropped: figures fit whole, code autosizes — the frame is a page, not a camera."
+        ]
+      }
+    },
+    {
+      "id": "themes",
+      "title": "Fully configurable",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "themes-c",
+          "text": "One commented YAML controls the whole look and sound — five built-in themes, any aspect ratio, resolution up to four K, and near-lossless quality.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Fully configurable"
+              },
+              "trigger_word": "themes"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Configurable",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/themes.png"
+      }
+    },
+    {
+      "id": "paper",
+      "title": "Papers, not just packages",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "paper-c",
+          "text": "The same engine demos a research paper: it reads the PDF with no Python dependency, recovers the real abstract, the real figure captions, and the sections — and shows each figure whole.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Papers, not just packages"
+              },
+              "trigger_word": "paper"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Research Papers",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/paper_fig.png"
+      }
+    },
+    {
+      "id": "arch",
+      "title": "Seven subsystems, one spine",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "arch-c",
+          "text": "Under the hood, seven subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Seven subsystems, one spine"
+              },
+              "trigger_word": "subsystems"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Architecture",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/architecture.png"
+      }
+    },
+    {
+      "id": "numbers",
+      "title": "DemoCreate by the numbers",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "numbers-c",
+          "text": "And it is real. Nearly six hundred tests, seven subsystems, five themes, four K output — and zero pip dependencies for the core.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "By the numbers",
+        "stats": [
+          [
+            "625",
+            "tests passing"
+          ],
+          [
+            "7",
+            "subsystems"
+          ],
+          [
+            "5",
+            "built-in themes"
+          ],
+          [
+            "4K",
+            "max resolution"
+          ],
+          [
+            "0",
+            "pip for core"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "provenance",
+      "title": "Signed, tamper-evident provenance",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "provenance-c",
+          "text": "Every render carries its own provenance, three ways — so a video can prove where it came from, and resist tampering.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "Provenance",
+        "bullets": [
+          "On-screen metadata bars — author, source, a running clock.",
+          "Container tags in the MP4, readable by any player or ffprobe.",
+          "A steganographic signed poster whose hash verifies against the demo and fails on any edit."
+        ]
+      }
+    },
+    {
+      "id": "render",
+      "title": "terminal",
+      "kind": "terminal",
+      "chunks": [
+        {
+          "id": "render-c",
+          "text": "Then one command renders a high-definition video with a real voiceover, and proves it is genuine — real streams, not silent, not black.",
+          "actions": [
+            {
+              "type": "run_command",
+              "params": {
+                "command": "democreate render demo.json --voice Samantha",
+                "output": "✓ verified: real video + non-silent audio"
+              },
+              "trigger_word": "renders"
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Render"
+      }
+    },
+    {
+      "id": "outro",
+      "title": "DemoCreate",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "outro-c",
+          "text": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "Dogfooded",
+        "subtitle": "github.com/docxology/democreate"
+      }
+    }
+  ]
+}

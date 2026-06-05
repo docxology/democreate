@@ -1,0 +1,134 @@
+# Experiment plan for DemoCreate.
+# Defines the primary evaluation: does the deterministic default pipeline match
+# (or controllably trade off against) the high-fidelity backend pipeline on the
+# core promise of the package — action/narration synchronization — while
+# preserving reproducibility and acceptable latency.
+
+title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
+version: "0.1.0"
+domain: software_tooling
+
+goal: >-
+  Quantify the synchronization accuracy, reproducibility, and latency of the
+  pure-Python deterministic default backends versus the high-fidelity backends
+  (Kokoro/Chatterbox TTS, Whisper STT, mss/Playwright capture, Manim animation,
+  MoviePy/ffmpeg assembly), and show that the deterministic spine produces a
+  faithful demo with light dependencies alone.
+
+hypotheses:
+  - id: H1
+    statement: >-
+      The deterministic default pipeline achieves median sync_error_ms within
+      the validation budget (<=120 ms) on the demo corpus.
+  - id: H2
+    statement: >-
+      High-fidelity backends reduce median sync_error_ms relative to the
+      default pipeline, at the cost of higher render latency.
+  - id: H3
+    statement: >-
+      The default pipeline is byte-reproducible across runs with a fixed seed;
+      the high-fidelity pipeline is reproducible up to tolerance.
+
+# Conditions ---------------------------------------------------------------
+conditions:
+  - id: default
+    label: "Deterministic default backends (light deps)"
+    description: >-
+      Pure-Python deterministic TTS stub, deterministic word-timestamp STT,
+      synthetic frame capture, lightweight assembler. Produces mp4/gif/html.
+    backends:
+      tts: deterministic
+      stt: deterministic
+      capture: synthetic
+      animation: deterministic
+      assembly: deterministic
+  - id: high_fidelity
+    label: "High-fidelity backends (extras installed)"
+    description: >-
+      Kokoro/Chatterbox TTS, Whisper STT, mss/Playwright capture, Manim
+      animation, MoviePy/ffmpeg assembly.
+    backends:
+      tts: kokoro
+      stt: whisper
+      capture: playwright
+      animation: manim
+      assembly: moviepy
+
+# Metrics ------------------------------------------------------------------
+primary_metric:
+  id: sync_error_ms
+  description: >-
+    Absolute time difference between each on-screen action and its anchored
+    spoken trigger word, after TTS->STT alignment. Aggregated as median over
+    the demo corpus.
+  unit: milliseconds
+  direction: minimize
+
+secondary_metrics:
+  - id: render_ms_per_output_s
+    description: "Wall-clock render time per second of output demo."
+    unit: ms_per_s
+    direction: minimize
+  - id: reproducibility_byte_diff
+    description: "Byte difference between two runs of the same Demo with fixed seed."
+    unit: bytes
+    direction: minimize
+  - id: coverage_completeness
+    description: "Fraction of declared action-stream steps rendered into output."
+    unit: fraction
+    direction: maximize
+
+corpus:
+  description: "Demo corpus spanning the three target modes."
+  items:
+    - codebase_tour   # action stream over a sample repository
+    - website_walkthrough
+    - terminal_cli_demo
+  size: ">=30 demos (>=10 per mode)"
+
+expected_figures:
+  - sync_error_distribution        # default vs high-fidelity, per mode
+  - pipeline_latency_breakdown     # per-subsystem latency, both conditions
+  - action_narration_timeline      # exemplar aligned timeline
+  - backend_fidelity_matrix        # quality/cost across backend combos
+
+expected_tables:
+  - id: T1
+    caption: "Median and p90 sync_error_ms by condition and demo mode."
+  - id: T2
+    caption: "Render latency (ms per output second) by condition and subsystem."
+  - id: T3
+    caption: "Reproducibility: byte-diff and coverage_completeness by condition."
+
+baselines:
+  - id: B0
+    name: "Naive fixed-offset anchoring"
+    description: >-
+      Anchor each action to its narration chunk start using a fixed estimated
+      offset, with no TTS->STT word-timestamp alignment. Establishes the
+      sync_error_ms floor that the synchronization mechanism must beat.
+  - id: B1
+    name: "asciinema/termtosvg capture-only"
+    description: >-
+      Terminal-only recording with no synthesized narration synchronization,
+      as a prior-art reference point for terminal demos.
+
+ablations:
+  - id: A1
+    name: "No STT pass"
+    description: "Skip transcription; anchor on TTS-predicted timestamps only. Isolates STT contribution to sync accuracy."
+  - id: A2
+    name: "No chunking"
+    description: "Treat narration as one block (drop VSpeak-style chunk/trigger model). Isolates the chunk model's effect on anchoring."
+  - id: A3
+    name: "Default assembler vs MoviePy"
+    description: "Swap only the assembly backend to isolate its latency and fidelity contribution."
+  - id: A4
+    name: "Synthetic vs real capture"
+    description: "Swap only the capture backend (synthetic vs mss/Playwright) holding TTS/STT fixed."
+
+success_criteria:
+  - "H1 confirmed: default median sync_error_ms <= 120 across all modes."
+  - "H2 directionally confirmed: high_fidelity median sync_error_ms <= default."
+  - "H3 confirmed: default reproducibility_byte_diff == 0."
+  - "Coverage gate (>=90% core) holds for the analyzed build."

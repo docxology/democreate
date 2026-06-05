@@ -1,0 +1,48 @@
+# Architecture {#sec:architecture}
+
+Three load-bearing ideas hold the architecture together: a declarative spine that keeps all content as data, a discipline of placing every heavy backend behind an abstract interface, and a guarantee that each interface ships a pure-Python deterministic default. The pipeline they compose is shown in [@fig:architecture] as four left-to-right stages — declarative spine, narration, render, and export — each itself a column of interchangeable components. This section develops the three ideas in turn and then describes how the orchestrating pipeline composes them.
+
+![The canonical DemoCreate pipeline: a declarative `Demo` (scenes / chunks / actions) flows through narration (TTS plus TTS→STT sync), render (synthetic capture, timeline assembly, and waveform/zoom animation), and export (an HD MP4 with voiceover, a self-contained HTML player, and JSON captions). The figure is rendered by the package's own `democreate_architecture_image` diagram renderer.](figures/architecture.png){#fig:architecture}
+
+## The Declarative Spine
+
+The single source of truth for a demo is the `Demo` value defined in `schema.py`. It is a tree of plain dataclasses with no I/O and no heavy dependencies, and rendering is a pure function of it. The supported edit workflow is to mutate the value and recompile — never to re-record.
+
+A `Demo` owns an ordered list of `Scene` objects. Each `Scene` declares a `SceneKind` — one of `codebase`, `website`, `terminal`, or `slide` — which selects the capture and render strategy for that chapter, and holds an ordered list of `Chunk` objects. Each `Chunk` is a unit of narration: a block of `text` to be spoken, plus the `Action` objects that the narration triggers. Each `Action` carries a typed `ActionType`, a free-form `params` dictionary, and — crucially — an optional `trigger_word` naming a word in the parent chunk's narration to which the action is anchored. The action also carries `timestamp_ms` and `duration_ms` fields that are `None` until the synchronization stage fills them from real audio.
+
+This structure deliberately fuses two prior-art models. The action stream is **event sourcing** in the sense of Fowler [@fowler2005event] and CodeVideo [@codevideo2024]: content is an ordered, replayable log of typed mutations against a virtual environment, so the same log re-renders to any output format and any point in the demo is reconstructible by replaying the prefix. The chunk-and-trigger layering is VSpeak's narration model [@vspeak2024]: narration is the organizing unit, and visual events are subordinated to spoken words rather than to wall-clock times. The `ActionType` enumeration spans the surfaces a demo needs — editor actions (`open_file`, `create_file`, `type_code`, `highlight_lines`, `close_file`), terminal actions (`run_command`, `print_output`), browser actions (`navigate`, `click`, `scroll`, `fill`), and camera/mouse actions (`move_mouse`, `zoom`, `pan`), plus the timing primitives `speak` and `wait`. The enum's string values are the stable on-disk representation and may not be renamed without a schema-version bump (`SCHEMA_VERSION`).
+
+Three properties make the spine trustworthy. It **validates itself**: `Demo.validate()` returns a list of human-readable structural problems — empty title, non-positive frame geometry or frame rate, duplicate scene or chunk identifiers, actions with an invalid type — and never raises, leaving callers to choose strictness. It **round-trips losslessly**: `to_dict`/`from_dict`, `to_json`/`from_json`, and `to_yaml`/`from_yaml` are mutual inverses, and `Demo` equality is defined as dictionary equality, so `Demo.from_dict(d.to_dict()) == d` holds by construction. And it **estimates its own runtime** deterministically: in the absence of real audio, `estimated_duration_ms` derives a duration from narration word counts at a configurable words-per-minute pace (default 150), giving the timeline a sensible placeholder before any backend runs.
+
+## Backends Behind Interfaces
+
+The second idea is a strict separation between *what* a stage does and *how* it is implemented. Every heavy capability is expressed as an abstract base class with a small, documented method surface, and concrete backends are interchangeable behind it. The pattern recurs identically across subsystems:
+
+| Subsystem | Abstract interface | Default (core) | Real-but-light | Heavy backends (extras) |
+|-----------|--------------------|----------------|----------------|-------------------------|
+| Narration / TTS | `TTSBackend` | `SilentTTSBackend` | `SystemTTSBackend` (`say`/`espeak`) | `KokoroTTSBackend`, `ChatterboxTTSBackend` |
+| Synchronization / STT | `Transcriber` | `HeuristicTranscriber` | — | `WhisperTranscriber` |
+| Capture (screen) | `FrameSource` | `SyntheticRenderer` | — | `MssScreenCapture` |
+| Assembly (compositing) | `Compositor` | `ManifestCompositor` | — | (video via `export/video.py` + `ffmpeg`) |
+| Paper ingestion (PDF) | poppler CLI wrapper | `pdf.py` (`pdfinfo`/`pdftotext`/`pdftoppm`) | — | — |
+
+Backend selection is uniform: each subsystem exposes a `get_*` factory keyed on a name, where `"auto"` always resolves to the deterministic default. Heavy backends are *guarded* — their constructors probe for the optional dependency via `importlib.util.find_spec` (or `shutil.which` for a binary) and raise `BackendUnavailableError` (naming the missing package and the extra that provides it) when it is absent, rather than failing at import time. This is what lets the package be imported, tested, and run end-to-end in an environment that has none of the heavy binaries installed.
+
+Two backends are worth singling out because they are *real* yet pull no pip dependencies. The `SystemTTSBackend` produces genuine spoken narration by shelling out to the operating system's built-in synthesizer (`say` on macOS, `espeak`/`espeak-ng` on Linux), transcoding the result to canonical 16-bit mono PCM via `ffmpeg` or `afconvert`, and *measuring* the resulting clip's duration. The `paper/pdf.py` wrapper reads, slices, and rasterizes PDFs through the poppler command-line utilities [@poppler2024] that ship on most scientific workstations. Both deliver high-fidelity output while remaining installable with `pip install democreate` and nothing more.
+
+## Deterministic Defaults
+
+The third idea is the one that gives the second its force: every default backend is not a stub but a *working, pure-Python implementation* that produces a real artifact. A stub would make the abstraction hollow — the package would import but do nothing useful without extras. A working default makes the abstraction honest: the package compiles a complete, inspectable demo with only its light core dependencies (`pyyaml`, `typer`, `rich`, `jinja2`, `pillow`).
+
+The defaults are deliberately designed so that their outputs remain *meaningful* inputs to the rest of the pipeline. The silent TTS backend (`SilentTTSBackend`) does not return a dummy duration; it writes a valid 16-bit mono PCM WAV file of digital silence whose length is computed from the narration word count, so the file on disk has a true, measurable duration. The heuristic transcriber (`HeuristicTranscriber`) then reads that real duration back from the WAV and distributes the known words across it proportional to their character length — so the TTS→STT round-trip is genuinely closed even with no neural model present ([@sec:synchronization]). The synthetic renderer (`SyntheticRenderer`) *draws* a clean, deterministic depiction of the editor, terminal, browser, or slide implied by each frame state using only Pillow [@pillow2024], rather than capturing real pixels — a "virtual desktop" in the spirit of CodeVideo. The manifest compositor (`ManifestCompositor`) writes a complete JSON render manifest plus one representative PNG per timeline entry. The consequence is that *fidelity*, not *capability*, is what an optional extra buys: a richer TTS swaps silence for synthesized speech; the video export swaps a frame manifest for an encoded H.264 file; nothing in the orchestration changes.
+
+## The Orchestrating Pipeline
+
+The `Pipeline` class (`pipeline.py`) wires the subsystems together in a fixed, documented order, with each stage a pure function of the (mutated) demo plus a `Workspace`:
+
+```
+validate -> TTS -> TTS->STT sync -> timeline -> compose(frames + manifest)
+         -> captions -> player + transcript + JSON
+```
+
+Concretely: the demo is validated (raising `SchemaValidationError` under `strict=True`, or logging warnings otherwise); `synthesize_demo` renders one audio clip per chunk; `sync_demo` transcribes that audio and assigns absolute timestamps to every chunk and action; `build_timeline` resolves a gap-free sequence of timeline entries; the configured compositor writes frames and a manifest; subtitle files are emitted in SRT and VTT; and an interactive HTML player, a Markdown transcript, and the serialized demo JSON are exported. The `render_video` path extends this by animating the per-chunk frames into a timed-frame sequence ([@sec:composition]) and encoding them with `ffmpeg` against the assembled, normalized voiceover. The pipeline is constructed with any subset of backends overridden — `Pipeline(tts_backend=..., transcriber=..., compositor=..., config=...)` — and the `build_demo` convenience function constructs and runs a default pipeline in one call. The `Workspace` (`project_paths.py`) resolves and creates the output sub-directories (audio, frames, captions, manifests, web, demos), so no stage hard-codes a path. Because every stage consumes and produces the same plain values, the pipeline is itself just another pure function over the declarative spine.

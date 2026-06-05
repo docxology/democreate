@@ -1,0 +1,305 @@
+# DemoCreate
+
+**Declarative, deterministic audio-visual demo generation for software packages
+and research papers.**
+
+DemoCreate (`democreate`) turns a single declarative `Demo` artifact — a
+virtual-IDE action stream with narration chunks — into a narrated HD video:
+a codebase tour, a website walkthrough, a terminal session, or a **research-paper
+overview** (the PDF's figures and pages plus its associated codebase). Every heavy
+backend (TTS, transcription, capture, animation, video assembly, PDF) sits behind
+an abstract interface with a **pure-Python / system-binary deterministic default**,
+so the package produces a real demo with only light dependencies and upgrades to
+high fidelity when optional extras are installed. The look (themes, fonts, motion)
+and sound (voice, pacing, normalization) are fully **configurable**.
+
+- **Status:** alpha (`0.6.2`), Python ≥ 3.10, MIT licensed.
+- **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
+  testing, troubleshooting.
+
+![DemoCreate graphical abstract — a declarative demo of a codebase or a research paper compiles through a deterministic pipeline into a verified, provenance-signed HD video.](manuscript/figures/graphical_abstract.png)
+
+## Watch the demos
+
+DemoCreate `v0.6.2` produces **real, content-verified 1080p videos** (H.264 +
+AAC, with chapters, container metadata tags, and a signed steganographic
+provenance poster) — now in the **noir** aesthetic: near-black surfaces, bright
+white text, and a single refined red as the only chroma:
+
+- **Package demo · the showcase** (DemoCreate explaining itself across *every*
+  renderable surface, re-rendered in noir) — `output/video/demo.mp4`
+  (1920×1080 · 128.4 s). Fourteen scenes — title card, graphical abstract,
+  bullet slides, three typing code scenes, themes strip, a real paper figure, the
+  architecture diagram, a stat-card slide, a terminal render+verify, and an outro
+  — all compiled from one declarative file (`examples/democreate_showcase.json`,
+  built by [`examples/make_showcase.py`](examples/make_showcase.py)).
+- **Research-paper demo** (*Policy Entanglement in Active Inference*), also
+  re-rendered in noir — `output/paper_demo/video/demo.mp4` (1920×1080 · ~188 s)
+
+Both are regeneratable (`output/` is gitignored). Full write-up — paths, one-line
+regenerate commands, the 14 showcase scenes, and companion artifacts — in
+[`docs/videos.md`](docs/videos.md).
+
+![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
+*Package demo · the showcase — the "by the numbers" stat-card slide (625 tests · 7 subsystems · 5 themes · 4K · 0 pip), in the v0.6.2 noir aesthetic.*
+
+![Paper demo figure scene](docs/_videoframes/paper_figure.png)
+*Research-paper demo — a paper figure shown with its real caption.*
+
+## Three load-bearing ideas
+
+1. **Declarative spine.** All content is one `Demo` — an ordered stream of typed
+   `Action`s plus narration `Chunk`s. Rendering is a pure function of it, so you
+   edit the artifact and re-render rather than re-record. This merges
+   **CodeVideo's** event-sourced virtual-IDE model with **VSpeak's**
+   chunk/trigger narration model.
+2. **Backends behind interfaces.** TTS (Kokoro/Chatterbox), transcription
+   (Whisper), capture (mss/Playwright), animation (Manim), and assembly
+   (MoviePy/ffmpeg) each sit behind an abstract base with a deterministic default.
+   No heavy binaries (ffmpeg, torch, chrome) are required for a real result.
+3. **TTS → STT synchronization.** Narration audio is generated, then transcribed
+   back to word-level timestamps; each on-screen action anchors to a spoken
+   `trigger_word`. Real audio is the single source of timing truth.
+
+## Install
+
+Requires [uv](https://github.com/astral-sh/uv) and Python ≥ 3.10.
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e ".[dev]"          # core + dev toolchain
+```
+
+Core dependencies are deliberately light: `pyyaml`, `typer`, `rich`, `jinja2`,
+`pillow`. Optional extras upgrade individual subsystems (see the
+[extras table](#extras)).
+
+## Quickstart
+
+```bash
+democreate init demo.json           # write a starter demo artifact
+democreate inspect demo.json        # validate + summarize it
+democreate build demo.json -o output
+open output/web/player.html         # the interactive HTML player
+```
+
+Tour a real repository:
+
+```bash
+democreate tour /path/to/repo --title "My Project Tour" -o output
+```
+
+As a library:
+
+```python
+from democreate import Demo
+from democreate.pipeline import build_demo
+from democreate.project_paths import Workspace
+
+demo = Demo.from_json(open("demo.json").read())
+result = build_demo(demo, Workspace("output"))
+print(result.summary())             # scenes, chunks, actions, duration, player
+```
+
+Full walkthrough: [`docs/quickstart.md`](docs/quickstart.md).
+
+## Make a real HD video (with voiceover)
+
+The deterministic default build produces silent audio + synthetic frames + an HTML
+player. To produce an actual **1080p MP4 with a real spoken voiceover**, use
+`render` — which adds a real **system voice** (macOS `say` / Linux `espeak`, **zero
+pip installs**) and assembles the frames + voiceover into H.264/AAC with `ffmpeg`:
+
+```bash
+democreate render demo.json -o output --voice Samantha   # → output/video/demo.mp4
+democreate verify output/video/demo.mp4 --width 1920 --height 1080
+```
+
+`render` honours **audio as ground truth**: each frame is held on screen for the
+*measured* duration of its narration clip, so video and voiceover share one
+timebase by construction — no drift. The build then **content-verifies** the
+result: it asserts a real video stream of the expected size, an audio stream
+covering it, that the audio is **not silent** (mean volume above a floor), and that
+a sampled frame is **not black** (pixel variance) — existence is never mistaken for
+content.
+
+By default the render is **animated** (`--animation-fps`, default 15): large
+TrueType type at any resolution, a **moving speech waveform** with a sweeping
+playhead locked to the audio, a progress bar, and scene chrome with section
+labels. A scene can use a full-frame **background image** — a generated
+architecture diagram (`animation.diagram`) or a **real browser screenshot** of the
+HTML player — so the video can show genuine dashboards, not just synthetic panels.
+Use `--no-animate` for a faster slideshow render.
+
+Code scenes **type in character-by-character** with live pygments highlighting, an
+**animated cursor** with click ripples brings UI scenes to life, and the MP4 gets
+**embedded chapter markers** (plus a YouTube chapter file). Renders are
+**themeable** across five presets (`--theme noir|dark|light|midnight|paper`, noir
+is the default — near-black with a single red accent), come in any **aspect ratio**
+(`--aspect 16:9|9:16|1:1`) and **resolution tier** (`--resolution 720p|1080p|1440p|2160p`,
+up to 4K — everything scales to frame height), encode near-visually-lossless
+(`crf 18`), and are fully configurable from a YAML file (`--config theme.yaml`):
+colors, font scale, voice, pacing, loudness normalization, transitions, Ken Burns,
+typing, and metadata. `democreate config` writes a fully-commented config to edit.
+There are also `democreate thumbnail` (poster) and `democreate gif` (preview)
+commands. See [`docs/config.md`](docs/config.md), [`docs/video.md`](docs/video.md),
+and [`docs/recipes.md`](docs/recipes.md).
+
+### Provenance, metadata & steganography
+
+Every render can carry its own provenance three ways (`--author`, `--watermark`,
+or the `metadata:` block in a config): **on-screen** top/bottom metadata bars
+(author · source · running clock · watermark); **MP4 container tags**
+(`title`/`artist`/`comment`, readable by players and `ffprobe`); and a
+**steganographic** signed provenance payload (tool, version, author, and a
+content hash) LSB-embedded into lossless poster + "transmission bookend" PNG
+sidecars. The payload is *tamper-evident* — its content digest covers the
+authored demo (not render state), so `democreate stego poster_signed.png --demo
+demo.json` verifies a match and fails on any edit. (Honest note: LSB survives in
+the lossless PNG sidecars only; the H.264 video carries the container tags
+instead.) See [`docs/provenance.md`](docs/provenance.md).
+
+**Dogfooded:** DemoCreate's own intro video is itself a DemoCreate demo —
+[`examples/make_assets.py`](examples/make_assets.py) generates the architecture
+diagram + a real player screenshot, [`examples/make_intro_demo.py`](examples/make_intro_demo.py)
+builds the artifact, then `democreate render examples/democreate_intro.json` produces a
+~78s 1080p narrated walkthrough with pygments code, a moving waveform, scene
+crossfades, and Ken Burns. See [`examples/README.md`](examples/README.md).
+
+## Demo a research paper (PDF + codebase)
+
+Point `democreate paper` at a PDF and (optionally) its codebase to get a narrated
+overview — the title and abstract, the paper's figures and rendered pages, and an
+architecture diagram of the code:
+
+```bash
+democreate paper paper.pdf --repo ./src --figures ./figures --theme paper -o output
+```
+
+The narration is built from the paper's **real content**: a correct abstract
+(the extractor skips the table of contents), the **actual figure captions**
+(`Figure N: …` parsed from the text), and the paper's **section structure**. PDF
+ingestion uses the **poppler** command-line tools (`pdfinfo`/`pdftotext`/
+`pdftoppm`) with **no pip dependency**; the optional `pdf` extra (pymupdf) adds
+richer extraction. Worked example — the 170-page *Policy Entanglement in Active
+Inference* paper (47 figures, 145-module codebase) renders to a verified
+1080p video narrating its real abstract, figure captions, and 6 sections.
+Details: [`docs/paper.md`](docs/paper.md).
+
+## Architecture
+
+A `Demo` (the declarative spine) threads through six subsystems. The deterministic
+defaults carry the whole pipeline; extras swap in high-fidelity backends without
+changing the orchestration.
+
+```mermaid
+flowchart TB
+    Demo["Demo (declarative spine)<br/>scenes · chunks · actions"]
+    TTS["narration.tts<br/>synthesize → AudioClips"]
+    Sync["narration.sync<br/>transcribe → WordTimestamps<br/>anchor actions to trigger_words"]
+    Timeline["assembly.compositor<br/>build_timeline (fps, wpm)"]
+    Compositor["assembly.compositor<br/>compose → frames + manifest"]
+    Captions["assembly.captions<br/>SRT / VTT"]
+    Export["export<br/>HTML player · transcript · demo.json · chapters"]
+    Video["export.video + render_video<br/>concat voiceover · ffmpeg HD MP4"]
+    Verify["export.verify<br/>assert real streams · not silent · not black"]
+
+    Demo --> TTS
+    TTS --> Sync
+    Sync --> Timeline
+    Timeline --> Compositor
+    Compositor --> Captions
+    Captions --> Export
+    Compositor --> Video
+    TTS --> Video
+    Video --> Verify
+```
+
+The spine (`schema.py`, `media.py`, `errors.py`, `project_paths.py`) is pure
+Python with no I/O or heavy deps; `pipeline.py` and `cli.py` are thin
+orchestrators. Details: [`docs/architecture.md`](docs/architecture.md).
+
+## Subsystems
+
+Each subsystem directory under `src/democreate/` carries its own `README.md`
+(what it does) and `AGENTS.md` (rules for changing it).
+
+| Subsystem | Owns | Deterministic default | Upgrade extra |
+|-----------|------|-----------------------|---------------|
+| `capture/` | Frame rendering; terminal/browser/input recording. | `SyntheticRenderer`, asciinema model, `NullBrowserDriver`, pure event log. | `capture`, `browser`, `replay` |
+| `narration/` | Script generation, TTS, TTS→STT sync. | `TemplateScriptGenerator`, `SilentTTSBackend`, `HeuristicTranscriber`. `SystemTTSBackend` adds real OS voice with no pip deps. | `tts`, `whisper` |
+| `animation/` | Syntax-highlight frames, cursor-zoom math, manim specs. | `rich` highlighting, pure zoom math, JSON manim spec. | `animation` |
+| `codebase/` | AST traversal, visualization, import graphs. | stdlib `ast`. | `codebase` |
+| `assembly/` | Timeline, compositing, captions, effects. | `ManifestCompositor`, pure SRT/VTT/ASS, Pillow effects. | `video` |
+| `export/` | Spine + frames + audio → deliverables. | Jinja2 HTML player, Pillow GIF, Markdown/JSON/chapters, pure WAV concat. Real HD MP4 assembly + content verifier when `ffmpeg` is present. | `video` |
+| `paper/` | Research-paper ingestion (PDF + figures → demo). | poppler CLI (`pdfinfo`/`pdftotext`/`pdftoppm`), `build_paper_demo`. | `pdf` |
+
+Spine modules: `schema.py` (the model), `media.py` (`AudioClip` / `FrameState`),
+`config.py` (`Theme` / `AudioConfig` / `VideoConfig` / `RenderConfig`),
+`pipeline.py` (orchestrator), `cli.py` (the `democreate` command). The renderer
+(`capture/screen.py`) uses scaled TrueType fonts + **pygments** highlighting +
+themes; the animator (`assembly/animator.py`) adds the moving waveform, scene
+transitions, and Ken Burns.
+
+## Testing
+
+No mocks, fully deterministic, real temp files, ≥90% coverage on the pure core
+(enforced via `fail_under = 90`). Heavy backends carry a `backend` pytest marker
+and skip when absent; the default path asserts the `BackendUnavailableError`
+contract instead.
+
+```bash
+.venv/bin/python -m pytest -q        # full suite
+.venv/bin/python -m pytest --cov     # the ≥90% gate
+ruff check . && mypy src             # lint + types
+```
+
+Details: [`docs/testing_philosophy.md`](docs/testing_philosophy.md).
+
+## Extras
+
+Each extra upgrades one subsystem from its deterministic default to a real
+backend. Install only what you need.
+
+| Extra | Upgrades | Dependencies | Install |
+|-------|----------|--------------|---------|
+| `tts` | Real narration | `kokoro-onnx`, `soundfile`, `numpy` | `uv pip install -e ".[tts]"` |
+| `whisper` | Word-timestamp transcription | `openai-whisper` | `uv pip install -e ".[whisper]"` |
+| `capture` | Real screen capture | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
+| `browser` | Website driving | `playwright` | `uv pip install -e ".[browser]"` |
+| `animation` | Code animations | `manim` | `uv pip install -e ".[animation]"` |
+| `replay` | Input record/replay | `pynput`, `pyautogui` | `uv pip install -e ".[replay]"` |
+| `video` | Video assembly (needs `ffmpeg` on `PATH`) | `moviepy`, `ffmpeg-python` | `uv pip install -e ".[video]"` |
+| `codebase` | Multi-language analysis | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
+| `pdf` | Richer PDF extraction (poppler CLI is the zero-pip default) | `pymupdf` | `uv pip install -e ".[pdf]"` |
+| `all` | Everything | (all of the above) | `uv pip install -e ".[all]"` |
+| `dev` | Test + lint toolchain | `pytest`, `pytest-cov`, `ruff`, `mypy` | `uv pip install -e ".[dev]"` |
+
+Check what is active with `democreate backends`. Full table:
+[`docs/backends.md`](docs/backends.md).
+
+## Prior art
+
+DemoCreate builds on a lineage of demo-generation and recording tools: CodeVideo,
+VSpeak, [asciinema](https://asciinema.org/), termtosvg, Recordly,
+code-video-generator, Code2Video, and Paper2Video. Its contribution is unifying
+the event-sourced virtual-IDE model with the chunk/trigger narration model behind
+a deterministic, backend-pluggable spine.
+
+## Citation
+
+```bibtex
+@software{democreate,
+  author  = {Friedman, Daniel Ari},
+  title   = {DemoCreate: Declarative, Deterministic Audio-Visual Demo Generation},
+  year    = {2026},
+  url     = {https://github.com/docxology/democreate},
+  version = {0.6.2},
+  license = {MIT}
+}
+```
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).

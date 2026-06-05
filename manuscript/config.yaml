@@ -1,0 +1,75 @@
+# DemoCreate manuscript configuration
+# Pandoc / build settings for the academic manuscript describing the
+# democreate package.
+
+paper:
+  title: "DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers"
+  version: "0.6.2"
+  subtitle: "A Virtual-Environment Action Stream with TTS->STT Synchronization, Configurable Composition, Pluggable Backends, and Three-Carrier Provenance"
+  date: "2026-06-04"
+
+authors:
+  - name: "Daniel Ari Friedman"
+    orcid: "0000-0001-6232-9096"
+    email: "daniel@activeinference.institute"
+    affiliation: "Active Inference Institute"
+    corresponding: true
+
+publication:
+  journal: "Preprint"
+  volume: "1"
+  pages: "1-N"
+  year: "2026"
+
+keywords:
+  - "software demo generation"
+  - "research paper video"
+  - "screencast"
+  - "event sourcing"
+  - "declarative pipeline"
+  - "text-to-speech"
+  - "speech-to-text synchronization"
+  - "deterministic rendering"
+  - "code walkthrough"
+  - "reproducible media"
+  - "pluggable backends"
+  - "configurable composition"
+  - "provenance"
+  - "steganography"
+  - "content metadata"
+
+metadata:
+  license: "MIT"
+  language: "en"
+
+# Pandoc rendering
+bibliography: references.bib
+csl: null
+link-citations: true
+reference-section-title: "References"
+
+# Build gate: a missing citation key is a hard failure.
+fail_on_missing: true
+
+# Ordered manuscript chapters fed to Pandoc.
+chapters:
+  - 00_abstract.md
+  - 01_introduction.md
+  - 02_architecture.md
+  - 03_synchronization.md
+  - 04_implementation.md
+  - 05_composition_and_configurability.md
+  - 06_research_paper_demos.md
+  - 07_evaluation.md
+  - 08_reproducibility.md
+  - 09_scope_and_related_work.md
+  - 10_provenance_and_distribution.md
+  - 99_references.md
+
+preamble: preamble.md
+
+llm:
+  reviews:
+    enabled: false
+  translations:
+    enabled: false

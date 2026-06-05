@@ -1,0 +1,377 @@
+{
+  "schema_version": "1.0",
+  "title": "Policy Entanglement in Active Inference — A Visual Tour",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "voice": "Daniel",
+  "metadata": {
+    "kind": "paper",
+    "curated": true,
+    "pdf": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/pdf/actinf_policy_entanglement_lean_combined.pdf"
+  },
+  "scenes": [
+    {
+      "id": "hero",
+      "title": "Policy Entanglement",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "hero-c",
+          "text": "Many decision streams, one body — two hands, two eyes, a teammate, a long horizon. How do they stay coordinated?",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "The Question",
+        "subtitle": "in Active Inference"
+      }
+    },
+    {
+      "id": "problem",
+      "title": "The convenient lie of independence",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "problem-c",
+          "text": "Standard active inference assumes the streams are independent. Cheap to compute — but independence cannot coordinate.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "The Problem",
+        "bullets": [
+          "Many streams: effectors, senses, other agents, planning horizons.",
+          "Standard models treat each stream as independent.",
+          "Independence erases the dependencies coordination needs."
+        ]
+      }
+    },
+    {
+      "id": "idea",
+      "title": "One knob: policy entanglement",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "idea-c",
+          "text": "One scalar coupling, lambda, deforms the independent posterior, with explicit compatibility and preference potentials. At zero, ordinary active inference; turn it up, and the streams entangle.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "The Idea",
+        "bullets": [
+          "A scalar coupling lambda, plus compatibility and preference potentials.",
+          "Cross-stream dependence becomes a first-class object, not a factorization artifact.",
+          "lambda equals zero recovers mean-field active inference, exactly."
+        ]
+      }
+    },
+    {
+      "id": "glance",
+      "title": "The paper at a glance",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "glance-c",
+          "text": "A claim-strength ledger keeps it honest: exact recoveries, parameterized embeddings, numerical witnesses, and structural analogies never blur together. The central identity is machine-checked in Lean.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "At a Glance",
+        "stats": [
+          [
+            "λ",
+            "one coupling knob"
+          ],
+          [
+            "47",
+            "figures"
+          ],
+          [
+            "6",
+            "parts"
+          ],
+          [
+            "Lean",
+            "machine-checked"
+          ],
+          [
+            "0",
+            "= mean-field"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "sweep",
+      "title": "Turn the knob",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "sweep-c",
+          "text": "Lambda from zero to four: the joint goes from a product of independent marginals to mass locked on the aligned diagonal.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Turn the knob"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Turn the Knob",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/paper/lambda_sweep.png"
+      }
+    },
+    {
+      "id": "fig-joint",
+      "title": "Hidden in the Joint",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-joint-c",
+          "text": "Each stream alone — the side bars — barely moves. The coordination lives only in the joint, and the free-energy ledger names its exact price: the multi-information of leaving independence.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Hidden in the Joint"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Hidden in the Joint",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/joint_heatmap_lambda2.png"
+      }
+    },
+    {
+      "id": "fig-mi",
+      "title": "Proven, Then Witnessed",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-mi-c",
+          "text": "Machine precision, not hand-waving. Closed-form mutual information against a brute-force sampler — the residual sits below ten to the minus fifteen. The central identity is proven in Lean; everything else is witnessed numerically, like this.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Proven, Then Witnessed"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Proven, Then Witnessed",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/ising_mi_curve.png"
+      }
+    },
+    {
+      "id": "fig-lambdastar",
+      "title": "Coordination on Demand",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-lambdastar-c",
+          "text": "Any target alignment has a closed-form coupling — lambda-star equals two arctanh of delta over delta-max. Solve it; don't search.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Coordination on Demand"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Coordination on Demand",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/optimal_lambda.png"
+      }
+    },
+    {
+      "id": "fig-tax",
+      "title": "Coordination Has a Price",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-tax-c",
+          "text": "Entanglement costs information. Coupling pays only above the line, where utility clears the multi-information tax. Below it, stay independent.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Coordination Has a Price"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Coordination Has a Price",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/coupling_tax_quadratic.png"
+      }
+    },
+    {
+      "id": "fig-geodesic",
+      "title": "A Principled Path",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-geodesic-c",
+          "text": "Every log-weight runs dead-straight in lambda, to floating-point precision — an exponential geodesic away from the mean-field submanifold, with a projection identity that snaps the coupled posterior back to its independent marginals.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "A Principled Path"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "A Principled Path",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/log_weight_flow.png"
+      }
+    },
+    {
+      "id": "fig-archetypes",
+      "title": "It Collapses to a Few Modes",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-archetypes-c",
+          "text": "More coupling concentrates the mass, it does not spread it. A handful of Schmidt archetypes carry almost all the probability.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "It Collapses to a Few Modes"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "It Collapses to a Few Modes",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/archetype_dendrogram.png"
+      }
+    },
+    {
+      "id": "fig-scale",
+      "title": "And It Scales",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-scale-c",
+          "text": "Five streams, not two: the bond dimension stays at most three. Borrowed from tensor networks, coordination represents cheaply at any K.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "And It Scales"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "And It Scales",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/multi_k_tt_rank_profile.png"
+      }
+    },
+    {
+      "id": "fig-phase",
+      "title": "When to Act as One",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-phase-c",
+          "text": "The optimal coupling across payoff and competition — a phase diagram for when to act as one, and when to stay apart.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "When to Act as One"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "When to Act as One",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/phase_diagram.png"
+      }
+    },
+    {
+      "id": "fig-pymdp",
+      "title": "Not Just Theory",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "fig-pymdp-c",
+          "text": "The same coupling, dropped into a pymdp POMDP agent: coordinated rollouts in a live planning loop, not just equations on a page.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "Not Just Theory"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Not Just Theory",
+        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/pymdp_coupled_rollout.png"
+      }
+    },
+    {
+      "id": "codebase",
+      "title": "The Paper's Codebase",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "codebase-c",
+          "text": "Every figure is reproducible — emitted by the paper's own code, which implements the theory and checks each claim.",
+          "actions": [
+            {
+              "type": "open_file",
+              "params": {
+                "path": "The Paper's Codebase"
+              }
+            }
+          ]
+        }
+      ],
+      "context": {
+        "section": "Reproducible",
+        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/paper/architecture.png"
+      }
+    },
+    {
+      "id": "outro",
+      "title": "Coordination, as a dial",
+      "kind": "slide",
+      "chunks": [
+        {
+          "id": "outro-c",
+          "text": "Policy entanglement makes coordination tunable, measurable, and compressible — linking active inference to products of experts, copula variational inference, branching-time active inference, and tensor-network compression. One knob; coordinated action becomes a choice.",
+          "actions": []
+        }
+      ],
+      "context": {
+        "section": "The Bigger Picture",
+        "subtitle": "Policy Entanglement in Active Inference"
+      }
+    }
+  ]
+}

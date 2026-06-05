@@ -1,0 +1,107 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "democreate",
+  "name": "DemoCreate: Declarative Audio-Visual Demo Generation for Software",
+  "description": "DemoCreate generates audio-visual demos of software — codebase tours, website walkthroughs, and terminal/CLI demos — from a single declarative, deterministic spine. A Demo is an ordered action stream plus narration chunks, merging CodeVideo's event-sourced virtual-IDE model with VSpeak's chunk/trigger model. Every heavy backend (TTS via Kokoro/Chatterbox, transcription via Whisper, capture via mss/Playwright, animation via Manim, assembly via MoviePy/ffmpeg) sits behind an abstract interface with a pure-Python deterministic default, so the package produces a real demo with only light dependencies and upgrades when extras are installed. On-screen actions are anchored to spoken trigger words via TTS→STT synchronization: narration audio is generated, transcribed back to word-level timestamps, and used to align the action stream with the narration.",
+  "version": "0.6.2",
+  "dateModified": "2026-06-04",
+  "dateCreated": "2026-06-04",
+  "datePublished": "2026-06-04",
+  "license": "https://spdx.org/licenses/MIT",
+  "codeRepository": "https://github.com/docxology/democreate",
+  "url": "https://github.com/docxology/democreate",
+  "issueTracker": "https://github.com/docxology/democreate/issues",
+  "programmingLanguage": "Python",
+  "runtimePlatform": "Python 3.10+",
+  "operatingSystem": ["Linux", "macOS", "Windows"],
+  "developmentStatus": "active",
+  "applicationCategory": "Multimedia",
+  "keywords": [
+    "demo-generation",
+    "screencast",
+    "text-to-speech",
+    "code-walkthrough",
+    "video",
+    "narration",
+    "whisper",
+    "manim",
+    "playwright",
+    "reproducible",
+    "deterministic",
+    "tts-stt-synchronization",
+    "virtual-ide"
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Daniel Ari",
+      "familyName": "Friedman",
+      "@id": "https://orcid.org/0000-0001-6232-9096",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Active Inference Institute"
+      }
+    }
+  ],
+  "maintainer": {
+    "@type": "Person",
+    "givenName": "Daniel Ari",
+    "familyName": "Friedman",
+    "@id": "https://orcid.org/0000-0001-6232-9096"
+  },
+  "softwareRequirements": [
+    "Python >= 3.10",
+    "pyyaml >= 6.0",
+    "typer >= 0.12.0",
+    "rich >= 13.0.0",
+    "jinja2 >= 3.1.0",
+    "pillow >= 10.0.0"
+  ],
+  "softwareSuggestions": [
+    "kokoro-onnx >= 0.6.2 (TTS backend)",
+    "openai-whisper >= 20231117 (STT backend)",
+    "mss >= 9.0.0 (screen capture backend)",
+    "playwright >= 1.40.0 (browser capture backend)",
+    "manim >= 0.18.0 (animation backend)",
+    "moviepy >= 1.0.3 (assembly backend)",
+    "ffmpeg-python >= 0.6.2 (assembly backend)",
+    "pynput >= 1.7.0 (replay backend)",
+    "pyautogui >= 0.9.54 (replay backend)",
+    "tree-sitter >= 0.21.0 (codebase backend)"
+  ],
+  "referencePublication": [
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "CodeVideo: An event-sourced virtual-IDE model for code walkthroughs"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "VSpeak: Chunk/trigger narration model"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "asciinema: Terminal session recorder"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "termtosvg: Terminal recorder producing SVG animations"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "Recordly: Screen and demo recording"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "code-video-generator: Manim-based code walkthrough videos"
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "name": "Code2Video: Generating videos from code"
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "name": "Paper2Video: Generating presentation videos from papers"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# Generated outputs are regeneratable; never commit them.
+output/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+*.pyc
+
+# Egg-info from local installs
+**/*.egg-info/
+
+# Project-local virtualenv (shared root .venv preferred)
+.venv/
+
+# OS
+.DS_Store

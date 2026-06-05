@@ -1,0 +1,112 @@
+# Domain profile for DemoCreate.
+# Declares the scientific/engineering domain this project operates in, the
+# output artifacts it is expected to produce, the validation gates that must
+# pass before a release, the figure types its manuscript/analysis pipeline
+# emits, and the rubric dimensions used to benchmark generated demos.
+
+domain: software_tooling
+
+summary: >-
+  Declarative, deterministic audio-visual demo generation for software:
+  codebase tours, website walkthroughs, and terminal/CLI demos built from an
+  ordered action stream plus narration chunks, with pluggable capture/render
+  backends and TTS->STT synchronization.
+
+# Artifact contract --------------------------------------------------------
+# required: a release is invalid if any required output cannot be produced by
+#           the deterministic default backends (no heavy deps).
+# preferred: produced when high-fidelity extras are installed.
+outputs:
+  required:
+    - mp4   # rendered demo video (deterministic default assembler)
+    - gif   # lightweight animated preview
+    - html  # self-contained interactive player / storyboard export
+  preferred:
+    - webm  # high-fidelity browser-captured walkthrough
+    - svg   # vector terminal demo (termtosvg-style)
+    - srt   # word-timestamped caption track from STT pass
+    - cast  # asciinema-compatible terminal recording
+    - wav   # raw narration audio from TTS pass
+
+# Validation gates ---------------------------------------------------------
+# Every gate must pass in CI before tagging a release. Gate ids are referenced
+# by data/claim_ledger.yaml so numeric claims stay traceable to their check.
+validation_gates:
+  - id: coverage_core
+    description: "Pure-Python core line coverage at or above the enforced threshold."
+    check: "pytest --cov=src/democreate (fail_under=90 in pyproject)"
+    threshold: ">=90% coverage"
+    blocking: true
+  - id: deterministic_default
+    description: "Default backends produce a real demo end-to-end with only light deps installed."
+    check: "democreate build examples/minimal.demo.yaml --backends default"
+    threshold: "exit 0; mp4 + gif + html emitted"
+    blocking: true
+  - id: byte_reproducible
+    description: "Two runs of the same Demo with default backends and a fixed seed produce byte-identical output."
+    check: "diff run_a/out.mp4 run_b/out.mp4"
+    threshold: "0 byte difference"
+    blocking: true
+  - id: sync_accuracy
+    description: "TTS->STT trigger-word anchoring keeps action/narration sync error within budget."
+    check: "pytest tests/test_sync.py (synthetic ground-truth timestamps)"
+    threshold: "median sync_error_ms <= 120"
+    blocking: true
+  - id: schema_valid
+    description: "Every example Demo validates against schema.py."
+    check: "democreate validate examples/*.demo.yaml"
+    threshold: "0 validation errors"
+    blocking: true
+  - id: backend_contract
+    description: "Each heavy backend honors the same abstract interface as its deterministic default."
+    check: "pytest -m backend (skipped if extra absent, must pass if present)"
+    threshold: "no contract violations"
+    blocking: false
+
+# Figure types -------------------------------------------------------------
+# The analysis/manuscript pipeline emits these figure families.
+figure_types:
+  - id: sync_error_distribution
+    kind: histogram
+    description: "Distribution of per-action sync_error_ms across a demo corpus, default vs high-fidelity."
+  - id: pipeline_latency_breakdown
+    kind: stacked_bar
+    description: "Wall-clock latency per subsystem (capture, narration, animation, assembly, export)."
+  - id: action_narration_timeline
+    kind: timeline
+    description: "Aligned action stream and narration chunks against the spoken-trigger word track."
+  - id: backend_fidelity_matrix
+    kind: heatmap
+    description: "Output-quality / cost tradeoff across backend combinations per subsystem."
+  - id: coverage_trend
+    kind: line
+    description: "Core coverage percentage across commits, with the 90% gate line."
+
+# Benchmark rubric ---------------------------------------------------------
+# Dimensions for scoring a generated demo (0-5 each unless noted).
+benchmark_rubric:
+  scale: "0-5 per dimension; sync_error reported in ms (lower is better)"
+  dimensions:
+    - id: synchronization
+      description: "How tightly on-screen actions land on their narration trigger words."
+      metric: sync_error_ms
+      direction: minimize
+    - id: determinism
+      description: "Reproducibility of output across repeated runs with fixed inputs/seed."
+      direction: maximize
+    - id: narration_quality
+      description: "Naturalness, pacing, and intelligibility of synthesized narration."
+      direction: maximize
+    - id: visual_fidelity
+      description: "Clarity and accuracy of captured/animated screen content."
+      direction: maximize
+    - id: coverage_completeness
+      description: "How fully the demo covers the declared action stream / target surface."
+      direction: maximize
+    - id: latency
+      description: "Wall-clock time to render the demo relative to demo duration."
+      metric: render_ms_per_output_s
+      direction: minimize
+    - id: portability
+      description: "Fraction of the demo producible with only light/default dependencies."
+      direction: maximize

@@ -1,0 +1,241 @@
+# Claim ledger for DemoCreate.
+# Every numeric or falsifiable claim made in the manuscript, README, or docs is
+# registered here with its value, the gate/experiment that backs it, and a
+# status. Claims are NOT facts until their backing check passes — keep status
+# honest (asserted / verified / estimate). The publish pipeline cross-checks
+# this ledger against domain_profile.yaml validation_gates and
+# experiment_plan.yaml metrics.
+
+title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
+version: "0.6.2"
+
+claims:
+  - id: C0
+    claim: "Pure-Python core line coverage is at or above 90%."
+    value: 90
+    unit: percent
+    direction: ">="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "pyproject.toml [tool.coverage.report] fail_under = 90"
+    status: asserted
+
+  - id: C1
+    claim: "Median action/narration synchronization error with default backends is within budget."
+    value: 120
+    unit: milliseconds
+    direction: "<="
+    backed_by: "experiment_plan.yaml:primary_metric#sync_error_ms (condition=default)"
+    source: "tests/test_narration_sync.py synthetic ground-truth alignment"
+    status: estimate
+
+  - id: C2
+    claim: "High-fidelity backends do not increase median sync error relative to default."
+    value: 0
+    unit: milliseconds_delta
+    direction: "<="
+    backed_by: "experiment_plan.yaml:hypotheses#H2"
+    source: "Corpus benchmark, condition=high_fidelity vs default"
+    status: estimate
+
+  - id: C3
+    claim: "Default pipeline output is byte-reproducible across runs with a fixed seed."
+    value: 0
+    unit: bytes
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#byte_reproducible"
+    source: "diff of two identical default-backend runs"
+    status: asserted
+
+  - id: C4
+    claim: "End-to-end pipeline latency with default backends per second of output demo."
+    value: 1500
+    unit: ms_per_output_s
+    direction: "<="
+    backed_by: "experiment_plan.yaml:secondary_metrics#render_ms_per_output_s (condition=default)"
+    source: "pipeline_latency_breakdown figure, default condition"
+    status: estimate
+
+  - id: C5
+    claim: "Default narration speaking rate."
+    value: 150
+    unit: words_per_minute
+    direction: "=="
+    backed_by: "schema.py narration defaults"
+    source: "DemoCreate narration chunk default wpm"
+    status: asserted
+
+  - id: C6
+    claim: "A real demo (mp4 + gif + html) is produced with only the light/default dependencies installed."
+    value: 5
+    unit: light_core_dependencies
+    direction: "<="
+    backed_by: "domain_profile.yaml:validation_gates#deterministic_default"
+    source: "pyproject.toml [project] dependencies (pyyaml, typer, rich, jinja2, pillow)"
+    status: asserted
+
+  - id: C7
+    claim: "Coverage completeness: fraction of declared action-stream steps rendered into output."
+    value: 1.0
+    unit: fraction
+    direction: ">="
+    backed_by: "experiment_plan.yaml:secondary_metrics#coverage_completeness"
+    source: "schema validation + render pass over corpus"
+    status: estimate
+
+  - id: C8
+    claim: "Demo corpus size used for benchmarking."
+    value: 30
+    unit: demos
+    direction: ">="
+    backed_by: "experiment_plan.yaml:corpus#size"
+    source: "Corpus: codebase_tour, website_walkthrough, terminal_cli_demo (>=10 each)"
+    status: asserted
+
+  # --- v0.6.2: real HD video render, measured on the self-referential showcase demo ---
+  - id: C9
+    claim: "The package showcase renders to a 1920x1080 H.264 MP4."
+    value: "1920x1080"
+    unit: pixels
+    direction: "=="
+    backed_by: "examples/democreate_showcase.json via `democreate render`"
+    source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=1920, height=1080, duration 128.4s"
+    status: verified
+
+  - id: C10
+    claim: "Rendered voiceover is real speech, not digital silence."
+    value: -15.6
+    unit: dB_mean_volume
+    direction: ">"
+    backed_by: "export/verify.py SILENCE_FLOOR_DB (-60 dB) gate"
+    source: "ffmpeg volumedetect mean_volume on output/video/demo.mp4 = -15.6 dB (floor -60); re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    status: verified
+
+  - id: C11
+    claim: "Audio and video share one timebase (audio covers the video duration)."
+    value: 0.9
+    unit: audio_to_video_ratio
+    direction: ">="
+    backed_by: "export/verify.py parse_ffprobe min_audio_ratio"
+    source: "ffprobe on output/video/demo.mp4: audio duration covers the 128.4s video; re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    status: verified
+
+  - id: C12
+    claim: "Sampled frames across the timeline are not black (real picture)."
+    value: 53.0
+    unit: grayscale_pixel_variance
+    direction: ">"
+    backed_by: "export/verify.py BLACK_VARIANCE_FLOOR (5.0)"
+    source: "PIL ImageStat on sampled mid-stream frames: variance well above the 5.0 floor; re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    status: verified
+
+  - id: C13
+    claim: "The animated render produces uniform-cadence frames with a moving waveform."
+    value: 15
+    unit: frames_per_second
+    direction: "=="
+    backed_by: "assembly/animator.py render_animation_frames"
+    source: "showcase render: uniform-cadence frames with the waveform playhead locked to progress"
+    status: verified
+
+  # --- v0.6.2: research-paper demos + configurability ---
+  - id: C14
+    claim: "A research paper (PDF + codebase) renders to a verified HD video."
+    value: "1920x1080"
+    unit: pixels
+    direction: "=="
+    backed_by: "paper/ subsystem via `democreate paper`"
+    source: "actinf 'Policy Entanglement' (170pp PDF, 145 modules) → output/paper_demo/video/demo.mp4 188.0s H.264, verifier ok, -15.5 dB audio"
+    status: verified
+
+  - id: C15
+    claim: "PDF and codebase ingestion needs no pip PDF dependency (poppler CLI default)."
+    value: 0
+    unit: pip_pdf_dependencies
+    direction: "=="
+    backed_by: "paper/pdf.py (pdfinfo/pdftotext/pdftoppm); pdf extra (pymupdf) optional"
+    source: "core paper workflow runs on poppler binaries alone"
+    status: verified
+
+  - id: C16
+    claim: "Render look is configurable via named themes / a RenderConfig YAML."
+    value: 5
+    unit: builtin_theme_presets
+    direction: ">="
+    backed_by: "config.py THEMES (noir/dark/light/midnight/paper); --theme / --config"
+    source: "RenderConfig.preset + from_yaml round-trip; threaded through renderer/animator/audio"
+    status: verified
+
+  # --- v0.6.2: typing animation, deeper paper extraction, chapter export ---
+  - id: C17
+    claim: "Code chunks type in character-by-character with live syntax highlighting."
+    value: 0.7
+    unit: chunk_fraction_spent_typing
+    direction: "=="
+    backed_by: "assembly/animator.py typed_base + VideoConfig.typing_fraction; pipeline _typing_flags"
+    source: "showcase code scene mid-type (cursor inside source); test_typing_render_reveals_progressively"
+    status: verified
+
+  - id: C18
+    claim: "Paper extraction recovers the real abstract (not the TOC) plus real figure captions and section structure, NFKC-folded and multi-line-aware."
+    value: 6
+    unit: sections_extracted
+    direction: ">="
+    backed_by: "paper/structure.py extract_abstract/figure_captions/sections (_fold_text NFKC + multi-line caption regex)"
+    source: "actinf paper: ~1200-char real abstract (demo narration 1220 chars), real 6-part section structure, 6 captioned figures narrated; structure-narrated 12-scene/188.0s verified render (output/paper_demo/video/demo.mp4)"
+    status: verified
+
+  - id: C19
+    claim: "Rendered MP4s carry embedded chapter markers (one per scene)."
+    value: 1
+    unit: chapters_per_scene
+    direction: "=="
+    backed_by: "export/chapters.py to_ffmetadata + embed_chapters; pipeline _embed_chapters"
+    source: "ffprobe -show_chapters: 14 chapters on the showcase render (14 scenes), 12 on the paper render (12 scenes); YouTube chapter file written"
+    status: verified
+
+  # --- v0.6.2: resolution/quality, on-screen metadata, steganographic provenance ---
+  - id: C20
+    claim: "Renders support resolution tiers up to 4K with everything scaling to frame height."
+    value: 2160
+    unit: max_lines
+    direction: ">="
+    backed_by: "config.py RESOLUTIONS + set_resolution; --resolution"
+    source: "democreate render --resolution 1440p → ffprobe 2560x1440; 2160p/4k → 3840x2160; fonts/layout scale"
+    status: verified
+
+  - id: C21
+    claim: "Default H.264 quality is near-visually-lossless (low CRF)."
+    value: 18
+    unit: x264_crf
+    direction: "<="
+    backed_by: "config.py VideoConfig.crf default; encode_frame_sequence/assemble_video pass -crf"
+    source: "ffmpeg -crf 18 -preset medium on every encode (was x264 default ~23)"
+    status: verified
+
+  - id: C22
+    claim: "Rendered MP4s carry container metadata tags readable by ffprobe/players."
+    value: 3
+    unit: container_tags
+    direction: ">="
+    backed_by: "export/metadata.py build_tags + embed_tags; pipeline _embed_provenance"
+    source: "ffprobe format_tags on a metadata render: title, artist, comment present"
+    status: verified
+
+  - id: C23
+    claim: "A signed provenance payload is steganographically embedded and verifies, tamper-evident."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "export/stego.py embed/extract/verify_provenance (LSB in lossless poster PNG); content digest excludes render state"
+    source: "verify_provenance True vs original demo, False vs retitled demo; democreate stego CLI"
+    status: verified
+
+  # --- v0.6.2: no-crop information-dense layout ---
+  - id: C24
+    claim: "No on-screen information is cropped: backgrounds fit-contain, code autosizes, Ken Burns off."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "capture/screen.py _draw_background (min-scale contain) + _autosize_code/_wrap_code_rows; VideoConfig.ken_burns=False"
+    source: "test_nocrop_layout: wide-figure edge stripes survive; long code line not clipped; re-rendered architecture diagram + paper colorbar fully visible"
+    status: verified

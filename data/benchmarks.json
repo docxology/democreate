@@ -1,0 +1,17 @@
+{
+  "build": {
+    "runs": 5,
+    "median_ms": 25.8
+  },
+  "render": {
+    "output_seconds": 7.72,
+    "render_ms": 1981.9,
+    "ms_per_output_second": 256.7,
+    "animation_fps": 15
+  },
+  "sync": {
+    "actions": 3,
+    "actions_timestamped": 3,
+    "monotonic": true
+  }
+}

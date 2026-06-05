@@ -1,0 +1,288 @@
+% References for the DemoCreate package
+% Prior art in software demo / screencast generation, TTS/STT, animation,
+% and the supporting toolchain. Keys are stable; every \cite in the
+% manuscript resolves to an entry below.
+
+% === Prior art: programmatic software demo / screencast generation ===
+
+@misc{codevideo2024,
+  author       = {{CodeVideo}},
+  title        = {{CodeVideo}: An Event-Sourced Virtual {IDE} for Generating Coding Tutorials and Videos},
+  howpublished = {\url{https://codevideo.io}},
+  year         = {2024},
+  note         = {Open-source TypeScript ecosystem modeling an IDE as a deterministic stream of typed actions ("IActions") replayed against a virtual editor, terminal, and file-explorer state machine}
+}
+
+@misc{vspeak2024,
+  author       = {{VSpeak}},
+  title        = {{VSpeak}: Chunk- and Trigger-Based Narration Synchronization for Generated Walkthroughs},
+  howpublished = {Software project documentation},
+  year         = {2024},
+  note         = {Groups narration into chunks and anchors on-screen events to spoken trigger words for audio-driven timing}
+}
+
+@misc{asciinema,
+  author       = {Marcin Kulik and {asciinema contributors}},
+  title        = {asciinema: Record and Share Terminal Sessions},
+  howpublished = {\url{https://asciinema.org}},
+  year         = {2024},
+  note         = {Records terminal sessions to the text-based asciicast v2 format: a header object followed by one timed [time, kind, data] event per line}
+}
+
+@misc{termtosvg,
+  author       = {Nicolas Bedos},
+  title        = {termtosvg: Record Terminal Sessions as Standalone {SVG} Animations},
+  howpublished = {\url{https://github.com/nbedos/termtosvg}},
+  year         = {2020},
+  note         = {Python tool rendering terminal recordings to self-contained animated SVG, reusing asciinema's capture model}
+}
+
+@misc{recordly2024,
+  author       = {{Recordly}},
+  title        = {Recordly: Browser-Based Screen and Demo Recording},
+  howpublished = {Commercial screen-recording product},
+  year         = {2024},
+  note         = {Capture-first screencast tool; records real screen pixels rather than synthesizing from a declarative description}
+}
+
+@misc{codevideogenerator2023,
+  author       = {J. Wood and {code-video-generator contributors}},
+  title        = {code-video-generator: Create Code Walkthrough Videos with {Manim}},
+  howpublished = {\url{https://github.com/sleepylemur/code-video-generator}},
+  year         = {2023},
+  note         = {Python library generating animated code-walkthrough videos by scripting Manim scenes}
+}
+
+@article{code2video2025,
+  author       = {Yanzhe Chen and Kevin Qinghong Lin and Mike Zheng Shou},
+  title        = {{Code2Video}: A Code-Centric Paradigm for Educational Video Generation},
+  journal      = {arXiv preprint arXiv:2510.01174},
+  year         = {2025},
+  doi          = {10.48550/arXiv.2510.01174},
+  note         = {Agentic, executable-code-centric pipeline (Planner, Coder, Critic) that generates educational videos by emitting and running Manim code}
+}
+
+@misc{paper2video2025,
+  author       = {Zeyu Zhu and Kevin Qinghong Lin and Mike Zheng Shou},
+  title        = {{Paper2Video}: Automatic Video Generation from Scientific Papers},
+  howpublished = {arXiv preprint arXiv:2510.05096},
+  year         = {2025},
+  doi          = {10.48550/arXiv.2510.05096},
+  note         = {Multi-agent system turning a paper into a narrated presentation video with synchronized slides, speech, and a talking presenter}
+}
+
+% === Text-to-speech and speech recognition ===
+
+@misc{kokoro2025,
+  author       = {Hexgrad and {Kokoro contributors}},
+  title        = {{Kokoro}: An Open-Weight, Lightweight Text-to-Speech Model},
+  howpublished = {\url{https://huggingface.co/hexgrad/Kokoro-82M}},
+  year         = {2025},
+  note         = {82M-parameter open-weight TTS model with ONNX runtime support, used as a high-fidelity narration backend}
+}
+
+@misc{chatterbox2025,
+  author       = {{Resemble AI}},
+  title        = {{Chatterbox}: Open-Source Text-to-Speech with Emotion and Voice Cloning},
+  howpublished = {\url{https://github.com/resemble-ai/chatterbox}},
+  year         = {2025},
+  note         = {Open-source production-grade TTS supporting expressive synthesis and zero-shot voice cloning}
+}
+
+@article{radford2023whisper,
+  author       = {Alec Radford and Jong Wook Kim and Tao Xu and Greg Brockman and Christine McLeavey and Ilya Sutskever},
+  title        = {Robust Speech Recognition via Large-Scale Weak Supervision},
+  journal      = {Proceedings of the 40th International Conference on Machine Learning (ICML)},
+  year         = {2023},
+  doi          = {10.48550/arXiv.2212.04356},
+  note         = {Whisper: an encoder-decoder transformer trained on 680,000 hours of multilingual, multitask supervised audio}
+}
+
+@inproceedings{whisperx2023,
+  author       = {Max Bain and Jaesung Huh and Tengda Han and Andrew Zisserman},
+  title        = {{WhisperX}: Time-Accurate Speech Transcription of Long-Form Audio},
+  booktitle    = {Proceedings of INTERSPEECH 2023},
+  year         = {2023},
+  doi          = {10.21437/Interspeech.2023-78},
+  note         = {Adds forced phoneme alignment to Whisper output to produce accurate word-level timestamps}
+}
+
+% === Capture, automation, animation, assembly toolchain ===
+
+@misc{mss2024,
+  author       = {Mickaël Schoentgen and {python-mss contributors}},
+  title        = {{python-mss}: An Ultra-Fast Cross-Platform Multiple Screenshots Module in Pure {Python}},
+  howpublished = {\url{https://github.com/BoboTiG/python-mss}},
+  year         = {2024},
+  note         = {Low-latency screen-grabbing library used for the optional real-pixel capture backend}
+}
+
+@misc{playwright2024,
+  author       = {{Microsoft}},
+  title        = {{Playwright}: Cross-Browser Automation and Testing Library},
+  howpublished = {\url{https://playwright.dev}},
+  year         = {2024},
+  note         = {Drives Chromium, Firefox, and WebKit via a single API with auto-waiting; used to drive WEBSITE scenes}
+}
+
+@misc{manim2024,
+  author       = {{The Manim Community Developers}},
+  title        = {{Manim}: A Community-Maintained Python Framework for Mathematical and Explanatory Animations},
+  howpublished = {\url{https://www.manim.community}},
+  year         = {2024},
+  note         = {Programmatic animation engine, descended from 3Blue1Brown's library, used as the optional animation backend}
+}
+
+@misc{moviepy2024,
+  author       = {Zulko and {MoviePy contributors}},
+  title        = {{MoviePy}: Video Editing with {Python}},
+  howpublished = {\url{https://zulko.github.io/moviepy/}},
+  year         = {2024},
+  note         = {Scripted video compositing and editing library wrapping ffmpeg; the high-fidelity assembly backend}
+}
+
+@misc{ffmpeg2024,
+  author       = {{FFmpeg Developers}},
+  title        = {{FFmpeg}: A Complete, Cross-Platform Solution to Record, Convert and Stream Audio and Video},
+  howpublished = {\url{https://ffmpeg.org}},
+  year         = {2024},
+  note         = {Multimedia framework underlying video encoding for the assembly stage}
+}
+
+@misc{pynput2024,
+  author       = {Moses Palmér and {pynput contributors}},
+  title        = {{pynput}: Control and Monitor Input Devices from {Python}},
+  howpublished = {\url{https://github.com/moses-palmer/pynput}},
+  year         = {2024},
+  note         = {Keyboard and mouse event monitoring/control; used to record real input streams for replay}
+}
+
+@misc{pyautogui2024,
+  author       = {Al Sweigart and {PyAutoGUI contributors}},
+  title        = {{PyAutoGUI}: Cross-Platform {GUI} Automation for Human Beings},
+  howpublished = {\url{https://github.com/asweigart/pyautogui}},
+  year         = {2024},
+  note         = {Programmatic mouse and keyboard control used in the optional replay/automation backend}
+}
+
+@misc{pillow2024,
+  author       = {Jeffrey A. Clark and {Pillow contributors}},
+  title        = {{Pillow}: The Friendly {PIL} Fork (Python Imaging Library)},
+  howpublished = {\url{https://python-pillow.org}},
+  year         = {2024},
+  note         = {Imaging library backing the pure-Python synthetic frame renderer}
+}
+
+@misc{treesitter2024,
+  author       = {Max Brunsfeld and {Tree-sitter contributors}},
+  title        = {{Tree-sitter}: An Incremental Parsing System for Programming Tools},
+  howpublished = {\url{https://tree-sitter.github.io}},
+  year         = {2024},
+  note         = {Multi-language incremental parser; the optional upgrade over stdlib ast for source summarization}
+}
+
+@misc{rich2024,
+  author       = {Will McGugan and {Rich contributors}},
+  title        = {{Rich}: A {Python} Library for Rich Text and Beautiful Formatting in the Terminal},
+  howpublished = {\url{https://github.com/Textualize/rich}},
+  year         = {2024},
+  note         = {Terminal rendering library used by the command-line interface}
+}
+
+@misc{typer2024,
+  author       = {Sebastián Ramírez and {Typer contributors}},
+  title        = {{Typer}: Build Great {CLIs}, Easy to Code, Based on {Python} Type Hints},
+  howpublished = {\url{https://typer.tiangolo.com}},
+  year         = {2024},
+  note         = {Type-hint-driven CLI framework underpinning the democreate command}
+}
+
+@misc{pygments2024,
+  author       = {Georg Brandl and Matth{\"a}us Chajdas and Jean Abou-Samra and {Pygments contributors}},
+  title        = {{Pygments}: A Generic Syntax Highlighter},
+  howpublished = {\url{https://pygments.org}},
+  year         = {2024},
+  note         = {Lexer-based multi-language syntax highlighter; tokenizes source into typed tokens, used to color code in synthetic editor frames}
+}
+
+@misc{poppler2024,
+  author       = {{The Poppler Developers}},
+  title        = {{Poppler}: A {PDF} Rendering Library and Command-Line Utilities},
+  howpublished = {\url{https://poppler.freedesktop.org}},
+  year         = {2024},
+  note         = {Provides pdfinfo, pdftotext, and pdftoppm; used as a zero-pip-dependency PDF metadata, text, and page-raster backend for paper demos}
+}
+
+@techreport{ebu2020r128,
+  author       = {{European Broadcasting Union}},
+  title        = {{EBU R 128}: Loudness Normalisation and Permitted Maximum Level of Audio Signals},
+  institution  = {European Broadcasting Union},
+  year         = {2020},
+  url          = {https://tech.ebu.ch/publications/r128},
+  note         = {Defines integrated loudness (LUFS), true-peak, and loudness-range targets; ffmpeg's loudnorm filter implements this standard for voiceover normalization}
+}
+
+@misc{ffmpegloudnorm2024,
+  author       = {{FFmpeg Developers}},
+  title        = {{FFmpeg} loudnorm Filter: {EBU} {R128} Loudness Normalization},
+  howpublished = {\url{https://ffmpeg.org/ffmpeg-filters.html\#loudnorm}},
+  year         = {2024},
+  note         = {The loudnorm audio filter applying EBU R128 integrated-loudness, true-peak, and loudness-range normalization to the assembled voiceover}
+}
+
+% === Methodology and supporting references ===
+
+@book{fowler2005event,
+  author       = {Martin Fowler},
+  title        = {Event Sourcing},
+  publisher    = {martinfowler.com (Patterns of Enterprise Application Architecture)},
+  year         = {2005},
+  url          = {https://martinfowler.com/eaaDev/EventSourcing.html},
+  note         = {Defines event sourcing: persisting state as an ordered, replayable log of events rather than current snapshots}
+}
+
+@article{pimentel2019jupyter,
+  author       = {João Felipe Pimentel and Leonardo Murta and Vanessa Braganholo and Juliana Freire},
+  title        = {A Large-Scale Study about Quality and Reproducibility of {Jupyter} Notebooks},
+  journal      = {Proceedings of the 16th International Conference on Mining Software Repositories (MSR)},
+  pages        = {507--517},
+  year         = {2019},
+  doi          = {10.1109/MSR.2019.00077},
+  note         = {Found that only 24\% of 1.4 million GitHub notebooks could be re-executed and 36\% produced different results}
+}
+
+@article{johnson1998stego,
+  author       = {Neil F. Johnson and Sushil Jajodia},
+  title        = {Exploring Steganography: Seeing the Unseen},
+  journal      = {Computer},
+  volume       = {31},
+  number       = {2},
+  pages        = {26--34},
+  year         = {1998},
+  doi          = {10.1109/MC.1998.4655281},
+  note         = {Surveys LSB (least-significant-bit) spatial-domain image steganography and its fragility under lossy transformation, the technique used here for the lossless-PNG provenance payload}
+}
+
+@book{meszaros2007xunit,
+  author       = {Gerard Meszaros},
+  title        = {xUnit Test Patterns: Refactoring Test Code},
+  publisher    = {Addison-Wesley},
+  year         = {2007},
+  isbn         = {978-0131495050}
+}
+
+@manual{pytest2024,
+  author       = {{pytest-dev team}},
+  title        = {pytest: Full-Featured {Python} Testing Framework},
+  year         = {2024},
+  url          = {https://docs.pytest.org/},
+  note         = {Version 8.x; de facto standard for Python test automation}
+}
+
+@misc{astral2024uv,
+  author       = {{Astral}},
+  title        = {{uv}: An Extremely Fast {Python} Package and Project Manager, Written in {Rust}},
+  howpublished = {\url{https://docs.astral.sh/uv/}},
+  year         = {2024},
+  note         = {Resolver and installer providing reproducible, lockfile-driven environments}
+}
