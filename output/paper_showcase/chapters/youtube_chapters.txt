@@ -1,0 +1,16 @@
+0:00 Policy Entanglement
+0:08 The convenient lie of independence
+0:15 One knob: policy entanglement
+0:29 The paper at a glance
+0:42 Turn the knob
+0:48 Hidden in the Joint
+1:00 Proven, Then Witnessed
+1:16 Coordination on Demand
+1:25 Coordination Has a Price
+1:34 A Principled Path
+1:49 It Collapses to a Few Modes
+1:56 And It Scales
+2:06 When to Act as One
+2:13 Not Just Theory
+2:22 The Paper's Codebase
+2:29 Coordination, as a dial

@@ -16,7 +16,7 @@ diagram of its codebase.
 
 Render it with::
 
-    democreate render examples/democreate_paper_showcase.json -o output/paper_demo \
+    democreate render examples/democreate_paper_showcase.json -o output/paper_showcase \
         --voice Daniel --author "Daniel Ari Friedman" \
         --watermark "Policy Entanglement in Active Inference"
 """

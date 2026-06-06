@@ -54,11 +54,12 @@ DIM = (150, 150, 156)
 FAINT = (102, 102, 108)
 GREEN = _T.accent  # monochrome+red: no green chroma in the noir cover
 
+# Two large, legible stills (one per demo kind) read far better on the cover than
+# four cramped thumbnails — the "by the numbers" package shot and a real paper
+# figure carry the OUTPUTS story.
 STILLS = [
-    ("package_title.png", "Package / Title"),
-    ("package_typing.png", "Package / Typing"),
-    ("paper_abstract.png", "Paper / Abstract"),
-    ("paper_figure.png", "Paper / Figure"),
+    ("showcase_stats.png", "Package demo · by the numbers"),
+    ("paper_figure.png", "Research-paper demo · a real figure"),
 ]
 
 

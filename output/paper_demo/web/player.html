@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Policy Entanglement in Active Inference</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #1b2230, var(--panel));
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  header h1 { margin: 0; font-size: 22px; }
+  header .sub { color: var(--muted); font-size: 14px; }
+  .layout { display: flex; flex: 1; min-height: 0; }
+  .sidebar {
+    width: 300px;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+  .sidebar h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 0 16px;
+    margin: 8px 0;
+  }
+  .chapter {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .chapter:hover { background: rgba(59,130,246,0.12); }
+  .chapter.active {
+    background: rgba(59,130,246,0.20);
+    border-left: 3px solid var(--accent);
+  }
+  .stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 20px;
+  }
+  .frame {
+    max-width: 100%;
+    max-height: 64vh;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    background: #0a0d12;
+  }
+  .caption {
+    font-size: 24px;
+    line-height: 1.5;
+    text-align: center;
+    max-width: 880px;
+    min-height: 2em;
+    color: #f3f6fa;
+  }
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .controls button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .controls button:hover { filter: brightness(1.1); }
+  .clock { color: var(--muted); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<header><h1>Policy Entanglement in Active Inference</h1><span class="sub">DemoCreate interactive player · 12 chapters</span></header>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>Chapters</h2>
+    
+    <button class="chapter" data-start="300" data-scene="title">Policy Entanglement in Active Inference</button>
+    
+    <button class="chapter" data-start="6487" data-scene="frontpage">Title Page</button>
+    
+    <button class="chapter" data-start="10499" data-scene="abstract">Abstract</button>
+    
+    <button class="chapter" data-start="84667" data-scene="sections">How the Paper Is Organised</button>
+    
+    <button class="chapter" data-start="95348" data-scene="figure-1">Figure 1</button>
+    
+    <button class="chapter" data-start="107770" data-scene="figure-2">Figure 2</button>
+    
+    <button class="chapter" data-start="118777" data-scene="figure-3">Figure 3</button>
+    
+    <button class="chapter" data-start="128908" data-scene="figure-4">Figure 4</button>
+    
+    <button class="chapter" data-start="136442" data-scene="figure-5">Figure 5</button>
+    
+    <button class="chapter" data-start="148334" data-scene="figure-6">Figure 6</button>
+    
+    <button class="chapter" data-start="174176" data-scene="architecture">Codebase Architecture</button>
+    
+    <button class="chapter" data-start="180387" data-scene="outro">Policy Entanglement in Active Inference</button>
+    
+  </nav>
+  <main class="stage">
+    
+    <img id="frame" class="frame" alt="current frame" />
+    
+    <div id="caption" class="caption"></div>
+    <div class="controls">
+      <button id="prev">&#9664; Prev</button>
+      <button id="play">Play</button>
+      <button id="next">Next &#9654;</button>
+      <span id="clock" class="clock">0.0s</span>
+    </div>
+  </main>
+</div>
+<script>
+const CAPTIONS = [{"chunk_id": "title-c", "scene_id": "title", "text": "Policy Entanglement in Active Inference. A 170-page paper by Daniel Ari Friedman.", "start_ms": 300, "frame": "frame_0000.png"}, {"chunk_id": "frontpage-c", "scene_id": "frontpage", "text": "Here is the paper's front matter — title, authors, and venue.", "start_ms": 6487, "frame": "frame_0001.png"}, {"chunk_id": "abstract-0", "scene_id": "abstract", "text": "Here is the core idea, in the authors' own words. Active inference models often need to choose among several policy streams at once, for example streams tied to different effectors, sensory channels, agents, agents within a group, or planning horizons.", "start_ms": 10499, "frame": "frame_0002.png"}, {"chunk_id": "abstract-1", "scene_id": "abstract", "text": "Standard discrete activeinference implementations keep this manageable by treating those streams as independent, but that simplification removes the dependencies that make coordinated action possible.", "start_ms": 26040, "frame": "frame_0003.png"}, {"chunk_id": "abstract-2", "scene_id": "abstract", "text": "This manuscript introduces policy entanglement: a controlled deformation of the usual independent policy posterior by a scalar coupling strength and explicit compatibility and preference potentials.", "start_ms": 37106, "frame": "frame_0004.png"}, {"chunk_id": "abstract-3", "scene_id": "abstract", "text": "The construction preserves the finite active inference setting while making cross-stream dependence a first-class modeling object rather than an implicit artifact of the chosen factorization.", "start_ms": 49015, "frame": "frame_0005.png"}, {"chunk_id": "abstract-4", "scene_id": "abstract", "text": "The framework keeps a claim-strength ledger that distinguishes exact recoveries, parameterized embeddings, numerical witnesses, and structural analogies. Mean-field active inference is the exact independent case.", "start_ms": 59069, "frame": "frame_0006.png"}, {"chunk_id": "abstract-5", "scene_id": "abstract", "text": "Products of experts, copula variational inference, options, hierarchical and sophisticated inference, branching-time active inference, renormalization-style compression, and Markov-blanket mul", "start_ms": 71968, "frame": "frame_0007.png"}, {"chunk_id": "sections-c", "scene_id": "sections", "text": "The paper is organised into 6 parts: Introduction, Theory, Formal Verification, Empirical Grounding, Connections to Existing Frameworks, Discussion and Outlook.", "start_ms": 84667, "frame": "frame_0008.png"}, {"chunk_id": "figure-1-c", "scene_id": "figure-1", "text": "Take figure 1. The K=2 Ising joint at λ = 2 concentrates probability on the two aligned policies (diagonal) while the per-stream marginals (side bars) remain symmetric.", "start_ms": 95348, "frame": "frame_0009.png"}, {"chunk_id": "figure-2-c", "scene_id": "figure-2", "text": "Figure 2 makes its point visually. The closed-form mutual information agrees with the empirical sampler to sweep tolerance (≤ 1e-06 across 121 grid points).", "start_ms": 107770, "frame": "frame_0010.png"}, {"chunk_id": "figure-3-c", "scene_id": "figure-3", "text": "Here is figure 3. The coupling that realizes a target alignment Δalign in the K=2 Bernoulli toy is λ* (Δalign ) = 2 arctanh(Δalign /Δmax ).", "start_ms": 118777, "frame": "frame_0011.png"}, {"chunk_id": "figure-4-c", "scene_id": "figure-4", "text": "Consider figure 4. Coupling pays off only when the utility surplus is large enough to overcome the multiinformation cost.", "start_ms": 128908, "frame": "frame_0012.png"}, {"chunk_id": "figure-5-c", "scene_id": "figure-5", "text": "Look at figure 5. Every policy’s log-weight is consistent with exact linearity in λ (slope error within floating-point round-off) — the numerical signature of an exponential geodesic.", "start_ms": 136442, "frame": "frame_0013.png"}, {"chunk_id": "figure-6-c", "scene_id": "figure-6", "text": "Then figure 6. The K=2 Ising joint posterior, computed by lean.coupling.entangled_posterior on the 21-point linspace grid over λ ∈ [0, 4] (simulation.hyperparameters.KL_GEODESIC_LAMBDAS), traced in a 2-D summary plane spanned by aligned-corner mass q(0, 0) + q(1, 1) (horizontal) and off-diagonal disparity |Δrow | + |Δcol | (vertical)", "start_ms": 148334, "frame": "frame_0014.png"}, {"chunk_id": "architecture-c", "scene_id": "architecture", "text": "The paper is backed by code. Here is the architecture of its 145-module implementation.", "start_ms": 174176, "frame": "frame_0015.png"}, {"chunk_id": "outro-c", "scene_id": "outro", "text": "Reproducible by construction: the figures, the code, and this very overview are all generated from the same sources.", "start_ms": 180387, "frame": "frame_0016.png"}];
+const CHAPTERS = [{"title": "Policy Entanglement in Active Inference", "scene_id": "title", "start_ms": 300}, {"title": "Title Page", "scene_id": "frontpage", "start_ms": 6487}, {"title": "Abstract", "scene_id": "abstract", "start_ms": 10499}, {"title": "How the Paper Is Organised", "scene_id": "sections", "start_ms": 84667}, {"title": "Figure 1", "scene_id": "figure-1", "start_ms": 95348}, {"title": "Figure 2", "scene_id": "figure-2", "start_ms": 107770}, {"title": "Figure 3", "scene_id": "figure-3", "start_ms": 118777}, {"title": "Figure 4", "scene_id": "figure-4", "start_ms": 128908}, {"title": "Figure 5", "scene_id": "figure-5", "start_ms": 136442}, {"title": "Figure 6", "scene_id": "figure-6", "start_ms": 148334}, {"title": "Codebase Architecture", "scene_id": "architecture", "start_ms": 174176}, {"title": "Policy Entanglement in Active Inference", "scene_id": "outro", "start_ms": 180387}];
+const FRAMES_DIR = "../frames";
+const TOTAL_MS = 187587;
+
+let timeMs = 0;
+let playing = false;
+let timer = null;
+const STEP_MS = 100;
+
+const captionEl = document.getElementById("caption");
+const clockEl = document.getElementById("clock");
+const playBtn = document.getElementById("play");
+const frameEl = document.getElementById("frame");
+const chapterBtns = Array.from(document.querySelectorAll(".chapter"));
+
+function currentCueIndex(t) {
+  let idx = 0;
+  for (let i = 0; i < CAPTIONS.length; i++) {
+    if (CAPTIONS[i].start_ms <= t) idx = i;
+  }
+  return CAPTIONS.length ? idx : -1;
+}
+
+function render() {
+  const idx = currentCueIndex(timeMs);
+  if (idx >= 0) {
+    const cue = CAPTIONS[idx];
+    captionEl.textContent = cue.text;
+    if (frameEl && FRAMES_DIR && cue.frame) {
+      frameEl.src = FRAMES_DIR + "/" + cue.frame;
+    }
+    chapterBtns.forEach((b) => b.classList.remove("active"));
+    const active = chapterBtns.filter((b) => Number(b.dataset.start) <= timeMs).pop();
+    if (active) active.classList.add("active");
+  }
+  clockEl.textContent = (timeMs / 1000).toFixed(1) + "s";
+}
+
+function seek(ms) {
+  timeMs = Math.max(0, Math.min(ms, TOTAL_MS));
+  render();
+}
+
+function step(dir) {
+  const idx = currentCueIndex(timeMs);
+  const next = Math.max(0, Math.min(idx + dir, CAPTIONS.length - 1));
+  if (CAPTIONS[next]) seek(CAPTIONS[next].start_ms);
+}
+
+function tick() {
+  timeMs += STEP_MS;
+  if (timeMs >= TOTAL_MS) {
+    timeMs = TOTAL_MS;
+    pause();
+  }
+  render();
+}
+
+function play() {
+  if (playing) return;
+  playing = true;
+  playBtn.textContent = "Pause";
+  timer = setInterval(tick, STEP_MS);
+}
+
+function pause() {
+  playing = false;
+  playBtn.textContent = "Play";
+  if (timer) clearInterval(timer);
+  timer = null;
+}
+
+playBtn.addEventListener("click", () => (playing ? pause() : play()));
+document.getElementById("prev").addEventListener("click", () => step(-1));
+document.getElementById("next").addEventListener("click", () => step(1));
+chapterBtns.forEach((b) =>
+  b.addEventListener("click", () => seek(Number(b.dataset.start)))
+);
+
+render();
+</script>
+</body>
+</html>

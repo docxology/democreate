@@ -59,7 +59,7 @@ from democreate.animation.diagram import (
     render_architecture_diagram,
 )
 from democreate.animation.fonts import scaled_font
-from democreate.animation.waveform import compute_envelope, render_waveform_strip
+from democreate.animation.waveform import compute_envelope, draw_waveform
 from democreate.capture.screen import render_frame
 from democreate.config import THEMES, MetadataConfig
 from democreate.media import FrameState
@@ -131,6 +131,16 @@ CODE_LINES = [
     "    trigger_word: str | None = None",
     "    timestamp_ms: int | None = None",
     "    duration_ms: int | None = None",
+]
+
+# A compact snippet for the small theme-grid cells so code never clips the cell
+# edge (the full CODE_LINES is too wide for a ~470px tile).
+THEME_CODE = [
+    "@dataclass",
+    "class Action:",
+    "    type: ActionType",
+    "    params: dict",
+    "    trigger_word: str | None",
 ]
 
 
@@ -235,7 +245,7 @@ def _fit_contain(
 
 def make_architecture() -> Path:
     """The canonical four-stage architecture diagram (real diagram renderer)."""
-    img = democreate_architecture_image(CANVAS)
+    img = democreate_architecture_image(CANVAS, accent=ACCENT, bg=BG, fg=FG)
     return _save(img, "architecture.png")
 
 
@@ -309,7 +319,13 @@ def make_waveform() -> Path:
     envelope = compute_envelope(wav_path, bars=200)
     if max(envelope) <= 0.0:
         raise RuntimeError("synthesized WAV produced a silent envelope")
-    img = render_waveform_strip(envelope, WAVE_CANVAS, progress=0.55)
+    img = Image.new("RGB", WAVE_CANVAS, BG)
+    _wd = ImageDraw.Draw(img)
+    draw_waveform(
+        _wd, (0, 0, WAVE_CANVAS[0], WAVE_CANVAS[1]), envelope, progress=0.55,
+        bar_color=_mix(BG, FG, 0.30), played_color=ACCENT,
+        playhead_color=(245, 245, 250),
+    )
     out = _save(img, "waveform.png")
     wav_path.unlink(missing_ok=True)
     return out
@@ -320,7 +336,7 @@ def make_themes() -> Path:
     state = FrameState(
         scene_kind=SceneKind.CODEBASE,
         file_path="schema.py",
-        code_lines=CODE_LINES,
+        code_lines=THEME_CODE,
         highlight_lines=[4],
         section="Themes",
         caption="One frame, five themes — colors and font ratios are configurable.",
@@ -462,7 +478,7 @@ def make_latency() -> Path:
         # Track (full width) then filled bar, both rounded.
         radius = int(bar_h * 0.18)
         draw.rounded_rectangle([bar_left, y, bar_left + bar_max_w, y + bar_h],
-                               radius=radius, fill=(32, 40, 54))
+                               radius=radius, fill=_mix(BG, FG, 0.08))
         w = max(6, int(bar_max_w * (ms / max_ms)))
         draw.rounded_rectangle([bar_left, y, bar_left + w, y + bar_h],
                                radius=radius, fill=ACCENT)

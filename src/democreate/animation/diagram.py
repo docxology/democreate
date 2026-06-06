@@ -247,6 +247,10 @@ def render_architecture_diagram(
 
 def democreate_architecture_image(
     size: tuple[int, int] = (1920, 1080),
+    *,
+    bg: tuple[int, int, int] = (13, 17, 23),
+    accent: tuple[int, int, int] = (56, 139, 253),
+    fg: tuple[int, int, int] = (230, 237, 243),
 ) -> Image.Image:
     """Render the canonical DemoCreate architecture as a diagram.
 
@@ -293,4 +297,7 @@ def democreate_architecture_image(
         size,
         title="DemoCreate — Architecture",
         columns=columns,
+        bg=bg,
+        accent=accent,
+        fg=fg,
     )

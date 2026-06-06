@@ -111,7 +111,7 @@ concrete mechanism or number, and a built **λ-sweep montage** *shows* the
 independent → entangled transition instead of describing it.
 
 - **Path:** `output/paper_showcase/video/demo.mp4`
-- **Size / duration:** 1920×1080 · ~135 s (16 scenes)
+- **Size / duration:** 1920×1080 · ~168 s (16 scenes)
 - **Resolution / codecs:** 1920×1080 · H.264 + AAC (48 kHz)
 - **Theme:** **noir** (black / white / red)
 

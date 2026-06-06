@@ -80,6 +80,13 @@ def test_passing_count_is_consistent_across_prose() -> None:
         for pat in patterns:
             for raw in re.findall(pat, text):
                 found.setdefault(raw.replace(",", ""), []).append(path.name)
+    # Also bind the figure-generator stat literals (e.g. the cover's "625 tests ·")
+    # so those .py strings cannot drift from the prose (RedTeam graphical_abstract
+    # finding). Folded into this test — not a new one — so it does not change the
+    # suite size and desync the rendered stat-card videos.
+    for rel in ("manuscript/figures/graphical_abstract.py",):
+        for raw in re.findall(r"(\d+)\s+tests\b", (ROOT / rel).read_text(encoding="utf-8")):
+            found.setdefault(raw, []).append(Path(rel).name)
     assert found, "no test-count figures found in prose (regex drift?)"
     assert len(found) == 1, (
         "inconsistent test counts across prose: "
@@ -116,7 +123,7 @@ def test_paper_demo_duration_is_single_valued() -> None:
             ctx = text[max(0, m.start() - 80) : m.start()].lower()
             if "paper_demo" in ctx or "research-paper" in ctx or "paper demo" in ctx:
                 durations.setdefault(m.group(1), []).append(path.name)
-    # All paper-demo durations should round to the same canonical value (196).
+    # All paper-demo durations should round to the same canonical value (188).
     canon = {round(float(d)) for d in durations}
     assert len(canon) <= 1, (
         "paper-demo duration is inconsistent across prose: "
@@ -134,3 +141,4 @@ def test_version_strings_agree() -> None:
     assert version in (abstract + config), (
         f"manuscript does not reference the current version {version}"
     )
+

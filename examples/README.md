@@ -31,7 +31,7 @@ democreate render examples/democreate_showcase.json -o output --voice Samantha \
 democreate verify output/video/demo.mp4 --width 1920 --height 1080
 ```
 
-`render` produces `output/video/demo.mp4` — a 128.3-second 1080p H.264/AAC video
+`render` produces `output/video/demo.mp4` — a 128.4-second 1080p H.264/AAC video
 with **14 chapters**, container tags (`title="DemoCreate — The Showcase"` /
 `artist="Daniel Ari Friedman"`), and a signed steganographic provenance poster.
 The build self-verifies it (real streams, non-silent audio, non-black frames).

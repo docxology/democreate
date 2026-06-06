@@ -48,8 +48,8 @@ cd ..  # project root
 | `figures/graphical_abstract.png` | `#fig:graphical_abstract` | `figures/graphical_abstract.py` (cover figure) | `00_abstract.md` |
 | `figures/architecture.png` | `#fig:architecture` | `animation.diagram.democreate_architecture_image` | `02_architecture.md` |
 | `figures/frame_code.png` | `#fig:frame_code` | `capture.screen.render_frame` (CODEBASE) | `04_implementation.md` |
-| `figures/waveform.png` | `#fig:waveform` | `animation.waveform.render_waveform_strip` | `04_implementation.md` |
-| `figures/themes.png` | `#fig:themes` | `render_frame` × `config.THEMES` (2×2) | `05_composition_and_configurability.md` |
+| `figures/waveform.png` | `#fig:waveform` | `animation.waveform.draw_waveform` (noir red played) | `04_implementation.md` |
+| `figures/themes.png` | `#fig:themes` | `render_frame` × `config.THEMES` (3+2 grid, five themes) | `05_composition_and_configurability.md` |
 | `figures/frame_title.png` | `#fig:frame_title` | `render_frame` (SLIDE) | `05_composition_and_configurability.md` |
 | `figures/frame_paper.png` | `#fig:frame_paper` | `render_frame` (SLIDE + `background_image`, paper theme) | `06_research_paper_demos.md` |
 | `figures/typing_filmstrip.png` | `#fig:typing_filmstrip` | `render_frame` (CODEBASE) ×3 at `cursor_typed` 25/55/100% | `05_composition_and_configurability.md` |
