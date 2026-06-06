@@ -147,11 +147,20 @@ THEME_CODE = [
 # --- shared helpers --------------------------------------------------------
 
 def _save(img: Image.Image, name: str) -> Path:
-    """Save ``img`` as ``name`` in the figures directory and return its path."""
+    """Save ``img`` under ``manuscript/figures/``, mirrored into ``output/figures/``.
+
+    Figures are checked in under ``manuscript/figures/`` for the project's own
+    ``build_manuscript.py``; they are *also* mirrored into ``output/figures/`` so
+    the shared template render pipeline — which resolves a ``figures/x.png``
+    reference to ``output/figures/`` — finds them and renders natively.
+    """
     out = HERE / name
     img.save(out, format="PNG")
     if not out.is_file() or out.stat().st_size == 0:
         raise RuntimeError(f"figure {name} was not written")
+    mirror = HERE.parent.parent / "output" / "figures" / name
+    mirror.parent.mkdir(parents=True, exist_ok=True)
+    img.save(mirror, format="PNG")
     return out
 
 

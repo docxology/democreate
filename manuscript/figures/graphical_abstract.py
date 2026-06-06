@@ -495,6 +495,11 @@ def main() -> None:
         raise ValueError(f"unexpected canvas size {img.size}, expected {(W, H)}")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, "PNG")
+    # Mirror into output/figures/ so the template render pipeline (which resolves
+    # figures/x.png to output/figures/) finds the cover natively.
+    mirror = _REPO / "output" / "figures" / OUT.name
+    mirror.parent.mkdir(parents=True, exist_ok=True)
+    img.save(mirror, "PNG")
 
     # Verify the output is real and non-blank.
     check = Image.open(OUT).convert("RGB")
