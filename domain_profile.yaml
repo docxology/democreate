@@ -15,18 +15,20 @@ summary: >-
 # Artifact contract --------------------------------------------------------
 # required: a release is invalid if any required output cannot be produced by
 #           the deterministic default backends (no heavy deps).
-# preferred: produced when high-fidelity extras are installed.
+# preferred: produced when optional adapter binaries or extras are available.
 outputs:
   required:
-    - mp4   # rendered demo video (deterministic default assembler)
-    - gif   # lightweight animated preview
-    - html  # self-contained interactive player / storyboard export
+    - frames    # deterministic rendered frame sequence / manifest
+    - captions  # caption transcript from narration chunks
+    - html      # self-contained interactive player / storyboard export
   preferred:
-    - webm  # high-fidelity browser-captured walkthrough
-    - svg   # vector terminal demo (termtosvg-style)
-    - srt   # word-timestamped caption track from STT pass
-    - cast  # asciinema-compatible terminal recording
-    - wav   # raw narration audio from TTS pass
+    - mp4  # verified H.264 demo when ffmpeg is installed
+    - gif  # lightweight animated preview
+    - webm # browser-captured walkthrough adapter
+    - svg  # vector terminal demo (termtosvg-style adapter)
+    - srt  # word-timestamped caption track from STT pass
+    - cast # asciinema-compatible terminal recording
+    - wav  # raw narration audio from TTS pass
 
 # Validation gates ---------------------------------------------------------
 # Every gate must pass in CI before tagging a release. Gate ids are referenced
@@ -38,13 +40,13 @@ validation_gates:
     threshold: ">=90% coverage"
     blocking: true
   - id: deterministic_default
-    description: "Default backends produce a real demo end-to-end with only light deps installed."
+    description: "Default backends produce deterministic core artifacts with only light deps installed."
     check: "democreate build examples/minimal.demo.yaml --backends default"
-    threshold: "exit 0; mp4 + gif + html emitted"
+    threshold: "exit 0; frames + captions + html emitted"
     blocking: true
   - id: byte_reproducible
-    description: "Two runs of the same Demo with default backends and a fixed seed produce byte-identical output."
-    check: "diff run_a/out.mp4 run_b/out.mp4"
+    description: "Two runs of the same Demo with default backends and a fixed seed produce byte-identical manifests."
+    check: "diff run_a/manifest.json run_b/manifest.json"
     threshold: "0 byte difference"
     blocking: true
   - id: sync_accuracy
@@ -58,7 +60,7 @@ validation_gates:
     threshold: "0 validation errors"
     blocking: true
   - id: backend_contract
-    description: "Each heavy backend honors the same abstract interface as its deterministic default."
+    description: "Each optional backend honors the same abstract interface as its deterministic default."
     check: "pytest -m backend (skipped if extra absent, must pass if present)"
     threshold: "no contract violations"
     blocking: false
@@ -68,7 +70,7 @@ validation_gates:
 figure_types:
   - id: sync_error_distribution
     kind: histogram
-    description: "Distribution of per-action sync_error_ms across a demo corpus, default vs high-fidelity."
+    description: "Distribution of per-action sync_error_ms across a demo corpus, default vs adapter-backed paths."
   - id: pipeline_latency_breakdown
     kind: stacked_bar
     description: "Wall-clock latency per subsystem (capture, narration, animation, assembly, export)."

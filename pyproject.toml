@@ -47,15 +47,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# High-fidelity backends. Each upgrades a subsystem from its deterministic
-# default to real capture/synthesis. Install only what you need.
+# Optional media backends. Each upgrades a subsystem from its deterministic
+# default to real capture/synthesis where that adapter is wired. Install only
+# what you need.
 tts = ["kokoro-onnx>=0.3.0", "soundfile>=0.12.0", "numpy>=1.24.0"]
 whisper = ["openai-whisper>=20231117"]
 capture = ["mss>=9.0.0", "numpy>=1.24.0"]
 browser = ["playwright>=1.40.0"]
 animation = ["manim>=0.18.0"]
 replay = ["pynput>=1.7.0", "pyautogui>=0.9.54"]
-video = ["moviepy>=1.0.3", "ffmpeg-python>=0.3.0"]
+video = ["moviepy>=1.0.3", "ffmpeg-python>=0.2.0"]
 codebase = ["tree-sitter>=0.21.0", "tree-sitter-languages>=1.10.0"]
 # pdf: richer PDF extraction. The default paper workflow uses the poppler CLI
 # (pdfinfo/pdftotext/pdftoppm) with no pip dependency; pymupdf is an upgrade.
@@ -71,7 +72,7 @@ all = [
     "pynput>=1.7.0",
     "pyautogui>=0.9.54",
     "moviepy>=1.0.3",
-    "ffmpeg-python>=0.3.0",
+    "ffmpeg-python>=0.2.0",
     "tree-sitter>=0.21.0",
     "tree-sitter-languages>=1.10.0",
     "pymupdf>=1.24.0",

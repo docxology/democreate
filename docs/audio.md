@@ -13,7 +13,9 @@ The assembly primitives live in `assembly/audio.py`; the orchestration is
 
 The default real voice — `SystemTTSBackend` — uses the OS speech binary:
 **macOS `say`** or **Linux `espeak` / `espeak-ng`**. It needs no `pip`/`uv`
-install at all, just a binary that is usually already present. Select it with:
+install at all, just a usable speech binary plus `ffmpeg` or `afconvert` for
+transcoding. DemoCreate smoke-tests that path before reporting it available.
+Select it with:
 
 ```bash
 democreate render demo.json --tts system --voice Samantha
@@ -23,7 +25,7 @@ On macOS, list available voices with `say -v '?'` (e.g. `Samantha`, `Daniel`).
 Because it is a *platform* backend (not portable), it is never the `auto`
 default — but it turns the silent default into genuine spoken narration for
 free. Other backends: `silent` (deterministic silent clips, the core default),
-and the optional `kokoro` / `chatterbox` neural voices (extra `tts`). See
+plus guarded `kokoro` / `chatterbox` adapter slots (extra `tts`). See
 [backends.md](backends.md).
 
 ## Voiceover assembly: gaps, lead, trail
@@ -68,8 +70,8 @@ track — the render still completes. The pure concat path never needs ffmpeg.
 
 | Field | Default | Meaning |
 |-------|---------|---------|
-| `backend` | `system` | `system` / `silent` / `kokoro` / `chatterbox`. |
-| `voice` | `Samantha` | Voice id for voiced backends. |
+| `backend` | `system` | `system` / `silent`; `kokoro` / `chatterbox` are guarded adapter slots. |
+| `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
 | `rate_wpm` | `None` | Optional speaking-rate override. |
 | `lead_silence_ms` | `300` | Silence before the first clip. |
 | `gap_ms` | `220` | Silence between chunks. |

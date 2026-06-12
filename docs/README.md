@@ -7,8 +7,9 @@ deterministic spine** — a `Demo` is scenes → chunks → actions, and renderi
 pure function of it — and every heavy backend (TTS, transcription, capture,
 animation, video assembly, PDF) sits behind an abstract interface with a
 pure-Python deterministic default. The package produces a real demo with only its
-light core dependencies and upgrades to high fidelity when optional extras (or
-zero-pip system binaries) are present.
+light core dependencies. Optional extras and zero-pip system binaries upgrade
+specific media surfaces; neural TTS, Whisper, and Manim remain guarded adapter
+slots.
 
 This `docs/` directory is the project's documentation hub. Each file is focused
 and self-contained.
@@ -43,7 +44,7 @@ and self-contained.
   `assembly/`, `export/`, `paper/`. Read the local pair before touching a
   subsystem.
 - **Source of truth for behavior** is the code and its tests under `tests/`. The
-  docs here describe intent and contracts; the tests (625 passing, ≥90% coverage)
+  docs here describe intent and contracts; the tests (628 collected, ≥90% coverage)
   enforce them.
 
 ## The three load-bearing ideas (one paragraph each)

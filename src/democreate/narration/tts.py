@@ -6,10 +6,10 @@ the standard library. It writes real, valid WAV files of digital silence whose
 duration is estimated from the narration's word count. This keeps the whole
 narration pipeline import-safe and fully testable with no heavy dependencies.
 
-Real engines (Kokoro, Chatterbox) are guarded: their constructors raise
+Neural engine slots (Kokoro, Chatterbox) are guarded: their constructors raise
 :class:`~democreate.errors.BackendUnavailableError` when the optional dependency
-is missing, and their synthesis bodies are excluded from coverage because they
-cannot run in a core-only environment.
+is missing, and their synthesis bodies remain unavailable until the concrete
+engine APIs are wired.
 
 Example
 -------
@@ -22,7 +22,9 @@ from __future__ import annotations
 import importlib.util
 import shutil
 import subprocess
+import tempfile
 import wave
+from functools import lru_cache
 from pathlib import Path
 
 from .._logging import get_logger
@@ -93,6 +95,55 @@ def _dep_available(name: str) -> bool:
     try:
         return importlib.util.find_spec(name) is not None
     except (ImportError, ValueError):  # pragma: no cover - defensive
+        return False
+
+
+def _transcode_audio_file(src: Path, dst: Path, sample_rate: int) -> None:
+    """Transcode ``src`` to canonical 16-bit mono PCM WAV at ``dst``."""
+    if shutil.which("ffmpeg"):
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-i", str(src),
+                "-ar", str(sample_rate), "-ac", "1",
+                "-c:a", "pcm_s16le", str(dst),
+            ],
+            check=True,
+            capture_output=True,
+        )
+    elif shutil.which("afconvert"):
+        subprocess.run(
+            [
+                "afconvert", "-f", "WAVE", "-d", f"LEI16@{sample_rate}",
+                "-c", "1", str(src), str(dst),
+            ],
+            check=True,
+            capture_output=True,
+        )
+    else:
+        raise BackendUnavailableError("ffmpeg/afconvert (audio transcode)", extra="video")
+
+
+def _probe_system_tts(engine: str) -> bool:
+    """Return whether ``engine`` can produce non-empty, transcodable speech."""
+    if not (shutil.which("ffmpeg") or shutil.which("afconvert")):
+        return False
+    try:
+        with tempfile.TemporaryDirectory(prefix="democreate-tts-") as tmp:
+            root = Path(tmp)
+            raw = root / ("probe.aiff" if engine == "say" else "probe.raw.wav")
+            out = root / "probe.wav"
+            if engine == "say":
+                cmd = ["say", "-o", str(raw), "test"]
+            else:
+                cmd = [engine, "-w", str(raw), "test"]
+            subprocess.run(cmd, check=True, capture_output=True, timeout=10)
+            _transcode_audio_file(raw, out, _DEFAULT_SAMPLE_RATE)
+            return (
+                out.exists()
+                and out.stat().st_size > 1000
+                and measure_wav_duration_ms(out) >= 100
+            )
+    except Exception:  # pragma: no cover - host/system binary dependent
         return False
 
 
@@ -228,14 +279,17 @@ class SilentTTSBackend(TTSBackend):
         )
 
 
+@lru_cache(maxsize=1)
 def _system_tts_command() -> str | None:
-    """Return the first available system TTS binary, or ``None``.
+    """Return the first usable system TTS binary, or ``None``.
 
     Probes macOS ``say`` first, then Linux ``espeak-ng``/``espeak``. This is a
     *platform* backend, not a portable one — hence it is never the auto default.
+    A binary only counts as usable after a short synthesis/transcode smoke test;
+    some hosts expose ``say`` but produce an empty audio file.
     """
     for candidate in ("say", "espeak-ng", "espeak"):
-        if shutil.which(candidate):
+        if shutil.which(candidate) and _probe_system_tts(candidate):
             return candidate
     return None
 
@@ -251,13 +305,13 @@ class SystemTTSBackend(TTSBackend):
     downstream timing.
 
     Args:
-        voice: System voice name (e.g. ``"Samantha"`` on macOS). ``None`` uses the
-            OS default voice.
+        voice: System voice name (e.g. ``"Samantha"`` on macOS). ``None`` or an
+            empty string uses the OS default voice.
         sample_rate: Canonical output sample rate in Hz.
         rate_wpm: Optional speaking rate (words per minute) passed to the engine.
 
     Raises:
-        BackendUnavailableError: If no system TTS binary is found.
+        BackendUnavailableError: If no usable system TTS engine is found.
     """
 
     name = "system"
@@ -278,7 +332,7 @@ class SystemTTSBackend(TTSBackend):
         self.rate_wpm = rate_wpm
 
     def is_available(self) -> bool:
-        """Return whether a system TTS binary is present."""
+        """Return whether a system TTS engine can synthesize usable audio."""
         return _system_tts_command() is not None
 
     def synthesize(  # pragma: no cover - requires system speech + transcoder binaries
@@ -334,27 +388,7 @@ class SystemTTSBackend(TTSBackend):
 
     def _transcode(self, src: Path, dst: Path) -> None:  # pragma: no cover - binaries
         """Transcode ``src`` to canonical 16-bit mono PCM WAV at ``dst``."""
-        if shutil.which("ffmpeg"):
-            subprocess.run(
-                [
-                    "ffmpeg", "-y", "-i", str(src),
-                    "-ar", str(self.sample_rate), "-ac", "1",
-                    "-c:a", "pcm_s16le", str(dst),
-                ],
-                check=True,
-                capture_output=True,
-            )
-        elif shutil.which("afconvert"):
-            subprocess.run(
-                [
-                    "afconvert", "-f", "WAVE", "-d", f"LEI16@{self.sample_rate}",
-                    "-c", "1", str(src), str(dst),
-                ],
-                check=True,
-                capture_output=True,
-            )
-        else:
-            raise BackendUnavailableError("ffmpeg/afconvert (audio transcode)", extra="video")
+        _transcode_audio_file(src, dst, self.sample_rate)
 
 
 class KokoroTTSBackend(TTSBackend):

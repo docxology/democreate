@@ -137,7 +137,7 @@ def test_audio_config_defaults_are_sane() -> None:
     audio = AudioConfig()
 
     assert audio.backend == "system"
-    assert audio.voice == "Samantha"
+    assert audio.voice == ""
     assert audio.rate_wpm is None
     assert audio.normalize is True
     assert audio.lead_silence_ms == 300
@@ -186,5 +186,5 @@ def test_from_yaml_empty_text_uses_defaults() -> None:
     config = RenderConfig.from_yaml("")
 
     assert config.theme.name == "noir"
-    assert config.audio.voice == "Samantha"
+    assert config.audio.voice == ""
     assert config.video.width == 1920

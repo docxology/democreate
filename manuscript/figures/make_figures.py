@@ -66,6 +66,8 @@ from democreate.media import FrameState
 from democreate.schema import SceneKind
 
 HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[1]
+PROJECTS_ROOT = HERE.parents[3]
 
 # --- shared visual language ------------------------------------------------
 # Every figure shares this canvas size, NOIR palette, and the single red accent so
@@ -81,26 +83,24 @@ FG: tuple[int, int, int] = (242, 242, 244)     # primary text (near-white)
 DIM: tuple[int, int, int] = (146, 146, 152)    # secondary text
 ACCENT: tuple[int, int, int] = (224, 49, 57)   # noir accent (THEMES["noir"].accent)
 
-# A real, published research-paper figure used to show the paper-as-background
-# composition. Copied into the manuscript figures dir so the manuscript is
-# self-contained.
-PAPER_FIG_SOURCE = Path(
-    "/Users/4d/Documents/GitHub/projects/published/"
-    "actinf_policy_entanglement_lean/output/figures/coupling_graph.png"
-)
+# A real research-paper figure used to show the paper-as-background composition.
+# It may live in the simplified sidecar lifecycle (working/archive) or in the
+# legacy published lifecycle in older checkouts. Copied into this directory so
+# the manuscript is self-contained.
+PAPER_FIG_SOURCE_CANDIDATES = [
+    PROJECTS_ROOT / lifecycle / "actinf_policy_entanglement_lean"
+    / "output" / "figures" / "coupling_graph.png"
+    for lifecycle in ("working", "archive", "published")
+]
 
 # The real, measured benchmark numbers that drive the latency figure. These are
 # read at render time so the figure can never drift from the recorded data.
-BENCHMARKS = Path(
-    "/Users/4d/Documents/GitHub/projects/working/demo_create/data/benchmarks.json"
-)
+BENCHMARKS = REPO / "data" / "benchmarks.json"
 
 # Real stills extracted from the two *produced* demo videos. These are genuine
 # frames lifted out of the encoded MP4s (not re-rendered), so the montage is
 # evidence the videos were actually produced and play, not file-existence stubs.
-VIDEOFRAMES = Path(
-    "/Users/4d/Documents/GitHub/projects/working/demo_create/docs/_videoframes"
-)
+VIDEOFRAMES = REPO / "docs" / "_videoframes"
 
 # A longer snippet of real democreate source — the typing-reveal driver from
 # assembly/animator.py — shown being typed in character-by-character so the
@@ -286,10 +286,12 @@ def make_frame_title() -> Path:
 
 def make_frame_paper() -> Path:
     """A SLIDE composed over a real research-paper figure, in the paper theme."""
-    if not PAPER_FIG_SOURCE.is_file():
-        raise FileNotFoundError(f"paper figure source missing: {PAPER_FIG_SOURCE}")
+    source = next((path for path in PAPER_FIG_SOURCE_CANDIDATES if path.is_file()), None)
+    if source is None:
+        searched = "\n".join(f"- {path}" for path in PAPER_FIG_SOURCE_CANDIDATES)
+        raise FileNotFoundError(f"paper figure source missing; searched:\n{searched}")
     paper_fig = HERE / "paper_fig.png"
-    shutil.copyfile(PAPER_FIG_SOURCE, paper_fig)
+    shutil.copyfile(source, paper_fig)
 
     state = FrameState(
         scene_kind=SceneKind.SLIDE,

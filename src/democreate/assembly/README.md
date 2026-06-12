@@ -6,8 +6,8 @@ windows with renderable frame states), the **compositor backends** that render a
 timeline, the **caption formatters**, and a small set of **image effects**.
 
 Everything here runs on the core dependencies (`pillow`, `pyyaml`, …) except the
-high-fidelity `MoviePyCompositor`, which is guarded behind an optional extra. The
-default path is fully deterministic and import-safe.
+guarded legacy `MoviePyCompositor` adapter slot. The default path is fully
+deterministic and import-safe.
 
 ## Modules
 
@@ -40,8 +40,10 @@ The timeline is pure and central; building it never touches disk.
   to `democreate.capture.screen.render_frame` when importable; otherwise a
   built-in Pillow placeholder renderer keeps the default path working with only
   core deps.
-- `MoviePyCompositor` — high-fidelity video assembly. Raises
-  `BackendUnavailableError("moviepy", extra="video")` when MoviePy is absent.
+- `MoviePyCompositor` — guarded legacy video adapter slot. Raises
+  `BackendUnavailableError("moviepy", extra="video")` when MoviePy is absent;
+  if MoviePy is present, it still raises `NotImplementedError` until real
+  assembly is wired.
 
 ### `captions.py` — pure subtitle formatting
 

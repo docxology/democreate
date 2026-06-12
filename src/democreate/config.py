@@ -214,7 +214,7 @@ class AudioConfig:
     """
 
     backend: str = "system"
-    voice: str = "Samantha"
+    voice: str = ""
     rate_wpm: int | None = None
     lead_silence_ms: int = 300
     trail_silence_ms: int = 600
@@ -422,8 +422,8 @@ class RenderConfig:
             f"  cursor: {str(cfg.video.cursor).lower()}            # animated cursor + click ripples",
             "",
             "audio:",
-            f"  backend: {cfg.audio.backend}        # system (real OS voice) | silent | kokoro | chatterbox",
-            f"  voice: {cfg.audio.voice}         # system voice name (macOS: say -v '?')",
+            f"  backend: {cfg.audio.backend}        # system (real OS voice) | silent | guarded kokoro/chatterbox slots",
+            f"  voice: \"{cfg.audio.voice}\"       # optional system voice name (blank = OS default)",
             f"  lead_silence_ms: {cfg.audio.lead_silence_ms}     # pause before the first word",
             f"  gap_ms: {cfg.audio.gap_ms}             # pause between chunks",
             f"  trail_silence_ms: {cfg.audio.trail_silence_ms}    # pause after the last word",

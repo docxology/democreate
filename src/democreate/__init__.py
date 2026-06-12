@@ -10,8 +10,9 @@ package is built on three load-bearing ideas:
 2. **Backends behind interfaces.** Every heavy capability (TTS, transcription,
    screen capture, browser drive, animation, video assembly) sits behind an
    abstract base class with a pure-Python *deterministic default*. The package
-   produces a real demo with only its light core dependencies installed, and
-   upgrades to high fidelity when optional extras are present.
+   produces a real demo with only its light core dependencies installed; optional
+   extras and system binaries upgrade specific media surfaces, while neural
+   TTS/Whisper/Manim slots fail explicitly until wired.
 3. **TTS → STT sync.** Narration audio is generated, then transcribed back to
    word-level timestamps; on-screen actions anchor to spoken words via their
    ``trigger_word``. Real audio is the single source of timing truth.

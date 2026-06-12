@@ -9,8 +9,8 @@ them to assign every action an absolute millisecond timestamp anchored to its
 The default :class:`HeuristicTranscriber` is deterministic and stdlib-only: it
 reads each WAV's *true* duration via :mod:`wave` and distributes word timings
 across that duration proportional to word length. The optional
-:class:`WhisperTranscriber` does real speech recognition and is guarded behind
-the ``whisper`` extra.
+:class:`WhisperTranscriber` is a guarded adapter slot for a future real speech
+recognition integration behind the ``whisper`` extra.
 
 Because the silent default backend writes audio whose duration encodes the
 estimated narration length, the heuristic transcriber yields stable, sensible

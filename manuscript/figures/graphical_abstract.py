@@ -164,7 +164,7 @@ def _draw_title_band(img: Image.Image, draw: ImageDraw.ImageDraw) -> int:
     )
 
     # right-aligned meta line
-    meta = "625 tests · ~95% cov · 51 modules / 7 subsystems · Python ≥3.10 · MIT"
+    meta = "628 tests · ≥90% cov · 51 modules / 7 subsystems · Python ≥3.10 · MIT"
     mf = _font(27)
     mw, mh = _measure(draw, meta, mf)
     draw.text((W - pad - mw, 92), meta, font=mf, fill=FAINT)
@@ -393,7 +393,7 @@ def _draw_filmstrip(img, draw, region):
 def _draw_output_chips(draw, region):
     """Row of output chips beneath the film strip header / beside outputs."""
     x0, y0, x1, y1 = region
-    chips = ["HD MP4 + voiceover", "HTML player", "captions + chapters", "signed provenance"]
+    chips = ["4K video + voiceover", "HTML player", "captions + chapters", "signed provenance"]
     cf = _font(21)
     pad = 16
     gap = 12
@@ -418,7 +418,7 @@ def _draw_badges(draw, region):
     """Bottom strip of five property badges."""
     x0, y0, x1, y1 = region
     badges = [
-        ("Zero-pip", "deterministic default"),
+        ("Binary-free", "deterministic default"),
         ("Audio-anchored", "TTS→STT sync"),
         ("No-crop", "autosized · dense"),
         ("Themes · 4K", "crf-18 quality"),

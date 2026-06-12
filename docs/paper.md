@@ -125,7 +125,7 @@ correct ~1200-char abstract, the real figure captions, and 6 sections.
 | `--output`, `-o` | `output` | Output workspace. |
 | `--pages` | `"1"` | Comma-separated 1-based PDF pages to show. |
 | `--theme` | `paper` | `paper` / `noir` / `dark` / `light` / `midnight`. |
-| `--voice`, `-v` | `Samantha` | System voice name. |
+| `--voice`, `-v` | `""` (OS default) | Optional system voice name. |
 | `--tts` | `system` | TTS backend. |
 | `--aspect` | `""` (demo's size) | Aspect preset: `16:9` / `9:16` / `1:1` / `4:3` / `4:5`. |
 | `--resolution` | `""` (demo's size) | 16:9 tier: `720p` / `1080p` / `1440p` / `2160p` / `4k`. |
@@ -157,5 +157,5 @@ construction.
 
 - [cli.md](cli.md) — the full `paper` command reference.
 - [config.md](config.md) — the `paper` theme and `RenderConfig`.
-- [video.md](video.md) — the animated render (Ken Burns on figures/pages).
+- [video.md](video.md) — the animated render and no-crop figure/page layout.
 - [backends.md](backends.md) — poppler as a zero-pip system backend.

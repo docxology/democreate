@@ -66,7 +66,7 @@ tuples and ignores unknown keys.
 | Field | Default | Meaning |
 |-------|---------|---------|
 | `backend` | `"system"` | TTS backend: `system` / `silent` / `kokoro` / `chatterbox`. |
-| `voice` | `"Samantha"` | Voice id for voiced backends (macOS: `say -v '?'`). |
+| `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
 | `rate_wpm` | `None` | Optional speaking-rate override (system voices). |
 | `lead_silence_ms` | `300` | Silence prepended to the whole voiceover. |
 | `trail_silence_ms` | `600` | Silence appended to the whole voiceover. |
@@ -102,7 +102,7 @@ The default `crf: 18` is **near-visually-lossless** — noticeably crisper than 
 x264 default of `23`. See [video.md](video.md) for how these drive the animator —
 including the [typing animation](video.md#typing-animation),
 [cursor](video.md#animated-cursor), and
-[resolution & quality](video.md#resolution--quality).
+[resolution & quality](video.md#resolution-quality).
 
 ### Layout: no-crop fit-contain + autosize code
 
@@ -127,7 +127,7 @@ them because losing information is never the right default:
 
 A `slide`-kind scene can carry two packed, no-crop slide surfaces, set from the
 scene's free-form `context` dict and threaded onto the per-chunk
-[`FrameState`](schema.md#related-media-types-mediapy) by the compositor:
+[`FrameState`](schema.md#related-media-types-media.py) by the compositor:
 
 | Surface | `scene.context` key | `FrameState` field | Renders as |
 |---------|---------------------|--------------------|------------|
@@ -139,7 +139,7 @@ scene's free-form `context` dict and threaded onto the per-chunk
   "id": "numbers", "title": "By the numbers", "kind": "slide",
   "context": {
     "bullets": ["Declarative spine", "Deterministic defaults", "Audio-anchored sync"],
-    "stats": [["625", "tests"], ["7", "subsystems"], ["5", "themes"], ["4K", "max"]]
+    "stats": [["628", "tests"], ["7", "subsystems"], ["5", "themes"], ["4K", "max"]]
   },
   "chunks": [{ "id": "n1", "text": "DemoCreate, by the numbers." }]
 }

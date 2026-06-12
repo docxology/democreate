@@ -29,12 +29,12 @@ claims:
     status: estimate
 
   - id: C2
-    claim: "High-fidelity backends do not increase median sync error relative to default."
+    claim: "Adapter-backed media paths do not increase median sync error relative to default."
     value: 0
     unit: milliseconds_delta
     direction: "<="
     backed_by: "experiment_plan.yaml:hypotheses#H2"
-    source: "Corpus benchmark, condition=high_fidelity vs default"
+    source: "Corpus benchmark, condition=adapter_media vs default"
     status: estimate
 
   - id: C3
@@ -65,7 +65,7 @@ claims:
     status: asserted
 
   - id: C6
-    claim: "A real demo (mp4 + gif + html) is produced with only the light/default dependencies installed."
+    claim: "Core demo artifacts (frames + captions + html) are produced with only the light/default dependencies installed."
     value: 5
     unit: light_core_dependencies
     direction: "<="
@@ -91,14 +91,14 @@ claims:
     source: "Corpus: codebase_tour, website_walkthrough, terminal_cli_demo (>=10 each)"
     status: asserted
 
-  # --- v0.6.2: real HD video render, measured on the self-referential showcase demo ---
+  # --- v0.6.2: real 4K video render, measured on the self-referential showcase demo ---
   - id: C9
-    claim: "The package showcase renders to a 1920x1080 H.264 MP4."
-    value: "1920x1080"
+    claim: "The package showcase renders to a 3840x2160 H.264 MP4."
+    value: "3840x2160"
     unit: pixels
     direction: "=="
-    backed_by: "examples/democreate_showcase.json via `democreate render`"
-    source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=1920, height=1080, duration 128.4s"
+    backed_by: "examples/democreate_showcase.json via `uv run democreate render --resolution 2160p`"
+    source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=3840, height=2160, duration 129.667s, 1945 frames at 15fps"
     status: verified
 
   - id: C10
@@ -107,25 +107,25 @@ claims:
     unit: dB_mean_volume
     direction: ">"
     backed_by: "export/verify.py SILENCE_FLOOR_DB (-60 dB) gate"
-    source: "ffmpeg volumedetect mean_volume on output/video/demo.mp4 = -15.6 dB (floor -60); re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    source: "democreate verify output/video/demo.mp4: mean_volume_db = -15.6 dB (floor -60), non-silent"
     status: verified
 
   - id: C11
     claim: "Audio and video share one timebase (audio covers the video duration)."
-    value: 0.9
+    value: 0.99998
     unit: audio_to_video_ratio
     direction: ">="
     backed_by: "export/verify.py parse_ffprobe min_audio_ratio"
-    source: "ffprobe on output/video/demo.mp4: audio duration covers the 128.4s video; re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    source: "ffprobe on output/video/demo.mp4: audio duration 129.664s covers the 129.667s video within the >=0.9 verifier ratio"
     status: verified
 
   - id: C12
     claim: "Sampled frames across the timeline are not black (real picture)."
-    value: 53.0
+    value: 930.1
     unit: grayscale_pixel_variance
     direction: ">"
     backed_by: "export/verify.py BLACK_VARIANCE_FLOOR (5.0)"
-    source: "PIL ImageStat on sampled mid-stream frames: variance well above the 5.0 floor; re-checked at render time by tests/test_cli_commands.py::test_render_then_verify_real_video"
+    source: "democreate verify output/video/demo.mp4: frame_variance = 930.059, above the 5.0 floor"
     status: verified
 
   - id: C13

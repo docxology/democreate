@@ -2,9 +2,10 @@
 
 Every heavy capability in DemoCreate sits behind an abstract interface with a
 **pure-Python deterministic default**. The package produces a real, inspectable
-demo end-to-end with only the light core dependencies installed; optional extras
-upgrade individual subsystems to high fidelity without changing the pipeline or
-the schema.
+demo end-to-end with only the light core dependencies installed. Optional extras
+and system binaries upgrade individual subsystems without changing the pipeline
+or the schema; neural TTS, Whisper, and Manim currently exist as guarded adapter
+slots rather than fully wired render paths.
 
 ## Core dependencies (always installed)
 
@@ -16,16 +17,16 @@ manifest, captions, and the interactive HTML player.
 
 | Subsystem | Capability | Deterministic default | Real backend | Extra | Dependency | Install |
 |-----------|-----------|-----------------------|--------------|-------|------------|---------|
-| `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (real OS voice, zero pip), `KokoroTTSBackend` / `ChatterboxTTSBackend` | `tts` | `say`/`espeak` (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` | OS binary, or `uv pip install -e ".[tts]"` |
-| `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (even word spacing) | `WhisperTranscriber` | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
+| `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (smoke-tested OS voice, zero pip); `KokoroTTSBackend` / `ChatterboxTTSBackend` are guarded adapter slots | `tts` | usable `say`/`espeak` plus `ffmpeg` or `afconvert` for transcode (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` | usable OS voice, or `uv pip install -e ".[tts]"` |
+| `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (even word spacing) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
 | `narration/` | Narration text | **template generator** (deterministic, default) | `LLMNarrator` (OpenAI-compatible, **stdlib `urllib`, zero pip**) | — | OpenAI-compatible API + `OPENAI_API_KEY` | env var only (no install) |
 | `capture/` | Screen pixels | `SyntheticRenderer` (scaled TrueType fonts + pygments + themes) | `MssScreenCapture` | `capture` | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
 | `capture/` | Website driving | `NullBrowserDriver` (records calls, synthetic screenshots) | `PlaywrightBrowserDriver` | `browser` | `playwright` | `uv pip install -e ".[browser]"` |
 | `capture/` | Input record/replay | pure event model (`EventLog`) | `record_session` / `replay_session` | `replay` | `pynput`, `pyautogui` | `uv pip install -e ".[replay]"` |
-| `animation/` | Waveform / diagrams / animation | `waveform.py`, `diagram.py`, scaled fonts, JSON manim spec | `render_manim_scene` | `animation` | `manim` | `uv pip install -e ".[animation]"` |
+| `animation/` | Waveform / diagrams / animation | `waveform.py`, `diagram.py`, scaled fonts, JSON manim spec | `render_manim_scene` adapter slot | `animation` | `manim` | `uv pip install -e ".[animation]"` |
 | `codebase/` | Code analysis | stdlib `ast` walker | tree-sitter multi-language | `codebase` | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
 | `assembly/` | Audio assembly + animation | `audio.py` (stdlib `wave` concat), `animator.py` (timed frames) | `normalize_audio` / `apply_fade` via **`ffmpeg`** | `video` | `ffmpeg` on `PATH` (no pip needed) | OS binary |
-| `export/` | Video encode + verify | ffmpeg-argv/concat builders + Jinja2 HTML player | `assemble_video` / `encode_frame_sequence` (real HD MP4) + `verify_video` (content assertions) via **`ffmpeg`/`ffprobe`** | `video` | `ffmpeg`/`ffprobe` on `PATH` (no pip needed); optional `moviepy` | OS binary, or `uv pip install -e ".[video]"` |
+| `export/` | Video encode + verify | ffmpeg-argv/concat builders + Jinja2 HTML player | `assemble_video` / `encode_frame_sequence` (real HD MP4) + `verify_video` (content assertions) via **`ffmpeg`/`ffprobe`** | `video` | `ffmpeg`/`ffprobe` on `PATH` (no pip needed); Python helpers in the `video` extra | OS binary, plus `uv pip install -e ".[video]"` if using helper libraries |
 | `paper/` | Read research-paper PDF | — | **poppler CLI** (`pdfinfo` / `pdftotext` / `pdftoppm`, zero pip) | `pdf` | poppler binaries on `PATH` | OS binary (`brew install poppler` / `apt-get install poppler-utils`) |
 
 Install everything at once with the aggregate extra:
@@ -39,7 +40,7 @@ uv pip install -e ".[all]"
 - Availability is detected at call time with `importlib.util.find_spec("name")`,
   never by importing the heavy dependency at module top level. The package and all
   public modules import cleanly on core deps alone.
-- Asking for a real backend whose dependency is absent raises
+- Asking for a guarded backend whose dependency is absent raises
   `BackendUnavailableError(backend, extra=...)`. The message includes the exact
   remedy, e.g. `backend 'kokoro' is unavailable — install it with
   \`uv sync --extra tts\``.
@@ -52,6 +53,10 @@ uv pip install -e ".[all]"
 democreate backends
 ```
 
+The system TTS row reports `available` only after a short synthesis/transcode
+smoke test, so a host that exposes `say` or `espeak` but emits empty audio is
+treated as absent.
+
 prints a table of each capability with status `installed` (extra present) or
 `default` (deterministic fallback in use) plus the `uv sync --extra <extra>`
 command to upgrade it. The CLI also reminds you: *all capabilities have a working
@@ -59,11 +64,12 @@ deterministic default backend.*
 
 ## Zero-pip real backends (system binaries)
 
-The highest-value upgrades need **no `pip`/`uv` install at all** — only an OS
-binary that is usually already present:
+The highest-value upgrades need **no `pip`/`uv` install at all** — only usable OS
+binaries:
 
 - **Real voiceover** — `SystemTTSBackend` uses macOS `say` or Linux
-  `espeak`/`espeak-ng`. Selected with `democreate render --tts system --voice <name>`.
+  `espeak`/`espeak-ng`, then transcodes to canonical WAV via `ffmpeg` or
+  `afconvert`. Selected with `democreate render --tts system --voice <name>`.
   This is a *platform* backend (not portable), so it is never the `auto` default,
   but it turns the silent default into genuine spoken narration for free. See
   [audio.md](audio.md).
@@ -81,7 +87,7 @@ binary that is usually already present:
   `BackendUnavailableError(backend="poppler", extra="pdf")`. See [paper.md](paper.md).
 
 `democreate backends` shows the TTS and ffmpeg rows as `available` / `absent`
-based on the OS binary.
+based on the smoke-tested synthesis/transcode path and the OS binaries.
 
 ## Optional LLM narration
 
@@ -102,7 +108,7 @@ Environment variables consulted:
 | `DEMOCREATE_LLM_BASE_URL` | API base URL | `https://api.openai.com/v1` |
 
 The pure `build_chat_payload()` helper builds the request body and is fully
-testable without any network access. See the [recipes](recipes.md#8-optional-llm-narration-env-gated).
+testable without any network access. See the [recipes](recipes.md#optional-llm-narration-env-gated).
 
 ## Chapters, metadata, and poster/GIF exports
 

@@ -9,8 +9,9 @@ Every stage is a pure function of the (mutated) demo plus a
 :class:`~democreate.project_paths.Workspace`. With only the core dependencies
 installed, the deterministic default backends carry the whole pipeline to a real,
 inspectable result (silent audio, synthetic frames, a manifest, captions, an HTML
-player). Installing optional extras swaps individual backends for high fidelity
-without changing this orchestration.
+player). Optional extras and system binaries upgrade individual surfaces without
+changing this orchestration; guarded adapter slots fail explicitly when an
+integration is not available.
 """
 
 from __future__ import annotations

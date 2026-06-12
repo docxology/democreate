@@ -1,7 +1,7 @@
 # Provenance, metadata, and steganography
 
 DemoCreate v0.6 attaches provenance to a render through **three carriers**, all
-driven by one `MetadataConfig` ([config.md](config.md#metadataconfig--on-screen--container--hidden-provenance)):
+driven by one `MetadataConfig` ([config.md](config.md#metadataconfig-on-screen-container-hidden-provenance)):
 
 1. **On-screen metadata bars** — visible top/bottom overlays burned into every
    frame (author, source, URL, a running clock, a watermark).
@@ -143,16 +143,17 @@ a DemoCreate limitation, and the module says so plainly.
 `content_sha256` is **not** a hash of the full demo JSON. Rendering mutates the
 demo (audio paths, synced timestamps), so hashing the whole serialization would
 make a freshly-authored demo fail to verify. Instead `_content_digest(demo)`
-hashes only the **authored content** — title, geometry, and the scene/chunk/action
-structure with narration text and action params — explicitly excluding
-`audio_path`, `start_ms`, `timestamp_ms`, and `duration_ms`.
+hashes only the **stable content and geometry** — title, width, height, and the
+scene/chunk/action structure with narration text and action params — explicitly
+excluding `audio_path`, `start_ms`, `timestamp_ms`, and `duration_ms`.
 
 This makes the pairing tamper-evident in a useful way:
 
-- `verify_provenance(image, demo)` is **`True`** when checked against the *original*
-  demo (even after a fresh render, because render-state is excluded from the hash).
+- `verify_provenance(image, demo)` is **`True`** when checked against the same
+  resolved demo that the render signed (for normal renders this is the source
+  demo; when flags or config override geometry, use `output/demos/demo.json`).
 - It is **`False`** if the demo's content was edited (different title, scene text,
-  actions…), because the recomputed digest no longer matches the embedded one.
+  actions, or geometry…), because the recomputed digest no longer matches the embedded one.
 - A missing or corrupt payload also yields **`False`**.
 
 So the signed poster proves *"this poster was generated from exactly this demo
@@ -166,8 +167,8 @@ Extract (and optionally verify) the payload in a signed PNG:
 # Just dump the embedded provenance JSON
 democreate stego output/provenance/poster_signed.png
 
-# Verify the payload matches a demo (exit 0 = match, exit 1 = mismatch)
-democreate stego output/provenance/poster_signed.png --demo demo.json
+# Verify the payload matches the resolved rendered demo (exit 0 = match, exit 1 = mismatch)
+democreate stego output/provenance/poster_signed.png --demo output/demos/demo.json
 ```
 
 `stego` prints the decoded record; with `--demo` it recomputes the content digest
@@ -211,11 +212,11 @@ democreate stego output/provenance/poster_signed.png --demo demo.json
 ```
 
 For a branded 4K variant of this, see the
-[branded, signed 4K render recipe](recipes.md#10-branded-signed-4k-render).
+[branded, signed 4K render recipe](recipes.md#branded-signed-4k-render).
 
 ## See also
 
-- [config.md](config.md#metadataconfig--on-screen--container--hidden-provenance) — the full `MetadataConfig` table.
+- [config.md](config.md#metadataconfig-on-screen-container-hidden-provenance) — the full `MetadataConfig` table.
 - [cli.md](cli.md#render) — `render --author/--watermark`; [`stego`](cli.md#stego).
 - [video.md](video.md#on-screen-metadata) — the header/footer bars in the render.
 - [backends.md](backends.md) — ffmpeg carries the tags; overlay/stego are pure Pillow.

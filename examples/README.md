@@ -12,8 +12,8 @@ DemoCreate `Demo` and exercising *every* renderable surface. **Fourteen scenes**
 audio-as-ground-truth), (7) a meta **bullet slide** *"What you are seeing"*,
 (8) the themes strip, (9) a real research-paper **figure** (fit-contained, whole),
 (10) the architecture diagram, (11) a **stat-card slide** *"by the numbers"*
-(625 tests · 7 subsystems · 5 themes · 4K · 0 pip), (12) a provenance **bullet
-slide**, (13) a **terminal** render+verify, (14) the outro. 1920×1080, no-crop
+(628 collected tests · 7 subsystems · 5 themes · 4K · 0 binary deps), (12) a provenance **bullet
+slide**, (13) a **terminal** render+verify, (14) the outro. 3840×2160, no-crop
 (figures fit whole, code autosizes, Ken Burns off), a moving waveform + bottom
 metadata bar throughout.
 
@@ -23,15 +23,16 @@ The **bullet slides** and **stat-card slides** are new in `v0.6.1`
 
 ```bash
 # 1. build the declarative artifact
-python examples/make_showcase.py             # writes examples/democreate_showcase.json
+uv run python examples/make_showcase.py      # writes examples/democreate_showcase.json
 
-# 2. render the definitive showcase to a verified HD MP4
-democreate render examples/democreate_showcase.json -o output --voice Samantha \
-  --author "Daniel Ari Friedman" --watermark "github.com/docxology/democreate"
-democreate verify output/video/demo.mp4 --width 1920 --height 1080
+# 2. render the definitive showcase to a verified 4K MP4
+uv run democreate render examples/democreate_showcase.json -o output \
+  --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
+  --watermark "github.com/docxology/democreate"
+uv run democreate verify output/video/demo.mp4 --width 3840 --height 2160
 ```
 
-`render` produces `output/video/demo.mp4` — a 128.4-second 1080p H.264/AAC video
+`render` produces `output/video/demo.mp4` — a 129.7-second 4K H.264/AAC video
 with **14 chapters**, container tags (`title="DemoCreate — The Showcase"` /
 `artist="Daniel Ari Friedman"`), and a signed steganographic provenance poster.
 The build self-verifies it (real streams, non-silent audio, non-black frames).

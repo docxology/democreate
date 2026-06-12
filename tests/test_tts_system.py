@@ -54,14 +54,14 @@ def test_unknown_backend_name_raises() -> None:
 
 
 @pytest.mark.skipif(
-    _system_tts_command() is None, reason="no system TTS binary on this host"
+    _system_tts_command() is None, reason="no usable system TTS on this host"
 )
 @pytest.mark.backend
 def test_system_tts_speaks_real_audio(tmp_path: Path) -> None:
     """Integration: synthesize real speech and assert non-trivial measured duration.
 
-    Skipped automatically when neither ``say`` nor ``espeak`` is present. Requires
-    a transcoder (ffmpeg/afconvert) too; tolerate its absence by skipping.
+    Skipped automatically when neither ``say`` nor ``espeak`` can produce
+    non-empty, transcodable audio.
     """
     if not (shutil.which("ffmpeg") or shutil.which("afconvert")):  # pragma: no cover
         pytest.skip("no audio transcoder available")
@@ -77,7 +77,7 @@ def test_system_tts_speaks_real_audio(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(
-    _system_tts_command() is None, reason="no system TTS binary on this host"
+    _system_tts_command() is None, reason="no usable system TTS on this host"
 )
 @pytest.mark.backend
 def test_system_tts_empty_text_is_silent_beat(tmp_path: Path) -> None:

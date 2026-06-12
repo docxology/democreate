@@ -94,7 +94,7 @@ def build_paper_demo(
     width: int = 1920,
     height: int = 1080,
     fps: int = 30,
-    voice: str = "Samantha",
+    voice: str = "",
     max_figures: int = 6,
 ) -> Demo:
     """Assemble a narrated demo from a paper summary and optional code/pages.

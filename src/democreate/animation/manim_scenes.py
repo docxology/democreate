@@ -4,9 +4,10 @@ The *spec* is pure data: :func:`build_code_scene_spec` returns a JSON-serializab
 description of a line-by-line code reveal (title, code, language, ordered reveal
 steps with durations). It needs no manim and is fully testable.
 
-The *render* step, :func:`render_manim_scene`, is the only part that needs the
-heavy optional ``animation`` extra (manim). It is import-guarded: if manim is not
-installed it raises :class:`~democreate.errors.BackendUnavailableError`.
+The *render* step, :func:`render_manim_scene`, is a guarded adapter slot for the
+heavy optional ``animation`` extra (manim). If manim is absent it raises
+:class:`~democreate.errors.BackendUnavailableError`; if present, the concrete
+renderer still needs to be wired.
 """
 
 from __future__ import annotations

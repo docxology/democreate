@@ -9,9 +9,10 @@ a codebase tour, a website walkthrough, a terminal session, or a **research-pape
 overview** (the PDF's figures and pages plus its associated codebase). Every heavy
 backend (TTS, transcription, capture, animation, video assembly, PDF) sits behind
 an abstract interface with a **pure-Python / system-binary deterministic default**,
-so the package produces a real demo with only light dependencies and upgrades to
-high fidelity when optional extras are installed. The look (themes, fonts, motion)
-and sound (voice, pacing, normalization) are fully **configurable**.
+so the package produces a real, inspectable demo with only light dependencies.
+Optional extras and system binaries upgrade specific media surfaces, while neural
+TTS, Whisper, and Manim remain guarded adapter slots. The look (themes, fonts, motion) and
+sound (voice, pacing, normalization) are fully **configurable**.
 
 - **Status:** alpha (`0.6.2`), Python ≥ 3.10, MIT licensed.
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
@@ -21,14 +22,14 @@ and sound (voice, pacing, normalization) are fully **configurable**.
 
 ## Watch the demos
 
-DemoCreate `v0.6.2` produces **real, content-verified 1080p videos** (H.264 +
+DemoCreate `v0.6.2` produces **real, content-verified videos** (H.264 +
 AAC, with chapters, container metadata tags, and a signed steganographic
 provenance poster) — now in the **noir** aesthetic: near-black surfaces, bright
 white text, and a single refined red as the only chroma:
 
 - **Package demo · the showcase** (DemoCreate explaining itself across *every*
   renderable surface, re-rendered in noir) — `output/video/demo.mp4`
-  (1920×1080 · 128.4 s). Fourteen scenes — title card, graphical abstract,
+  (3840×2160 · 129.7 s). Fourteen scenes — title card, graphical abstract,
   bullet slides, three typing code scenes, themes strip, a real paper figure, the
   architecture diagram, a stat-card slide, a terminal render+verify, and an outro
   — all compiled from one declarative file (`examples/democreate_showcase.json`,
@@ -41,7 +42,7 @@ regenerate commands, the 14 showcase scenes, and companion artifacts — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (625 tests · 7 subsystems · 5 themes · 4K · 0 pip), in the v0.6.2 noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (628 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the v0.6.2 noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -53,10 +54,12 @@ regenerate commands, the 14 showcase scenes, and companion artifacts — in
    edit the artifact and re-render rather than re-record. This merges
    **CodeVideo's** event-sourced virtual-IDE model with **VSpeak's**
    chunk/trigger narration model.
-2. **Backends behind interfaces.** TTS (Kokoro/Chatterbox), transcription
-   (Whisper), capture (mss/Playwright), animation (Manim), and assembly
-   (MoviePy/ffmpeg) each sit behind an abstract base with a deterministic default.
-   No heavy binaries (ffmpeg, torch, chrome) are required for a real result.
+2. **Backends behind interfaces.** TTS, transcription, capture, animation, and
+   assembly each sit behind an abstract base with a deterministic default. The
+   adapter-backed media path uses a smoke-tested system voice, mss/Playwright,
+   poppler, and ffmpeg when present; neural TTS / Whisper / Manim surfaces are
+   guarded adapter slots. No heavy binaries (ffmpeg, torch, chrome) are required
+   for the default HTML/transcript/manifest result.
 3. **TTS → STT synchronization.** Narration audio is generated, then transcribed
    back to word-level timestamps; each on-screen action anchors to a spoken
    `trigger_word`. Real audio is the single source of timing truth.
@@ -108,8 +111,9 @@ Full walkthrough: [`docs/quickstart.md`](docs/quickstart.md).
 
 The deterministic default build produces silent audio + synthetic frames + an HTML
 player. To produce an actual **1080p MP4 with a real spoken voiceover**, use
-`render` — which adds a real **system voice** (macOS `say` / Linux `espeak`, **zero
-pip installs**) and assembles the frames + voiceover into H.264/AAC with `ffmpeg`:
+`render` — which adds a smoke-tested **system voice** (macOS `say` / Linux
+`espeak`, **zero pip installs**) and assembles the frames + voiceover into
+H.264/AAC with `ffmpeg`:
 
 ```bash
 democreate render demo.json -o output --voice Samantha   # → output/video/demo.mp4
@@ -154,11 +158,17 @@ or the `metadata:` block in a config): **on-screen** top/bottom metadata bars
 (`title`/`artist`/`comment`, readable by players and `ffprobe`); and a
 **steganographic** signed provenance payload (tool, version, author, and a
 content hash) LSB-embedded into lossless poster + "transmission bookend" PNG
-sidecars. The payload is *tamper-evident* — its content digest covers the
-authored demo (not render state), so `democreate stego poster_signed.png --demo
-demo.json` verifies a match and fails on any edit. (Honest note: LSB survives in
-the lossless PNG sidecars only; the H.264 video carries the container tags
-instead.) See [`docs/provenance.md`](docs/provenance.md).
+sidecars. The payload is *tamper-evident* — its content digest covers the stable
+demo content and geometry, not render-state fields such as audio paths and
+timestamps. For rendered outputs, verify against the resolved demo emitted at
+`output/demos/demo.json`:
+
+```bash
+democreate stego output/provenance/poster_signed.png --demo output/demos/demo.json
+```
+
+(Honest note: LSB survives in the lossless PNG sidecars only; the H.264 video
+carries the container tags instead.) See [`docs/provenance.md`](docs/provenance.md).
 
 **Dogfooded:** DemoCreate's own intro video is itself a DemoCreate demo —
 [`examples/make_assets.py`](examples/make_assets.py) generates the architecture
@@ -190,8 +200,8 @@ Details: [`docs/paper.md`](docs/paper.md).
 ## Architecture
 
 A `Demo` (the declarative spine) threads through six subsystems. The deterministic
-defaults carry the whole pipeline; extras swap in high-fidelity backends without
-changing the orchestration.
+defaults carry the core pipeline; system binaries and guarded adapter slots
+upgrade specific media surfaces without changing the orchestration.
 
 ```mermaid
 flowchart TB
@@ -270,7 +280,7 @@ backend. Install only what you need.
 | `browser` | Website driving | `playwright` | `uv pip install -e ".[browser]"` |
 | `animation` | Code animations | `manim` | `uv pip install -e ".[animation]"` |
 | `replay` | Input record/replay | `pynput`, `pyautogui` | `uv pip install -e ".[replay]"` |
-| `video` | Video assembly (needs `ffmpeg` on `PATH`) | `moviepy`, `ffmpeg-python` | `uv pip install -e ".[video]"` |
+| `video` | Video assembly helpers (real MP4 still needs `ffmpeg` on `PATH`) | `moviepy`, `ffmpeg-python` | `uv pip install -e ".[video]"` |
 | `codebase` | Multi-language analysis | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
 | `pdf` | Richer PDF extraction (poppler CLI is the zero-pip default) | `pymupdf` | `uv pip install -e ".[pdf]"` |
 | `all` | Everything | (all of the above) | `uv pip install -e ".[all]"` |

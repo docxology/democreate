@@ -16,12 +16,12 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
 - Never import a heavy/optional dep at module top level. Detect with
   `importlib.util.find_spec(...)` or `shutil.which(...)`.
 - Two paths are genuinely heavy and carry `# pragma: no cover`:
-  - `video.export_video` → needs `ffmpeg` binary or `moviepy`
+  - `video.export_video` → needs the `ffmpeg` binary
     (`BackendUnavailableError("ffmpeg", extra="video")`).
   - `formats.export_pdf` → needs a Markdown→PDF engine
     (`BackendUnavailableError("pdf", extra="docs")`).
-  Their backend-detection helpers (`_has_ffmpeg`, `_has_moviepy`,
-  `_has_pdf_engine`) stay pure and ARE tested (via `monkeypatch` of the helper).
+  Their backend-detection helpers (`_has_ffmpeg`, `_has_pdf_engine`) stay pure
+  and ARE tested (via `monkeypatch` of the helper).
 
 ## Security note (do not regress)
 The HTML player embeds JSON inside a `<script>` block. Use `interactive._script_json`

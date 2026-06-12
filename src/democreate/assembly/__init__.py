@@ -5,8 +5,8 @@ output. Its pieces are:
 
 * :mod:`~democreate.assembly.compositor` — the pure :class:`Timeline` data
   structure, the :func:`build_timeline` walker, and the compositor backends
-  (deterministic :class:`ManifestCompositor` default; :class:`MoviePyCompositor`
-  behind the ``video`` extra).
+  (deterministic :class:`ManifestCompositor` default; guarded legacy
+  :class:`MoviePyCompositor` slot behind the ``video`` extra).
 * :mod:`~democreate.assembly.captions` — pure SRT / WebVTT / ASS subtitle
   formatting, plus a word-level karaoke SRT helper.
 * :mod:`~democreate.assembly.effects` — pure Pillow transforms (fade, crossfade,

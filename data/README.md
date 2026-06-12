@@ -6,9 +6,9 @@ audio-visual demo generator for software (codebase tours, website walkthroughs,
 terminal/CLI demos).
 
 It is **inputs + registered claims**, not committed render output. Generated
-demos (mp4, gif, html, and high-fidelity webm/svg/srt/cast/wav) are written to
-`output/` and are reproducible from the declarative Demo specs and the pinned
-backends — they are not stored here.
+demos (HTML player, transcript, poster/GIF, optional MP4, captions, and audio)
+are written to `output/` and are reproducible from the declarative Demo specs
+and available backends — they are not stored here.
 
 ## Contents
 
@@ -31,9 +31,9 @@ experiment_plan.yaml ──────────▶ metrics (sync_error_ms �
 
 The primary metric is **`sync_error_ms`** (minimize): the time gap between an
 on-screen action and its anchored spoken trigger word after the TTS→STT
-alignment pass. Conditions compared in `experiment_plan.yaml` are
-`default` (pure-Python deterministic backends) vs `high_fidelity`
-(Kokoro/Chatterbox TTS, Whisper STT, mss/Playwright capture, Manim, MoviePy).
+alignment pass. Conditions compared in `experiment_plan.yaml` are `default`
+(pure-Python deterministic backends) vs `high_fidelity` (adapter-backed media
+paths, only where system binaries or guarded adapters are actually wired).
 
 ## Claim discipline
 
@@ -45,7 +45,7 @@ manuscript without referencing its claim id.
 
 ## Consistency
 
-Title, version (`0.1.0`), keywords, author, and license are kept identical
+Title, version (`0.6.2`), keywords, author, and license are kept identical
 across `CITATION.cff`, `codemeta.json`, and `.zenodo.json` at the project root.
 If you bump the version or retitle, update all three plus `claim_ledger.yaml`
 and `experiment_plan.yaml` together.

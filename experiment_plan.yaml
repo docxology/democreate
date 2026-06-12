@@ -1,19 +1,20 @@
 # Experiment plan for DemoCreate.
-# Defines the primary evaluation: does the deterministic default pipeline match
-# (or controllably trade off against) the high-fidelity backend pipeline on the
-# core promise of the package — action/narration synchronization — while
+# Defines the primary evaluation: does the deterministic default pipeline trade
+# off predictably against adapter-backed media paths on the core promise of the
+# package — action/narration synchronization — while
 # preserving reproducibility and acceptable latency.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.1.0"
+version: "0.6.2"
 domain: software_tooling
 
 goal: >-
   Quantify the synchronization accuracy, reproducibility, and latency of the
-  pure-Python deterministic default backends versus the high-fidelity backends
-  (Kokoro/Chatterbox TTS, Whisper STT, mss/Playwright capture, Manim animation,
-  MoviePy/ffmpeg assembly), and show that the deterministic spine produces a
-  faithful demo with light dependencies alone.
+  pure-Python deterministic default backends versus the adapter-backed media
+  condition (system TTS/ffmpeg plus guarded neural TTS, Whisper, capture,
+  animation, and legacy MoviePy slots where wired), and show that the
+  deterministic spine produces faithful demo artifacts with light dependencies
+  alone.
 
 hypotheses:
   - id: H1
@@ -22,12 +23,13 @@ hypotheses:
       the validation budget (<=120 ms) on the demo corpus.
   - id: H2
     statement: >-
-      High-fidelity backends reduce median sync_error_ms relative to the
-      default pipeline, at the cost of higher render latency.
+      Adapter-backed media paths reduce median sync_error_ms relative to the
+      default pipeline, at the cost of higher render latency, when those
+      adapters are available and implemented.
   - id: H3
     statement: >-
       The default pipeline is byte-reproducible across runs with a fixed seed;
-      the high-fidelity pipeline is reproducible up to tolerance.
+      adapter-backed media paths are reproducible up to tolerance when available.
 
 # Conditions ---------------------------------------------------------------
 conditions:
@@ -43,16 +45,16 @@ conditions:
       animation: deterministic
       assembly: deterministic
   - id: high_fidelity
-    label: "High-fidelity backends (extras installed)"
+    label: "Adapter-backed media paths (extras/system binaries)"
     description: >-
-      Kokoro/Chatterbox TTS, Whisper STT, mss/Playwright capture, Manim
-      animation, MoviePy/ffmpeg assembly.
+      System TTS and ffmpeg where available, plus Kokoro/Chatterbox, Whisper,
+      mss/Playwright, Manim, and MoviePy adapter slots where they are wired.
     backends:
-      tts: kokoro
-      stt: whisper
+      tts: system_or_guarded_neural
+      stt: heuristic_or_guarded_whisper
       capture: playwright
       animation: manim
-      assembly: moviepy
+      assembly: ffmpeg_or_guarded_moviepy
 
 # Metrics ------------------------------------------------------------------
 primary_metric:
@@ -87,7 +89,7 @@ corpus:
   size: ">=30 demos (>=10 per mode)"
 
 expected_figures:
-  - sync_error_distribution        # default vs high-fidelity, per mode
+  - sync_error_distribution        # default vs adapter-backed media, per mode
   - pipeline_latency_breakdown     # per-subsystem latency, both conditions
   - action_narration_timeline      # exemplar aligned timeline
   - backend_fidelity_matrix        # quality/cost across backend combos
@@ -121,7 +123,7 @@ ablations:
     name: "No chunking"
     description: "Treat narration as one block (drop VSpeak-style chunk/trigger model). Isolates the chunk model's effect on anchoring."
   - id: A3
-    name: "Default assembler vs MoviePy"
+    name: "Default assembler vs guarded MoviePy slot"
     description: "Swap only the assembly backend to isolate its latency and fidelity contribution."
   - id: A4
     name: "Synthetic vs real capture"

@@ -220,7 +220,7 @@ def render(
     demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),
     tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro|chatterbox"),
-    voice: str = typer.Option("Samantha", "--voice", "-v", help="Voice id (system: e.g. Samantha, Daniel)"),
+    voice: str = typer.Option("", "--voice", "-v", help="Optional voice id (system: e.g. Samantha, Daniel)"),
     fps: int = typer.Option(0, "--fps", help="Frame rate (0 = demo default)"),
     captions: bool = typer.Option(False, "--captions/--no-captions", help="Burn subtitles into the video"),
     animate: bool = typer.Option(True, "--animate/--no-animate", help="Moving waveform + progress bar"),
@@ -286,6 +286,8 @@ def _resolve_config(config_path: Path | None, theme: str, voice: str, tts: str):
     cfg = RenderConfig.from_file(config_path) if config_path else RenderConfig.preset(theme)
     if voice:
         cfg.audio.voice = voice
+    elif not config_path:
+        cfg.audio.voice = ""
     if tts:
         cfg.audio.backend = tts
     return cfg
@@ -299,7 +301,7 @@ def paper(
     output: Path = typer.Option(Path("output"), "--output", "-o"),
     pages: str = typer.Option("1", "--pages", help="Comma-separated 1-based PDF pages to show"),
     theme: str = typer.Option("paper", "--theme", help="Theme preset: paper|dark|light|midnight"),
-    voice: str = typer.Option("Samantha", "--voice", "-v"),
+    voice: str = typer.Option("", "--voice", "-v"),
     tts: str = typer.Option("system", "--tts"),
     aspect: str = typer.Option("", "--aspect", help="Aspect preset: 16:9|9:16|1:1|4:3|4:5"),
     resolution: str = typer.Option("", "--resolution", help="16:9 tier: 720p|1080p|1440p|2160p|4k"),
@@ -510,6 +512,8 @@ def backends() -> None:
     """List subsystem backends and whether their optional extras are installed."""
     import shutil
 
+    from .narration.tts import _system_tts_command
+
     rows = [
         ("TTS (kokoro)", "kokoro_onnx", "tts"),
         ("TTS (chatterbox)", "chatterbox", "tts"),
@@ -518,20 +522,29 @@ def backends() -> None:
         ("Browser (playwright)", "playwright", "browser"),
         ("Animation (manim)", "manim", "animation"),
         ("Replay (pynput)", "pynput", "replay"),
-        ("Video (moviepy)", "moviepy", "video"),
+        ("Legacy compositor slot (moviepy)", "moviepy", "video"),
         ("Codebase (tree-sitter)", "tree_sitter", "codebase"),
     ]
     table = Table(title="DemoCreate backends")
     table.add_column("capability")
     table.add_column("status")
     table.add_column("install")
-    # System binaries: real voice + real video need no pip install at all.
-    for label, binary in (("TTS (system voice)", "say"), ("Video assembly (ffmpeg)", "ffmpeg")):
-        present = shutil.which(binary) is not None or (
-            binary == "say" and (shutil.which("espeak") or shutil.which("espeak-ng"))
-        )
+    system_tts = _system_tts_command()
+    system_rows = [
+        (
+            "TTS (system voice)",
+            system_tts is not None,
+            f"usable OS voice: {system_tts or 'say/espeak'}",
+        ),
+        (
+            "Video assembly (ffmpeg)",
+            shutil.which("ffmpeg") is not None,
+            "OS binary: ffmpeg",
+        ),
+    ]
+    for label, present, install in system_rows:
         status = "[green]available[/]" if present else "[yellow]absent[/]"
-        table.add_row(label, status, f"OS binary: {binary}")
+        table.add_row(label, status, install)
     for label, module, extra in rows:
         available = importlib.util.find_spec(module) is not None
         status = "[green]installed[/]" if available else "[yellow]default[/]"

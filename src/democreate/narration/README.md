@@ -34,8 +34,10 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `SilentTTSBackend` — **default**. Writes valid 16-bit mono PCM silence via the
   stdlib `wave` module. Duration estimated from word count at a configurable
   `wpm` (default 150, floor 300 ms). `sample_rate` default 22050.
-- `KokoroTTSBackend`, `ChatterboxTTSBackend` — guarded; constructor raises
-  `BackendUnavailableError(..., extra="tts")` when the dep is absent.
+- `KokoroTTSBackend`, `ChatterboxTTSBackend` — guarded adapter slots;
+  constructor raises `BackendUnavailableError(..., extra="tts")` when the dep is
+  absent, and synthesis remains unavailable until the concrete engine API is
+  wired.
 - `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent.
 - `synthesize_demo(demo, workspace, backend=None) -> list[AudioClip]` — voices
   every chunk in order, mutating `chunk.audio_path`.
@@ -45,7 +47,7 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `HeuristicTranscriber` — **default**, stdlib-only. Reads the WAV's true
   duration and lays words across it proportional to character length. `text=None`
   → `[]`.
-- `WhisperTranscriber` — guarded (`extra="whisper"`).
+- `WhisperTranscriber` — guarded adapter slot (`extra="whisper"`).
 - `get_transcriber(name="auto") -> Transcriber`.
 - `sync_demo(demo, clips, transcriber=None) -> Demo` — cumulative `chunk.start_ms`,
   fuzzy `trigger_word` matching (`difflib`, case-insensitive), default action
@@ -66,9 +68,9 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 
 | Backend | Dependency | pyproject extra |
 |---------|-----------|-----------------|
-| `KokoroTTSBackend` | `kokoro` | `tts` |
-| `ChatterboxTTSBackend` | `chatterbox` | `tts` |
-| `WhisperTranscriber` | `whisper` | `whisper` |
+| `KokoroTTSBackend` | `kokoro` adapter slot | `tts` |
+| `ChatterboxTTSBackend` | `chatterbox` adapter slot | `tts` |
+| `WhisperTranscriber` | `whisper` adapter slot | `whisper` |
 | `LLMScriptGenerator` | provider SDK | `llm` |
 
 ## Determinism

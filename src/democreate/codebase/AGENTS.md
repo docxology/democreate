@@ -48,4 +48,4 @@ cd <repo> && .venv/bin/python -m pytest \
   tests/test_codebase_dependency.py -p no:cacheprovider -q
 ```
 
-Keep ruff clean at line length 88 and pure-code coverage >= 95%.
+Keep ruff clean at line length 88 and maintain the configured ≥90% coverage gate.

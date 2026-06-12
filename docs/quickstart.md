@@ -79,8 +79,8 @@ democreate tour /path/to/repo --title "My Project Tour" --output output
 **animates** the frames (character-by-character typing, animated cursor, moving
 waveform, a top-edge progress line, scene transitions), encodes an HD MP4 with
 `ffmpeg`, and content-verifies it. The default theme is **noir** and figures are
-fit *whole* (no crop). Needs a system TTS (`say` on macOS, `espeak` on Linux) and
-`ffmpeg` on `PATH`.
+fit *whole* (no crop). Needs a usable system TTS (`say` on macOS, `espeak` on
+Linux) plus `ffmpeg` on `PATH` for transcode/encode/verification.
 
 ```bash
 democreate render demo.json -o output --tts system --voice Samantha
@@ -97,8 +97,8 @@ with `--theme`, or pin everything in a YAML config with `--config` (see
 
 Point `paper` at a PDF — optionally with the paper's codebase and a directory of
 exported figures — to generate and render a narrated paper walkthrough. Needs
-poppler (`pdfinfo`/`pdftotext`/`pdftoppm`) on `PATH`, plus a system TTS and
-`ffmpeg` to render. See [paper.md](paper.md).
+poppler (`pdfinfo`/`pdftotext`/`pdftoppm`) on `PATH`, plus a usable system TTS
+and `ffmpeg` to render. See [paper.md](paper.md).
 
 ```bash
 democreate paper paper.pdf --repo /path/to/code --figures /path/to/figs --theme paper
@@ -117,18 +117,21 @@ result = build_demo(demo, Workspace("output"))
 print(result.summary())             # scenes, chunks, actions, duration, player path
 ```
 
-## 8. Install extras for high fidelity
+## 8. Install extras and system backends
 
-Each extra upgrades one subsystem from its deterministic default to a real
-backend. Install only what you need (see [backends.md](backends.md)):
+Extras install optional Python packages for guarded subsystems. The currently
+wired real media paths also need usable system binaries (`say`/`espeak` that can
+synthesize non-empty audio, `ffmpeg`/`ffprobe`, poppler) on `PATH`; neural TTS,
+Whisper, and Manim are adapter slots, not guaranteed turnkey render paths.
+Install only what you need (see [backends.md](backends.md)):
 
 ```bash
-uv pip install -e ".[tts]"          # Kokoro/Chatterbox real narration
-uv pip install -e ".[whisper]"      # Whisper word-timestamp transcription
+uv pip install -e ".[tts]"          # neural TTS adapter packages
+uv pip install -e ".[whisper]"      # Whisper adapter package
 uv pip install -e ".[capture]"      # mss real screen capture
 uv pip install -e ".[browser]"      # Playwright website driving
-uv pip install -e ".[animation]"    # Manim code animations
-uv pip install -e ".[video]"        # MoviePy/ffmpeg video assembly
+uv pip install -e ".[animation]"    # Manim adapter package
+uv pip install -e ".[video]"        # video helper packages; ffmpeg binary still required
 uv pip install -e ".[codebase]"     # tree-sitter multi-language analysis
 uv pip install -e ".[all]"          # everything
 ```

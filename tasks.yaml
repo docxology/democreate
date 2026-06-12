@@ -1,0 +1,133 @@
+# tasks.yaml — task + Gantt source of truth for this project.
+# Managed by the projects/taskboard server (live read-write) and seed_tasks.py.
+# status: todo | in_progress | blocked | done. dates: YYYY-MM-DD. progress: 0-100.
+project:
+  name: demo_create
+  title: DemoCreate — deterministic AV demo generation
+  status: active
+  color: '#DD8452'
+  lead: DAF
+tasks:
+- id: dc-1
+  title: Demo artifact → narrated HD video pipeline
+  status: done
+  start: '2026-06-02'
+  end: '2026-06-09'
+  progress: 100
+  milestone: false
+  deps: []
+  tags:
+  - pipeline
+  notes: |-
+    Closed from local self-versioned repo evidence on 2026-06-09.
+    `.venv/bin/python -m pytest -q` passed 614 tests with 14 skipped.
+    `.venv/bin/python -m pytest --cov -q` passed the same 614 tests with 14
+    skipped and reported 93.69% total coverage against the 90% pure-core gate.
+    `.venv/bin/ruff check .`, `.venv/bin/python -m mypy src`, and
+    `.venv/bin/python -c "import democreate; print(democreate.__version__)"`
+    passed. The existing showcase artifact was verified, not regenerated, with
+    `.venv/bin/democreate verify output/video/demo.mp4 --width 3840 --height
+    2160 --min-duration 5`: 3840x2160, 129.667s, audio 129.664s, mean volume
+    -15.6 dB, non-silent, non-black, ok=true. The resolved render provenance
+    pair also verified with `.venv/bin/democreate stego
+    output/provenance/poster_signed.png --demo output/demos/demo.json`.
+- id: dc-2
+  title: Virtual-IDE action stream + narration chunks
+  status: done
+  start: '2026-06-04'
+  end: '2026-06-09'
+  progress: 100
+  milestone: false
+  deps:
+  - dc-1
+  tags:
+  - core
+  notes: |-
+    Closed after dc-1 gates passed on 2026-06-09. Evidence is the live schema
+    and test surface: `ActionType` covers editor, terminal, browser,
+    mouse/camera, speak, and wait events; `SceneKind` covers codebase, website,
+    terminal, and slide scenes; `Chunk` carries narration text plus trigger-word
+    anchored actions; and the sync pipeline writes real chunk/action timing.
+    The full pytest gate passed, including schema, narration sync, compositor,
+    pipeline, export, and render integration tests. A targeted dependency/mode
+    subset also passed 50 tests covering pipeline output, render+verify,
+    codebase tour CLI generation, paper demo generation without render,
+    terminal command state, website navigation state, all scene-kind frame
+    rendering, paper script assembly, and narration synchronization.
+- id: dc-3
+  title: 'Modes: codebase tour / website / terminal / paper'
+  status: done
+  start: '2026-06-09'
+  end: '2026-06-09'
+  progress: 100
+  milestone: false
+  deps:
+  - dc-2
+  tags:
+  - features
+  notes: |-
+    Closed after dc-1 and dc-2 dependency gates passed on 2026-06-09. Local
+    evidence covers the four requested modes without broad artifact
+    regeneration: `tests/test_cli.py::test_tour_generates_demo` exercises the
+    codebase-tour command; paper mode is covered by
+    `tests/test_cli_commands.py::test_paper_no_render_generates_demo` and
+    `tests/test_paper_script.py`; terminal mode is covered by compositor tests
+    for `run_command` and `print_output`; website mode is covered by compositor,
+    browser, visual, and scene-kind rendering tests for `navigate` and website
+    frames. The targeted mode/pipeline command passed 50 tests. Existing video
+    artifacts were verified in place; no new showcase or paper videos were
+    generated in this pass.
+- id: dc-4
+  title: Decide git tracking (currently untracked dir)
+  status: done
+  start: '2026-06-08'
+  end: '2026-06-08'
+  progress: 100
+  milestone: false
+  deps: []
+  tags:
+  - hygiene
+  notes: Root sidecar treats demo_create as a self-versioned repo backed by docxology/democreate; ignored from monorepo payload tracking.
+- id: dc-5
+  title: Harden test/coverage gate (≥90% pure core)
+  status: done
+  start: '2026-06-06'
+  end: '2026-06-09'
+  progress: 100
+  milestone: false
+  deps: []
+  tags:
+  - tests
+  notes: 'Closed from local self-versioned repo evidence on 2026-06-09.
+    `.venv/bin/python -m pytest -q` passed 614 tests with 14 skipped.
+    `.venv/bin/python -m pytest --cov -q` passed the same 614 tests with 14
+    skipped and reported 93.69% total coverage against the 90% pure-core gate.
+    `ruff check .` passed, `.venv/bin/mypy src` passed after using the declared
+    `types-PyYAML` dev stub in the project venv, and `.venv/bin/python -c
+    "import democreate"` resolved version 0.6.2. Root sidecar still treats
+    `working/demo_create/` as self-versioned/ignored; no root vendoring was
+    performed.'
+- id: dc-6
+  title: Quickstart + docs validation for v0.1
+  status: todo
+  start: '2026-06-22'
+  end: '2026-06-30'
+  progress: 0
+  milestone: false
+  deps:
+  - dc-3
+  tags:
+  - docs
+  notes: ''
+- id: dc-m1
+  title: democreate v0.1
+  status: todo
+  start: '2026-07-04'
+  end: '2026-07-04'
+  progress: 0
+  milestone: true
+  deps:
+  - dc-3
+  - dc-5
+  tags: []
+  notes: ''

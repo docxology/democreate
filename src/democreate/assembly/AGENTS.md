@@ -21,7 +21,9 @@ formatting, and image effects. Do **not** edit files outside this directory
 - **Deterministic default principle.** Only `MoviePyCompositor.compose` may
   require a heavy dep; it must detect via `importlib.util.find_spec("moviepy")`
   and raise `BackendUnavailableError("moviepy", extra="video")` when absent. It
-  is marked `# pragma: no cover`. Never import `moviepy` at module top level.
+  is a guarded legacy adapter slot and still raises `NotImplementedError` when
+  MoviePy is present until real assembly is wired. It is marked
+  `# pragma: no cover`. Never import `moviepy` at module top level.
 - **`ManifestCompositor` must stay core-only.** It imports
   `democreate.capture.screen.render_frame` *lazily* (inside `compose`) and falls
   back to a built-in Pillow renderer if capture is unavailable, so build order
@@ -46,7 +48,8 @@ No mocks. Real computation on real temp files via the `tmp_workspace`,
 `sample_demo` fixtures from `conftest.py`. Deterministic only (no RNG/network/
 sleep). Cover happy paths, empty inputs, serialization round-trips, and error
 branches (assert the exception type). For `MoviePyCompositor`, assert that
-calling it without `moviepy` raises `BackendUnavailableError`.
+calling it without `moviepy` raises `BackendUnavailableError`; do not document it
+as implemented assembly until the present-dependency path has a real test.
 
 Run:
 

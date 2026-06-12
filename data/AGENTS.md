@@ -7,8 +7,8 @@ files in this directory.
 
 This directory is the **reproducibility/benchmarking data contract** for
 DemoCreate. It registers claims and holds benchmark inputs. It is **not** a
-dumping ground for rendered demos — generated mp4/gif/html and high-fidelity
-artifacts belong in `output/`.
+dumping ground for rendered demos — generated videos, previews, players, and
+adapter-backed artifacts belong in `output/`.
 
 ## Rules
 
@@ -25,7 +25,7 @@ artifacts belong in `output/`.
 
 3. **Keep the metadata trio in sync.** `CITATION.cff`, `codemeta.json`, and
    `.zenodo.json` at the project root must share the same title, version
-   (`0.1.0`), keywords, author (Daniel Ari Friedman, ORCID
+   (`0.6.2`), keywords, author (Daniel Ari Friedman, ORCID
    0000-0001-6232-9096, Active Inference Institute), and license (MIT). A change
    to one requires changing all three, plus this ledger and the experiment plan
    if a numeric claim or version is affected.
@@ -36,9 +36,11 @@ artifacts belong in `output/`.
 
 5. **Deterministic-default invariant.** Any claim about producing "a real demo"
    must hold with **only the light/default dependencies** installed
-   (pyyaml, typer, rich, jinja2, pillow). High-fidelity backends
-   (Kokoro/Chatterbox, Whisper, mss/Playwright, Manim, MoviePy/ffmpeg) are
-   upgrades, never prerequisites for the required outputs (mp4, gif, html).
+   (pyyaml, typer, rich, jinja2, pillow). The required core outputs are
+   inspectable frames/manifests plus web, transcript, poster, and GIF artifacts;
+   MP4 assembly and verification require the `ffmpeg`/`ffprobe` system binaries.
+   Neural TTS, Whisper, Manim, and MoviePy surfaces are guarded adapter slots
+   unless their implementation and gates prove otherwise.
 
 6. **No silent failure.** A benchmark or gate that cannot run must be recorded
    as such (skip with reason), never masked. Do not report a passing gate you

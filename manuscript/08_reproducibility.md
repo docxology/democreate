@@ -19,15 +19,15 @@ uv pip install -e ".[whisper]"    # Whisper word-level transcription
 uv pip install -e ".[capture]"    # mss real-pixel screen capture
 uv pip install -e ".[browser]"    # Playwright website driving
 uv pip install -e ".[animation]"  # Manim animation
-uv pip install -e ".[video]"      # MoviePy / ffmpeg-python helpers
+uv pip install -e ".[video]"      # video helper packages; ffmpeg binary still required
 uv pip install -e ".[all]"        # everything
 ```
 
-Two high-fidelity capabilities need no pip extra at all, only system binaries that are commonly present: real spoken narration via the operating system's `say`/`espeak` (the `SystemTTSBackend`, [@sec:architecture]), and research-paper ingestion via the poppler utilities [@poppler2024] ([@sec:paper]). The final video encode and the EBU R128 loudness pass ([@sec:composition]) use `ffmpeg`. The `democreate backends` command reports, at runtime, which extras and binaries are present and which capabilities are running on their deterministic default — confirming that every capability has a working default backend.
+Several upgrade paths need no pip extra at all, only usable system binaries: real spoken narration via the operating system's `say`/`espeak` after a synthesis/transcode smoke test (the `SystemTTSBackend`, [@sec:architecture]), and research-paper ingestion via the poppler utilities [@poppler2024] ([@sec:paper]). The final video encode and the EBU R128 loudness pass ([@sec:composition]) use `ffmpeg`. The `democreate backends` command reports, at runtime, which extras and binaries are present and which capabilities are running on their deterministic default — confirming that every capability has a working default backend.
 
 ## The Test Gate
 
-The test gate is the primary reproducibility check. It runs the full 625-test suite (3 skipped where an optional binary is absent) against real artifacts and enforces the ≥90% coverage threshold configured in `pyproject.toml`, which the suite clears at roughly 95%:
+The test gate is the primary reproducibility check. It runs the full 628-test suite against real artifacts and enforces the ≥90% coverage threshold configured in `pyproject.toml`, which the current suite clears at 93.69%:
 
 ```bash
 uv run pytest --cov=src/democreate --cov-report=term-missing

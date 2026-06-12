@@ -51,26 +51,25 @@ def collected_test_count() -> int:
 
 
 def test_stated_test_count_matches_suite(collected_test_count: int) -> None:
-    """The manuscript's "N passing tests (M skipped)" must equal what pytest
-    actually collects. This is the negative control for the stale-596 defect."""
+    """The manuscript's collected-test claim must equal what pytest collects."""
     abstract = (MANUSCRIPT / "00_abstract.md").read_text(encoding="utf-8")
-    m = re.search(r"([\d,]+)\s+passing tests\s*\((\d+)\s+skipped\)", abstract)
-    assert m, "abstract must state 'N passing tests (M skipped)'"
-    passing = int(m.group(1).replace(",", ""))
-    skipped = int(m.group(2))
-    assert passing + skipped == collected_test_count, (
-        f"abstract claims {passing} passing + {skipped} skipped = "
-        f"{passing + skipped}, but pytest collects {collected_test_count}. "
+    m = re.search(r"([\d,]+)\s+collected tests", abstract)
+    assert m, "abstract must state 'N collected tests'"
+    stated = int(m.group(1).replace(",", ""))
+    assert stated == collected_test_count, (
+        f"abstract claims {stated} collected tests, but pytest collects "
+        f"{collected_test_count}. "
         "Update the manuscript/README test counts (and re-render the stat-card "
         "figures) to match the suite."
     )
 
 
-def test_passing_count_is_consistent_across_prose() -> None:
-    """Every 'N passing tests' / 'N-test suite' / 'N tests ·' figure across the
-    manuscript and README must cite the same number — no split-brain counts."""
+def test_total_test_count_is_consistent_across_prose(
+    collected_test_count: int,
+) -> None:
+    """Every prose and figure-literal test total must cite the collected count."""
     patterns = [
-        r"([\d,]+)\s+passing tests",
+        r"([\d,]+)\s+collected tests",
         r"([\d,]+)-test suite",
         r"\b([\d,]+)\s+tests\s+·",
         r"\(([\d,]+)\s+tests\b",
@@ -80,16 +79,18 @@ def test_passing_count_is_consistent_across_prose() -> None:
         for pat in patterns:
             for raw in re.findall(pat, text):
                 found.setdefault(raw.replace(",", ""), []).append(path.name)
-    # Also bind the figure-generator stat literals (e.g. the cover's "625 tests ·")
+    # Also bind the figure-generator stat literals (e.g. the cover's "628 tests ·")
     # so those .py strings cannot drift from the prose (RedTeam graphical_abstract
     # finding). Folded into this test — not a new one — so it does not change the
     # suite size and desync the rendered stat-card videos.
     for rel in ("manuscript/figures/graphical_abstract.py",):
         for raw in re.findall(r"(\d+)\s+tests\b", (ROOT / rel).read_text(encoding="utf-8")):
             found.setdefault(raw, []).append(Path(rel).name)
-    assert found, "no test-count figures found in prose (regex drift?)"
-    assert len(found) == 1, (
-        "inconsistent test counts across prose: "
+    expected = str(collected_test_count)
+    assert found, "no total test-count figures found in prose (regex drift?)"
+    assert set(found) == {expected}, (
+        "test-count figures must match pytest collection "
+        f"({collected_test_count}); found "
         + "; ".join(f"{n} in {sorted(set(files))}" for n, files in found.items())
     )
 
@@ -141,4 +142,3 @@ def test_version_strings_agree() -> None:
     assert version in (abstract + config), (
         f"manuscript does not reference the current version {version}"
     )
-

@@ -9,13 +9,12 @@ Two pure capabilities work with only the core dependencies:
   (imported as ``PIL``, a core dependency).
 
 The actual MP4 encode in :func:`export_video` requires the ``ffmpeg`` binary on
-``PATH`` (or the ``moviepy`` backend) and is therefore guarded: when neither is
-present it raises :class:`~democreate.errors.BackendUnavailableError`.
+``PATH`` and is therefore guarded: when it is absent,
+:class:`~democreate.errors.BackendUnavailableError` is raised.
 """
 
 from __future__ import annotations
 
-import importlib.util
 import shutil
 import wave
 from pathlib import Path
@@ -415,23 +414,18 @@ def _has_ffmpeg() -> bool:
     return shutil.which("ffmpeg") is not None
 
 
-def _has_moviepy() -> bool:
-    """Return ``True`` if the ``moviepy`` backend is importable."""
-    return importlib.util.find_spec("moviepy") is not None
-
-
 def export_video(
     frame_paths: list[Path],
     audio_path: Path | None,
     out_path: Path,
     *,
     fps: int = 30,
-) -> Path:  # pragma: no cover - requires the ffmpeg binary / moviepy
+) -> Path:  # pragma: no cover - requires the ffmpeg binary
     """Encode frames (+ optional audio) into an MP4.
 
-    Requires either the ``ffmpeg`` binary on ``PATH`` or the ``moviepy`` backend.
-    The frames must share a zero-padded numeric naming scheme in a single
-    directory so ffmpeg's ``image2`` demuxer can sequence them.
+    Requires the ``ffmpeg`` binary on ``PATH``. The frames must share a
+    zero-padded numeric naming scheme in a single directory so ffmpeg's
+    ``image2`` demuxer can sequence them.
 
     Args:
         frame_paths: Ordered frame image paths (must live in one directory).
@@ -443,13 +437,13 @@ def export_video(
         ``out_path``.
 
     Raises:
-        BackendUnavailableError: If neither ffmpeg nor moviepy is available.
+        BackendUnavailableError: If ffmpeg is unavailable.
         ValueError: If ``frame_paths`` is empty.
         RenderError: If the encode subprocess exits non-zero.
     """
     if not frame_paths:
         raise ValueError("export_video requires at least one frame")
-    if not (_has_ffmpeg() or _has_moviepy()):
+    if not _has_ffmpeg():
         raise BackendUnavailableError("ffmpeg", extra="video")
 
     import subprocess

@@ -18,13 +18,13 @@ from typer.testing import CliRunner
 
 from democreate.cli import app
 from democreate.export.video import ffmpeg_available
-from democreate.narration.tts import SystemTTSBackend
+from democreate.narration.tts import _system_tts_command
 
 runner = CliRunner()
 
 _needs_ffmpeg = pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg not installed")
 _needs_voice = pytest.mark.skipif(
-    not SystemTTSBackend().is_available(), reason="no system TTS voice (say/espeak)"
+    _system_tts_command() is None, reason="no usable system TTS voice (say/espeak)"
 )
 
 

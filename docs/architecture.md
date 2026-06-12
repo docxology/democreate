@@ -114,14 +114,14 @@ timestamps means timing is derived from the *actual* audio that will play. An
 across any TTS voice and pace. The deterministic default makes this loop run with
 no heavy deps: `SilentTTSBackend` emits silent clips of the estimated duration,
 and `HeuristicTranscriber` produces evenly-spaced word timestamps — so the whole
-synchronization mechanism is exercised and testable before Kokoro and Whisper are
-ever installed.
+synchronization mechanism is exercised and testable before any external neural
+TTS or STT adapter is used.
 
 ## Determinism as a design constraint
 
 The default path has no RNG, no wall-clock, and no network. A given `Demo`
 renders byte-for-byte identically on every machine. That is what makes the demos
 reproducible and what makes the test suite able to assert exact output rather than
-loose tolerances. Heavy backends trade that exactness for fidelity, and live
-behind `# pragma: no cover` adapters so they never compromise the core's
+loose tolerances. Guarded media backends may trade that exactness for fidelity,
+and live behind `# pragma: no cover` adapters so they never compromise the core's
 guarantees.

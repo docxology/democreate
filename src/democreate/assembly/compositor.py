@@ -9,8 +9,8 @@ with no I/O and only core dependencies.
 
 Compositors turn a timeline into rendered output. The deterministic default,
 :class:`ManifestCompositor`, writes a JSON render manifest plus one representative
-PNG per entry using only Pillow. The high-fidelity :class:`MoviePyCompositor`
-sits behind the ``video`` extra and is excluded from coverage.
+PNG per entry using only Pillow. :class:`MoviePyCompositor` is a guarded legacy
+adapter slot behind the ``video`` extra and is excluded from coverage.
 """
 
 from __future__ import annotations
@@ -417,20 +417,22 @@ class ManifestCompositor(Compositor):
 
 
 class MoviePyCompositor(Compositor):
-    """High-fidelity video compositor backed by MoviePy (extra: ``video``)."""
+    """Guarded legacy MoviePy compositor slot (extra: ``video``)."""
 
     def compose(self, timeline: Timeline, workspace: Workspace) -> Path:  # pragma: no cover
-        """Assemble an actual video file from the timeline.
+        """Detect the legacy MoviePy compositor dependency.
 
         Args:
             timeline: The resolved timeline to render.
             workspace: Output locations for this build.
 
         Returns:
-            Path to the assembled video.
+            Path to the assembled video if a future implementation is wired.
 
         Raises:
             BackendUnavailableError: If MoviePy is not installed.
+            NotImplementedError: If MoviePy is installed; the real compositor is
+                not wired yet.
         """
         if importlib.util.find_spec("moviepy") is None:
             raise BackendUnavailableError("moviepy", extra="video")

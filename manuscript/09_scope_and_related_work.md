@@ -31,7 +31,7 @@ DemoCreate occupies a specific niche — declarative, deterministic, backend-plu
 | Audio-anchored sync (TTS→STT) | ✓ | – | partial (trigger only) | – | partial (synth, not STT) | – | – |
 | Typing animation | ✓ | ✓ | – | ✓ (replay) | – | ✓ | manual |
 | Research-paper demos | ✓ | – | – | – | ✓ | – | – |
-| Zero-pip defaults | ✓ | n/a (TS) | – | ✓ | – | – (Manim) | – |
+| No heavy backend by default | ✓ | n/a (TS) | – | ✓ | – | – (Manim) | – |
 
 : DemoCreate versus prior art across the six dimensions that define its niche. "partial" on VSpeak's sync row reflects that VSpeak *names* a trigger word but does not measure where it lands; "partial" on Paper2Video's sync row reflects that it produces speech aligned to slides generatively but does not anchor actions to *measured* word onsets via a TTS→STT round-trip; "manual" on Manim's typing row reflects that typing must be hand-animated rather than emerging from the model. {#tbl:related}
 

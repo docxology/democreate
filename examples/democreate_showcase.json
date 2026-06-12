@@ -188,7 +188,7 @@
       "context": {
         "section": "The Craft",
         "bullets": [
-          "The narration is a real spoken voice — macOS say, zero pip.",
+          "The narration is a real spoken voice — OS speech, zero pip.",
           "The waveform below sweeps in lockstep with the audio.",
           "Nothing is cropped: figures fit whole, code autosizes — the frame is a page, not a camera."
         ]
@@ -273,7 +273,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Nearly six hundred tests, seven subsystems, five themes, four K output — and zero pip dependencies for the core.",
+          "text": "And it is real. Six hundred twenty eight collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
           "actions": []
         }
       ],
@@ -281,8 +281,8 @@
         "section": "By the numbers",
         "stats": [
           [
-            "625",
-            "tests passing"
+            "628",
+            "collected tests"
           ],
           [
             "7",
@@ -298,7 +298,7 @@
           ],
           [
             "0",
-            "pip for core"
+            "binary deps"
           ]
         ]
       }

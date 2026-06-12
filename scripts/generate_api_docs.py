@@ -158,10 +158,15 @@ def members(module: object, kind: str) -> list[tuple[str, object]]:
     return out
 
 
+def module_anchor(mod_name: str) -> str:
+    """Return the stable Markdown anchor used for a documented module."""
+    return mod_name.replace(".", "").replace("`", "")
+
+
 def render_module(mod_name: str) -> str:
     """Render the Markdown section for a single module."""
     module = importlib.import_module(mod_name)
-    lines: list[str] = [f"## `{mod_name}`", ""]
+    lines: list[str] = [f"## `{mod_name}` {{#{module_anchor(mod_name)}}}", ""]
     lines.append(summary(module))
     lines.append("")
 
@@ -212,7 +217,7 @@ def main() -> None:
         "",
     ]
     for mod_name in MODULES:
-        header.append(f"- [`{mod_name}`](#{mod_name.replace('.', '').replace('`', '')})")
+        header.append(f"- [`{mod_name}`](#{module_anchor(mod_name)})")
     header.append("")
 
     sections = [render_module(mod_name) for mod_name in MODULES]

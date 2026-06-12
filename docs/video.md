@@ -110,7 +110,7 @@ waveform, the cursor, and crossfades. Enable Ken Burns explicitly (config
 ## No-crop layout and slide surfaces
 
 Two renderer invariants keep content intact at any resolution or aspect ratio
-(see [config.md](config.md#layout-no-crop-fit-contain--autosize-code)):
+(see [config.md](config.md#layout-no-crop-fit-contain-autosize-code)):
 
 - **Fit-contain backgrounds.** A full-frame `background_image` is scaled by
   `min(bw/sw, bh/sh)` (the *contain* fit) so the whole image sits inside the
@@ -122,7 +122,7 @@ Two renderer invariants keep content intact at any resolution or aspect ratio
   edge.
 
 The animator also renders two packed slide surfaces carried on the
-[`FrameState`](schema.md#related-media-types-mediapy): **bullet lists**
+[`FrameState`](schema.md#related-media-types-media.py): **bullet lists**
 (`FrameState.bullets`, up to 6 distributed items) and **stat cards**
 (`FrameState.stats`, up to 5 big-number `(value, label)` cards), both set from a
 slide scene's `context["bullets"]` / `context["stats"]`. The showcase demo uses
@@ -230,7 +230,7 @@ frame (grayscale pixel variance above a floor). `render` exits non-zero if
 verification fails. This is the harness that proved the end-to-end render real:
 the `Policy Entanglement in Active Inference` paper rendered to a 1920×1080 /
 ~188 s H.264 + AAC video, content-verified ok (and the package showcase to a
-1920×1080 / ~128 s video) — see [videos.md](videos.md).
+3840×2160 / 129.7 s video) — see [videos.md](videos.md).
 
 ## See also
 

@@ -84,6 +84,15 @@ def test_ledger_version_matches_package(ledger: dict) -> None:
         f"version skew: ledger={ledger['version']!r} "
         f"package={democreate.__version__!r} pyproject={pyproject['project']['version']!r}"
     )
+    experiment = yaml.safe_load((ROOT / "experiment_plan.yaml").read_text(encoding="utf-8"))
+    assert experiment["version"] == ledger["version"], (
+        f"experiment_plan.yaml version {experiment['version']!r} does not match "
+        f"claim ledger {ledger['version']!r}"
+    )
+    for rel in ("data/README.md", "data/AGENTS.md"):
+        assert ledger["version"] in (ROOT / rel).read_text(encoding="utf-8"), (
+            f"{rel} does not reference the current ledger version {ledger['version']}"
+        )
 
 
 def _claim_value(ledger: dict, claim_id: str):

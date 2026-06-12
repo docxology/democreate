@@ -14,10 +14,12 @@ binaries — see the relevant sections below.)
 \`uv sync --extra tts\`` (or similar for `whisper`, `mss`, `playwright`, `manim`,
 `moviepy`, …).
 
-**Cause.** You asked for a real backend (e.g. `--tts kokoro`) but its optional
-extra is not installed. The error always names the exact extra to install.
+**Cause.** You asked for a guarded backend (e.g. `--tts kokoro`) but its optional
+extra is not installed, or the adapter slot is present but not wired to a concrete
+engine yet. The error names the relevant extra when a dependency is missing.
 
-**Fix.** Install the named extra, or fall back to the default:
+**Fix.** Install the named extra when the dependency is missing, use a wired
+system backend, or fall back to the deterministic default:
 
 ```bash
 democreate backends                  # see which extras are installed vs default

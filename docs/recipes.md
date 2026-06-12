@@ -4,10 +4,11 @@ A cookbook of runnable `democreate` commands for the common jobs. Each recipe is
 a short intro plus a copy-paste command block. Every flag here is real — see
 [cli.md](cli.md) for the full reference, and run any command with `--help`.
 
-Real voice and real video need only **OS binaries** (no pip install): a system
-TTS (`say` on macOS, `espeak`/`espeak-ng` on Linux) and `ffmpeg` on `PATH`. The
-paper recipes additionally need **poppler** (`pdfinfo`/`pdftotext`/`pdftoppm`).
-Run `democreate backends` to see what's available.
+Real voice and real video need only **OS binaries** (no pip install): a usable
+system TTS (`say` on macOS, `espeak`/`espeak-ng` on Linux) and `ffmpeg` on
+`PATH`. The paper recipes additionally need **poppler**
+(`pdfinfo`/`pdftotext`/`pdftoppm`). Run `democreate backends` to see what's
+available.
 
 ## 1. Software demo (codebase tour → HD video)
 
@@ -122,7 +123,7 @@ democreate render demo.json --tts system          # types the code in, animated 
 ```
 
 Tune or disable it via `--config` (`video.typing`, `video.typing_fraction`,
-`video.cursor`) — see [config.md](config.md#videoconfig--geometry--motion) and
+`video.cursor`) — see [config.md](config.md#videoconfig-geometry-motion) and
 [video.md](video.md#typing-animation).
 
 ## 8. Optional LLM narration (env-gated)
@@ -170,8 +171,8 @@ democreate render demo.json \
 ffprobe -v error -show_entries format_tags=title,artist,comment \
   -of default=noprint_wrappers=1 output/video/demo.mp4
 
-# verify the signed provenance matches the demo (exit 0 = match)
-democreate stego output/provenance/poster_signed.png --demo demo.json
+# verify the signed provenance matches the resolved rendered demo (exit 0 = match)
+democreate stego output/provenance/poster_signed.png --demo output/demos/demo.json
 ```
 
 For full control over `crf`/`preset` and the `metadata:` block, write a commented

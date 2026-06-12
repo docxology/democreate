@@ -17,10 +17,11 @@ It reuses generated assets (regenerate with ``examples/make_assets.py`` and
 * ``manuscript/figures/themes.png``    — the five-theme strip
 * ``manuscript/figures/paper_fig.png`` — a real research-paper figure
 
-Render it to an animated HD MP4 with a real voiceover via::
+Render it to an animated 4K MP4 with a real voiceover via::
 
-    democreate render examples/democreate_showcase.json -o output --voice Samantha \
-        --author "Daniel Ari Friedman" --watermark "github.com/docxology/democreate"
+    uv run democreate render examples/democreate_showcase.json -o output \
+        --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
+        --watermark "github.com/docxology/democreate"
 """
 
 from __future__ import annotations
@@ -164,7 +165,7 @@ def build() -> Demo:
                "you just saw typed itself in. Look at this frame.",
                title="What you are seeing, right now",
                bullets=[
-                   "The narration is a real spoken voice — macOS say, zero pip.",
+                   "The narration is a real spoken voice — OS speech, zero pip.",
                    "The waveform below sweeps in lockstep with the audio.",
                    "Nothing is cropped: figures fit whole, code autosizes — the "
                    "frame is a page, not a camera.",
@@ -196,12 +197,13 @@ def build() -> Demo:
 
         # 11 — By the numbers (stat slide)
         _slide("numbers", "By the numbers",
-               "And it is real. Nearly six hundred tests, seven subsystems, five "
-               "themes, four K output — and zero pip dependencies for the core.",
+               "And it is real. Six hundred twenty eight collected tests, seven "
+               "subsystems, five themes, four K output — and zero binary "
+               "dependencies for the core path.",
                title="DemoCreate by the numbers",
-               stats=[("625", "tests passing"), ("7", "subsystems"),
+               stats=[("628", "collected tests"), ("7", "subsystems"),
                       ("5", "built-in themes"), ("4K", "max resolution"),
-                      ("0", "pip for core")],
+                      ("0", "binary deps")],
                trigger="real"),
 
         # 12 — Provenance (bullet slide)

@@ -15,7 +15,7 @@ encoding and PDF generation — which require an external binary / engine.
 |----------|------|-------|
 | `build_ffmpeg_command(frames_glob, audio_path, out_path, *, fps=30)` | pure | Builds (never runs) the `ffmpeg` argv: `image2` input, optional audio mux, `libx264` / `yuv420p`. Returns `list[str]`. |
 | `frames_to_gif(frame_paths, out_path, *, fps=10)` | pure (Pillow) | Loads frames and writes an animated, looping GIF. Returns the path. |
-| `export_video(frame_paths, audio_path, out_path, *, fps=30)` | **guarded** | Runs the encode. Requires the `ffmpeg` binary on `PATH` **or** `moviepy`; otherwise raises `BackendUnavailableError("ffmpeg", extra="video")`. |
+| `export_video(frame_paths, audio_path, out_path, *, fps=30)` | **guarded** | Runs the encode. Requires the `ffmpeg` binary on `PATH`; otherwise raises `BackendUnavailableError("ffmpeg", extra="video")`. |
 
 ### `interactive.py`
 | Function | Kind | Notes |
@@ -40,7 +40,7 @@ of the script element or be mangled by HTML autoescaping.
 
 | Capability | Upgraded by extra | Install |
 |------------|-------------------|---------|
-| `export_video` MP4 encode | `video` (`moviepy`, `ffmpeg-python`) or the system `ffmpeg` binary | `uv sync --extra video` |
+| `export_video` MP4 encode | system `ffmpeg` binary; the `video` extra supplies Python-side helpers, not the binary | install `ffmpeg` (`brew install ffmpeg`, `apt-get install ffmpeg`) |
 | `export_pdf` | a Markdown→PDF engine (`weasyprint` etc.) | install an engine, e.g. `uv pip install weasyprint` |
 
 All other functions need nothing beyond the core install.

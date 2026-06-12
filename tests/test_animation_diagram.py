@@ -61,7 +61,7 @@ def test_title_region_differs_from_background() -> None:
     )
     # The title sits near the top-center; that band must contain non-bg pixels.
     crop = image.crop((100, 0, 700, 80))
-    pixels = list(crop.get_flattened_data())
+    pixels = list(crop.getdata())
     assert any(px != bg for px in pixels)
 
 
@@ -126,7 +126,7 @@ def test_custom_colors_applied() -> None:
         accent=(255, 0, 0),
         fg=(255, 255, 255),
     )
-    pixels = set(image.get_flattened_data())
+    pixels = set(image.getdata())
     # Some non-background pixels exist (text/box/accent draws).
     assert any(px != bg for px in pixels)
 

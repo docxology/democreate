@@ -18,7 +18,7 @@ Three properties make the spine trustworthy. It **validates itself**: `Demo.vali
 
 The second idea is a strict separation between *what* a stage does and *how* it is implemented. Every heavy capability is expressed as an abstract base class with a small, documented method surface, and concrete backends are interchangeable behind it. The pattern recurs identically across subsystems:
 
-| Subsystem | Abstract interface | Default (core) | Real-but-light | Heavy backends (extras) |
+| Subsystem | Abstract interface | Default (core) | Real-but-light | Guarded extension slots |
 |-----------|--------------------|----------------|----------------|-------------------------|
 | Narration / TTS | `TTSBackend` | `SilentTTSBackend` | `SystemTTSBackend` (`say`/`espeak`) | `KokoroTTSBackend`, `ChatterboxTTSBackend` |
 | Synchronization / STT | `Transcriber` | `HeuristicTranscriber` | — | `WhisperTranscriber` |

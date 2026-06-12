@@ -146,7 +146,7 @@ democreate render demo.json --no-animate            # static slideshow, audio-sy
 | `DEMO` (arg) | required | Path to a `.json`/`.yaml` demo. |
 | `--output`, `-o` | `output` | Output workspace. |
 | `--tts` | `system` | `system` (real OS voice), `silent`, `kokoro`, `chatterbox`. |
-| `--voice`, `-v` | `Samantha` | System voice name (macOS: see `say -v '?'`). |
+| `--voice`, `-v` | `""` (OS default) | Optional system voice name (macOS: see `say -v '?'`). |
 | `--fps` | `0` | Static-render frame rate (`0` = the demo's fps). |
 | `--captions / --no-captions` | `--no-captions` | Burn subtitles in, static path (needs libass). |
 | `--animate / --no-animate` | `--animate` | Moving waveform + progress bar + transitions + typing/cursor vs static slideshow. |
@@ -159,12 +159,12 @@ democreate render demo.json --no-animate            # static slideshow, audio-sy
 | `--header / --no-header` | `--no-header` | Show the top metadata bar (title · section). Off by default. |
 | `--config` | `None` | `RenderConfig` YAML; **overrides `--theme`/`--voice`** (see [config.md](config.md)). |
 
-Requires a system TTS (`say` on macOS, `espeak` on Linux) and `ffmpeg` on `PATH`.
-Exits non-zero if verification fails. With `--tts silent` you get a real video
-with a (correctly-flagged) silent track. Every render also writes YouTube
-chapters and embeds chapter markers into the MP4, **container metadata tags**, and
-a **signed steganographic poster** (see [provenance.md](provenance.md) and the
-chapters note below).
+Requires a usable system TTS (`say` on macOS, `espeak` on Linux) and `ffmpeg` on
+`PATH`. Exits non-zero if verification fails. With `--tts silent` you get a real
+video with a (correctly-flagged) silent track. Every render also writes YouTube
+chapters and embeds chapter markers into the MP4, **container metadata tags**,
+and a **signed steganographic poster** (see [provenance.md](provenance.md) and
+the chapters note below).
 
 ## `verify`
 
@@ -221,7 +221,7 @@ democreate paper paper.pdf --no-render          # emit paper.json only
 | `--output`, `-o` | `output` | Output workspace. |
 | `--pages` | `"1"` | Comma-separated 1-based PDF pages to show. |
 | `--theme` | `paper` | `paper`, `noir`, `dark`, `light`, `midnight` (paper is the academic default for paper demos). |
-| `--voice`, `-v` | `Samantha` | System voice name. |
+| `--voice`, `-v` | `""` (OS default) | Optional system voice name. |
 | `--tts` | `system` | TTS backend. |
 | `--aspect` | `""` (demo's size) | Aspect preset: `16:9`, `9:16`, `1:1`, `4:3`, `4:5` (see [config.md](config.md#aspect-presets)). |
 | `--resolution` | `""` (demo's size) | 16:9 tier: `720p`, `1080p`, `1440p`, `2160p`, `4k` (see [config.md](config.md#resolution-tiers)). |
@@ -232,7 +232,7 @@ democreate paper paper.pdf --no-render          # emit paper.json only
 | `--render / --no-render` | `--render` | Render the video, or only emit `paper.json`. |
 
 Requires poppler on `PATH` (`pdfinfo`/`pdftotext`/`pdftoppm`); rendering also
-needs a system TTS and `ffmpeg`. Missing poppler raises
+needs a usable system TTS and `ffmpeg`. Missing poppler raises
 `BackendUnavailableError(extra="pdf")`.
 
 ## `thumbnail`
