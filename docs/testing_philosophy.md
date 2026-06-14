@@ -6,12 +6,22 @@ output. Four principles govern every test.
 
 ## 1. No mocks
 
-There are no mocks, no monkeypatched backends, and no fakes in this suite. Tests
-exercise the real deterministic backends, real temp files (`tmp_path`), and real
-serialization round-trips. The reasoning is simple: the deterministic defaults
-*are* the real thing on core deps, so there is nothing to fake. If a behavior
-seems to require a mock, the design is wrong — push the work into a deterministic
-default that does it for real.
+There is no mocking framework in this suite — no `unittest.mock`, no `MagicMock`,
+no faked return values standing in for the deterministic core. Tests exercise the
+real deterministic backends, real temp files (`tmp_path`), and real serialization
+round-trips. The reasoning is simple: the deterministic defaults *are* the real
+thing on core deps, so there is nothing to fake. If a behavior seems to require a
+mock, the design is wrong — push the work into a deterministic default that does
+it for real.
+
+The one sanctioned exception is `monkeypatch`, used surgically for exactly two
+things that cannot otherwise be reached deterministically: (a) simulating an
+*absent* optional binary (`shutil.which` → `None`, `_has_ffmpeg` → `False`) so the
+`BackendUnavailableError` guard path is testable even on a machine where the
+binary is installed, and (b) forcing the core-only fallback branch (e.g.
+`_resolve_render_frame` → `None`) or stubbing an external-process probe so the
+verifier's degraded-input branches run without a real encoded video. These patch
+*availability*, never the value a deterministic backend computes.
 
 ```python
 def test_pipeline_writes_player(tmp_path):

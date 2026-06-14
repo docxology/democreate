@@ -15,6 +15,7 @@ TTS, Whisper, and Manim remain guarded adapter slots. The look (themes, fonts, m
 sound (voice, pacing, normalization) are fully **configurable**.
 
 - **Status:** alpha (`0.6.2`), Python ≥ 3.10, MIT licensed.
+- **DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693217.svg)](https://doi.org/10.5281/zenodo.20693217) (this version) · concept DOI `10.5281/zenodo.20693216`
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
   testing, troubleshooting.
 
@@ -254,8 +255,11 @@ transitions, and Ken Burns.
 
 ## Testing
 
-No mocks, fully deterministic, real temp files, ≥90% coverage on the pure core
-(enforced via `fail_under = 90`). Heavy backends carry a `backend` pytest marker
+No mocking framework (no `unittest.mock`/`MagicMock`), fully deterministic, real
+temp files, ≥90% coverage on the pure core (enforced via `fail_under = 90`).
+`monkeypatch` is used only to simulate an absent optional binary or force the
+core-only fallback path — never to fake a deterministic backend's output (see
+[`docs/testing_philosophy.md`](docs/testing_philosophy.md)). Heavy backends carry a `backend` pytest marker
 and skip when absent; the default path asserts the `BackendUnavailableError`
 contract instead.
 
@@ -299,6 +303,9 @@ a deterministic, backend-pluggable spine.
 
 ## Citation
 
+Archived on Zenodo — version `0.6.2`: [`10.5281/zenodo.20693217`](https://doi.org/10.5281/zenodo.20693217);
+all versions (concept DOI): [`10.5281/zenodo.20693216`](https://doi.org/10.5281/zenodo.20693216).
+
 ```bibtex
 @software{democreate,
   author  = {Friedman, Daniel Ari},
@@ -306,6 +313,7 @@ a deterministic, backend-pluggable spine.
   year    = {2026},
   url     = {https://github.com/docxology/democreate},
   version = {0.6.2},
+  doi     = {10.5281/zenodo.20693217},
   license = {MIT}
 }
 ```

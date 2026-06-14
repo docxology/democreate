@@ -176,7 +176,9 @@ class Pipeline:
             transcript.write_text(formats_mod.to_markdown(demo), encoding="utf-8")
             result.transcript_path = transcript
             demo_path = ws.demos / "demo.json"
-            demo_path.write_text(formats_mod.to_json(demo), encoding="utf-8")
+            demo_path.write_text(
+                formats_mod.to_json(demo, relative_to=ws.root), encoding="utf-8"
+            )
             result.demo_path = demo_path
 
         logger.info("pipeline complete: %s", result.summary())

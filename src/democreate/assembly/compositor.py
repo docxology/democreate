@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 from .._logging import get_logger, log_stage
 from ..errors import BackendUnavailableError, RenderError
 from ..media import FrameState
+from ..project_paths import relativize_under_root
 from ..schema import ActionType, Demo, SceneKind
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -344,8 +345,11 @@ class ManifestCompositor(Compositor):
         render_frame = self._resolve_render_frame()
         try:
             manifest_path = workspace.manifests / "render_manifest.json"
+            # Relativize embedded audio paths against the workspace root so the
+            # manifest is byte-stable across runs/machines (see sec:evaluation).
+            manifest = relativize_under_root(timeline.to_dict(), workspace.root)
             manifest_path.write_text(
-                json.dumps(timeline.to_dict(), indent=2, ensure_ascii=False),
+                json.dumps(manifest, indent=2, ensure_ascii=False),
                 encoding="utf-8",
             )
             frames_dir = workspace.frames

@@ -13,11 +13,13 @@ the local pair (`AGENTS.md` + `README.md`) before touching a subsystem.
    subsystems and the spine. If you find yourself adding domain logic to the CLI
    or the pipeline, it belongs in a subsystem module instead.
 
-2. **No mocks in tests.** Tests use real temp files (`tmp_path`), the real
-   deterministic backends, and real serialization round-trips. Never patch,
-   monkeypatch a backend, or assert against a fake. If a behavior cannot be
-   tested without a mock, the design is wrong — make the deterministic default do
-   the real thing on core deps.
+2. **No mocking framework in tests.** Tests use real temp files (`tmp_path`), the
+   real deterministic backends, and real serialization round-trips — no
+   `unittest.mock`/`MagicMock`, and never a faked deterministic-backend value. The
+   only sanctioned patching is `monkeypatch` to simulate an *absent* optional
+   binary or force the core-only fallback branch; if a core behavior cannot be
+   tested without faking its output, the design is wrong — make the deterministic
+   default do the real thing on core deps.
 
 3. **≥90% coverage on the pure-Python core.** `fail_under = 90` is enforced in
    `pyproject.toml` (`[tool.coverage.report]`). Thin adapters to heavy backends

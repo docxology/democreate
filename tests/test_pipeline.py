@@ -39,6 +39,32 @@ def test_full_pipeline_produces_all_artifacts(sample_demo: Demo, tmp_workspace) 
     assert result.transcript_path.exists()
     assert result.demo_path.exists()
 
+    # Determinism negative control (RedTeam): the render manifest and demo.json
+    # must be byte-identical across two different workspaces. They embed the
+    # audio path, so if that path is stored absolute (workspace-specific) the two
+    # renders differ byte-for-byte and the "byte-stable manifest ... on any
+    # machine" claim (sec:evaluation) is false. Folded into this test so it does
+    # not change the collected suite size.
+    import tempfile
+
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene
+
+    det = Demo(title="det", scenes=[Scene(id="s", chunks=[Chunk(id="c1", text="hello world")])])
+    with tempfile.TemporaryDirectory() as d1, tempfile.TemporaryDirectory() as d2:
+        build_demo(det, Workspace(d1), strict=False)
+        m1 = (Workspace(d1).manifests / "render_manifest.json").read_text(encoding="utf-8")
+        j1 = (Workspace(d1).demos / "demo.json").read_text(encoding="utf-8")
+        det2 = Demo(
+            title="det", scenes=[Scene(id="s", chunks=[Chunk(id="c1", text="hello world")])]
+        )
+        build_demo(det2, Workspace(d2), strict=False)
+        m2 = (Workspace(d2).manifests / "render_manifest.json").read_text(encoding="utf-8")
+        j2 = (Workspace(d2).demos / "demo.json").read_text(encoding="utf-8")
+    assert m1 == m2, "render manifest must be byte-identical across workspaces"
+    assert j1 == j2, "demo.json must be byte-identical across workspaces"
+    assert "audio/c1.wav" in m1, "manifest must keep a workspace-relative audio path"
+
 
 def test_pipeline_sets_timing_on_demo(sample_demo: Demo, tmp_workspace) -> None:
     build_demo(sample_demo, tmp_workspace)

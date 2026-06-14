@@ -19,13 +19,53 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
-__all__ = ["Workspace", "default_output_root"]
+__all__ = ["Workspace", "default_output_root", "relativize_under_root"]
 
 
 def default_output_root() -> Path:
     """Return the conventional output root (``./output`` under the cwd)."""
     return Path.cwd() / "output"
+
+
+def relativize_under_root(obj: Any, root: Path | str) -> Any:
+    """Rewrite absolute-path strings under ``root`` to ``root``-relative POSIX form.
+
+    Serialized render artifacts (the render manifest, ``demo.json``) embed the
+    on-disk path of the audio they reference. That path includes the workspace
+    root, which is machine- and run-specific (a fresh temp dir each build), so an
+    artifact serialized with it is *not* byte-stable across runs or machines — the
+    very ``byte-stable manifest`` property the project claims. This normalizes
+    every such string to a ``root``-relative POSIX path (``audio/c1.wav``) while
+    leaving every non-path value untouched, restoring byte-stability.
+
+    The match is tried both lexically and after ``resolve()`` so the macOS
+    ``/var`` → ``/private/var`` symlink does not defeat it. Returns a new
+    structure; the input is not mutated.
+    """
+    root_path = Path(root)
+    bases = (root_path, root_path.resolve())
+
+    def fix(value: Any) -> Any:
+        if isinstance(value, str) and value and Path(value).is_absolute():
+            candidate = Path(value)
+            for base in bases:
+                try:
+                    return candidate.relative_to(base).as_posix()
+                except ValueError:
+                    continue
+            try:
+                return candidate.resolve().relative_to(root_path.resolve()).as_posix()
+            except ValueError:
+                return value
+        if isinstance(value, dict):
+            return {k: fix(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [fix(v) for v in value]
+        return value
+
+    return fix(obj)
 
 
 @dataclass

@@ -19,8 +19,10 @@ pure function of the artifact. Read [`README.md`](README.md) and
 1. **Thin orchestrators.** `cli.py` and `pipeline.py` carry no business logic —
    each command and pipeline stage is a few calls into the subsystems and the
    spine. Domain logic belongs in a subsystem module.
-2. **No mocks in tests.** Real temp files (`tmp_path`), real deterministic
-   backends, real round-trips. If you reach for a mock, the design is wrong.
+2. **No mocking framework in tests.** Real temp files (`tmp_path`), real
+   deterministic backends, real round-trips — no `unittest.mock`/`MagicMock`. The
+   only sanctioned patching is `monkeypatch` to simulate an absent binary or force
+   the core-only fallback path; never to fake a deterministic backend's output.
 3. **≥90% coverage on the pure core.** Enforced by `fail_under = 90` in
    `pyproject.toml`. Heavy adapters are excluded with `# pragma: no cover`.
 4. **Deterministic defaults.** Every default backend yields byte-for-byte stable

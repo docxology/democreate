@@ -16,10 +16,12 @@ from __future__ import annotations
 
 import html
 import importlib.util
+import json
 from pathlib import Path
 
 from .._logging import get_logger
 from ..errors import BackendUnavailableError
+from ..project_paths import relativize_under_root
 from ..schema import Action, Demo
 
 __all__ = ["to_markdown", "to_json", "to_chapters", "export_pdf"]
@@ -69,17 +71,25 @@ def to_markdown(demo: Demo) -> str:
     return text
 
 
-def to_json(demo: Demo, *, indent: int = 2) -> str:
+def to_json(
+    demo: Demo, *, indent: int = 2, relative_to: Path | str | None = None
+) -> str:
     """Serialize the demo to JSON.
 
     Args:
         demo: The demo to serialize.
         indent: Indentation passed through to :meth:`Demo.to_json`.
+        relative_to: If given, rewrite absolute audio paths embedded by the
+            render pipeline to paths relative to this workspace root, so the
+            serialized demo is byte-stable across runs/machines.
 
     Returns:
         A JSON string round-trippable via :meth:`Demo.from_json`.
     """
-    return demo.to_json(indent=indent)
+    if relative_to is None:
+        return demo.to_json(indent=indent)
+    data = relativize_under_root(demo.to_dict(), relative_to)
+    return json.dumps(data, indent=indent, ensure_ascii=False)
 
 
 def to_chapters(demo: Demo) -> list[dict]:
