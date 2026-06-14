@@ -29,6 +29,13 @@ def default_output_root() -> Path:
     return Path.cwd() / "output"
 
 
+#: Dict keys whose string values are filesystem paths that may embed the
+#: workspace root. Relativization is restricted to these so an authored title or
+#: caption that merely *starts with* the root path is never mistaken for a path
+#: and mangled (Forge cross-vendor finding).
+_PATH_KEYS = frozenset({"audio_path", "path", "frame_path", "image", "image_path"})
+
+
 def relativize_under_root(obj: Any, root: Path | str) -> Any:
     """Rewrite absolute-path strings under ``root`` to ``root``-relative POSIX form.
 
@@ -37,32 +44,39 @@ def relativize_under_root(obj: Any, root: Path | str) -> Any:
     root, which is machine- and run-specific (a fresh temp dir each build), so an
     artifact serialized with it is *not* byte-stable across runs or machines — the
     very ``byte-stable manifest`` property the project claims. This normalizes
-    every such string to a ``root``-relative POSIX path (``audio/c1.wav``) while
+    such strings to a ``root``-relative POSIX path (``audio/c1.wav``) while
     leaving every non-path value untouched, restoring byte-stability.
 
-    The match is tried both lexically and after ``resolve()`` so the macOS
-    ``/var`` → ``/private/var`` symlink does not defeat it. Returns a new
-    structure; the input is not mutated.
+    Only string values stored under a known path key (:data:`_PATH_KEYS`) are
+    rewritten, so an authored title/caption that happens to begin with the root
+    path is never corrupted. The match is tried both lexically and after
+    ``resolve()`` so the macOS ``/var`` → ``/private/var`` symlink does not defeat
+    it. Returns a new structure; the input is not mutated.
     """
     root_path = Path(root)
     bases = (root_path, root_path.resolve())
 
-    def fix(value: Any) -> Any:
-        if isinstance(value, str) and value and Path(value).is_absolute():
-            candidate = Path(value)
-            for base in bases:
-                try:
-                    return candidate.relative_to(base).as_posix()
-                except ValueError:
-                    continue
+    def relativize_str(value: str) -> str:
+        if not (value and Path(value).is_absolute()):
+            return value
+        candidate = Path(value)
+        for base in bases:
             try:
-                return candidate.resolve().relative_to(root_path.resolve()).as_posix()
+                return candidate.relative_to(base).as_posix()
             except ValueError:
-                return value
+                continue
+        try:
+            return candidate.resolve().relative_to(root_path.resolve()).as_posix()
+        except ValueError:
+            return value
+
+    def fix(value: Any, *, under_path_key: bool = False) -> Any:
+        if isinstance(value, str):
+            return relativize_str(value) if under_path_key else value
         if isinstance(value, dict):
-            return {k: fix(v) for k, v in value.items()}
+            return {k: fix(v, under_path_key=k in _PATH_KEYS) for k, v in value.items()}
         if isinstance(value, list):
-            return [fix(v) for v in value]
+            return [fix(v, under_path_key=under_path_key) for v in value]
         return value
 
     return fix(obj)

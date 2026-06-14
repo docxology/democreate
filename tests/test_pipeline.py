@@ -65,6 +65,24 @@ def test_full_pipeline_produces_all_artifacts(sample_demo: Demo, tmp_workspace) 
     assert j1 == j2, "demo.json must be byte-identical across workspaces"
     assert "audio/c1.wav" in m1, "manifest must keep a workspace-relative audio path"
 
+    # Key-aware relativization (Forge finding): only values under a path key are
+    # rewritten; an authored title that merely starts with the root is preserved.
+    from democreate.project_paths import relativize_under_root
+
+    rel = relativize_under_root(
+        {"title": "/r/o/o/t literal title", "audio_path": "/r/o/o/t/audio/c1.wav"}, "/r/o/o/t"
+    )
+    assert rel == {"title": "/r/o/o/t literal title", "audio_path": "audio/c1.wav"}
+    # resolve()-fallback branch: a value reached through a symlink that the root
+    # does not contain lexically still relativizes (macOS /var->/private/var class).
+    from pathlib import Path as _Path
+
+    with tempfile.TemporaryDirectory() as real:
+        (_Path(real) / "tgt").mkdir()
+        (_Path(real) / "link").symlink_to(_Path(real) / "tgt")
+        got = relativize_under_root({"audio_path": f"{real}/link/a.wav"}, f"{real}/tgt")
+        assert got["audio_path"] == "a.wav"
+
 
 def test_pipeline_sets_timing_on_demo(sample_demo: Demo, tmp_workspace) -> None:
     build_demo(sample_demo, tmp_workspace)
