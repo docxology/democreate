@@ -28,9 +28,23 @@ from .translator import (
     translate_demo,
 )
 
-__all__ = ["LocalizedResult", "localize_render", "localize_batch"]
+__all__ = ["LocalizedResult", "localize_render", "localize_batch", "KOKORO_AUDIO_LANGS"]
 
 logger = get_logger(__name__)
+
+# Audio-language code → (Kokoro lang code, a default voice for it). Kokoro can
+# *speak* these; subtitles work for any language regardless. Unknown audio
+# languages fall back to English (and need an explicit, suitable voice).
+KOKORO_AUDIO_LANGS: dict[str, tuple[str, str]] = {
+    "en": ("en-us", "af_heart"),
+    "es": ("es", "ef_dora"),
+    "fr": ("fr-fr", "ff_siwis"),
+    "it": ("it", "if_sara"),
+    "pt": ("pt-br", "pf_dora"),
+    "ja": ("ja", "jf_alpha"),
+    "zh": ("zh", "zf_xiaobei"),
+    "hi": ("hi", "hf_alpha"),
+}
 
 
 @dataclass
@@ -108,8 +122,11 @@ def localize_render(
     audio_demo = translate_demo(
         demo, tr, source=languages.source, target=languages.audio
     )
-    use_voice = (voice or cfg.audio.voice) if tts != "silent" else None
-    backend = get_tts_backend(tts, voice=use_voice)
+    # Pick a Kokoro language code + a default voice for the audio language so
+    # non-English audio is phonemized correctly (an explicit ``voice`` wins).
+    klang, default_voice = KOKORO_AUDIO_LANGS.get(languages.audio, ("en-us", "af_heart"))
+    use_voice = (voice or default_voice) if tts != "silent" else None
+    backend = get_tts_backend(tts, voice=use_voice, lang=klang)
     result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(
         audio_demo, workspace
     )

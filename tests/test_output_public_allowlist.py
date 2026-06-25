@@ -34,6 +34,7 @@ _ALLOWED_TOP = frozenset(
         "web",
         "chapters",
         "provenance",
+        "captions",
         "demos",
         "audio",
         "frames",

@@ -84,6 +84,15 @@ def test_get_translator_unknown_rejected() -> None:
         get_translator("googletrans")
 
 
+def test_kokoro_audio_langs_map() -> None:
+    from democreate.translation.localize import KOKORO_AUDIO_LANGS
+
+    # Audio languages Kokoro can speak map to (lang code, a default voice).
+    assert KOKORO_AUDIO_LANGS["en"] == ("en-us", "af_heart")
+    assert KOKORO_AUDIO_LANGS["es"][1].startswith("e")  # a Spanish voice
+    assert all(code and voice for code, voice in KOKORO_AUDIO_LANGS.values())
+
+
 def test_clean_llm_output_strips_reasoning() -> None:
     from democreate.translation.translator import _clean_llm_output
 

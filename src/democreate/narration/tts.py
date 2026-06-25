@@ -694,7 +694,9 @@ class ChatterboxTTSBackend(TTSBackend):
         raise BackendUnavailableError("chatterbox", extra="tts")
 
 
-def get_tts_backend(name: str = "auto", *, voice: str | None = None) -> TTSBackend:
+def get_tts_backend(
+    name: str = "auto", *, voice: str | None = None, lang: str | None = None
+) -> TTSBackend:
     """Return a TTS backend by name.
 
     Args:
@@ -703,6 +705,8 @@ def get_tts_backend(name: str = "auto", *, voice: str | None = None) -> TTSBacke
             ``"chatterbox"``. ``"auto"`` selects the always-available silent
             backend so the pipeline never fails to run.
         voice: Optional voice id forwarded to voiced backends.
+        lang: Optional language code for Kokoro (e.g. ``"en-us"``, ``"es"``) so
+            non-English audio is phonemized in the right language.
 
     Returns:
         A :class:`TTSBackend` instance.
@@ -717,7 +721,7 @@ def get_tts_backend(name: str = "auto", *, voice: str | None = None) -> TTSBacke
     if key == "system":
         return SystemTTSBackend(voice=voice)
     if key == "kokoro":
-        return KokoroTTSBackend(voice=voice)
+        return KokoroTTSBackend(voice=voice, lang=lang or "en-us")
     if key == "chatterbox":
         return ChatterboxTTSBackend(voice=voice)
     raise ValueError(

@@ -12,7 +12,7 @@ DemoCreate `Demo` and exercising *every* renderable surface. **Fourteen scenes**
 audio-as-ground-truth), (7) a meta **bullet slide** *"What you are seeing"*,
 (8) the themes strip, (9) a real research-paper **figure** (fit-contained, whole),
 (10) the architecture diagram, (11) a **stat-card slide** *"by the numbers"*
-(689 collected tests · 7 subsystems · 5 themes · 4K · 0 binary deps), (12) a provenance **bullet
+(690 collected tests · 7 subsystems · 5 themes · 4K · 0 binary deps), (12) a provenance **bullet
 slide**, (13) a **terminal** render+verify, (14) the outro. 3840×2160, no-crop
 (figures fit whole, code autosizes, Ken Burns off), a moving waveform + bottom
 metadata bar throughout.

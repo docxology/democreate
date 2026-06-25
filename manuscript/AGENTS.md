@@ -72,7 +72,7 @@ cd ..  # project root
   package — 56 source modules across eight subsystems (`capture/`, `narration/`,
   `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`, `translation/`) plus `schema.py`,
   `config.py`, `media.py`, `pipeline.py`, `cli.py`. Authoritative v0.6.2 numbers:
-  689 collected tests, ≥90% coverage gate, five themes (default
+  690 collected tests, ≥90% coverage gate, five themes (default
   **noir**), package demo 155.6 s at 3840×2160 (15 scenes/chapters), paper demo 188.0 s
   (12 scenes/chapters, 6-part section structure), both re-rendered in noir.
   If the code changes, update the prose and regenerate the figures.

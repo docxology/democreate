@@ -27,7 +27,7 @@ Several upgrade paths need no pip extra at all, only usable system binaries: rea
 
 ## The Test Gate
 
-The test gate is the primary reproducibility check. It runs the full 689-test suite against real artifacts and enforces the ≥90% coverage threshold configured in `pyproject.toml`, which the current suite clears at 92.93%:
+The test gate is the primary reproducibility check. It runs the full 690-test suite against real artifacts and enforces the ≥90% coverage threshold configured in `pyproject.toml`, which the current suite clears at 92.93%:
 
 ```bash
 uv run pytest --cov=src/democreate --cov-report=term-missing
