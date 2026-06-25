@@ -6,10 +6,12 @@ the standard library. It writes real, valid WAV files of digital silence whose
 duration is estimated from the narration's word count. This keeps the whole
 narration pipeline import-safe and fully testable with no heavy dependencies.
 
-Neural engine slots (Kokoro, Chatterbox) are guarded: their constructors raise
-:class:`~democreate.errors.BackendUnavailableError` when the optional dependency
-is missing, and their synthesis bodies remain unavailable until the concrete
-engine APIs are wired.
+:class:`KokoroTTSBackend` is a **wired**, fully-local neural voice (the open-weight
+Kokoro model via ``kokoro-onnx``); it raises
+:class:`~democreate.errors.BackendUnavailableError` only when the ``tts`` extra or
+the model files are absent (fetch them with ``democreate fetch-voice``).
+:class:`ChatterboxTTSBackend` remains a guarded adapter slot whose synthesis is not
+yet wired.
 
 Example
 -------

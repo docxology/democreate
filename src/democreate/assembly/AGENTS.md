@@ -55,5 +55,9 @@ Run:
 
 ```sh
 .venv/bin/python -m pytest tests/test_assembly_compositor.py \
-  tests/test_assembly_captions.py tests/test_assembly_effects.py -q
+  tests/test_assembly_compositor_extra.py tests/test_assembly_captions.py \
+  tests/test_assembly_effects.py tests/test_assembly_audio.py -q
 ```
+
+This subsystem owns: `compositor.py`, `captions.py`, `effects.py`, `animator.py`,
+`audio.py` (plus `__init__.py`, `README.md`, `AGENTS.md`).

@@ -16,6 +16,8 @@ rasterization workflows.
 |--------------|--------------------------------------------------------------------|
 | `pdf.py`     | Guarded subprocess wrappers: metadata, text, page→PNG rasters.     |
 | `extract.py` | Heuristic structuring into a `PaperSummary` (title/authors/abstract/figures). |
+| `structure.py` | Deeper extraction: the real abstract (skipping the TOC), `Figure N:` captions, and the section list. |
+| `script.py`  | Build the narrated paper `Demo` from the summary + structure (`build_paper_demo`). |
 
 ## Public API
 
@@ -30,6 +32,15 @@ from democreate.paper import (
     PaperSummary,               # dataclass with .to_dict()
     collect_figures,            # list[Path] — sorted *.png/*.jpg (non-recursive)
     summarize_paper,            # PaperSummary
+    # structure.py — deeper extraction
+    summarize_structure,        # dict — abstract + figure_captions + sections
+    extract_abstract,           # str — the real abstract (skips the TOC)
+    extract_figure_captions,    # list[FigureCaption] — "Figure N: …"
+    extract_sections,           # list[PaperSection]
+    FigureCaption, PaperSection,
+    # script.py — narrated demo
+    build_paper_demo,           # Demo — from summary + structure + figures/code
+    chunk_sentences,            # list[str] — sentence chunking for narration
 )
 ```
 

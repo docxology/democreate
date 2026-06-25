@@ -10,6 +10,15 @@ rendered frames and audio) into shareable outputs:
   HTML5 player (Jinja2, a core dep) with a chapter sidebar and caption track.
 * :mod:`democreate.export.formats` — readable transcript (Markdown), JSON, and a
   chapter list for players/YouTube. PDF is guarded behind a backend check.
+* :mod:`democreate.export.verify` — content-assert a rendered video (real streams,
+  expected size, non-silent, non-black) via ``ffprobe``.
+* :mod:`democreate.export.chapters` / :mod:`~democreate.export.metadata` — embed
+  per-scene chapter markers and MP4 container tags (guarded ``ffmpeg``).
+* :mod:`democreate.export.overlay` — pure on-screen metadata bars (author/source/
+  clock/watermark).
+* :mod:`democreate.export.poster` — poster/thumbnail frame and animated-GIF preview.
+* :mod:`democreate.export.stego` — signed, tamper-evident steganographic provenance
+  in lossless PNG sidecars.
 
 Everything except the explicitly-guarded ``ffmpeg``/PDF paths runs with only the
 core dependencies (pyyaml, typer, rich, jinja2, pillow) and is fully testable.

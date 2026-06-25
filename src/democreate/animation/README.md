@@ -35,6 +35,24 @@ Pure math plus one Pillow op.
 | `build_code_scene_spec(code, *, title="", language="python")` | `dict` | **Pure**, JSON-serializable line-by-line reveal description (title, code, language, ordered `steps` with `start_ms`/`duration_ms`, `total_duration_ms`). No manim required. |
 | `render_manim_scene(spec, out_path)` | `Path` | **Guarded** real render. Raises `BackendUnavailableError("manim", extra="animation")` when manim is absent. Marked `# pragma: no cover`. |
 
+### `fonts.py` — scaled TrueType font resolution
+Pure font loading/scaling on Pillow (a core dep). Resolves a usable TrueType face
+and scales it to the frame height so type stays crisp at any resolution
+(`load_font` / `scaled_font` / font-path resolution helpers), falling back to
+`ImageFont.load_default()` when no system face is found.
+
+### `waveform.py` — speech-waveform scrubber
+Pure envelope computation + drawing for the moving speech waveform overlaid on
+animated renders: compute a normalized amplitude envelope from a WAV and draw the
+waveform strip with a sweeping playhead locked to audio progress
+(`compute_envelope` / `draw_waveform` / `render_waveform_strip`).
+
+### `diagram.py` — architecture diagram image
+Pure Pillow rendering of a labelled, columned architecture diagram used as a
+full-frame scene background. `DiagramNode(label, sublabels=[])` is one box;
+`render_architecture_diagram(size, *, title, columns, …) -> Image` lays out
+columns of nodes; a helper renders DemoCreate's own architecture image.
+
 ## Optional extras
 
 | Backend | Function | Upgrade extra | Install |

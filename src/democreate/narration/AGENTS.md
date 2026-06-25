@@ -4,9 +4,12 @@ Guidance for agents editing this subsystem. Read alongside `README.md`.
 
 ## What this subsystem is
 
-The narration half of the build: `script` → `Demo`, `tts` → audio, `sync` →
-timestamps. It consumes the schema spine (`Demo/Scene/Chunk/Action/WordTimestamp`)
-and the shared `AudioClip`; it never redefines those types.
+The narration half of the build: `script`/`project_summary` → `Demo`, `tts` →
+audio, `sync` → timestamps. `project_summary.py` builds the *describing*
+project-summary demo consumed by `democreate.portfolio`; `tts.py` carries the
+wired local Kokoro neural voice. It consumes the schema spine
+(`Demo/Scene/Chunk/Action/WordTimestamp`) and the shared `AudioClip`; it never
+redefines those types.
 
 ## Hard rules
 
@@ -21,8 +24,9 @@ and the shared `AudioClip`; it never redefines those types.
 3. **Do not import the codebase subsystem.** `generate_codebase_demo` duck-types
    summaries via `getattr`/dict lookup (`.name/.path/.functions/.classes`) to avoid
    build-order coupling. Do not add a real import of `democreate.codebase`.
-4. **Scope.** Only edit files under `src/democreate/narration/` and the three
-   `tests/test_narration_*.py` files. Never touch `schema.py`, `media.py`,
+4. **Scope.** Only edit files under `src/democreate/narration/` and the
+   `tests/test_narration_*.py` files (tts, sync, script, llm, project_summary).
+   Never touch `schema.py`, `media.py`,
    `errors.py`, `_logging.py`, `project_paths.py`, `__init__.py` (package root),
    `pyproject.toml`, or `conftest.py`.
 

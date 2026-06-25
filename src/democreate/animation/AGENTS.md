@@ -4,9 +4,9 @@ Guidance for agents editing this subsystem.
 
 ## Boundaries
 - Owns exactly: `__init__.py`, `highlights.py`, `zoom.py`, `manim_scenes.py`,
-  `README.md`, `AGENTS.md` in this directory, plus
-  `tests/test_animation_highlights.py`, `tests/test_animation_zoom.py`,
-  `tests/test_animation_manim.py`.
+  `fonts.py`, `waveform.py`, `diagram.py`, `README.md`, `AGENTS.md` in this
+  directory, plus the matching `tests/test_animation_*.py` files
+  (`highlights`, `zoom`, `manim`, `fonts`, `waveform`, `diagram`).
 - Do **not** modify the spine: `schema.py`, `media.py`, `errors.py`,
   `_logging.py`, `project_paths.py`, `__init__.py` (package root), `pyproject.toml`,
   `conftest.py`, or any sibling subsystem.

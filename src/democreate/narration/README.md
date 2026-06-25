@@ -12,9 +12,11 @@ subsystem is import-safe and fully testable with no heavy backends installed.
 
 | Module | Responsibility |
 |--------|----------------|
-| `script.py` | Build a `Demo` from context (templates, codebase summaries, optional LLM). |
-| `tts.py`    | Synthesize narration audio to real WAV files. |
+| `script.py` | Build a `Demo` from context (templates, codebase summaries). |
+| `project_summary.py` | Build a *describing* project-summary `Demo` from collected repo facts (used by `democreate.portfolio`). |
+| `tts.py`    | Synthesize narration audio to real WAV files (silent default, wired Kokoro neural voice). |
 | `sync.py`   | Derive word timestamps from real audio and timestamp every action. |
+| `llm.py`    | Optional LLM-backed script generation (guarded; no network by default). |
 
 ## Pipeline
 
@@ -44,6 +46,8 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent.
 - `synthesize_demo(demo, workspace, backend=None) -> list[AudioClip]` — voices
   every chunk in order, mutating `chunk.audio_path`.
+- `fetch_kokoro_model(dest=None) -> tuple[Path, Path]` — explicit one-time download
+  of the Kokoro model + voices into the cache dir (powers `democreate fetch-voice`).
 
 ### `sync.py`
 - `Transcriber` (ABC): `transcribe(audio_path, text=None) -> list[WordTimestamp]`.
@@ -66,6 +70,17 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
   `.name/.path/.functions/.classes` (objects **or** dicts). Emits `OPEN_FILE` +
   `HIGHLIGHT_LINES` actions. Does **not** import the codebase subsystem.
 - `LLMScriptGenerator` — guarded provider abstraction (`extra="llm"`), no network.
+
+### `project_summary.py`
+- `ProjectFacts` — pure data carrier for one project's render-ready facts (name,
+  tagline, README bullets, module/LOC/class/function counts, top packages, key
+  modules, run command).
+- `KeyModule` — a load-bearing module selected for a code scene (name, path, real
+  docstring, real source excerpt, symbol count).
+- `generate_project_summary_demo(facts, *, title=None, architecture_image=None, …)
+  -> Demo` — **deterministic, no I/O.** Builds the fixed seven-beat "describing"
+  demo (title · README bullets · architecture · stats · key-code-from-real-docstrings
+  · run · outro). Identical facts → byte-identical demo.
 
 ## Optional extras
 

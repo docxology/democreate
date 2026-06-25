@@ -9,9 +9,16 @@ Commands::
     democreate init      [PATH]            write a starter demo artifact
     democreate inspect   DEMO              validate and summarize a demo
     democreate build     DEMO  [--output]  run the full pipeline -> frames/audio/player
+    democreate render    DEMO  [--output]  render an animated HD MP4 + voiceover, verify
     democreate tour      REPO  [--output]  generate a codebase tour (--render for MP4)
     democreate portfolio DIR   [--output]  a timestamped summary video per project
+    democreate paper     PDF   [--repo]    narrated demo of a research paper (PDF)
     democreate captions  DEMO  [--format]  emit subtitles to stdout
+    democreate verify    VIDEO             content-assert a video (real/non-silent/non-black)
+    democreate config    [OUT] [--theme]   write a commented render-config YAML
+    democreate thumbnail DEMO  [--out]     render a poster/thumbnail frame
+    democreate gif       DEMO  [--output]  build + export an animated GIF preview
+    democreate stego     IMAGE [--demo]    extract/verify steganographic provenance
     democreate fetch-voice                 download the Kokoro neural-TTS model
     democreate backends                    list backends and their availability
     democreate version                     print the version

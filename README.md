@@ -44,7 +44,7 @@ regenerate commands, the 14 showcase scenes, and companion artifacts — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (664 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (666 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -246,7 +246,7 @@ Details: [`docs/paper.md`](docs/paper.md).
 
 ## Architecture
 
-A `Demo` (the declarative spine) threads through six subsystems. The deterministic
+A `Demo` (the declarative spine) threads through seven subsystems. The deterministic
 defaults carry the core pipeline; system binaries and guarded adapter slots
 upgrade specific media surfaces without changing the orchestration.
 

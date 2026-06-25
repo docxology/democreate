@@ -17,7 +17,8 @@ of modules at the package root:
 | `project_paths.py` | `Workspace` — centralizes every output location (`demos/`, `audio/`, `frames/`, `video/`, `captions/`, `web/`, `manifests/`) so no module hardcodes a path. |
 | `config.py` | `RenderConfig` (`Theme` + `AudioConfig` + `VideoConfig`) — the look/sound/motion settings, YAML-loadable, threaded through the pipeline. See [config.md](config.md). |
 | `pipeline.py` | `Pipeline` / `build_demo` / `render_video` — the thin orchestrator that wires the subsystems in canonical order. |
-| `cli.py` | The `democreate` Typer app — a thin layer over `pipeline` and the subsystems. |
+| `portfolio.py` | `render_portfolio` / `render_project` / `collect_project_facts` / `discover_projects` — a thin orchestration sibling of `pipeline.py` that turns a directory of repositories into one timestamped, content-verified summary video per project. Builds each demo via `narration.project_summary.generate_project_summary_demo` (a deterministic README + AST "describing" generator) and renders it through `pipeline`. |
+| `cli.py` | The `democreate` Typer app — a thin layer over `pipeline`, `portfolio`, and the subsystems. |
 
 ### The declarative model, in two lineages
 

@@ -6,9 +6,11 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
 ## Boundaries
 - This subsystem **consumes** `Demo` and rendered frames/audio; it never defines
   schema or media value types. Import them from `..schema` / `..media`.
-- Only the files under `src/democreate/export/` and the three matching test files
-  belong to this subsystem. Do not touch other subsystems, `__init__.py` of the
-  package root, `pyproject.toml`, or `conftest.py`.
+- Only the files under `src/democreate/export/` and the matching
+  `tests/test_export_*.py` files belong to this subsystem (modules: `video`,
+  `interactive`, `formats`, `chapters`, `metadata`, `overlay`, `poster`, `stego`,
+  `verify`). Do not touch other subsystems, `__init__.py` of the package root,
+  `pyproject.toml`, or `conftest.py`.
 
 ## The deterministic-default rule
 - Core deps only: `pyyaml`, `typer`, `rich`, `jinja2` (and `markupsafe`, which

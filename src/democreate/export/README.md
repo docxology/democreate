@@ -36,6 +36,38 @@ of the script element or be mangled by HTML autoescaping.
 | `to_chapters(demo)` | pure | `[{title, scene_id, start_ms}]` for players / YouTube descriptions. |
 | `export_pdf(demo, out_path)` | **guarded** | Renders the transcript to PDF. Requires a Markdown→PDF engine (`weasyprint` / `markdown-pdf` / `reportlab`); otherwise raises `BackendUnavailableError("pdf", extra="docs")`. `to_markdown` is the always-available fallback. |
 
+### `verify.py` — content verification
+Content-asserts a rendered video so existence is never mistaken for content.
+`VideoReport` (dataclass) + `verify_video(path, *, expected_width, expected_height,
+min_duration_s)` parse `ffprobe`/`volumedetect` to assert a real video stream of
+the expected size, an audio stream that is **not silent**, and a sampled frame that
+is **not black**. `parse_ffprobe` is the pure parser.
+
+### `chapters.py` — chapter markers
+`write_chapters`, `to_youtube_chapters`, `to_ffmetadata`, `embed_chapters`, and
+`measured_chapters` (chapter starts from the *measured* audio timeline) — emit a
+YouTube chapter file and embed one chapter marker per scene into the MP4.
+
+### `metadata.py` — container tags
+`build_tags`/`embed_tags` write MP4 container metadata (`title`/`artist`/`comment`,
+readable by players and `ffprobe`); `ffmpeg_metadata_args`/`to_ffmetadata` are the
+pure helpers.
+
+### `overlay.py` — on-screen provenance bars
+Pure Pillow drawing of the top/bottom metadata bars (author · source · running
+clock · watermark): `OverlayInfo`, `draw_header`, `draw_footer`, `format_clock`,
+`from_metadata_config`.
+
+### `poster.py` — poster + GIF
+`render_poster(demo, out, …)` renders a title/thumbnail frame; `demo_to_gif`
+exports an animated GIF preview of a demo's frames.
+
+### `stego.py` — steganographic provenance
+LSB steganography in lossless PNG sidecars: `build_provenance`/`embed_provenance`
+write a signed, content-hashed provenance payload; `extract_provenance`/
+`verify_provenance` read it back and confirm it matches the demo (tamper-evident).
+`capacity_bytes`/`embed`/`extract` are the low-level primitives.
+
 ## Optional extras
 
 | Capability | Upgraded by extra | Install |
@@ -47,6 +79,7 @@ All other functions need nothing beyond the core install.
 
 ## Tests
 
-`tests/test_export_video.py`, `tests/test_export_interactive.py`,
-`tests/test_export_formats.py` — real computation on real temp files, no mocks.
-Guarded backends are covered by asserting the `BackendUnavailableError` path.
+`tests/test_export_*.py` — one per module (`video`, `interactive`, `formats`,
+`chapters`, `metadata`, `overlay`, `poster`, `stego`, `verify`) — real computation
+on real temp files, no mocks. Guarded backends are covered by asserting the
+`BackendUnavailableError` path.

@@ -108,7 +108,7 @@ embedded by the pipeline, it carries:
 | Key | Value |
 |-----|-------|
 | `tool` | `"democreate"` |
-| `version` | DemoCreate version (`0.6.2`) — sourced from `democreate.__version__` |
+| `version` | DemoCreate version (`0.7.0`) — sourced from `democreate.__version__` |
 | `title` | Demo title |
 | `author` | `MetadataConfig.author` |
 | `scenes` | Scene count |

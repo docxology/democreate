@@ -1,6 +1,6 @@
 # API reference
 
-> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.6.2`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
+> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.7.0`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
 
 This reference lists the public classes and functions of each documented module with the one-line summary of their docstring. For prose and examples, see the topic docs linked from [README.md](README.md); for the full contracts, read the source and its tests.
 
@@ -11,10 +11,12 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.config`](#democreateconfig)
 - [`democreate.media`](#democreatemedia)
 - [`democreate.pipeline`](#democreatepipeline)
+- [`democreate.portfolio`](#democreateportfolio)
 - [`democreate.project_paths`](#democreateproject_paths)
 - [`democreate.errors`](#democreateerrors)
 - [`democreate.cli`](#democreatecli)
 - [`democreate.narration.script`](#democreatenarrationscript)
+- [`democreate.narration.project_summary`](#democreatenarrationproject_summary)
 - [`democreate.narration.tts`](#democreatenarrationtts)
 - [`democreate.narration.sync`](#democreatenarrationsync)
 - [`democreate.narration.llm`](#democreatenarrationllm)
@@ -158,6 +160,26 @@ End-to-end orchestration: a declarative :class:`Demo` becomes rendered output.
 - **`build_demo(demo: 'Demo', workspace: 'Workspace | None' = None, **kwargs: 'object') -> 'PipelineResult'`** — Convenience one-shot: construct a default :class:`Pipeline` and run it.
 - **`render_video(result: 'PipelineResult', out_path: 'Path | None' = None, *, fps: 'int | None' = None, burn_captions: 'bool' = False, verify: 'bool' = True, animate: 'bool' = True, animation_fps: 'int | None' = None, config=None)`** — Assemble an audio-synced MP4 from a completed pipeline result.
 
+## `democreate.portfolio` {#democreateportfolio}
+
+Portfolio orchestration: a directory of repositories becomes a shelf of videos.
+
+### Classes
+
+- **`PortfolioReport`** *(dataclass)* — The result of a whole-directory portfolio run.
+  - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a JSON-ready dict.
+- **`ProjectResult`** *(dataclass)* — Outcome of rendering one project.
+  - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a JSON-ready dict for the portfolio index.
+
+### Functions
+
+- **`build_project_demo(repo: 'Path', workspace, *, config=None, max_modules: 'int' = 3, title: 'str | None' = None)`** — Collect facts, render an architecture diagram, and build the summary demo.
+- **`collect_project_facts(repo: 'Path', *, max_modules: 'int' = 3) -> 'ProjectFacts'`** — Walk ``repo`` and assemble its render-ready :class:`ProjectFacts`.
+- **`discover_projects(projects_dir: 'Path', *, skip: 'tuple[str, ...]' = ()) -> 'list[Path]'`** — Return the sorted project directories under ``projects_dir``.
+- **`render_portfolio(projects_dir: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_projects: 'int' = 0, max_modules: 'int' = 3, skip: 'tuple[str, ...]' = (), timestamp: 'str | None' = None, verify: 'bool' = True) -> 'PortfolioReport'`** — Render a summary video for every project under ``projects_dir``.
+- **`render_project(repo: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_modules: 'int' = 3, timestamp: 'str | None' = None, verify: 'bool' = True) -> 'ProjectResult'`** — Render one repository to a timestamped, verified summary MP4.
+- **`utc_stamp(now: 'datetime | None' = None) -> 'str'`** — Return a filesystem-safe UTC timestamp like ``20260625T164530Z``.
+
 ## `democreate.project_paths` {#democreateproject_paths}
 
 Path resolution for DemoCreate runs.
@@ -170,6 +192,7 @@ Path resolution for DemoCreate runs.
 ### Functions
 
 - **`default_output_root() -> 'Path'`** — Return the conventional output root (``./output`` under the cwd).
+- **`relativize_under_root(obj: 'Any', root: 'Path | str') -> 'Any'`** — Rewrite absolute-path strings under ``root`` to ``root``-relative POSIX form.
 
 ## `democreate.errors` {#democreateerrors}
 
@@ -194,15 +217,17 @@ The ``democreate`` command-line interface.
 - **`build(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'auto', strict: 'bool' = True) -> 'None'`** — Run the full pipeline: TTS, sync, frames, captions, and HTML player.
 - **`captions(demo: 'Path', fmt: 'str' = 'srt') -> 'None'`** — Emit subtitles for a demo to stdout.
 - **`config(out: 'Path' = PosixPath('democreate.yaml'), theme: 'str' = 'dark') -> 'None'`** — Write a fully-commented render-config YAML you can edit and pass to --config.
+- **`fetch_voice() -> 'None'`** — Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
 - **`gif(demo: 'Path', output: 'Path' = PosixPath('output'), out: 'Path' = PosixPath('demo.gif'), fps: 'int' = 8, theme: 'str' = 'dark') -> 'None'`** — Build a demo and export an animated GIF preview of its frames.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
 - **`inspect(demo: 'Path') -> 'None'`** — Validate a demo and print a structural summary.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
+- **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 3, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
 - **`render(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', fps: 'int' = 0, captions: 'bool' = False, animate: 'bool' = True, animation_fps: 'int' = 15, theme: 'str' = 'noir', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', header: 'bool' = False, config: 'Path' = None) -> 'None'`** — Render a demo to an HD MP4 with real voiceover, then verify its content.
 - **`stego(image: 'Path', demo: 'Path' = None) -> 'None'`** — Extract (and optionally verify) the steganographic provenance in a PNG.
 - **`thumbnail(demo: 'Path', out: 'Path' = PosixPath('poster.png'), theme: 'str' = 'dark', subtitle: 'str' = '') -> 'None'`** — Render a poster / thumbnail frame for a demo.
-- **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True) -> 'None'`** — Generate a codebase tour demo from a repository (and optionally render it).
+- **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True, render_it: 'bool' = False, tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir') -> 'None'`** — Generate a codebase tour demo from a repository (build and/or render it).
 - **`verify(video: 'Path', width: 'int' = 0, height: 'int' = 0, min_duration: 'float' = 1.0) -> 'None'`** — Content-assert a video: real streams, expected size, non-silent, non-black.
 - **`version() -> 'None'`** — Print the installed DemoCreate version.
 
@@ -223,6 +248,20 @@ Script generation: turning structured context into a declarative Demo.
 
 - **`generate_codebase_demo(summaries: 'list[Any]', *, title: 'str') -> 'Demo'`** — Build a codebase-tour :class:`Demo` from a list of module summaries.
 
+## `democreate.narration.project_summary` {#democreatenarrationproject_summary}
+
+Project-summary script generation: a repo's facts become a narrated ``Demo``.
+
+### Classes
+
+- **`KeyModule`** *(dataclass)* — One load-bearing module selected for a code scene.
+- **`ProjectFacts`** *(dataclass)* — The structured, render-ready facts about one software project.
+  - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a plain JSON-ready dict (for the portfolio index).
+
+### Functions
+
+- **`generate_project_summary_demo(facts: 'ProjectFacts', *, title: 'str | None' = None, architecture_image: 'str | None' = None, width: 'int' = 1920, height: 'int' = 1080, fps: 'int' = 30, voice: 'str' = 'default', max_modules: 'int' = 3) -> 'Demo'`** — Build a narrated project-summary :class:`Demo` from collected facts.
+
 ## `democreate.narration.tts` {#democreatenarrationtts}
 
 Text-to-speech backends for DemoCreate narration.
@@ -232,9 +271,9 @@ Text-to-speech backends for DemoCreate narration.
 - **`ChatterboxTTSBackend`** — Chatterbox TTS backend (optional, requires the ``tts`` extra).
   - `is_available(self) -> 'bool'` — Return whether the ``chatterbox`` package is installed.
   - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Chatterbox (only runs when installed).
-- **`KokoroTTSBackend`** — Kokoro neural TTS backend (optional, requires the ``tts`` extra).
-  - `is_available(self) -> 'bool'` — Return whether the ``kokoro`` package is installed.
-  - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Kokoro (only runs when ``kokoro`` is present).
+- **`KokoroTTSBackend`** — Kokoro neural TTS backend — a high-quality, fully-local voice.
+  - `is_available(self) -> 'bool'` — Return whether ``kokoro-onnx`` AND its model files are present.
+  - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Kokoro to a canonical WAV; measure its duration.
 - **`SilentTTSBackend`** — Deterministic default backend that writes real WAV files of silence.
   - `estimate_duration_ms(self, text: 'str') -> 'int'` — Estimate spoken duration of ``text`` in milliseconds.
   - `is_available(self) -> 'bool'` — Always ``True`` — the default backend uses only the standard library.
@@ -248,6 +287,7 @@ Text-to-speech backends for DemoCreate narration.
 
 ### Functions
 
+- **`fetch_kokoro_model(dest: 'Path | None' = None) -> 'tuple[Path, Path]'`** — Download the Kokoro model + voices into the cache dir if absent.
 - **`get_tts_backend(name: 'str' = 'auto', *, voice: 'str | None' = None) -> 'TTSBackend'`** — Return a TTS backend by name.
 - **`measure_wav_duration_ms(path: 'Path | str') -> 'int'`** — Return the true duration of a WAV file in milliseconds.
 - **`synthesize_demo(demo: 'Demo', workspace, backend: 'TTSBackend | None' = None) -> 'list[AudioClip]'`** — Synthesize audio for every chunk of ``demo`` into the workspace.
@@ -539,5 +579,5 @@ Document-format exports for a :class:`~democreate.schema.Demo`.
 
 - **`export_pdf(demo: 'Demo', out_path: 'Path') -> 'Path'`** — Render the demo transcript to a PDF.
 - **`to_chapters(demo: 'Demo') -> 'list[dict]'`** — Build a chapter list for players and YouTube descriptions.
-- **`to_json(demo: 'Demo', *, indent: 'int' = 2) -> 'str'`** — Serialize the demo to JSON.
+- **`to_json(demo: 'Demo', *, indent: 'int' = 2, relative_to: 'Path | str | None' = None) -> 'str'`** — Serialize the demo to JSON.
 - **`to_markdown(demo: 'Demo') -> 'str'`** — Render the demo as a readable Markdown transcript.

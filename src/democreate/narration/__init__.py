@@ -5,8 +5,11 @@ This package owns the audio-narration half of a demo build:
 * :mod:`~democreate.narration.script` — build a declarative
   :class:`~democreate.schema.Demo` from structured context (template default,
   codebase helper, optional LLM backend).
+* :mod:`~democreate.narration.project_summary` — build a narrated
+  project-summary :class:`~democreate.schema.Demo` from collected repository
+  facts (deterministic, used by :mod:`democreate.portfolio`).
 * :mod:`~democreate.narration.tts` — synthesize narration audio (deterministic
-  silent default; optional Kokoro/Chatterbox backends).
+  silent default; a wired local **Kokoro** neural voice; a guarded Chatterbox slot).
 * :mod:`~democreate.narration.sync` — derive word timestamps from real audio and
   anchor every action to its ``trigger_word`` (deterministic heuristic default;
   optional Whisper backend).
@@ -17,6 +20,11 @@ subsystem is import-safe and testable with only the core dependencies.
 
 from __future__ import annotations
 
+from .project_summary import (
+    KeyModule,
+    ProjectFacts,
+    generate_project_summary_demo,
+)
 from .script import (
     LLMScriptGenerator,
     ScriptGenerator,
@@ -64,4 +72,8 @@ __all__ = [
     "TemplateScriptGenerator",
     "LLMScriptGenerator",
     "generate_codebase_demo",
+    # project_summary
+    "generate_project_summary_demo",
+    "ProjectFacts",
+    "KeyModule",
 ]

@@ -149,7 +149,7 @@ democreate paper policy-entanglement.pdf \
 ```
 
 Result: a **1920×1080 / ~188 s H.264 + AAC** video, `verify_video` ok (rendered in
-the `v0.6.2` noir look — see [videos.md](videos.md)). The figures, the code, and
+the noir look — see [videos.md](videos.md)). The figures, the code, and
 the overview were all generated from the same sources — reproducible by
 construction.
 

@@ -65,6 +65,27 @@ All size-preserving, deterministic, Pillow-only:
 - `highlight_box(image, box, *, color=(255,214,0), width=4)`.
 - `lower_third(image, text, *, height=120)` — translucent caption band.
 
+### `animator.py` — animated frame synthesis
+
+Re-samples the still per-chunk frames onto a fixed frame rate with motion: the
+moving speech waveform + playhead, the top-edge progress line, character-by-character
+code typing, the animated cursor, scene transitions, and Ken Burns. Pure Pillow.
+
+- `AnimationConfig` (dataclass): the per-render animation parameters
+  (`from_video(video, theme, audio)` builds it from a `RenderConfig`).
+- `chunk_timing(...)`, `active_index_at(...)` — pure timeline math.
+- `render_animation_frames(frame_paths, clips, voiceover, out_dir, *, …)` — emit the
+  animated frame sequence (the input to `encode_frame_sequence`).
+
+### `audio.py` — voiceover assembly
+
+Pure WAV concatenation plus guarded ffmpeg post-processing:
+
+- `write_silence`, `concat_with_gaps` (lead/gap/trail silence), `measure_duration_ms`
+  — stdlib `wave` only.
+- `normalize_audio`, `apply_fade`, `ffmpeg_audio_available` — ffmpeg loudnorm/fade,
+  applied only when ffmpeg is present (skipped gracefully otherwise).
+
 ## Optional extras
 
 | Backend | Extra | Install |

@@ -273,7 +273,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Six hundred sixty four collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
+          "text": "And it is real. Six hundred sixty six collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
           "actions": []
         }
       ],
@@ -281,7 +281,7 @@
         "section": "By the numbers",
         "stats": [
           [
-            "664",
+            "666",
             "collected tests"
           ],
           [
