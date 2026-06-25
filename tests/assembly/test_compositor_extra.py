@@ -1,5 +1,5 @@
 """Extra coverage for the compositor: every action->FrameState branch and the
-pure-Pillow fallback renderer. Complements tests/test_assembly_compositor.py.
+pure-Pillow fallback renderer. Complements tests/assembly/test_compositor.py.
 """
 
 from __future__ import annotations

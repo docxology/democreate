@@ -50,6 +50,6 @@ module top level; a real-backend call without the dep raises
 
 ## Tests
 
-`tests/test_codebase_walker.py`, `tests/test_codebase_ast_viz.py`,
-`tests/test_codebase_dependency.py` — real computation on temp files and on the
+`tests/codebase/test_walker.py`, `tests/codebase/test_ast_viz.py`,
+`tests/codebase/test_dependency.py` — real computation on temp files and on the
 live `src/democreate` tree. No mocks.

@@ -79,7 +79,7 @@ All other functions need nothing beyond the core install.
 
 ## Tests
 
-`tests/test_export_*.py` — one per module (`video`, `interactive`, `formats`,
+`tests/export/test_*.py` — one per module (`video`, `interactive`, `formats`,
 `chapters`, `metadata`, `overlay`, `poster`, `stego`, `verify`) — real computation
 on real temp files, no mocks. Guarded backends are covered by asserting the
 `BackendUnavailableError` path.

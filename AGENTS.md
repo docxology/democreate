@@ -66,6 +66,10 @@ pure function of the artifact. Read [`README.md`](README.md) and
   green suite.
 - Run subsystem tests scoped (`-q`, no `--cov`) to avoid `.coverage` races with
   parallel agents; run the full coverage gate as a final step.
+- **Tests mirror the source tree:** a subsystem `src/democreate/<x>/` is tested by
+  `tests/<x>/test_*.py`; root spine modules (`schema`, `pipeline`, `portfolio`, …)
+  by `tests/test_<x>.py`; integration/meta tests stay at the `tests/` root. Scope a
+  subsystem run with `tests/<x>/`. See [`docs/testing_philosophy.md`](docs/testing_philosophy.md).
 
 ## Verification before claiming done
 

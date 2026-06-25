@@ -104,7 +104,10 @@ pythonpath = [".", "src"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short --strict-markers"
+# import-mode=importlib lets the test tree mirror src/democreate/ (one subdir per
+# subsystem) without __init__.py files and tolerates duplicate basenames across
+# subdirs (e.g. narration/test_script.py + paper/test_script.py).
+addopts = "-v --tb=short --strict-markers --import-mode=importlib"
 markers = [
     "backend: tests that exercise an optional heavy backend (skipped if absent)",
 ]

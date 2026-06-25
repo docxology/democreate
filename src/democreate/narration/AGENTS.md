@@ -25,7 +25,7 @@ redefines those types.
    summaries via `getattr`/dict lookup (`.name/.path/.functions/.classes`) to avoid
    build-order coupling. Do not add a real import of `democreate.codebase`.
 4. **Scope.** Only edit files under `src/democreate/narration/` and the
-   `tests/test_narration_*.py` files (tts, sync, script, llm, project_summary).
+   `tests/narration/test_*.py` files (tts, sync, script, llm, project_summary).
    Never touch `schema.py`, `media.py`,
    `errors.py`, `_logging.py`, `project_paths.py`, `__init__.py` (package root),
    `pyproject.toml`, or `conftest.py`.
@@ -52,8 +52,8 @@ and timeline consistent even if a clip is regenerated.
 
 ```
 cd <repo> && .venv/bin/python -m pytest \
-  tests/test_narration_tts.py tests/test_narration_sync.py \
-  tests/test_narration_script.py -p no:cacheprovider -q
+  tests/narration/test_tts.py tests/narration/test_sync.py \
+  tests/narration/test_script.py -p no:cacheprovider -q
 ```
 
 Also keep ruff clean (`select = E,F,I,UP,B,W`, line-length 88, E501 ignored):

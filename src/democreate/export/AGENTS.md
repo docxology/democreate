@@ -7,7 +7,7 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
 - This subsystem **consumes** `Demo` and rendered frames/audio; it never defines
   schema or media value types. Import them from `..schema` / `..media`.
 - Only the files under `src/democreate/export/` and the matching
-  `tests/test_export_*.py` files belong to this subsystem (modules: `video`,
+  `tests/export/test_*.py` files belong to this subsystem (modules: `video`,
   `interactive`, `formats`, `chapters`, `metadata`, `overlay`, `poster`, `stego`,
   `verify`). Do not touch other subsystems, `__init__.py` of the package root,
   `pyproject.toml`, or `conftest.py`.
@@ -44,7 +44,7 @@ See `__init__.py` `__all__`: `build_ffmpeg_command`, `frames_to_gif`,
 ## Verify
 ```
 cd <repo> && .venv/bin/python -m pytest \
-  tests/test_export_video.py tests/test_export_interactive.py \
-  tests/test_export_formats.py -p no:cacheprovider -q
+  tests/export/test_video.py tests/export/test_interactive.py \
+  tests/export/test_formats.py -p no:cacheprovider -q
 ```
 Lint: `ruff check src/democreate/export/ --line-length 88`.

@@ -25,7 +25,7 @@ claims:
     unit: milliseconds
     direction: "<="
     backed_by: "experiment_plan.yaml:primary_metric#sync_error_ms (condition=default)"
-    source: "tests/test_narration_sync.py synthetic ground-truth alignment"
+    source: "tests/narration/test_sync.py synthetic ground-truth alignment"
     status: estimate
 
   - id: C2
@@ -247,7 +247,7 @@ claims:
     unit: bytes_delta
     direction: "=="
     backed_by: "narration/project_summary.py generate_project_summary_demo (pure, no clock/RNG/network)"
-    source: "tests/test_narration_project_summary.py::test_determinism_byte_identical"
+    source: "tests/narration/test_project_summary.py::test_determinism_byte_identical"
     status: verified
 
   - id: C26

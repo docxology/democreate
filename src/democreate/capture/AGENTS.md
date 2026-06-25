@@ -41,10 +41,10 @@ model. Tests assert these invariants; keep them green.
 ## Tests
 No mocks. Real temp files via `tmp_path` / `sample_demo`. Heavy backends are only
 checked for the `BackendUnavailableError` path (the deps are absent in CI).
-Run: `.venv/bin/python -m pytest tests/test_capture_*.py -q` (no `--cov` to avoid
+Run: `.venv/bin/python -m pytest tests/capture/test_*.py -q` (no `--cov` to avoid
 `.coverage` races with parallel agents).
 
 ## Scope
 Touch only files under `src/democreate/capture/` and the four
-`tests/test_capture_*.py`. Do not edit the spine, `__init__.py` of the package
+`tests/capture/test_*.py`. Do not edit the spine, `__init__.py` of the package
 root, `pyproject.toml`, or `conftest.py`.

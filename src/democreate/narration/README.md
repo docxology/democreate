@@ -99,5 +99,5 @@ timings end to end — the same input always yields the same `Demo`.
 
 ## Tests
 
-`tests/test_narration_tts.py`, `tests/test_narration_sync.py`,
-`tests/test_narration_script.py` — real WAV I/O on temp files, no mocks.
+`tests/narration/test_tts.py`, `tests/narration/test_sync.py`,
+`tests/narration/test_script.py` — real WAV I/O on temp files, no mocks.

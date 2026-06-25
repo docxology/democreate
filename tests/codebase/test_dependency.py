@@ -9,7 +9,7 @@ import pytest
 from democreate.codebase.dependency import DependencyGraph, build_import_graph
 from democreate.errors import DemoCreateError
 
-REPO_SRC = Path(__file__).resolve().parent.parent / "src" / "democreate"
+REPO_SRC = Path(__file__).resolve().parents[2] / "src" / "democreate"
 
 
 def test_add_edge_creates_nodes() -> None:

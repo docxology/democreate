@@ -16,7 +16,7 @@ from democreate.codebase.walker import (
 )
 from democreate.errors import DemoCreateError
 
-REPO_SRC = Path(__file__).resolve().parent.parent / "src" / "democreate"
+REPO_SRC = Path(__file__).resolve().parents[2] / "src" / "democreate"
 
 
 def test_summarize_source_extracts_everything(sample_python_source: str) -> None:

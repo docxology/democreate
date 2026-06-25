@@ -5,7 +5,7 @@ Guidance for agents editing this subsystem.
 ## Boundaries
 - Owns exactly: `__init__.py`, `highlights.py`, `zoom.py`, `manim_scenes.py`,
   `fonts.py`, `waveform.py`, `diagram.py`, `README.md`, `AGENTS.md` in this
-  directory, plus the matching `tests/test_animation_*.py` files
+  directory, plus the matching `tests/animation/test_*.py` files
   (`highlights`, `zoom`, `manim`, `fonts`, `waveform`, `diagram`).
 - Do **not** modify the spine: `schema.py`, `media.py`, `errors.py`,
   `_logging.py`, `project_paths.py`, `__init__.py` (package root), `pyproject.toml`,
@@ -42,6 +42,6 @@ plus an `importorskip` smoke test.
 
 Run:
 ```
-.venv/bin/python -m pytest tests/test_animation_highlights.py \
-  tests/test_animation_zoom.py tests/test_animation_manim.py -p no:cacheprovider -q
+.venv/bin/python -m pytest tests/animation/test_highlights.py \
+  tests/animation/test_zoom.py tests/animation/test_manim.py -p no:cacheprovider -q
 ```

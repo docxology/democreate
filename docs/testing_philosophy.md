@@ -88,11 +88,32 @@ def test_missing_extra_raises_with_hint():
 Real-backend adapter code carries `# pragma: no cover` so it never counts against
 the core coverage gate.
 
+## Test layout — mirrors `src/democreate/`
+
+The test tree mirrors the package: each subsystem package has a sibling test
+directory, and tests for the root spine modules sit at the `tests/` root.
+
+```
+src/democreate/<subsystem>/…   ↔   tests/<subsystem>/test_*.py
+src/democreate/<spine>.py      ↔   tests/test_<spine>.py   (schema, media, config,
+                                     pipeline, portfolio, cli, …)
+```
+
+So `src/democreate/narration/tts.py` is tested by `tests/narration/test_tts.py`,
+and `src/democreate/portfolio.py` by `tests/test_portfolio.py`. Cross-cutting
+integration tests (e.g. `test_render_integration.py`, `test_motion_and_export.py`)
+and repo-level meta tests (`test_claim_ledger.py`, `test_manuscript_consistency.py`,
+`test_output_public_allowlist.py`) live at the `tests/` root. The shared
+`tests/conftest.py` fixtures apply to every subdirectory. Pytest uses
+`--import-mode=importlib` (set in `pyproject.toml`) so the subdirectories need no
+`__init__.py` and duplicate basenames across subsystems (e.g.
+`narration/test_script.py` + `paper/test_script.py`) coexist cleanly.
+
 ## Running the suite
 
 ```bash
 .venv/bin/python -m pytest -q                    # full suite, fast
-.venv/bin/python -m pytest tests/test_capture_*.py -q   # one subsystem (no --cov,
+.venv/bin/python -m pytest tests/capture/ -q     # one subsystem (no --cov,
                                                  #   avoids .coverage races)
 .venv/bin/python -m pytest --cov                 # the enforced ≥90% gate
 ruff check . && mypy src                          # lint + types

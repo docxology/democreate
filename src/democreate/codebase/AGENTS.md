@@ -37,15 +37,15 @@ are kept; stdlib/third-party imports are dropped.
 
 - `walker.py`, `ast_viz.py`, `dependency.py`, `__init__.py`
 - `README.md`, `AGENTS.md`
-- Tests: `tests/test_codebase_walker.py`, `tests/test_codebase_ast_viz.py`,
-  `tests/test_codebase_dependency.py`
+- Tests: `tests/codebase/test_walker.py`, `tests/codebase/test_ast_viz.py`,
+  `tests/codebase/test_dependency.py`
 
 ## Verify
 
 ```
 cd <repo> && .venv/bin/python -m pytest \
-  tests/test_codebase_walker.py tests/test_codebase_ast_viz.py \
-  tests/test_codebase_dependency.py -p no:cacheprovider -q
+  tests/codebase/test_walker.py tests/codebase/test_ast_viz.py \
+  tests/codebase/test_dependency.py -p no:cacheprovider -q
 ```
 
 Keep ruff clean at line length 88 and maintain the configured ≥90% coverage gate.

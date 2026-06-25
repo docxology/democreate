@@ -97,13 +97,13 @@ extras.
 
 ## Tests
 
-- `tests/test_assembly_compositor.py`
-- `tests/test_assembly_captions.py`
-- `tests/test_assembly_effects.py`
+- `tests/assembly/test_compositor.py`
+- `tests/assembly/test_captions.py`
+- `tests/assembly/test_effects.py`
 
 Run them:
 
 ```sh
-.venv/bin/python -m pytest tests/test_assembly_compositor.py \
-  tests/test_assembly_captions.py tests/test_assembly_effects.py -q
+.venv/bin/python -m pytest tests/assembly/test_compositor.py \
+  tests/assembly/test_captions.py tests/assembly/test_effects.py -q
 ```

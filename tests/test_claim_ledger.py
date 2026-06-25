@@ -64,7 +64,7 @@ def test_ledger_source_files_resolve(ledger: dict) -> None:
 
     This is the negative control for the C1 defect: a ``source`` pointing at a
     nonexistent ``tests/test_sync.py`` (the real file is
-    ``tests/test_narration_sync.py``).
+    ``tests/narration/test_sync.py``).
     """
     missing: list[str] = []
     for claim in _claims(ledger):

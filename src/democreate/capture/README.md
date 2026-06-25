@@ -59,10 +59,10 @@ Install with e.g. `uv sync --extra capture`. The default backends need none of
 these and produce identical output on every machine.
 
 ## Tests
-`tests/test_capture_screen.py`, `tests/test_capture_terminal.py`,
-`tests/test_capture_browser.py`, `tests/test_capture_replay.py` — 50 tests, no
+`tests/capture/test_screen.py`, `tests/capture/test_terminal.py`,
+`tests/capture/test_browser.py`, `tests/capture/test_replay.py` — 50 tests, no
 mocks, real temp files. Run:
 
 ```
-.venv/bin/python -m pytest tests/test_capture_*.py -q
+.venv/bin/python -m pytest tests/capture/test_*.py -q
 ```

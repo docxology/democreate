@@ -37,7 +37,7 @@ scientific machines and avoids a heavyweight binary-wheel dependency.
 ## Testing
 
 This subsystem owns `pdf.py`, `extract.py`, `structure.py`, `script.py` and the
-matching `tests/test_paper_*.py` files (`pdf`, `extract`, `structure`, `script`).
+matching `tests/paper/test_*.py` files (`pdf`, `extract`, `structure`, `script`).
 
 Tests run real poppler against the real 170-page paper PDF at
 `…/actinf_policy_entanglement_lean/output/pdf/…_combined.pdf` and its

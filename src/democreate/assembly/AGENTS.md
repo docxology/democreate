@@ -54,9 +54,9 @@ as implemented assembly until the present-dependency path has a real test.
 Run:
 
 ```sh
-.venv/bin/python -m pytest tests/test_assembly_compositor.py \
-  tests/test_assembly_compositor_extra.py tests/test_assembly_captions.py \
-  tests/test_assembly_effects.py tests/test_assembly_audio.py -q
+.venv/bin/python -m pytest tests/assembly/test_compositor.py \
+  tests/assembly/test_compositor_extra.py tests/assembly/test_captions.py \
+  tests/assembly/test_effects.py tests/assembly/test_audio.py -q
 ```
 
 This subsystem owns: `compositor.py`, `captions.py`, `effects.py`, `animator.py`,
