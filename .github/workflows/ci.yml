@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      # System media binaries so the backend + research-paper tests run for real
+      # (ffmpeg/ffprobe for render+verify, poppler for the paper subsystem). The
+      # Kokoro neural-voice tests skip automatically — the tts extra is not
+      # installed here, so kokoro-onnx is absent.
+      - name: Install media binaries
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg poppler-utils
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install package (core + dev)
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Type-check (mypy)
+        run: mypy src
+
+      # Full suite incl. the ≥90% coverage gate and the output-public-allowlist
+      # gate (which fails if anything other than the self-descriptor bundle is
+      # tracked under output/).
+      - name: Test + coverage gate
+        run: pytest --cov

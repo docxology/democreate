@@ -230,7 +230,7 @@ frame (grayscale pixel variance above a floor). `render` exits non-zero if
 verification fails. This is the harness that proved the end-to-end render real:
 the `Policy Entanglement in Active Inference` paper rendered to a 1920×1080 /
 ~188 s H.264 + AAC video, content-verified ok (and the package showcase to a
-3840×2160 / 129.7 s video) — see [videos.md](videos.md).
+3840×2160 / 129.9 s video) — see [videos.md](videos.md).
 
 ## See also
 

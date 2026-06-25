@@ -16,6 +16,7 @@ guarded adapter slots. The look (themes, fonts, motion) and sound (voice, pacing
 normalization) are fully **configurable**.
 
 - **Status:** alpha (`0.7.0`), Python ≥ 3.10, MIT licensed.
+- **CI:** [![CI](https://github.com/docxology/democreate/actions/workflows/ci.yml/badge.svg)](https://github.com/docxology/democreate/actions/workflows/ci.yml) — ruff + mypy + the full ≥90% coverage-gated suite on every push.
 - **DOI (concept, resolves to latest):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693216.svg)](https://doi.org/10.5281/zenodo.20693216)
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
   testing, troubleshooting.
@@ -26,21 +27,28 @@ normalization) are fully **configurable**.
 
 DemoCreate `v0.7.0` produces **real, content-verified videos** (H.264 +
 AAC, with chapters, container metadata tags, and a signed steganographic
-provenance poster) — now in the **noir** aesthetic: near-black surfaces, bright
-white text, and a single refined red as the only chroma:
+provenance poster) — in the **noir** aesthetic: near-black surfaces, bright
+white text, and a single refined red as the only chroma.
 
-- **Package demo · the showcase** (DemoCreate explaining itself across *every*
-  renderable surface, re-rendered in noir) — `output/video/demo.mp4`
-  (3840×2160 · 129.7 s). Fourteen scenes — title card, graphical abstract,
-  bullet slides, three typing code scenes, themes strip, a real paper figure, the
-  architecture diagram, a stat-card slide, a terminal render+verify, and an outro
-  — all compiled from one declarative file (`examples/democreate_showcase.json`,
-  built by [`examples/make_showcase.py`](examples/make_showcase.py)).
-- **Research-paper demo** (*Policy Entanglement in Active Inference*), also
-  re-rendered in noir — `output/paper_demo/video/demo.mp4` (1920×1080 · ~188 s)
+The repository tracks exactly **one self-describing output bundle** — DemoCreate
+explaining itself — checked in as the canonical, completely-working example:
 
-Both are regeneratable (`output/` is gitignored). Full write-up — paths, one-line
-regenerate commands, the 14 showcase scenes, and companion artifacts — in
+- **The showcase** — `output/video/demo.mp4` (3840×2160 · ~130 s), plus its
+  interactive player (`output/web/player.html`), YouTube chapters
+  (`output/chapters/`), and a signed provenance poster (`output/provenance/`).
+  Fourteen scenes — title card, graphical abstract, bullet slides, three typing
+  code scenes, themes strip, a real paper figure, the architecture diagram, a
+  stat-card slide, a terminal render+verify, and an outro — all compiled from one
+  declarative file (`examples/democreate_showcase.json`, built by
+  [`examples/make_showcase.py`](examples/make_showcase.py)).
+
+Everything else under `output/` is gitignored and regeneratable from its
+declarative source — including the **research-paper demo** (*Policy Entanglement
+in Active Inference*, 1920×1080 · ~188 s), produced on demand with
+`democreate paper` (see below). A test
+([`tests/test_output_public_allowlist.py`](tests/test_output_public_allowlist.py))
+gates the repo so only the self-descriptor bundle is ever committed. Full
+write-up — paths, one-line regenerate commands, the 14 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)

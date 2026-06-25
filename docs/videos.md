@@ -27,7 +27,7 @@ supports, including the **bullet slides** and **stat-card slides**, now re-rende
 in the **noir** look.
 
 - **Path:** `output/video/demo.mp4`
-- **Size / duration:** 3840×2160 · 129.7 s
+- **Size / duration:** 3840×2160 · 129.9 s
 - **Resolution / codecs:** 3840×2160 · H.264 + AAC (48 kHz)
 - **Chapters:** 14 embedded chapter markers (one per scene)
 - **Container tags:** `title="DemoCreate — The Showcase"`,

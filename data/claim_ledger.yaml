@@ -98,7 +98,7 @@ claims:
     unit: pixels
     direction: "=="
     backed_by: "examples/democreate_showcase.json via `uv run democreate render --resolution 2160p`"
-    source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=3840, height=2160, duration 129.667s, 1945 frames at 15fps"
+    source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=3840, height=2160, duration 129.93s, 1949 frames at 15fps"
     status: verified
 
   - id: C10
@@ -116,7 +116,7 @@ claims:
     unit: audio_to_video_ratio
     direction: ">="
     backed_by: "export/verify.py parse_ffprobe min_audio_ratio"
-    source: "ffprobe on output/video/demo.mp4: audio duration 129.664s covers the 129.667s video within the >=0.9 verifier ratio"
+    source: "ffprobe on output/video/demo.mp4: audio duration 129.96s covers the 129.93s video within the >=0.9 verifier ratio"
     status: verified
 
   - id: C12
@@ -125,7 +125,7 @@ claims:
     unit: grayscale_pixel_variance
     direction: ">"
     backed_by: "export/verify.py BLACK_VARIANCE_FLOOR (5.0)"
-    source: "democreate verify output/video/demo.mp4: frame_variance = 930.059, above the 5.0 floor"
+    source: "democreate verify output/video/demo.mp4: frame_variance = 930.2, above the 5.0 floor"
     status: verified
 
   - id: C13
