@@ -59,6 +59,25 @@ LANGUAGES: dict[str, str] = {
 }
 
 
+def _clean_llm_output(text: str) -> str:
+    """Strip reasoning blocks / wrappers from a model response.
+
+    Reasoning models (e.g. ``lfm2.5``) emit a ``<think>…</think>`` chain-of-thought
+    before the answer; keep only what follows the final ``</think>``, remove any
+    remaining think blocks, and strip surrounding quotes/whitespace so only the
+    clean translation reaches the subtitle/voice.
+    """
+    import re
+
+    if "</think>" in text:
+        text = text.rsplit("</think>", 1)[1]
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    # An unclosed think block (truncated) — drop everything from it onward.
+    if "<think>" in text:
+        text = text.split("<think>", 1)[0]
+    return text.strip().strip('"').strip()
+
+
 def language_name(code: str) -> str:
     """Return a human language name for a code (falls back to the code itself)."""
     return LANGUAGES.get(code.lower().split("-")[0], code)
@@ -174,7 +193,7 @@ class OllamaTranslator(Translator):
                 f"ollama server at {self.host} (model {self.model!r}) — "
                 "start it with `ollama serve` and `ollama pull <model>`"
             ) from exc
-        out = str(data.get("response", "")).strip()
+        out = _clean_llm_output(str(data.get("response", "")))
         return out or text
 
 

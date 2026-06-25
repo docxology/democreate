@@ -63,7 +63,7 @@ player, and a content-verified HD MP4. Four ideas carry the design:
 | `04_implementation.md` | Subsystems incl. config/audio/animation/paper + typing-reveal pseudocode (`@fig:frame_code`, `@fig:waveform`) |
 | `05_composition_and_configurability.md` | Themes, fonts, pygments, typing reveal, animated cursor, aspect presets, chapter/poster/gif export, Ken Burns, normalization (`@fig:themes`, `@fig:frame_title`, `@fig:typing_filmstrip`) |
 | `06_research_paper_demos.md` | The `paper/` subsystem, real abstract/caption/section extraction, the actinf worked example (`@fig:frame_paper`, `@fig:paper_flow`) |
-| `07_evaluation.md` | Measured benchmarks (`@fig:latency`), testability (688 collected tests, ≥90% gate), the content verifier, tamper-evident provenance + 4K geometry, two real videos (re-rendered in noir) with stills (`@fig:video_stills`) |
+| `07_evaluation.md` | Measured benchmarks (`@fig:latency`), testability (689 collected tests, ≥90% gate), the content verifier, tamper-evident provenance + 4K geometry, two real videos (re-rendered in noir) with stills (`@fig:video_stills`) |
 | `08_reproducibility.md` | uv, editable install, test gate, `render`/`paper`/`verify` |
 | `09_scope_and_related_work.md` | Honest comparison with prior art |
 | `10_provenance_and_distribution.md` | Three-carrier provenance (overlay bars, container tags, signed steganographic sidecars), the content digest, resolution tiers + crf (`@fig:provenance`) |

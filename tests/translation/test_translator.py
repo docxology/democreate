@@ -84,6 +84,17 @@ def test_get_translator_unknown_rejected() -> None:
         get_translator("googletrans")
 
 
+def test_clean_llm_output_strips_reasoning() -> None:
+    from democreate.translation.translator import _clean_llm_output
+
+    assert _clean_llm_output("<think>plan it</think>Привет мир.") == "Привет мир."
+    assert _clean_llm_output("reasoning…</think>\nДобро пожаловать.") == "Добро пожаловать."
+    assert _clean_llm_output('"Привет."') == "Привет."
+    assert _clean_llm_output("plain text") == "plain text"
+    # an unclosed (truncated) think block keeps the clean lead, drops the rest
+    assert _clean_llm_output("Привет.<think>oops") == "Привет."
+
+
 def test_ollama_unavailable_raises() -> None:
     # A closed local port: a real, offline failure — no network, no server.
     tr = OllamaTranslator(model="none", host="http://127.0.0.1:1", timeout=1)
