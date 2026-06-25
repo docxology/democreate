@@ -157,6 +157,32 @@ def test_no_python_modules_still_valid() -> None:
     assert {"title", "numbers", "outro"} <= ids
 
 
+def test_stat_card_shows_tests_when_present() -> None:
+    demo = generate_project_summary_demo(_facts(test_count=42))
+    numbers = next(s for s in demo.scenes if s.id == "numbers")
+    stats = {label: value for value, label in numbers.context["stats"]}
+    assert stats["tests"] == "42"
+    assert "42 tests" in numbers.chunks[0].text
+
+
+def test_no_tests_falls_back_to_packages_stat() -> None:
+    demo = generate_project_summary_demo(_facts(test_count=0))
+    numbers = next(s for s in demo.scenes if s.id == "numbers")
+    labels = {label for _v, label in numbers.context["stats"]}
+    assert "packages" in labels and "tests" not in labels
+
+
+def test_dependencies_beat_present() -> None:
+    demo = generate_project_summary_demo(_facts(dependencies=["numpy", "pandas"]))
+    deps = next(s for s in demo.scenes if s.id == "deps")
+    assert deps.context["bullets"] == ["numpy", "pandas"]
+
+
+def test_no_dependencies_no_beat() -> None:
+    demo = generate_project_summary_demo(_facts(dependencies=[]))
+    assert all(s.id != "deps" for s in demo.scenes)
+
+
 def test_module_narration_openers_vary() -> None:
     from democreate.narration.project_summary import _module_narration
 

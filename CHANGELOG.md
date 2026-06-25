@@ -31,6 +31,19 @@ resolves to the latest archived release.
 - **`democreate fetch-voice`** — one-step download of the Kokoro model files
   (~340 MB) into the cache.
 - `scripts/generate_portfolio.py` thin orchestrator.
+- Richer project summaries: a **"built with" beat** (top external runtime
+  dependencies, excluding stdlib / intra-repo / dev-test tooling), a **test count**
+  in the stat card when discoverable, a representative (largest-symbol) code
+  excerpt, and better module selection (public-over-private, deduped by name).
+- The test suite mirrors `src/democreate/` (one `tests/<subsystem>/` per package);
+  pytest runs with `--import-mode=importlib`.
+
+### Repo / CI
+- The repository tracks exactly one self-describing output bundle — the showcase —
+  enforced by `tests/test_output_public_allowlist.py`; research-paper demos and
+  per-project renders stay gitignored/regeneratable.
+- GitHub Actions CI (`.github/workflows/ci.yml`): ruff + mypy + the full
+  coverage-gated suite on every push/PR.
 
 ### Fixed
 - `KokoroTTSBackend` availability check probed the wrong module name (`kokoro`

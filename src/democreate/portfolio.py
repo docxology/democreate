@@ -261,9 +261,10 @@ def _strip_md(text: str) -> str:
 def _code_excerpt(summary: Any, *, max_lines: int = 18) -> str:
     """Return a real, bounded source excerpt for a module summary.
 
-    Prefers the first class (and its body), else the first function; falls back to
-    the head of the file. Lines are length-bounded so the excerpt autosizes on a
-    code frame without cropping.
+    Picks the **most substantive** top-level symbol (the class or function whose
+    body spans the most lines) so the scene shows the module's real substance, not
+    just whatever happens to come first; falls back to the head of the file. Lines
+    are length-bounded so the excerpt autosizes on a code frame without cropping.
     """
     try:
         source = Path(summary.path).read_text(encoding="utf-8", errors="replace")
@@ -271,12 +272,10 @@ def _code_excerpt(summary: Any, *, max_lines: int = 18) -> str:
         return ""
     lines = source.splitlines()
 
+    candidates = list(summary.classes) + list(summary.functions)
     start = end = None
-    if summary.classes:
-        node = summary.classes[0]
-        start, end = node.lineno, node.end_lineno
-    elif summary.functions:
-        node = summary.functions[0]
+    if candidates:
+        node = max(candidates, key=lambda n: (n.end_lineno - n.lineno, -n.lineno))
         start, end = node.lineno, node.end_lineno
 
     if start is None or end is None:
@@ -284,8 +283,64 @@ def _code_excerpt(summary: Any, *, max_lines: int = 18) -> str:
     else:
         chosen = lines[start - 1 : min(end, start - 1 + max_lines)]
 
-    trimmed = [ln[:96].rstrip() for ln in chosen if ln.strip() or chosen.index(ln) == 0]
+    trimmed = [ln[:96].rstrip() for i, ln in enumerate(chosen) if ln.strip() or i == 0]
     return "\n".join(trimmed).strip()
+
+
+def _count_tests(summaries: list[Any]) -> int:
+    """Count ``test_*`` functions in test modules (a deterministic proxy)."""
+    total = 0
+    for s in summaries:
+        stem = Path(s.path).name
+        is_test_file = stem.startswith("test_") or "test" in Path(s.path).parts
+        if not is_test_file:
+            continue
+        total += sum(1 for f in s.functions if f.name.startswith("test"))
+    return total
+
+
+# Dev/test/build tooling — real dependencies, but not what the project is "built
+# with" for a viewer, so they are kept out of the "Built with" beat.
+_DEV_DEPS = frozenset(
+    {
+        "pytest", "_pytest", "hypothesis", "respx", "mock", "tox", "nox",
+        "ruff", "mypy", "black", "isort", "flake8", "coverage", "pytest_cov",
+        "setuptools", "pip", "wheel", "build", "twine", "pre_commit",
+    }
+)
+
+
+def _collect_dependencies(summaries: list[Any], self_names: set[str]) -> list[str]:
+    """Return the project's top external runtime libraries, most-imported first.
+
+    Takes the first component of each absolute import, then drops: relative
+    imports, the project's own packages/modules (``self_names``), the standard
+    library, dunder/private names, and dev/test/build tooling. Ranks the rest by
+    how many modules import them (breadth), so the result reads as "what this is
+    built on", not an exhaustive requirements list.
+    """
+    import sys
+    from collections import Counter
+
+    stdlib = set(getattr(sys, "stdlib_module_names", set()))
+    counts: Counter[str] = Counter()
+    for s in summaries:
+        seen_here: set[str] = set()
+        for imp in s.imports:
+            if not imp or imp.startswith("."):
+                continue
+            top = imp.split(".", 1)[0]
+            if (
+                top in self_names
+                or top in stdlib
+                or top in _DEV_DEPS
+                or top.startswith("_")
+            ):
+                continue
+            seen_here.add(top)
+        counts.update(seen_here)  # count once per module that imports it
+    # Tie-break alphabetically so the order is deterministic across runs.
+    return [name for name, _ in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))][:6]
 
 
 def _run_command(repo: Path) -> tuple[str, str]:
@@ -338,28 +393,47 @@ def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
             and s.symbol_count > 0
         )
 
-    # Rank by symbol count (substance), then prefer documented modules (they
-    # narrate from real prose), then path for a stable, deterministic order.
+    # Rank by symbol count (substance), then public-over-private (a leading "_"
+    # module is an implementation detail), then documented-over-undocumented, then
+    # path for a stable, deterministic order.
     ranked = sorted(
         (s for s in summaries if _is_substantive(s)),
-        key=lambda s: (-s.symbol_count, 0 if s.docstring else 1, s.path),
+        key=lambda s: (
+            -s.symbol_count,
+            1 if s.name.startswith("_") else 0,
+            0 if s.docstring else 1,
+            s.path,
+        ),
     )
     key_modules: list[KeyModule] = []
-    for s in ranked[:max_modules]:
+    seen_names: set[str] = set()
+    for s in ranked:
+        if s.name in seen_names:  # dedupe by module name for variety
+            continue
         excerpt = _code_excerpt(s)
         if not excerpt:
             continue
-        rel = _relpath(Path(s.path), repo)
+        seen_names.add(s.name)
         key_modules.append(
             KeyModule(
                 name=s.name,
-                path=rel,
+                path=_relpath(Path(s.path), repo),
                 docstring=s.docstring,
                 code_excerpt=excerpt,
                 symbol_count=s.symbol_count,
             )
         )
+        if len(key_modules) >= max_modules:
+            break
 
+    # Everything internal to the repo, so intra-repo absolute imports (e.g.
+    # ``from models import X``, ``import export_nexus_kg``) are not mistaken for
+    # third-party dependencies: the repo name, every module name, and every
+    # directory name on a summarized path.
+    self_names = {name, name.replace("-", "_"), *top_packages}
+    for s in summaries:
+        self_names.add(s.name)
+        self_names.update(Path(s.path).parts)
     return ProjectFacts(
         name=name,
         tagline=tagline,
@@ -372,6 +446,8 @@ def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
         key_modules=key_modules,
         run_command=_run_command(repo),
         language="Python" if summaries else "mixed",
+        test_count=_count_tests(summaries),
+        dependencies=_collect_dependencies(summaries, self_names),
     )
 
 

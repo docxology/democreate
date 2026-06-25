@@ -83,6 +83,9 @@ class ProjectFacts:
         key_modules: The selected load-bearing modules (code scenes).
         run_command: A real command a viewer could run, with its sample output.
         language: Primary language label (``"Python"`` for the default walker).
+        test_count: Number of test functions discovered (``0`` if none/unknown).
+        dependencies: Top external libraries the project is built on (for a
+            "built with" beat); empty when none are detectable.
     """
 
     name: str
@@ -96,6 +99,8 @@ class ProjectFacts:
     key_modules: list[KeyModule] = field(default_factory=list)
     run_command: tuple[str, str] = ("", "")
     language: str = "Python"
+    test_count: int = 0
+    dependencies: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain JSON-ready dict (for the portfolio index)."""
@@ -111,6 +116,8 @@ class ProjectFacts:
             "key_modules": [m.name for m in self.key_modules],
             "run_command": list(self.run_command),
             "language": self.language,
+            "test_count": self.test_count,
+            "dependencies": list(self.dependencies),
         }
 
 
@@ -340,7 +347,17 @@ def generate_project_summary_demo(
             )
         )
 
-    # 4 — By the numbers (real stats)
+    # 4 — By the numbers (real stats). Show the test count when we found one;
+    # otherwise fall back to the package count so the card always has five cells.
+    has_tests = facts.test_count > 0
+    fifth = (
+        (_human_int(facts.test_count), "tests")
+        if has_tests
+        else (str(len(facts.top_packages)), "packages")
+    )
+    tests_clause = (
+        f", and {_human_int(facts.test_count)} tests" if has_tests else ""
+    )
     scenes.append(
         _slide(
             "numbers",
@@ -351,18 +368,36 @@ def generate_project_summary_demo(
                 f"{_human_int(facts.module_count)} modules, "
                 f"{_human_int(facts.loc)} lines of code, "
                 f"{_human_int(facts.class_count)} classes and "
-                f"{_human_int(facts.function_count)} top-level functions."
+                f"{_human_int(facts.function_count)} top-level functions"
+                f"{tests_clause}."
             ),
             stats=[
                 (_human_int(facts.module_count), "modules"),
                 (_human_int(facts.loc), "lines"),
                 (_human_int(facts.class_count), "classes"),
                 (_human_int(facts.function_count), "functions"),
-                (str(len(facts.top_packages)), "packages"),
+                fifth,
             ],
             trigger="real",
         )
     )
+
+    # 4b — Built with (top external dependencies), when detectable.
+    deps = [d for d in facts.dependencies if d.strip()][:6]
+    if deps:
+        scenes.append(
+            _slide(
+                "deps",
+                section="Built with",
+                title=f"{name} is built with",
+                narration=(
+                    "It does not reinvent the wheel — here are the main libraries "
+                    "it builds on."
+                ),
+                bullets=deps,
+                trigger="libraries",
+            )
+        )
 
     # 5 — Key modules (real code, narrated from real docstrings)
     for index, module in enumerate(facts.key_modules[:max_modules]):

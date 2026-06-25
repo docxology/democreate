@@ -97,6 +97,34 @@ def test_collect_facts_from_real_repo(tmp_path: Path) -> None:
     assert facts.run_command[0] == "uv run pytest -q"
 
 
+def test_collect_facts_dependencies_and_tests(tmp_path: Path) -> None:
+    repo = tmp_path / "depproj"
+    pkg = repo / "src" / "depproj"
+    pkg.mkdir(parents=True)
+    (repo / "README.md").write_text("# depproj\n\ndepproj does a thing.\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (pkg / "core.py").write_text(
+        "import json\n"            # stdlib → excluded
+        "import numpy\n"           # third-party → kept
+        "import depproj.util\n"    # intra-repo → excluded
+        "def run():\n    return 1\n",
+        encoding="utf-8",
+    )
+    (pkg / "util.py").write_text("import numpy\ndef helper():\n    return 2\n", encoding="utf-8")
+    tests_dir = repo / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "test_core.py").write_text(
+        "import pytest\n"          # dev dep → excluded from 'built with'
+        "def test_a():\n    assert True\n"
+        "def test_b():\n    assert True\n",
+        encoding="utf-8",
+    )
+    facts = collect_project_facts(repo)
+    assert facts.dependencies == ["numpy"]  # json/pytest/intra-repo all excluded
+    assert facts.test_count == 2
+
+
 def test_collect_facts_no_readme(tmp_path: Path) -> None:
     repo = _make_repo(tmp_path, "noreadme", readme=False)
     facts = collect_project_facts(repo)

@@ -62,7 +62,7 @@ uv run democreate render examples/democreate_showcase.json -o output \
 8. **Themes strip** — the five preset themes side by side (noir is the default).
 9. **Research-paper figure** — a real published figure, fit-contained (whole).
 10. **Architecture diagram** — the pipeline.
-11. **Stat-card slide** — *"by the numbers"* (666 tests · 7 subsystems · 5 themes
+11. **Stat-card slide** — *"by the numbers"* (671 tests · 7 subsystems · 5 themes
     · 4K · 0 binary deps), the `FrameState.stats` surface.
 12. **Bullet slide** — the provenance story.
 13. **Terminal scene** — a build + render + verify session.
@@ -93,7 +93,7 @@ clock · watermark) run throughout.
 *Video 1 — a code scene typing in character-by-character with live pygments highlighting (noir: monochrome with red keywords), lifted from the encoded 4K render.*
 
 ![Showcase stat-card slide](_videoframes/showcase_stats.png)
-*Video 1 — the "by the numbers" stat-card slide (666 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
+*Video 1 — the "by the numbers" stat-card slide (671 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
 
 > The earlier intro demo (`examples/democreate_intro.json`, 78 s) still renders,
 > but the showcase **supersedes it** as the canonical package demo — see
