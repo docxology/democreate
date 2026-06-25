@@ -20,8 +20,8 @@ It reuses generated assets (regenerate with ``examples/make_assets.py`` and
 Render it to an animated 4K MP4 with a real voiceover via::
 
     uv run democreate render examples/democreate_showcase.json -o output \
-        --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
-        --watermark "github.com/docxology/democreate"
+        --tts kokoro --voice af_heart --resolution 2160p \
+        --author "Daniel Ari Friedman" --watermark "github.com/docxology/democreate"
 """
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ def _terminal(id_, section, narration, command, output, *, trigger=None) -> Scen
 
 
 def build() -> Demo:
-    """Construct the definitive showcase demo (1080p, ~14 scenes)."""
+    """Construct the definitive showcase demo (~15 scenes)."""
     scenes: list[Scene] = [
         # 1 — Hero title
         _slide("title", "DemoCreate",
@@ -135,7 +135,8 @@ def build() -> Demo:
         _code("backends", "Backends",
               "Every capability hides behind an interface with a deterministic "
               "default. Silent gives you zero dependencies; the system voice is a "
-              "real OS binary; neural backends are an optional upgrade.",
+              "real OS binary; and a wired Kokoro neural voice — the very voice "
+              "narrating this video — is a fully-local upgrade.",
               "src/democreate/narration/tts.py",
               "class TTSBackend(ABC):\n"
               "    @abstractmethod\n"
@@ -165,7 +166,8 @@ def build() -> Demo:
                "you just saw typed itself in. Look at this frame.",
                title="What you are seeing, right now",
                bullets=[
-                   "The narration is a real spoken voice — OS speech, zero pip.",
+                   "The narration is a real neural voice — Kokoro, running fully "
+                   "local, no cloud and no API key.",
                    "The waveform below sweeps in lockstep with the audio.",
                    "Nothing is cropped: figures fit whole, code autosizes — the "
                    "frame is a page, not a camera.",
@@ -186,6 +188,21 @@ def build() -> Demo:
                "captions, and the sections — and shows each figure whole.",
                title="Papers, not just packages", bg=_FIGS / "paper_fig.png",
                trigger="paper"),
+
+        # 9b — Describes ANY codebase (the 0.7.0 portfolio capability)
+        _slide("portfolio", "Describe any codebase",
+               "And it does not only describe itself. Point it at a folder of "
+               "repositories and it renders one narrated, content-verified video per "
+               "project — each read from that project's own README and docstrings.",
+               title="One video per project, automatically",
+               bullets=[
+                   "democreate portfolio reads each repo's real README, "
+                   "architecture, stats, and load-bearing modules.",
+                   "Selection and extraction — not a model — so the default is "
+                   "deterministic and needs no network.",
+                   "This very video is the self-describing case of that same engine.",
+               ],
+               trigger="repositories"),
 
         # 10 — Architecture (diagram background)
         _slide("arch", "Architecture",
@@ -222,9 +239,9 @@ def build() -> Demo:
         # 13 — Build + render (terminal)
         _terminal("render", "Render",
                   "Then one command renders a high-definition video with a real "
-                  "voiceover, and proves it is genuine — real streams, not silent, "
-                  "not black.",
-                  "democreate render demo.json --voice Samantha",
+                  "neural voiceover, and proves it is genuine — real streams, not "
+                  "silent, not black.",
+                  "democreate render demo.json --tts kokoro --voice af_heart",
                   "✓ verified: real video + non-silent audio",
                   trigger="renders"),
 
@@ -244,9 +261,9 @@ def build() -> Demo:
         width=1920,
         height=1080,
         fps=30,
-        voice="Samantha",
+        voice="af_heart",
         metadata={"author": "Daniel Ari Friedman", "self_referential": True,
-                  "version": "0.6.2"},
+                  "version": "0.7.0"},
     )
 
 

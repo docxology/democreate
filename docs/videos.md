@@ -27,7 +27,7 @@ supports, including the **bullet slides** and **stat-card slides**, now re-rende
 in the **noir** look.
 
 - **Path:** `output/video/demo.mp4`
-- **Size / duration:** 3840×2160 · 129.9 s
+- **Size / duration:** 3840×2160 · 155.6 s
 - **Resolution / codecs:** 3840×2160 · H.264 + AAC (48 kHz)
 - **Chapters:** 14 embedded chapter markers (one per scene)
 - **Container tags:** `title="DemoCreate — The Showcase"`,
@@ -39,7 +39,7 @@ in the **noir** look.
 
 ```bash
 uv run democreate render examples/democreate_showcase.json -o output \
-  --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
+  --tts kokoro --voice af_heart --resolution 2160p --author "Daniel Ari Friedman" \
   --watermark "github.com/docxology/democreate"
 ```
 
@@ -47,7 +47,7 @@ uv run democreate render examples/democreate_showcase.json -o output \
 > [`examples/make_showcase.py`](../examples/make_showcase.py) (it writes
 > `examples/democreate_showcase.json`). The render defaults to the **noir** theme.
 
-**The 14 scenes — every renderable surface:**
+**The 15 scenes — every renderable surface:**
 
 1. **Hero title card** — the opening slide.
 2. **Graphical abstract** — the one-glance overview figure, fit *whole* into the
@@ -61,12 +61,14 @@ uv run democreate render examples/democreate_showcase.json -o output \
 7. **Bullet slide** — a meta *"What you are seeing"* explainer.
 8. **Themes strip** — the five preset themes side by side (noir is the default).
 9. **Research-paper figure** — a real published figure, fit-contained (whole).
-10. **Architecture diagram** — the pipeline.
-11. **Stat-card slide** — *"by the numbers"* (671 tests · 7 subsystems · 5 themes
+10. **Describe-any-codebase slide** — the `democreate portfolio` capability: one
+    narrated video per project, read from each repo's own README and docstrings.
+11. **Architecture diagram** — the pipeline.
+12. **Stat-card slide** — *"by the numbers"* (671 tests · 7 subsystems · 5 themes
     · 4K · 0 binary deps), the `FrameState.stats` surface.
-12. **Bullet slide** — the provenance story.
-13. **Terminal scene** — a build + render + verify session.
-14. **Outro** — the closing card.
+13. **Bullet slide** — the provenance story.
+14. **Terminal scene** — a build + render + verify session.
+15. **Outro** — the closing card.
 
 Every scene is **no-crop**: figures fit whole, code autosizes, Ken Burns is off,
 and the **progress line now sits at the absolute top edge** (`y=0`) so it never
@@ -83,7 +85,7 @@ clock · watermark) run throughout.
 - `output/web/player.html` — interactive HTML player
 - `output/provenance/poster_signed.png` — signed provenance poster
 - `output/provenance/provenance.json` — provenance payload
-- `output/chapters/youtube_chapters.txt` — YouTube chapter file (14 chapters)
+- `output/chapters/youtube_chapters.txt` — YouTube chapter file (15 chapters)
 - `output/captions/captions.srt` — subtitles
 
 ![Showcase title card](_videoframes/package_title.png)
@@ -188,7 +190,7 @@ two commands to reproduce them:
 ```bash
 # Video 1 — package demo · the showcase (canonical)
 uv run democreate render examples/democreate_showcase.json -o output \
-  --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
+  --tts kokoro --voice af_heart --resolution 2160p --author "Daniel Ari Friedman" \
   --watermark "github.com/docxology/democreate"
 
 # Video 2 — research-paper demo (re-rendered in noir)

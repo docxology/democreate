@@ -111,38 +111,40 @@
 </style>
 </head>
 <body>
-<header><h1>DemoCreate — The Showcase</h1><span class="sub">DemoCreate interactive player · 14 chapters</span></header>
+<header><h1>DemoCreate — The Showcase</h1><span class="sub">DemoCreate interactive player · 15 chapters</span></header>
 <div class="layout">
   <nav class="sidebar">
     <h2>Chapters</h2>
     
     <button class="chapter" data-start="300" data-scene="title">DemoCreate</button>
     
-    <button class="chapter" data-start="6420" data-scene="abstract">The whole idea</button>
+    <button class="chapter" data-start="6408" data-scene="abstract">The whole idea</button>
     
-    <button class="chapter" data-start="17927" data-scene="what">A demo is a value, not a recording</button>
+    <button class="chapter" data-start="19620" data-scene="what">A demo is a value, not a recording</button>
     
-    <button class="chapter" data-start="26317" data-scene="spine">src/democreate/schema.py</button>
+    <button class="chapter" data-start="28651" data-scene="spine">src/democreate/schema.py</button>
     
-    <button class="chapter" data-start="33852" data-scene="backends">src/democreate/narration/tts.py</button>
+    <button class="chapter" data-start="36743" data-scene="backends">src/democreate/narration/tts.py</button>
     
-    <button class="chapter" data-start="45121" data-scene="sync">src/democreate/narration/sync.py</button>
+    <button class="chapter" data-start="53688" data-scene="sync">src/democreate/narration/sync.py</button>
     
-    <button class="chapter" data-start="56010" data-scene="craft">What you are seeing, right now</button>
+    <button class="chapter" data-start="65279" data-scene="craft">What you are seeing, right now</button>
     
-    <button class="chapter" data-start="62612" data-scene="themes">Fully configurable</button>
+    <button class="chapter" data-start="72240" data-scene="themes">Fully configurable</button>
     
-    <button class="chapter" data-start="72424" data-scene="paper">Papers, not just packages</button>
+    <button class="chapter" data-start="82145" data-scene="paper">Papers, not just packages</button>
     
-    <button class="chapter" data-start="83953" data-scene="arch">Seven subsystems, one spine</button>
+    <button class="chapter" data-start="94760" data-scene="portfolio">One video per project, automatically</button>
     
-    <button class="chapter" data-start="93561" data-scene="numbers">DemoCreate by the numbers</button>
+    <button class="chapter" data-start="107844" data-scene="arch">Seven subsystems, one spine</button>
     
-    <button class="chapter" data-start="104238" data-scene="provenance">Signed, tamper-evident provenance</button>
+    <button class="chapter" data-start="118112" data-scene="numbers">DemoCreate by the numbers</button>
     
-    <button class="chapter" data-start="111351" data-scene="render">terminal</button>
+    <button class="chapter" data-start="128615" data-scene="provenance">Signed, tamper-evident provenance</button>
     
-    <button class="chapter" data-start="119557" data-scene="outro">DemoCreate</button>
+    <button class="chapter" data-start="135427" data-scene="render">terminal</button>
+    
+    <button class="chapter" data-start="144799" data-scene="outro">DemoCreate</button>
     
   </nav>
   <main class="stage">
@@ -159,10 +161,10 @@
   </main>
 </div>
 <script>
-const CAPTIONS = [{"chunk_id": "title-c", "scene_id": "title", "text": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.", "start_ms": 300, "frame": "frame_0000.png"}, {"chunk_id": "abstract-c", "scene_id": "abstract", "text": "One declarative artifact — describing a codebase or a research paper — compiles through a deterministic pipeline into a verified, provenance-signed video. Here is the whole idea on one screen.", "start_ms": 6420, "frame": "frame_0001.png"}, {"chunk_id": "what-c", "scene_id": "what", "text": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.", "start_ms": 17927, "frame": "frame_0002.png"}, {"chunk_id": "spine-c", "scene_id": "spine", "text": "The spine is plain data. A demo is scenes; a scene is chunks; a chunk is typed actions. Rendering never mutates it.", "start_ms": 26317, "frame": "frame_0003.png"}, {"chunk_id": "backends-c", "scene_id": "backends", "text": "Every capability hides behind an interface with a deterministic default. Silent gives you zero dependencies; the system voice is a real OS binary; neural backends are an optional upgrade.", "start_ms": 33852, "frame": "frame_0004.png"}, {"chunk_id": "sync-c", "scene_id": "sync", "text": "Timing is measured, never guessed. We synthesize the narration, measure its real duration, transcribe it back to word timestamps, and anchor each action to the word it is spoken on.", "start_ms": 45121, "frame": "frame_0005.png"}, {"chunk_id": "craft-c", "scene_id": "craft", "text": "Everything you are watching is generated from that spine. The code you just saw typed itself in. Look at this frame.", "start_ms": 56010, "frame": "frame_0006.png"}, {"chunk_id": "themes-c", "scene_id": "themes", "text": "One commented YAML controls the whole look and sound — five built-in themes, any aspect ratio, resolution up to four K, and near-lossless quality.", "start_ms": 62612, "frame": "frame_0007.png"}, {"chunk_id": "paper-c", "scene_id": "paper", "text": "The same engine demos a research paper: it reads the PDF with no Python dependency, recovers the real abstract, the real figure captions, and the sections — and shows each figure whole.", "start_ms": 72424, "frame": "frame_0008.png"}, {"chunk_id": "arch-c", "scene_id": "arch", "text": "Under the hood, seven subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.", "start_ms": 83953, "frame": "frame_0009.png"}, {"chunk_id": "numbers-c", "scene_id": "numbers", "text": "And it is real. Six hundred sixty six collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.", "start_ms": 93561, "frame": "frame_0010.png"}, {"chunk_id": "provenance-c", "scene_id": "provenance", "text": "Every render carries its own provenance, three ways — so a video can prove where it came from, and resist tampering.", "start_ms": 104238, "frame": "frame_0011.png"}, {"chunk_id": "render-c", "scene_id": "render", "text": "Then one command renders a high-definition video with a real voiceover, and proves it is genuine — real streams, not silent, not black.", "start_ms": 111351, "frame": "frame_0012.png"}, {"chunk_id": "outro-c", "scene_id": "outro", "text": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.", "start_ms": 119557, "frame": "frame_0013.png"}];
-const CHAPTERS = [{"title": "DemoCreate", "scene_id": "title", "start_ms": 300}, {"title": "The whole idea", "scene_id": "abstract", "start_ms": 6420}, {"title": "A demo is a value, not a recording", "scene_id": "what", "start_ms": 17927}, {"title": "src/democreate/schema.py", "scene_id": "spine", "start_ms": 26317}, {"title": "src/democreate/narration/tts.py", "scene_id": "backends", "start_ms": 33852}, {"title": "src/democreate/narration/sync.py", "scene_id": "sync", "start_ms": 45121}, {"title": "What you are seeing, right now", "scene_id": "craft", "start_ms": 56010}, {"title": "Fully configurable", "scene_id": "themes", "start_ms": 62612}, {"title": "Papers, not just packages", "scene_id": "paper", "start_ms": 72424}, {"title": "Seven subsystems, one spine", "scene_id": "arch", "start_ms": 83953}, {"title": "DemoCreate by the numbers", "scene_id": "numbers", "start_ms": 93561}, {"title": "Signed, tamper-evident provenance", "scene_id": "provenance", "start_ms": 104238}, {"title": "terminal", "scene_id": "render", "start_ms": 111351}, {"title": "DemoCreate", "scene_id": "outro", "start_ms": 119557}];
+const CAPTIONS = [{"chunk_id": "title-c", "scene_id": "title", "text": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.", "start_ms": 300, "frame": "frame_0000.png"}, {"chunk_id": "abstract-c", "scene_id": "abstract", "text": "One declarative artifact — describing a codebase or a research paper — compiles through a deterministic pipeline into a verified, provenance-signed video. Here is the whole idea on one screen.", "start_ms": 6408, "frame": "frame_0001.png"}, {"chunk_id": "what-c", "scene_id": "what", "text": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.", "start_ms": 19620, "frame": "frame_0002.png"}, {"chunk_id": "spine-c", "scene_id": "spine", "text": "The spine is plain data. A demo is scenes; a scene is chunks; a chunk is typed actions. Rendering never mutates it.", "start_ms": 28651, "frame": "frame_0003.png"}, {"chunk_id": "backends-c", "scene_id": "backends", "text": "Every capability hides behind an interface with a deterministic default. Silent gives you zero dependencies; the system voice is a real OS binary; and a wired Kokoro neural voice — the very voice narrating this video — is a fully-local upgrade.", "start_ms": 36743, "frame": "frame_0004.png"}, {"chunk_id": "sync-c", "scene_id": "sync", "text": "Timing is measured, never guessed. We synthesize the narration, measure its real duration, transcribe it back to word timestamps, and anchor each action to the word it is spoken on.", "start_ms": 53688, "frame": "frame_0005.png"}, {"chunk_id": "craft-c", "scene_id": "craft", "text": "Everything you are watching is generated from that spine. The code you just saw typed itself in. Look at this frame.", "start_ms": 65279, "frame": "frame_0006.png"}, {"chunk_id": "themes-c", "scene_id": "themes", "text": "One commented YAML controls the whole look and sound — five built-in themes, any aspect ratio, resolution up to four K, and near-lossless quality.", "start_ms": 72240, "frame": "frame_0007.png"}, {"chunk_id": "paper-c", "scene_id": "paper", "text": "The same engine demos a research paper: it reads the PDF with no Python dependency, recovers the real abstract, the real figure captions, and the sections — and shows each figure whole.", "start_ms": 82145, "frame": "frame_0008.png"}, {"chunk_id": "portfolio-c", "scene_id": "portfolio", "text": "And it does not only describe itself. Point it at a folder of repositories and it renders one narrated, content-verified video per project — each read from that project's own README and docstrings.", "start_ms": 94760, "frame": "frame_0009.png"}, {"chunk_id": "arch-c", "scene_id": "arch", "text": "Under the hood, seven subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.", "start_ms": 107844, "frame": "frame_0010.png"}, {"chunk_id": "numbers-c", "scene_id": "numbers", "text": "And it is real. Six hundred seventy one collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.", "start_ms": 118112, "frame": "frame_0011.png"}, {"chunk_id": "provenance-c", "scene_id": "provenance", "text": "Every render carries its own provenance, three ways — so a video can prove where it came from, and resist tampering.", "start_ms": 128615, "frame": "frame_0012.png"}, {"chunk_id": "render-c", "scene_id": "render", "text": "Then one command renders a high-definition video with a real neural voiceover, and proves it is genuine — real streams, not silent, not black.", "start_ms": 135427, "frame": "frame_0013.png"}, {"chunk_id": "outro-c", "scene_id": "outro", "text": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.", "start_ms": 144799, "frame": "frame_0014.png"}];
+const CHAPTERS = [{"title": "DemoCreate", "scene_id": "title", "start_ms": 300}, {"title": "The whole idea", "scene_id": "abstract", "start_ms": 6408}, {"title": "A demo is a value, not a recording", "scene_id": "what", "start_ms": 19620}, {"title": "src/democreate/schema.py", "scene_id": "spine", "start_ms": 28651}, {"title": "src/democreate/narration/tts.py", "scene_id": "backends", "start_ms": 36743}, {"title": "src/democreate/narration/sync.py", "scene_id": "sync", "start_ms": 53688}, {"title": "What you are seeing, right now", "scene_id": "craft", "start_ms": 65279}, {"title": "Fully configurable", "scene_id": "themes", "start_ms": 72240}, {"title": "Papers, not just packages", "scene_id": "paper", "start_ms": 82145}, {"title": "One video per project, automatically", "scene_id": "portfolio", "start_ms": 94760}, {"title": "Seven subsystems, one spine", "scene_id": "arch", "start_ms": 107844}, {"title": "DemoCreate by the numbers", "scene_id": "numbers", "start_ms": 118112}, {"title": "Signed, tamper-evident provenance", "scene_id": "provenance", "start_ms": 128615}, {"title": "terminal", "scene_id": "render", "start_ms": 135427}, {"title": "DemoCreate", "scene_id": "outro", "start_ms": 144799}];
 const FRAMES_DIR = "../frames";
-const TOTAL_MS = 128357;
+const TOTAL_MS = 153599;
 
 let timeMs = 0;
 let playing = false;

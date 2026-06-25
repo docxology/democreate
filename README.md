@@ -33,14 +33,15 @@ white text, and a single refined red as the only chroma.
 The repository tracks exactly **one self-describing output bundle** — DemoCreate
 explaining itself — checked in as the canonical, completely-working example:
 
-- **The showcase** — `output/video/demo.mp4` (3840×2160 · ~130 s), plus its
+- **The showcase** — `output/video/demo.mp4` (3840×2160 · ~156 s), plus its
   interactive player (`output/web/player.html`), YouTube chapters
   (`output/chapters/`), and a signed provenance poster (`output/provenance/`).
-  Fourteen scenes — title card, graphical abstract, bullet slides, three typing
-  code scenes, themes strip, a real paper figure, the architecture diagram, a
-  stat-card slide, a terminal render+verify, and an outro — all compiled from one
-  declarative file (`examples/democreate_showcase.json`, built by
-  [`examples/make_showcase.py`](examples/make_showcase.py)).
+  Fifteen scenes — title card, graphical abstract, bullet slides, three typing
+  code scenes, themes strip, a real paper figure, a describe-any-codebase
+  (portfolio) slide, the architecture diagram, a stat-card slide, a terminal
+  render+verify, and an outro — narrated by the **Kokoro** neural voice and
+  compiled from one declarative file (`examples/democreate_showcase.json`, built
+  by [`examples/make_showcase.py`](examples/make_showcase.py)).
 
 Everything else under `output/` is gitignored and regeneratable from its
 declarative source — including the **research-paper demo** (*Policy Entanglement
@@ -48,7 +49,7 @@ in Active Inference*, 1920×1080 · ~188 s), produced on demand with
 `democreate paper` (see below). A test
 ([`tests/test_output_public_allowlist.py`](tests/test_output_public_allowlist.py))
 gates the repo so only the self-descriptor bundle is ever committed. Full
-write-up — paths, one-line regenerate commands, the 14 showcase scenes — in
+write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)

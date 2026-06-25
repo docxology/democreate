@@ -1,14 +1,15 @@
 0:00 DemoCreate
 0:06 The whole idea
-0:17 A demo is a value, not a recording
-0:26 src/democreate/schema.py
-0:33 src/democreate/narration/tts.py
-0:45 src/democreate/narration/sync.py
-0:56 What you are seeing, right now
-1:02 Fully configurable
-1:12 Papers, not just packages
-1:23 Seven subsystems, one spine
-1:33 DemoCreate by the numbers
-1:44 Signed, tamper-evident provenance
-1:51 terminal
-1:59 DemoCreate
+0:19 A demo is a value, not a recording
+0:28 src/democreate/schema.py
+0:36 src/democreate/narration/tts.py
+0:53 src/democreate/narration/sync.py
+1:05 What you are seeing, right now
+1:12 Fully configurable
+1:22 Papers, not just packages
+1:34 One video per project, automatically
+1:47 Seven subsystems, one spine
+1:58 DemoCreate by the numbers
+2:08 Signed, tamper-evident provenance
+2:15 terminal
+2:24 DemoCreate
