@@ -53,7 +53,7 @@ write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (690 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (691 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -256,6 +256,12 @@ the path is import-safe and offline-testable; `--translator ollama` localizes fo
 real. Subtitles work for any language (text only); *audio* in a language needs a
 TTS voice for it — Kokoro's languages or an installed system voice (so Russian
 *audio* needs a Russian voice present). See [`docs/cli.md`](docs/cli.md).
+
+**Four committed examples** demonstrate it on the showcase itself (in
+`output/video/`, each with a subtitle-language `.srt`/`.vtt` under `output/captions/`):
+`…-audio_en-subs_en.mp4` (baseline), `…-audio_en-subs_ru.mp4` (English audio,
+Russian subtitles), `…-audio_en-subs_es.mp4` (English audio, Spanish subtitles),
+and `…-audio_es-subs_en.mp4` (**Spanish audio**, English subtitles — the reverse).
 
 ## Demo a research paper (PDF + codebase)
 

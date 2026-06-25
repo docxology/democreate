@@ -44,7 +44,7 @@ and self-contained.
   `assembly/`, `export/`, `paper/`. Read the local pair before touching a
   subsystem.
 - **Source of truth for behavior** is the code and its tests under `tests/`. The
-  docs here describe intent and contracts; the tests (690 collected, ≥90% coverage)
+  docs here describe intent and contracts; the tests (691 collected, ≥90% coverage)
   enforce them.
 
 ## The three load-bearing ideas (one paragraph each)

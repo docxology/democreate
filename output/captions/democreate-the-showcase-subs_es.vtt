@@ -1,0 +1,46 @@
+WEBVTT
+
+00:00:00.300 --> 00:00:08.700
+¿Qué pasaría si un video de demostración no fuera una grabación que captures, sino un valor que compilas? Esto es DemoCreate.
+
+00:00:08.700 --> 00:00:25.100
+Un artefacto declarativo — que describe un código base o un paper de investigación — se compila a través de un pipeline determinista en un video verificado y con firma de proveniencia. Aquí está la idea completa en una sola pantalla.
+
+00:00:25.100 --> 00:00:35.500
+Una demo es una columna vertebral declarativa: fragmentos de narración por escenas, cada uno un flujo ordenado de acciones tipadas. Tres ideas sustentan todo el sistema.
+
+00:00:35.500 --> 00:00:45.100
+La columna vertebral es datos planos. Una demo es escenas; una escena es trozos; un trozo es acciones tipadas. La renderización nunca la muta.
+
+00:00:45.100 --> 00:01:03.100
+Cada capacidad se oculta detrás de una interfaz con un valor predeterminado determinista. Silent brinda cero dependencias; la voz del sistema es un binario real de SO y una voz neural Kokoro cableada —la muy voz que narra este video— es una actualización totalmente local.
+
+00:01:03.100 --> 00:01:17.500
+El tiempo se mide, nunca se adivina. Sintetizamos la narración, medimos su duración real, la transcribimos de nuevo a marcas de tiempo de palabras y anclamos cada acción a la palabra en la que se pronuncia.
+
+00:01:17.500 --> 00:01:28.700
+Todo lo que estás viendo se genera a partir de esa columna vertebral. El código que acabas de ver se ha escrito a sí mismo. Mira este marco.
+
+00:01:28.700 --> 00:01:39.900
+Un YAML comentado controla todo el aspecto visual y de sonido — cinco temas integrados, cualquier relación de aspecto, resolución hasta cuatro K y calidad casi sin pérdidas.
+
+00:01:39.900 --> 00:01:52.700
+El mismo engine demuestra un paper de investigación: lee el PDF sin dependencia de Python, recupera el abstract real, las verdaderas figure captions y las secciones — y muestra cada figura completa.
+
+00:01:52.700 --> 00:02:07.500
+Y no solo se describe a sí mismo. Indíquele a un directorio de repositorios y generará un video narrado y verificado en contenido por proyecto — cada uno leído del propio README y docstrings del mismo proyecto.
+
+00:02:07.500 --> 00:02:18.300
+Bajo el capó, ocho subsistemas conforman: la columna vertebral fluye hacia la narración, luego renderizado, y finalmente exportación — cada etapa una función pura del mismo artefacto.
+
+00:02:18.300 --> 00:02:27.500
+Y es real. Setecientos noventa pruebas recolectadas, siete subsistemas, cinco temas, cuatro salidas K — y cero dependencias binarias para el camino principal.
+
+00:02:27.500 --> 00:02:36.700
+Todo render lleva su propia procedencia, de tres maneras — de modo que un video pueda probar de dónde proviene y resista manipulaciones.
+
+00:02:36.700 --> 00:02:48.300
+Entonces un solo comando genera un video en alta definición con una narración de voz neural real, y demuestra que es genuino — transmisiones reales, no silenciosas, no negras.
+
+00:02:48.300 --> 00:02:58.300
+Declarativo. Determinista. Dogfooded. Todo este video fue compilado por DemoCreate a partir de un solo archivo. Edítalo, reexecución y nunca volver a grabar una toma.

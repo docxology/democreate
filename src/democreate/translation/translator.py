@@ -271,27 +271,31 @@ def translate_demo(
 
 
 def localized_captions(
-    timed_demo: Demo,
+    demo: Demo,
     translator: Translator,
     *,
     source: str,
     target: str,
     fmt: str = "srt",
+    timing_demo: Demo | None = None,
 ) -> str:
-    """Emit subtitles in ``target`` against a *timed* demo's existing timing.
+    """Emit subtitles in ``target`` from the **source** demo, with audio timing.
 
-    ``timed_demo`` is the demo after sync (its chunks carry ``start_ms`` from real
-    audio). We translate each chunk's text to ``target`` but keep the exact
-    timing, so a subtitle track in one language lines up with audio in another.
+    ``demo`` must carry the *source-language* narration (the original), so the
+    subtitle text is translated source→target — never from an already-translated
+    audio demo (which would mislabel one language as another). ``timing_demo``
+    (default: ``demo``) supplies each chunk's ``start_ms`` (from real audio), so a
+    subtitle track in one language lines up with audio in another.
     """
     from ..assembly import captions as captions_mod
 
-    subtitle_demo = translate_demo(timed_demo, translator, source=source, target=target)
-    # Carry the synced timing across (translate_demo rebuilds chunks fresh).
-    for src_chunk, sub_chunk in zip(
-        timed_demo.iter_chunks(), subtitle_demo.iter_chunks(), strict=True
+    timing = timing_demo or demo
+    subtitle_demo = translate_demo(demo, translator, source=source, target=target)
+    # Carry the (audio-derived) timing across (translate_demo rebuilds chunks fresh).
+    for time_chunk, sub_chunk in zip(
+        timing.iter_chunks(), subtitle_demo.iter_chunks(), strict=True
     ):
-        sub_chunk.start_ms = src_chunk.start_ms
+        sub_chunk.start_ms = time_chunk.start_ms
     emitters = {"srt": captions_mod.to_srt, "vtt": captions_mod.to_vtt}
     if fmt not in emitters:
         raise ValueError(f"unknown caption format {fmt!r}; choose srt|vtt")

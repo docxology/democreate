@@ -77,6 +77,22 @@ def test_localized_captions_keeps_timing() -> None:
     assert "00:00:05" in srt              # timing carried from the synced demo
 
 
+def test_localized_captions_use_source_text_not_audio_demo() -> None:
+    # Regression: when audio != source, subtitles must come from the ORIGINAL
+    # (source) text + audio timing — not from the already-translated audio demo.
+    source_demo = _demo()  # "Hello world." (English)
+    audio_demo = _demo()   # stands in for the Spanish audio demo:
+    audio_demo.iter_chunks()[0].text = "HOLA MUNDO."
+    audio_demo.iter_chunks()[0].start_ms = 4000
+    srt = localized_captions(
+        source_demo, get_translator("identity"),
+        source="en", target="en", fmt="srt", timing_demo=audio_demo,
+    )
+    assert "Hello world." in srt        # English subtitle from the source text
+    assert "HOLA MUNDO." not in srt      # NOT the audio-language text
+    assert "00:00:04" in srt             # timing carried from the audio demo
+
+
 def test_get_translator_unknown_rejected() -> None:
     import pytest
 

@@ -131,12 +131,15 @@ def localize_render(
         audio_demo, workspace
     )
 
-    # 2. Subtitle-language track against the audio-derived timing.
+    # 2. Subtitle-language track: translated from the ORIGINAL (source) text, timed
+    #    by the audio-language demo — never from the (already-translated) audio demo.
     srt = localized_captions(
-        audio_demo, tr, source=languages.source, target=languages.subtitle, fmt="srt"
+        demo, tr, source=languages.source, target=languages.subtitle,
+        fmt="srt", timing_demo=audio_demo,
     )
     vtt = localized_captions(
-        audio_demo, tr, source=languages.source, target=languages.subtitle, fmt="vtt"
+        demo, tr, source=languages.source, target=languages.subtitle,
+        fmt="vtt", timing_demo=audio_demo,
     )
     srt_path = Path(workspace.captions) / f"{stem}-subs_{languages.subtitle}.srt"
     vtt_path = Path(workspace.captions) / f"{stem}-subs_{languages.subtitle}.vtt"
