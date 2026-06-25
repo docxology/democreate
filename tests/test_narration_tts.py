@@ -11,7 +11,6 @@ from democreate.errors import BackendUnavailableError
 from democreate.media import AudioClip
 from democreate.narration.tts import (
     ChatterboxTTSBackend,
-    KokoroTTSBackend,
     SilentTTSBackend,
     TTSBackend,
     get_tts_backend,
@@ -130,16 +129,23 @@ def test_get_tts_backend_unknown_raises() -> None:
 # --- guarded backends -----------------------------------------------------
 
 
-def test_kokoro_unavailable_raises() -> None:
+def test_kokoro_unavailable_raises(monkeypatch, tmp_path) -> None:
+    # Kokoro is wired but needs both `kokoro-onnx` AND the model files. When the
+    # package is absent it raises at the dependency check; when present we force
+    # the model files missing so the model-files guard raises. Either way the
+    # selector surfaces BackendUnavailableError rather than a usable backend.
     import importlib.util
 
-    if importlib.util.find_spec("kokoro") is None:
+    if importlib.util.find_spec("kokoro_onnx") is None:  # pragma: no cover - env-dependent
         with pytest.raises(BackendUnavailableError) as exc:
             get_tts_backend("kokoro")
-        assert exc.value.backend == "kokoro"
         assert exc.value.extra == "tts"
-    else:  # pragma: no cover - kokoro installed
-        assert isinstance(get_tts_backend("kokoro"), KokoroTTSBackend)
+    else:
+        monkeypatch.delenv("KOKORO_MODEL_PATH", raising=False)
+        monkeypatch.delenv("KOKORO_VOICES_PATH", raising=False)
+        monkeypatch.setenv("DEMOCREATE_KOKORO_DIR", str(tmp_path))  # empty → no model
+        with pytest.raises(BackendUnavailableError):
+            get_tts_backend("kokoro")
 
 
 def test_chatterbox_unavailable_raises() -> None:

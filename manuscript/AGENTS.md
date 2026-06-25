@@ -69,10 +69,10 @@ cd ..  # project root
   hard-coded numbers. Insert figures as
   `![Caption.](figures/x.png){#fig:x}` and reference them as `[@fig:x]`.
 - **Ground every claim in `src/democreate`.** The chapters describe a real
-  package — 51 source modules across seven subsystems (`capture/`, `narration/`,
+  package — 53 source modules across seven subsystems (`capture/`, `narration/`,
   `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`) plus `schema.py`,
   `config.py`, `media.py`, `pipeline.py`, `cli.py`. Authoritative v0.6.2 numbers:
-  628 collected tests, ≥90% coverage gate, five themes (default
+  664 collected tests, ≥90% coverage gate, five themes (default
   **noir**), package demo 129.7 s at 3840×2160 (14 scenes/chapters), paper demo 188.0 s
   (12 scenes/chapters, 6-part section structure), both re-rendered in noir.
   If the code changes, update the prose and regenerate the figures.

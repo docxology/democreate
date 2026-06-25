@@ -4,7 +4,7 @@
 
 paper:
   title: "DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers"
-  version: "0.6.2"
+  version: "0.7.0"
   subtitle: "A Virtual-Environment Action Stream with TTS->STT Synchronization, Configurable Composition, Pluggable Backends, and Three-Carrier Provenance"
   date: "2026-06-04"
 

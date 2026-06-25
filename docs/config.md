@@ -139,7 +139,7 @@ scene's free-form `context` dict and threaded onto the per-chunk
   "id": "numbers", "title": "By the numbers", "kind": "slide",
   "context": {
     "bullets": ["Declarative spine", "Deterministic defaults", "Audio-anchored sync"],
-    "stats": [["628", "tests"], ["7", "subsystems"], ["5", "themes"], ["4K", "max"]]
+    "stats": [["664", "tests"], ["7", "subsystems"], ["5", "themes"], ["4K", "max"]]
   },
   "chunks": [{ "id": "n1", "text": "DemoCreate, by the numbers." }]
 }

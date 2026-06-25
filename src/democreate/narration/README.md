@@ -34,10 +34,13 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `SilentTTSBackend` — **default**. Writes valid 16-bit mono PCM silence via the
   stdlib `wave` module. Duration estimated from word count at a configurable
   `wpm` (default 150, floor 300 ms). `sample_rate` default 22050.
-- `KokoroTTSBackend`, `ChatterboxTTSBackend` — guarded adapter slots;
-  constructor raises `BackendUnavailableError(..., extra="tts")` when the dep is
-  absent, and synthesis remains unavailable until the concrete engine API is
-  wired.
+- `KokoroTTSBackend` — **wired** neural voice (open-weight Kokoro via
+  `kokoro-onnx`, fully local). Needs the `tts` extra plus the model files
+  (`democreate fetch-voice`); resolves them from `KOKORO_MODEL_PATH`/
+  `KOKORO_VOICES_PATH` or `~/.cache/democreate/kokoro`, else raises
+  `BackendUnavailableError`. An unknown voice name falls back to a valid one.
+- `ChatterboxTTSBackend` — guarded adapter slot; constructor raises
+  `BackendUnavailableError(..., extra="tts")` until its engine API is wired.
 - `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent.
 - `synthesize_demo(demo, workspace, backend=None) -> list[AudioClip]` — voices
   every chunk in order, mutating `chunk.audio_path`.
@@ -68,7 +71,7 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 
 | Backend | Dependency | pyproject extra |
 |---------|-----------|-----------------|
-| `KokoroTTSBackend` | `kokoro` adapter slot | `tts` |
+| `KokoroTTSBackend` | wired neural voice (kokoro-onnx) | `tts` + model files |
 | `ChatterboxTTSBackend` | `chatterbox` adapter slot | `tts` |
 | `WhisperTranscriber` | `whisper` adapter slot | `whisper` |
 | `LLMScriptGenerator` | provider SDK | `llm` |

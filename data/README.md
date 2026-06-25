@@ -45,7 +45,7 @@ manuscript without referencing its claim id.
 
 ## Consistency
 
-Title, version (`0.6.2`), keywords, author, and license are kept identical
+Title, version (`0.7.0`), keywords, author, and license are kept identical
 across `CITATION.cff`, `codemeta.json`, and `.zenodo.json` at the project root.
 If you bump the version or retitle, update all three plus `claim_ledger.yaml`
 and `experiment_plan.yaml` together.

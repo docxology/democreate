@@ -7,7 +7,7 @@
 # experiment_plan.yaml metrics.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.6.2"
+version: "0.7.0"
 
 claims:
   - id: C0
@@ -238,4 +238,41 @@ claims:
     direction: "=="
     backed_by: "capture/screen.py _draw_background (min-scale contain) + _autosize_code/_wrap_code_rows; VideoConfig.ken_burns=False"
     source: "test_nocrop_layout: wide-figure edge stripes survive; long code line not clipped; re-rendered architecture diagram + paper colorbar fully visible"
+    status: verified
+
+  # --- v0.7.0: project-summary generator, portfolio batch, wired neural voice ---
+  - id: C25
+    claim: "The project-summary generator is byte-deterministic: identical facts produce an identical demo."
+    value: 0
+    unit: bytes_delta
+    direction: "=="
+    backed_by: "narration/project_summary.py generate_project_summary_demo (pure, no clock/RNG/network)"
+    source: "tests/test_narration_project_summary.py::test_determinism_byte_identical"
+    status: verified
+
+  - id: C26
+    claim: "`democreate portfolio` renders one content-verified summary video per project under a directory."
+    value: 1.0
+    unit: ok_fraction
+    direction: "=="
+    backed_by: "portfolio.py render_portfolio + export/verify.py; the portfolio index ok_count"
+    source: "real run over a directory of repositories: every produced MP4 passes verify_video (real/non-silent/non-black) and is listed in output/portfolio_index.json; one project's failure is isolated, not fatal"
+    status: verified
+
+  - id: C27
+    claim: "Kokoro neural TTS renders a content-verified MP4 fully locally (no cloud, no API key)."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "narration/tts.py KokoroTTSBackend (kokoro-onnx) → render_video verify"
+    source: "democreate render --tts kokoro --voice af_heart: verifier ok=True, non-silent audio; model resolved from local cache via `democreate fetch-voice`"
+    status: verified
+
+  - id: C28
+    claim: "`democreate tour REPO --render` produces a content-verified MP4 from a repository in one command."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "cli.py tour --render → Pipeline + render_video verify"
+    source: "democreate tour scripts --render --voice Samantha: 95.9s H.264+AAC, verifier ok"
     status: verified

@@ -9,8 +9,10 @@ Commands::
     democreate init      [PATH]            write a starter demo artifact
     democreate inspect   DEMO              validate and summarize a demo
     democreate build     DEMO  [--output]  run the full pipeline -> frames/audio/player
-    democreate tour      REPO  [--output]  generate + build a codebase tour
+    democreate tour      REPO  [--output]  generate a codebase tour (--render for MP4)
+    democreate portfolio DIR   [--output]  a timestamped summary video per project
     democreate captions  DEMO  [--format]  emit subtitles to stdout
+    democreate fetch-voice                 download the Kokoro neural-TTS model
     democreate backends                    list backends and their availability
     democreate version                     print the version
 """
@@ -177,23 +179,93 @@ def tour(
     repo: Path = typer.Argument(..., help="Repository or directory to tour"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),
     title: str = typer.Option("Codebase Tour", "--title", "-t"),
-    build_it: bool = typer.Option(True, "--build/--no-build", help="Also render the demo"),
+    build_it: bool = typer.Option(True, "--build/--no-build", help="Build the HTML player"),
+    render_it: bool = typer.Option(
+        False, "--render/--no-render", help="Render an MP4 with a real voiceover"
+    ),
+    tts: str = typer.Option("system", "--tts", help="TTS backend when --render: system|silent"),
+    voice: str = typer.Option("", "--voice", "-v", help="Voice id when --render"),
+    theme: str = typer.Option("noir", "--theme", help="Theme preset when --render"),
 ) -> None:
-    """Generate a codebase tour demo from a repository (and optionally render it)."""
+    """Generate a codebase tour demo from a repository (build and/or render it)."""
     from .codebase.walker import walk_repository
     from .narration.script import generate_codebase_demo
+    from .project_paths import Workspace
 
     summaries = walk_repository(repo)
     d = generate_codebase_demo(summaries, title=title)
-    demo_out = output / "demos"
-    demo_out.mkdir(parents=True, exist_ok=True)
-    (demo_out / "tour.json").write_text(d.to_json(), encoding="utf-8")
+    ws = Workspace(output)
+    ws.demos.mkdir(parents=True, exist_ok=True)
+    (ws.demos / "tour.json").write_text(d.to_json(), encoding="utf-8")
     console.print(f"[green]✓[/] generated tour with {len(d.scenes)} scenes")
-    if build_it:
-        from .project_paths import Workspace
+    if render_it:
+        from .narration.tts import get_tts_backend
+        from .pipeline import Pipeline, render_video
 
-        result = build_demo(d, Workspace(output), strict=False)
+        cfg = _resolve_config(None, _validate_theme(theme), voice, tts)
+        use_voice = cfg.audio.voice if cfg.audio.backend != "silent" else None
+        backend = get_tts_backend(cfg.audio.backend, voice=use_voice)
+        result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(d, ws)
+        out, report = render_video(result, verify=True, config=cfg)
+        console.print(f"[green]✓[/] video: {out}")
+        if report is not None and not report.ok:
+            console.print("[red]✗ verification failed[/]")
+            raise typer.Exit(code=1)
+        return
+    if build_it:
+        result = build_demo(d, ws, strict=False)
         console.print(f"[green]✓[/] player: {result.player_path}")
+
+
+@app.command()
+def portfolio(
+    projects_dir: Path = typer.Argument(..., help="Directory of project subdirectories"),
+    output: Path = typer.Option(Path("output"), "--output", "-o"),
+    tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro"),
+    voice: str = typer.Option("", "--voice", "-v", help="Voice id (system: e.g. Samantha)"),
+    theme: str = typer.Option("noir", "--theme", help="Theme preset: noir|dark|light|midnight|paper"),
+    resolution: str = typer.Option("1080p", "--resolution", help="720p|1080p|1440p|2160p|4k"),
+    max_projects: int = typer.Option(0, "--max-projects", help="Cap projects (0 = all)"),
+    max_modules: int = typer.Option(3, "--max-modules", help="Key-module code scenes per project"),
+    skip: str = typer.Option("", "--skip", help="Comma-separated project names to skip"),
+) -> None:
+    """Render a timestamped summary video for every project under a directory.
+
+    Each project gets its own ``output/<name>/`` folder; a failing project is
+    recorded and the batch continues. Writes a portfolio index (JSON + HTML).
+    """
+    from .portfolio import render_portfolio
+
+    theme = _validate_theme(theme)
+    resolution = _validate_resolution(resolution)
+    cfg = _resolve_config(None, theme, voice, tts)
+    if resolution:
+        cfg.set_resolution(resolution)
+    skip_names = tuple(s.strip() for s in skip.split(",") if s.strip())
+    console.print(
+        f"[cyan]portfolio[/] {projects_dir} → {output} "
+        f"at {cfg.video.width}x{cfg.video.height}, '{cfg.theme.name}' theme…"
+    )
+    report = render_portfolio(
+        projects_dir,
+        output,
+        config=cfg,
+        tts=cfg.audio.backend,
+        voice=cfg.audio.voice,
+        max_projects=max_projects,
+        max_modules=max_modules,
+        skip=skip_names,
+    )
+    for r in report.results:
+        mark = "[green]✓[/]" if r.ok else "[red]✗[/]"
+        detail = f"{r.duration_s:.0f}s · {r.scenes} scenes" if r.ok else (r.error or "failed")
+        console.print(f"  {mark} {r.name}: {detail}")
+    console.print(
+        f"[green]✓[/] {report.ok_count}/{len(report.results)} rendered · "
+        f"index: {report.index_html}"
+    )
+    if report.ok_count == 0 and report.results:
+        raise typer.Exit(code=1)
 
 
 @app.command()
@@ -505,6 +577,22 @@ def stego(
             else "[red]✗ provenance does NOT match the demo[/]"
         )
         raise typer.Exit(code=0 if ok else 1)
+
+
+@app.command(name="fetch-voice")
+def fetch_voice() -> None:
+    """Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
+
+    Installs them into the DemoCreate cache so `--tts kokoro` works offline
+    thereafter. Requires the `tts` extra (`uv pip install -e ".[tts]"`).
+    """
+    from .narration.tts import _kokoro_cache_dir, fetch_kokoro_model
+
+    console.print(f"[cyan]fetching Kokoro model[/] → {_kokoro_cache_dir()} (~340 MB)…")
+    model, voices = fetch_kokoro_model()
+    console.print(f"[green]✓[/] model:  {model}")
+    console.print(f"[green]✓[/] voices: {voices}")
+    console.print("Now render with a neural voice: [cyan]democreate render demo.json --tts kokoro --voice af_heart[/]")
 
 
 @app.command()

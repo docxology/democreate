@@ -12,7 +12,11 @@ democreate inspect   DEMO                             validate + summarize a dem
 democreate build     DEMO     [--output] [--tts] [--strict/--no-strict]
                                                       run the full pipeline → player
 democreate tour      REPO     [--output] [--title] [--build/--no-build]
-                                                      generate + build a codebase tour
+                              [--render/--no-render] [--tts] [--voice] [--theme]
+                                                      generate a codebase tour (--render → MP4)
+democreate portfolio DIR      [--output] [--tts] [--voice] [--theme] [--resolution]
+                              [--max-projects] [--max-modules] [--skip]
+                                                      a timestamped summary video per project
 democreate captions  DEMO     [--format srt|vtt|ass]  emit subtitles to stdout
 democreate render    DEMO     [--output] [--tts] [--voice] [--fps] [--captions]
                               [--animate/--no-animate] [--animation-fps] [--theme]
@@ -31,6 +35,7 @@ democreate gif       DEMO     [--output] [--gif] [--fps] [--theme]
                                                       build + export an animated GIF preview
 democreate config    [OUT]    [--theme]               write a commented render-config YAML
 democreate stego     IMAGE    [--demo]                extract/verify steganographic provenance
+democreate fetch-voice                                download Kokoro neural-TTS model (~340 MB)
 democreate backends                                   list backends + availability
 democreate version                                    print the version
 ```
@@ -80,12 +85,14 @@ democreate build demo.json --output output --tts auto
 ## `tour`
 
 Generate a codebase-tour demo from a repository (via the `codebase` AST walker and
-the narration script generator), write it to `<output>/demos/tour.json`, and — by
-default — render it.
+the narration script generator) and write it to `<output>/demos/tour.json`. By
+default it also **builds** the HTML player; pass `--render` to instead produce a
+**verified MP4** with a real voiceover.
 
 ```bash
 democreate tour /path/to/repo --title "My Project Tour" --output output
-democreate tour /path/to/repo --no-build      # generate only, do not render
+democreate tour /path/to/repo --no-build           # generate only
+democreate tour /path/to/repo --render --voice Samantha   # → output/video/demo.mp4
 ```
 
 | Option | Default | Meaning |
@@ -93,7 +100,46 @@ democreate tour /path/to/repo --no-build      # generate only, do not render
 | `REPO` (arg) | required | Repository/directory to tour. |
 | `--output`, `-o` | `output` | Output workspace. |
 | `--title`, `-t` | `Codebase Tour` | Demo title. |
-| `--build / --no-build` | `--build` | Also render the generated demo. |
+| `--build / --no-build` | `--build` | Build the HTML player. |
+| `--render / --no-render` | `--no-render` | Render a verified MP4 with voiceover. |
+| `--tts` | `system` | TTS backend when `--render` (`system`/`silent`). |
+| `--voice`, `-v` | (none) | Voice id when `--render`. |
+| `--theme` | `noir` | Theme preset when `--render`. |
+
+## `portfolio`
+
+Render a **timestamped summary video for every project** under a directory. Each
+project gets its own `output/<name>/` subfolder containing a content-verified MP4
+named `<name>-summary-<UTC>.mp4`; a project that fails to render is recorded and
+the batch continues. A `portfolio_index.json` and `portfolio_index.html` gallery
+are written at the output root.
+
+The summary is *describing*, not enumerating: a title card, a what-it-is bullet
+slide drawn from the real README, an architecture diagram of the real packages, a
+by-the-numbers stat card, two or three load-bearing modules shown as real source
+narrated from their **real docstrings**, a how-to-run terminal scene, and an outro.
+Discovery is Python-AST + README based (a non-Python project still gets a
+README/stat summary, without code scenes).
+
+```bash
+# one video per project under a folder of repositories
+democreate portfolio ~/Documents/GitHub/HumOS/projects -o output --voice Samantha
+
+# a quick, bounded subset at 720p
+democreate portfolio ~/code -o output --resolution 720p --max-projects 3
+```
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `PROJECTS_DIR` (arg) | required | Directory of project subdirectories. |
+| `--output`, `-o` | `output` | Output root (one `<name>/` folder per project). |
+| `--tts` | `system` | TTS backend (`system`/`silent`/`kokoro`). |
+| `--voice`, `-v` | (none) | Voice id (e.g. `Samantha`). |
+| `--theme` | `noir` | Theme preset. |
+| `--resolution` | `1080p` | `720p`/`1080p`/`1440p`/`2160p`/`4k`. |
+| `--max-projects` | `0` (all) | Cap the number of projects rendered. |
+| `--max-modules` | `3` | Key-module code scenes per project. |
+| `--skip` | (none) | Comma-separated project names to skip. |
 
 ## `captions`
 

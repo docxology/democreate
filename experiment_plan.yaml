@@ -5,7 +5,7 @@
 # preserving reproducibility and acceptable latency.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.6.2"
+version: "0.7.0"
 domain: software_tooling
 
 goal: >-

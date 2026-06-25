@@ -48,7 +48,7 @@
       ],
       "context": {
         "section": "At a glance",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/graphical_abstract.png"
+        "background_image": "/Users/hum/Documents/GitHub/HumOS/projects/democreate/manuscript/figures/graphical_abstract.png"
       }
     },
     {
@@ -215,7 +215,7 @@
       ],
       "context": {
         "section": "Configurable",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/themes.png"
+        "background_image": "/Users/hum/Documents/GitHub/HumOS/projects/democreate/manuscript/figures/themes.png"
       }
     },
     {
@@ -239,7 +239,7 @@
       ],
       "context": {
         "section": "Research Papers",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/manuscript/figures/paper_fig.png"
+        "background_image": "/Users/hum/Documents/GitHub/HumOS/projects/democreate/manuscript/figures/paper_fig.png"
       }
     },
     {
@@ -263,7 +263,7 @@
       ],
       "context": {
         "section": "Architecture",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/architecture.png"
+        "background_image": "/Users/hum/Documents/GitHub/HumOS/projects/democreate/examples/assets/architecture.png"
       }
     },
     {
@@ -273,7 +273,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Six hundred twenty eight collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
+          "text": "And it is real. Six hundred sixty four collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
           "actions": []
         }
       ],
@@ -281,7 +281,7 @@
         "section": "By the numbers",
         "stats": [
           [
-            "628",
+            "664",
             "collected tests"
           ],
           [

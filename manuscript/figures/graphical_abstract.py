@@ -164,7 +164,7 @@ def _draw_title_band(img: Image.Image, draw: ImageDraw.ImageDraw) -> int:
     )
 
     # right-aligned meta line
-    meta = "628 tests · ≥90% cov · 51 modules / 7 subsystems · Python ≥3.10 · MIT"
+    meta = "664 tests · ≥90% cov · 53 modules / 7 subsystems · Python ≥3.10 · MIT"
     mf = _font(27)
     mw, mh = _measure(draw, meta, mf)
     draw.text((W - pad - mw, 92), meta, font=mf, fill=FAINT)

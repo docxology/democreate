@@ -1,6 +1,6 @@
 # The Produced Videos
 
-DemoCreate `v0.6.2` produces **real, content-verified videos** — both
+DemoCreate `v0.7.0` produces **real, content-verified videos** — both
 re-rendered in the **noir** aesthetic (near-black surfaces, bright-white text,
 and a single refined red as the only chroma). The canonical package showcase is
 now a **3840×2160 H.264 + AAC** render, while the paper demos remain **1920×1080
@@ -24,7 +24,7 @@ canonical package demo: one declarative file (`examples/democreate_showcase.json
 authored by [`examples/make_showcase.py`](../examples/make_showcase.py)) compiled
 into a narrated 4K walkthrough that touches all 14 scene types the renderer
 supports, including the **bullet slides** and **stat-card slides**, now re-rendered
-in the `v0.6.2` **noir** look.
+in the **noir** look.
 
 - **Path:** `output/video/demo.mp4`
 - **Size / duration:** 3840×2160 · 129.7 s
@@ -62,7 +62,7 @@ uv run democreate render examples/democreate_showcase.json -o output \
 8. **Themes strip** — the five preset themes side by side (noir is the default).
 9. **Research-paper figure** — a real published figure, fit-contained (whole).
 10. **Architecture diagram** — the pipeline.
-11. **Stat-card slide** — *"by the numbers"* (628 tests · 7 subsystems · 5 themes
+11. **Stat-card slide** — *"by the numbers"* (664 tests · 7 subsystems · 5 themes
     · 4K · 0 binary deps), the `FrameState.stats` surface.
 12. **Bullet slide** — the provenance story.
 13. **Terminal scene** — a build + render + verify session.
@@ -93,7 +93,7 @@ clock · watermark) run throughout.
 *Video 1 — a code scene typing in character-by-character with live pygments highlighting (noir: monochrome with red keywords), lifted from the encoded 4K render.*
 
 ![Showcase stat-card slide](_videoframes/showcase_stats.png)
-*Video 1 — the "by the numbers" stat-card slide (628 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
+*Video 1 — the "by the numbers" stat-card slide (664 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
 
 > The earlier intro demo (`examples/democreate_intro.json`, 78 s) still renders,
 > but the showcase **supersedes it** as the canonical package demo — see
@@ -176,7 +176,7 @@ diagonal transition instead of describing it.*
 ![Paper demo interpretive figure scene](_videoframes/paper_figure.png)
 *Video 2 — a figure with **concise, interpretive** narration ("Closed-form mutual
 information versus a brute-force sampler: identical to one part in a million.
-Exact, not approximate."), not the literal caption, in the v0.6.2 noir look.*
+Exact, not approximate."), not the literal caption, in the noir look.*
 
 ---
 

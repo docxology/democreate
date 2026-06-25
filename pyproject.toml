@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "democreate"
-version = "0.6.2"
+version = "0.7.0"
 description = "Declarative, deterministic audio-visual demo generation for codebases, websites, and terminals — a virtual-IDE action stream with TTS→STT synchronization and pluggable capture/render backends."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -145,3 +145,12 @@ ignore = ["E501", "B008"]
 python_version = "3.10"
 warn_unused_ignores = true
 ignore_missing_imports = true
+
+# Heavy optional backends (the `tts`/`capture`/etc. extras) are imported lazily
+# inside the functions that need them and are out of scope for type-checking the
+# pure core. Skip following them so their shipped stubs (e.g. numpy's, which use
+# 3.12+ syntax) don't break a 3.10-targeted check.
+[[tool.mypy.overrides]]
+module = ["numpy.*", "soundfile.*", "kokoro_onnx.*", "kokoro_onnx"]
+follow_imports = "skip"
+follow_imports_for_stubs = true

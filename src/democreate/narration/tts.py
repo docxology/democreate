@@ -20,6 +20,7 @@ Example
 from __future__ import annotations
 
 import importlib.util
+import os
 import shutil
 import subprocess
 import tempfile
@@ -41,6 +42,7 @@ __all__ = [
     "get_tts_backend",
     "synthesize_demo",
     "measure_wav_duration_ms",
+    "fetch_kokoro_model",
 ]
 
 logger = get_logger(__name__)
@@ -51,6 +53,85 @@ _DEFAULT_SAMPLE_RATE = 22050
 _MIN_DURATION_MS = 300
 _SAMPLE_WIDTH_BYTES = 2  # 16-bit PCM
 _CHANNELS = 1  # mono
+
+# Kokoro neural TTS defaults. The model + voices files are large (~340 MB) and
+# are NOT bundled or pip-installed; they are resolved from env vars or a cache
+# dir (see :func:`_kokoro_model_paths`). 24 kHz is Kokoro's native output rate.
+_KOKORO_DEFAULT_VOICE = "af_heart"  # warm US-English female; see Kokoro voice list
+_KOKORO_MODEL_NAMES = ("kokoro-v1.0.onnx", "kokoro-v0.19.onnx", "kokoro.onnx")
+_KOKORO_VOICES_NAMES = ("voices-v1.0.bin", "voices.bin", "voices-v1.0.json")
+
+
+_KOKORO_RELEASE = (
+    "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0"
+)
+_KOKORO_MODEL_URL = f"{_KOKORO_RELEASE}/kokoro-v1.0.onnx"
+_KOKORO_VOICES_URL = f"{_KOKORO_RELEASE}/voices-v1.0.bin"
+
+
+def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
+    dest: Path | None = None,
+) -> tuple[Path, Path]:
+    """Download the Kokoro model + voices into the cache dir if absent.
+
+    This is an explicit, opt-in network operation (never run on the default path).
+    Existing files are not re-downloaded.
+
+    Args:
+        dest: Target directory; defaults to :func:`_kokoro_cache_dir`.
+
+    Returns:
+        ``(model_path, voices_path)``.
+    """
+    import urllib.request
+
+    dest = Path(dest) if dest is not None else _kokoro_cache_dir()
+    dest.mkdir(parents=True, exist_ok=True)
+    model = dest / "kokoro-v1.0.onnx"
+    voices = dest / "voices-v1.0.bin"
+    if not voices.exists():
+        logger.info("downloading Kokoro voices → %s", voices)
+        urllib.request.urlretrieve(_KOKORO_VOICES_URL, voices)
+    if not model.exists():
+        logger.info("downloading Kokoro model (~310 MB) → %s", model)
+        urllib.request.urlretrieve(_KOKORO_MODEL_URL, model)
+    return model, voices
+
+
+def _kokoro_cache_dir() -> Path:
+    """Return the directory Kokoro model files are looked for in.
+
+    Honors ``DEMOCREATE_KOKORO_DIR``; defaults to ``~/.cache/democreate/kokoro``.
+    """
+    override = os.environ.get("DEMOCREATE_KOKORO_DIR")
+    if override:
+        return Path(override)
+    return Path.home() / ".cache" / "democreate" / "kokoro"
+
+
+def _kokoro_model_paths() -> tuple[Path, Path] | None:
+    """Resolve ``(model_path, voices_path)`` for Kokoro, or ``None`` if absent.
+
+    Resolution order: the explicit ``KOKORO_MODEL_PATH`` + ``KOKORO_VOICES_PATH``
+    env vars, then the first known filename present in :func:`_kokoro_cache_dir`.
+    Returns ``None`` (rather than raising) so callers can decide how to report it.
+    """
+    env_model = os.environ.get("KOKORO_MODEL_PATH")
+    env_voices = os.environ.get("KOKORO_VOICES_PATH")
+    if env_model and env_voices:
+        model, voices = Path(env_model), Path(env_voices)
+        return (model, voices) if model.exists() and voices.exists() else None
+
+    cache = _kokoro_cache_dir()
+    found_model = next(
+        (cache / n for n in _KOKORO_MODEL_NAMES if (cache / n).exists()), None
+    )
+    found_voices = next(
+        (cache / n for n in _KOKORO_VOICES_NAMES if (cache / n).exists()), None
+    )
+    if found_model is not None and found_voices is not None:
+        return found_model, found_voices
+    return None
 
 
 def measure_wav_duration_ms(path: Path | str) -> int:
@@ -392,33 +473,113 @@ class SystemTTSBackend(TTSBackend):
 
 
 class KokoroTTSBackend(TTSBackend):
-    """Kokoro neural TTS backend (optional, requires the ``tts`` extra).
+    """Kokoro neural TTS backend — a high-quality, fully-local voice.
+
+    Kokoro is an 82M-parameter open-weight neural TTS that runs offline via ONNX
+    Runtime (`kokoro-onnx`), producing far more natural narration than the system
+    ``say``/``espeak`` voices. It is heavier and slower (a few seconds per chunk on
+    CPU) but needs no cloud and no API key.
+
+    Two things must be present: the ``kokoro-onnx`` package (the ``tts`` extra) and
+    the model files (``kokoro-v1.0.onnx`` + ``voices-v1.0.bin``, ~340 MB), which are
+    NOT pip-installed. Place them in ``~/.cache/democreate/kokoro`` (overridable via
+    ``DEMOCREATE_KOKORO_DIR``) or point ``KOKORO_MODEL_PATH`` + ``KOKORO_VOICES_PATH``
+    at them. See ``docs/backends.md`` for the one-line download.
+
+    Output is synthesized at Kokoro's native 24 kHz, then transcoded to the
+    pipeline's canonical 16-bit mono PCM WAV; the returned duration is *measured*
+    from that file (audio stays the single source of timing truth).
 
     Args:
-        voice: Default Kokoro voice identifier.
+        voice: Kokoro voice id (e.g. ``"af_heart"``, ``"am_michael"``,
+            ``"bf_emma"``). Defaults to :data:`_KOKORO_DEFAULT_VOICE`.
+        sample_rate: Canonical output sample rate in Hz.
+        speed: Speaking-rate multiplier (1.0 = natural).
+        lang: Kokoro language code (``"en-us"`` / ``"en-gb"``).
 
     Raises:
-        BackendUnavailableError: If the ``kokoro`` package is not installed.
+        BackendUnavailableError: If ``kokoro-onnx`` or the model files are absent.
     """
 
     name = "kokoro"
 
-    def __init__(self, *, voice: str | None = None) -> None:
-        if not _dep_available("kokoro"):
-            raise BackendUnavailableError("kokoro", extra="tts")
-        self.voice = voice  # pragma: no cover - requires kokoro
+    def __init__(
+        self,
+        *,
+        voice: str | None = None,
+        sample_rate: int = _DEFAULT_SAMPLE_RATE,
+        speed: float = 1.0,
+        lang: str = "en-us",
+    ) -> None:
+        if not _dep_available("kokoro_onnx"):
+            raise BackendUnavailableError("kokoro-onnx", extra="tts")
+        paths = _kokoro_model_paths()
+        if paths is None:
+            raise BackendUnavailableError(
+                "kokoro-onnx model files (set KOKORO_MODEL_PATH + KOKORO_VOICES_PATH, "
+                "or place kokoro-v1.0.onnx + voices-v1.0.bin in "
+                f"{_kokoro_cache_dir()} — see docs/backends.md)"
+            )
+        self._model_path, self._voices_path = paths
+        self.voice = voice or _KOKORO_DEFAULT_VOICE
+        self.sample_rate = sample_rate
+        self.speed = speed
+        self.lang = lang
+        self._engine_obj = None  # lazily constructed (loading the model is costly)
 
     def is_available(self) -> bool:
-        """Return whether the ``kokoro`` package is installed."""
-        return _dep_available("kokoro")
+        """Return whether ``kokoro-onnx`` AND its model files are present."""
+        return _dep_available("kokoro_onnx") and _kokoro_model_paths() is not None
 
-    def synthesize(  # pragma: no cover - requires kokoro
+    def _engine(self):  # pragma: no cover - requires kokoro model files
+        """Lazily construct and cache the Kokoro ONNX engine."""
+        if self._engine_obj is None:
+            from kokoro_onnx import Kokoro
+
+            self._engine_obj = Kokoro(str(self._model_path), str(self._voices_path))
+        return self._engine_obj
+
+    def synthesize(  # pragma: no cover - requires kokoro model files
         self, text: str, out_path: Path, *, voice: str | None = None
     ) -> AudioClip:
-        """Synthesize ``text`` with Kokoro (only runs when ``kokoro`` is present)."""
-        if not _dep_available("kokoro"):
-            raise BackendUnavailableError("kokoro", extra="tts")
-        raise BackendUnavailableError("kokoro", extra="tts")
+        """Synthesize ``text`` with Kokoro to a canonical WAV; measure its duration."""
+        import soundfile as sf
+
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if not text.strip():
+            return SilentTTSBackend(sample_rate=self.sample_rate).synthesize(
+                text, out_path
+            )
+
+        # Demos are often authored with a system voice name (e.g. "Samantha")
+        # in demo.voice; Kokoro has its own voice ids and asserts on unknown
+        # names. Fall back to the configured Kokoro voice (then the default)
+        # rather than crashing, so any demo renders with the neural backend.
+        engine = self._engine()
+        available = set(engine.get_voices())
+        requested = voice or self.voice
+        chosen = requested if requested in available else self.voice
+        if chosen not in available:
+            chosen = _KOKORO_DEFAULT_VOICE
+        if chosen != requested:
+            logger.info("kokoro voice %r unavailable; using %r", requested, chosen)
+        samples, native_rate = engine.create(
+            text, voice=chosen, speed=self.speed, lang=self.lang
+        )
+        raw = out_path.with_suffix(".kokoro.wav")
+        sf.write(str(raw), samples, native_rate)
+        _transcode_audio_file(raw, out_path, self.sample_rate)
+        raw.unlink(missing_ok=True)
+
+        measured_ms = measure_wav_duration_ms(out_path)
+        logger.info("kokoro TTS spoke %d ms to %s", measured_ms, out_path)
+        return AudioClip(
+            path=out_path,
+            duration_ms=measured_ms,
+            sample_rate=self.sample_rate,
+            text=text,
+        )
 
 
 class ChatterboxTTSBackend(TTSBackend):

@@ -10,12 +10,13 @@ overview** (the PDF's figures and pages plus its associated codebase). Every hea
 backend (TTS, transcription, capture, animation, video assembly, PDF) sits behind
 an abstract interface with a **pure-Python / system-binary deterministic default**,
 so the package produces a real, inspectable demo with only light dependencies.
-Optional extras and system binaries upgrade specific media surfaces, while neural
-TTS, Whisper, and Manim remain guarded adapter slots. The look (themes, fonts, motion) and
-sound (voice, pacing, normalization) are fully **configurable**.
+Optional extras and system binaries upgrade specific media surfaces; a wired
+**Kokoro neural voice** (fully local) is available, while Whisper and Manim remain
+guarded adapter slots. The look (themes, fonts, motion) and sound (voice, pacing,
+normalization) are fully **configurable**.
 
-- **Status:** alpha (`0.6.2`), Python ≥ 3.10, MIT licensed.
-- **DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693217.svg)](https://doi.org/10.5281/zenodo.20693217) (this version) · concept DOI `10.5281/zenodo.20693216`
+- **Status:** alpha (`0.7.0`), Python ≥ 3.10, MIT licensed.
+- **DOI (concept, resolves to latest):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693216.svg)](https://doi.org/10.5281/zenodo.20693216)
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
   testing, troubleshooting.
 
@@ -23,7 +24,7 @@ sound (voice, pacing, normalization) are fully **configurable**.
 
 ## Watch the demos
 
-DemoCreate `v0.6.2` produces **real, content-verified videos** (H.264 +
+DemoCreate `v0.7.0` produces **real, content-verified videos** (H.264 +
 AAC, with chapters, container metadata tags, and a signed steganographic
 provenance poster) — now in the **noir** aesthetic: near-black surfaces, bright
 white text, and a single refined red as the only chroma:
@@ -43,7 +44,7 @@ regenerate commands, the 14 showcase scenes, and companion artifacts — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (628 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the v0.6.2 noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (664 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -58,9 +59,10 @@ regenerate commands, the 14 showcase scenes, and companion artifacts — in
 2. **Backends behind interfaces.** TTS, transcription, capture, animation, and
    assembly each sit behind an abstract base with a deterministic default. The
    adapter-backed media path uses a smoke-tested system voice, mss/Playwright,
-   poppler, and ffmpeg when present; neural TTS / Whisper / Manim surfaces are
-   guarded adapter slots. No heavy binaries (ffmpeg, torch, chrome) are required
-   for the default HTML/transcript/manifest result.
+   poppler, and ffmpeg when present; a wired Kokoro neural voice is an optional
+   local upgrade, while Whisper / Manim surfaces remain guarded adapter slots. No
+   heavy binaries (ffmpeg, torch, chrome) are required for the default
+   HTML/transcript/manifest result.
 3. **TTS → STT synchronization.** Narration audio is generated, then transcribed
    back to word-level timestamps; each on-screen action anchors to a spoken
    `trigger_word`. Real audio is the single source of timing truth.
@@ -121,6 +123,15 @@ democreate render demo.json -o output --voice Samantha   # → output/video/demo
 democreate verify output/video/demo.mp4 --width 1920 --height 1080
 ```
 
+**Want a better, fully-local AI voice?** Install the `tts` extra and fetch the
+open-weight **Kokoro** neural model once, then render with it — markedly more
+natural than the OS voice, still offline, no API key:
+
+```bash
+uv pip install -e ".[tts]" && democreate fetch-voice   # ~340 MB, one time
+democreate render demo.json --tts kokoro --voice af_heart
+```
+
 `render` honours **audio as ground truth**: each frame is held on screen for the
 *measured* duration of its narration clip, so video and voiceover share one
 timebase by construction — no drift. The build then **content-verifies** the
@@ -177,6 +188,41 @@ diagram + a real player screenshot, [`examples/make_intro_demo.py`](examples/mak
 builds the artifact, then `democreate render examples/democreate_intro.json` produces a
 ~78s 1080p narrated walkthrough with pygments code, a moving waveform, scene
 crossfades, and Ken Burns. See [`examples/README.md`](examples/README.md).
+
+## Summarize a whole folder of projects
+
+`democreate portfolio` turns a directory of repositories into a shelf of narrated
+**software-describing** videos — one timestamped, content-verified MP4 per project:
+
+```bash
+democreate portfolio ~/code -o output --voice Samantha
+# → output/<project>/video/<project>-summary-<UTC>.mp4  (one folder per project)
+# → output/portfolio_index.json  +  output/portfolio_index.html  (a gallery)
+```
+
+Each summary is *describing*, not enumerating. From a first-principles read of what
+makes a viewer understand software, it builds a fixed seven-beat arc regardless of
+repo size: a **title** card, a **what-it-is** bullet slide pulled from the real
+README, an **architecture** diagram of the project's real packages, a
+**by-the-numbers** stat card (modules · lines · classes · functions), two or three
+of the most **load-bearing modules** shown as real typed source narrated from their
+**real docstrings**, a **how-to-run** terminal scene, and an **outro**. Selection
+and extraction — not a model and not a one-scene-per-module list — carry the
+description, so the default needs no network and the generated demo is
+byte-deterministic. A project that fails to render is recorded in the index and the
+batch continues; one bad repo never aborts the run. Discovery is Python-AST +
+README based; a non-Python repo still gets a README/stat summary (without code
+scenes).
+
+Because the narration is *extracted* from the repository, a summary is only as
+informative as the project's own README and docstrings: content verification
+asserts the video is **real** (non-silent, non-black streams at the expected
+size), not that the narration is good. A repo with a thin README or undocumented
+modules still renders a valid, verified video — just a thinner one.
+
+For a single repository, `democreate tour REPO --render` closes the same loop —
+generate the tour demo and render it straight to a verified MP4. See
+[`docs/cli.md`](docs/cli.md).
 
 ## Demo a research paper (PDF + codebase)
 
@@ -303,8 +349,9 @@ a deterministic, backend-pluggable spine.
 
 ## Citation
 
-Archived on Zenodo — version `0.6.2`: [`10.5281/zenodo.20693217`](https://doi.org/10.5281/zenodo.20693217);
-all versions (concept DOI): [`10.5281/zenodo.20693216`](https://doi.org/10.5281/zenodo.20693216).
+Cite via the **concept DOI** (always resolves to the latest archived release):
+[`10.5281/zenodo.20693216`](https://doi.org/10.5281/zenodo.20693216). The
+version-specific archive DOI for `0.7.0` is minted on its Zenodo release.
 
 ```bibtex
 @software{democreate,
@@ -312,8 +359,8 @@ all versions (concept DOI): [`10.5281/zenodo.20693216`](https://doi.org/10.5281/
   title   = {DemoCreate: Declarative, Deterministic Audio-Visual Demo Generation},
   year    = {2026},
   url     = {https://github.com/docxology/democreate},
-  version = {0.6.2},
-  doi     = {10.5281/zenodo.20693217},
+  version = {0.7.0},
+  doi     = {10.5281/zenodo.20693216},
   license = {MIT}
 }
 ```

@@ -4,8 +4,9 @@ Every heavy capability in DemoCreate sits behind an abstract interface with a
 **pure-Python deterministic default**. The package produces a real, inspectable
 demo end-to-end with only the light core dependencies installed. Optional extras
 and system binaries upgrade individual subsystems without changing the pipeline
-or the schema; neural TTS, Whisper, and Manim currently exist as guarded adapter
-slots rather than fully wired render paths.
+or the schema. **Kokoro neural TTS is fully wired** (a high-quality, fully-local
+voice); Whisper, Chatterbox, and Manim remain guarded adapter slots rather than
+fully wired render paths.
 
 ## Core dependencies (always installed)
 
@@ -17,7 +18,7 @@ manifest, captions, and the interactive HTML player.
 
 | Subsystem | Capability | Deterministic default | Real backend | Extra | Dependency | Install |
 |-----------|-----------|-----------------------|--------------|-------|------------|---------|
-| `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (smoke-tested OS voice, zero pip); `KokoroTTSBackend` / `ChatterboxTTSBackend` are guarded adapter slots | `tts` | usable `say`/`espeak` plus `ffmpeg` or `afconvert` for transcode (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` | usable OS voice, or `uv pip install -e ".[tts]"` |
+| `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (smoke-tested OS voice, zero pip); **`KokoroTTSBackend`** (wired neural voice, fully local); `ChatterboxTTSBackend` is a guarded slot | `tts` | usable `say`/`espeak` plus `ffmpeg`/`afconvert` (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` + the model files | usable OS voice, or `uv pip install -e ".[tts]"` then `democreate fetch-voice` |
 | `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (even word spacing) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
 | `narration/` | Narration text | **template generator** (deterministic, default) | `LLMNarrator` (OpenAI-compatible, **stdlib `urllib`, zero pip**) | — | OpenAI-compatible API + `OPENAI_API_KEY` | env var only (no install) |
 | `capture/` | Screen pixels | `SyntheticRenderer` (scaled TrueType fonts + pygments + themes) | `MssScreenCapture` | `capture` | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
@@ -88,6 +89,36 @@ binaries:
 
 `democreate backends` shows the TTS and ffmpeg rows as `available` / `absent`
 based on the smoke-tested synthesis/transcode path and the OS binaries.
+
+## Neural voice (Kokoro) — a better, fully-local AI voice
+
+`KokoroTTSBackend` is a wired neural TTS — the open-weight 82M-parameter
+[Kokoro](https://github.com/thewh1teagle/kokoro-onnx) model running offline via
+ONNX Runtime. It sounds markedly more natural than the system `say`/`espeak`
+voices, is fully local (no cloud, no API key), and is the recommended upgrade for
+the best-sounding videos. It is heavier and slower — the model loads in ~1 s and
+each narration chunk synthesizes in a few seconds on CPU.
+
+Two things are needed: the `tts` extra (`kokoro-onnx`, `soundfile`, `numpy`) and
+the model files (`kokoro-v1.0.onnx` + `voices-v1.0.bin`, ~340 MB), which are **not
+pip-installed**. The one-step setup:
+
+```bash
+uv pip install -e ".[tts]"
+democreate fetch-voice                 # downloads the model into ~/.cache/democreate/kokoro
+democreate render demo.json --tts kokoro --voice af_heart
+democreate portfolio ~/code --tts kokoro --voice af_heart
+```
+
+The model files are resolved from `KOKORO_MODEL_PATH` + `KOKORO_VOICES_PATH`, then
+from `DEMOCREATE_KOKORO_DIR` (default `~/.cache/democreate/kokoro`). If they are
+absent, the backend raises `BackendUnavailableError` with the exact remedy.
+Voices include `af_heart`, `af_bella`, `am_michael`, `bf_emma`, and more (run
+`Kokoro.get_voices()`); an unknown voice name (e.g. a demo authored with the
+system voice `Samantha`) falls back to the configured Kokoro voice rather than
+erroring, so any demo renders. Output is synthesized at 24 kHz and transcoded to
+the pipeline's canonical WAV; duration is measured from the file (audio stays the
+single source of timing truth).
 
 ## Optional LLM narration
 

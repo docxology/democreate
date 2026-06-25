@@ -25,7 +25,8 @@ On macOS, list available voices with `say -v '?'` (e.g. `Samantha`, `Daniel`).
 Because it is a *platform* backend (not portable), it is never the `auto`
 default — but it turns the silent default into genuine spoken narration for
 free. Other backends: `silent` (deterministic silent clips, the core default),
-plus guarded `kokoro` / `chatterbox` adapter slots (extra `tts`). See
+`kokoro` (a wired, fully-local neural voice — `tts` extra + `democreate
+fetch-voice`), and a guarded `chatterbox` slot (extra `tts`). See
 [backends.md](backends.md).
 
 ## Voiceover assembly: gaps, lead, trail
@@ -70,7 +71,7 @@ track — the render still completes. The pure concat path never needs ffmpeg.
 
 | Field | Default | Meaning |
 |-------|---------|---------|
-| `backend` | `system` | `system` / `silent`; `kokoro` / `chatterbox` are guarded adapter slots. |
+| `backend` | `system` | `system` / `silent` / `kokoro` (wired neural voice); `chatterbox` is a guarded slot. |
 | `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
 | `rate_wpm` | `None` | Optional speaking-rate override. |
 | `lead_silence_ms` | `300` | Silence before the first clip. |

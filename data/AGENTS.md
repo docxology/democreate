@@ -25,7 +25,7 @@ adapter-backed artifacts belong in `output/`.
 
 3. **Keep the metadata trio in sync.** `CITATION.cff`, `codemeta.json`, and
    `.zenodo.json` at the project root must share the same title, version
-   (`0.6.2`), keywords, author (Daniel Ari Friedman, ORCID
+   (`0.7.0`), keywords, author (Daniel Ari Friedman, ORCID
    0000-0001-6232-9096, Active Inference Institute), and license (MIT). A change
    to one requires changing all three, plus this ledger and the experiment plan
    if a numeric claim or version is affected.

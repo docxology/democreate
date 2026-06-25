@@ -422,7 +422,7 @@ class RenderConfig:
             f"  cursor: {str(cfg.video.cursor).lower()}            # animated cursor + click ripples",
             "",
             "audio:",
-            f"  backend: {cfg.audio.backend}        # system (real OS voice) | silent | guarded kokoro/chatterbox slots",
+            f"  backend: {cfg.audio.backend}        # system (real OS voice) | silent | kokoro (neural, local) | chatterbox (slot)",
             f"  voice: \"{cfg.audio.voice}\"       # optional system voice name (blank = OS default)",
             f"  lead_silence_ms: {cfg.audio.lead_silence_ms}     # pause before the first word",
             f"  gap_ms: {cfg.audio.gap_ms}             # pause between chunks",
