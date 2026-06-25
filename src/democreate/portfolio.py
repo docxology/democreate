@@ -354,7 +354,7 @@ def _run_command(repo: Path) -> tuple[str, str]:
     return "ls -R | head", f"{repo.name} contents"
 
 
-def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
+def collect_project_facts(repo: Path, *, max_modules: int = 6) -> ProjectFacts:
     """Walk ``repo`` and assemble its render-ready :class:`ProjectFacts`.
 
     Deterministic given the repository contents. Uses the stdlib codebase walker
@@ -414,6 +414,9 @@ def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
         if not excerpt:
             continue
         seen_names.add(s.name)
+        # Named public symbols (classes first, then functions), for richer narration.
+        public = [c.name for c in s.classes if not c.name.startswith("_")]
+        public += [f.name for f in s.functions if not f.name.startswith("_")]
         key_modules.append(
             KeyModule(
                 name=s.name,
@@ -421,6 +424,9 @@ def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
                 docstring=s.docstring,
                 code_excerpt=excerpt,
                 symbol_count=s.symbol_count,
+                symbols=public[:6],
+                class_count=len(s.classes),
+                function_count=len(s.functions),
             )
         )
         if len(key_modules) >= max_modules:
@@ -448,7 +454,29 @@ def collect_project_facts(repo: Path, *, max_modules: int = 3) -> ProjectFacts:
         language="Python" if summaries else "mixed",
         test_count=_count_tests(summaries),
         dependencies=_collect_dependencies(summaries, self_names),
+        packages=_substantive_packages(groups),
     )
+
+
+def _substantive_packages(
+    groups: list[tuple[str, list[str]]],
+) -> list[tuple[str, list[str]]]:
+    """Filter/rank package groups to the real, tour-worthy areas.
+
+    Drops date/numeric-named dirs (e.g. dated experiment folders), excludes
+    ``__init__``/test modules from each listing, keeps only areas with at least two
+    substantive modules, and orders by module count (largest first).
+    """
+    import re
+
+    out: list[tuple[str, list[str]]] = []
+    for pkg, mods in groups:
+        if re.match(r"^\d", pkg) or pkg.startswith("."):
+            continue
+        clean = [m for m in mods if m != "__init__" and not m.startswith("test")]
+        if len(clean) >= 2:
+            out.append((pkg, clean))
+    return sorted(out, key=lambda pm: (-len(pm[1]), pm[0]))
 
 
 def _relpath(path: Path, repo: Path) -> str:
@@ -464,7 +492,7 @@ def build_project_demo(
     workspace,
     *,
     config=None,
-    max_modules: int = 3,
+    max_modules: int = 6,
     title: str | None = None,
 ):
     """Collect facts, render an architecture diagram, and build the summary demo.
@@ -530,7 +558,7 @@ def render_project(
     config=None,
     tts: str = "system",
     voice: str = "",
-    max_modules: int = 3,
+    max_modules: int = 6,
     timestamp: str | None = None,
     verify: bool = True,
 ) -> ProjectResult:
@@ -601,7 +629,7 @@ def render_portfolio(
     tts: str = "system",
     voice: str = "",
     max_projects: int = 0,
-    max_modules: int = 3,
+    max_modules: int = 6,
     skip: tuple[str, ...] = (),
     timestamp: str | None = None,
     verify: bool = True,

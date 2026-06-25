@@ -183,6 +183,49 @@ def test_no_dependencies_no_beat() -> None:
     assert all(s.id != "deps" for s in demo.scenes)
 
 
+def test_package_tour_beats_present() -> None:
+    facts = _facts(
+        packages=[("core", ["a", "b", "c"]), ("io", ["x", "y"])]
+    )
+    demo = generate_project_summary_demo(facts)
+    pkg_scenes = [s for s in demo.scenes if s.id.startswith("pkg-")]
+    assert len(pkg_scenes) == 2
+    first = next(s for s in demo.scenes if s.id == "pkg-1")
+    assert "core" in first.chunks[0].text
+    assert first.context["bullets"] == ["a.py", "b.py", "c.py"]
+
+
+def test_single_package_no_tour() -> None:
+    # With <2 packages there is no multi-area tour to give.
+    demo = generate_project_summary_demo(_facts(packages=[("only", ["a", "b"])]))
+    assert all(not s.id.startswith("pkg-") for s in demo.scenes)
+
+
+def test_module_narration_names_real_symbols() -> None:
+    from democreate.narration.project_summary import KeyModule, _module_narration
+
+    module = KeyModule(
+        name="engine",
+        path="engine.py",
+        docstring="Drives the loop. Owns the run cycle.",
+        symbols=["Engine", "run", "helper"],
+        class_count=1,
+        function_count=2,
+        symbol_count=3,
+    )
+    text = _module_narration(module, 0)
+    assert "Drives the loop." in text
+    assert "1 class and 2 functions" in text
+    assert "Engine" in text and "run" in text
+
+
+def test_first_sentences_helper() -> None:
+    from democreate.narration.project_summary import _first_sentences
+
+    assert _first_sentences("One. Two. Three.", count=2) == "One. Two."
+    assert _first_sentences("", count=2) == ""
+
+
 def test_module_narration_openers_vary() -> None:
     from democreate.narration.project_summary import _module_narration
 

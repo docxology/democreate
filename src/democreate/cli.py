@@ -233,7 +233,7 @@ def portfolio(
     theme: str = typer.Option("noir", "--theme", help="Theme preset: noir|dark|light|midnight|paper"),
     resolution: str = typer.Option("1080p", "--resolution", help="720p|1080p|1440p|2160p|4k"),
     max_projects: int = typer.Option(0, "--max-projects", help="Cap projects (0 = all)"),
-    max_modules: int = typer.Option(3, "--max-modules", help="Key-module code scenes per project"),
+    max_modules: int = typer.Option(6, "--max-modules", help="Key-module code scenes per project"),
     skip: str = typer.Option("", "--skip", help="Comma-separated project names to skip"),
 ) -> None:
     """Render a timestamped summary video for every project under a directory.

@@ -61,6 +61,9 @@ class KeyModule:
     docstring: str | None = None
     code_excerpt: str = ""
     symbol_count: int = 0
+    symbols: list[str] = field(default_factory=list)
+    class_count: int = 0
+    function_count: int = 0
 
 
 @dataclass
@@ -101,6 +104,7 @@ class ProjectFacts:
     language: str = "Python"
     test_count: int = 0
     dependencies: list[str] = field(default_factory=list)
+    packages: list[tuple[str, list[str]]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain JSON-ready dict (for the portfolio index)."""
@@ -118,6 +122,7 @@ class ProjectFacts:
             "language": self.language,
             "test_count": self.test_count,
             "dependencies": list(self.dependencies),
+            "packages": [[p, list(mods)] for p, mods in self.packages],
         }
 
 
@@ -131,6 +136,33 @@ def _first_sentence(text: str, *, limit: int = 220) -> str:
         if 0 < idx < limit:
             return clean[: idx + 1].strip()
     return (clean[:limit].rstrip() + "…") if len(clean) > limit else clean
+
+
+def _first_sentences(text: str, *, count: int = 2, limit: int = 340) -> str:
+    """Return up to ``count`` leading sentences of ``text``, bounded by ``limit``.
+
+    Used for richer (but still concise) module narration than a single sentence.
+    """
+    clean = " ".join((text or "").split())
+    if not clean:
+        return ""
+    out: list[str] = []
+    rest = clean
+    for _ in range(count):
+        stop = min(
+            (i for i in (rest.find(s + " ") for s in (".", "!", "?")) if i > 0),
+            default=-1,
+        )
+        if stop < 0:
+            out.append(rest)
+            rest = ""
+            break
+        out.append(rest[: stop + 1])
+        rest = rest[stop + 2 :]
+        if not rest:
+            break
+    joined = " ".join(s.strip() for s in out).strip()
+    return (joined[:limit].rstrip() + "…") if len(joined) > limit else joined
 
 
 def _human_int(value: int) -> str:
@@ -232,9 +264,26 @@ def _module_narration(module: KeyModule, index: int = 0) -> str:
         index: 0-based position among the code scenes (drives opener variety).
     """
     opener = _MODULE_OPENERS[index % len(_MODULE_OPENERS)]
-    summary = _first_sentence(module.docstring) if module.docstring else ""
+    summary = _first_sentences(module.docstring, count=2) if module.docstring else ""
+
+    # A concise, specific "what's inside" clause from real counts + named symbols.
+    parts: list[str] = []
+    if module.class_count:
+        parts.append(f"{module.class_count} class{'es' if module.class_count != 1 else ''}")
+    if module.function_count:
+        parts.append(
+            f"{module.function_count} function{'s' if module.function_count != 1 else ''}"
+        )
+    detail = ""
+    if parts:
+        detail = f" It defines {' and '.join(parts)}"
+        named = ", ".join(module.symbols[:4])
+        detail += f", including {named}." if named else "."
+
     if summary:
-        return f"{opener} {module.name}. {summary}"
+        return f"{opener} {module.name}. {summary}{detail}"
+    if detail:
+        return f"{opener} {module.name}.{detail}"
     plural = "symbol" if module.symbol_count == 1 else "symbols"
     return (
         f"{opener} {module.name} — {module.symbol_count} {plural} of this project's "
@@ -251,7 +300,8 @@ def generate_project_summary_demo(
     height: int = 1080,
     fps: int = 30,
     voice: str = "default",
-    max_modules: int = 3,
+    max_modules: int = 6,
+    max_packages: int = 6,
 ) -> Demo:
     """Build a narrated project-summary :class:`Demo` from collected facts.
 
@@ -299,7 +349,7 @@ def generate_project_summary_demo(
     )
 
     # 2 — What it is (bullets from the real README)
-    bullets = [b for b in facts.overview_bullets if b.strip()][:4]
+    bullets = [b for b in facts.overview_bullets if b.strip()][:5]
     if bullets:
         scenes.append(
             _slide(
@@ -346,6 +396,29 @@ def generate_project_summary_demo(
                 trigger="areas",
             )
         )
+
+    # 3b — Package tour: one slide per top-level area naming its real modules, so
+    # the viewer learns the actual layout (the main 3-5 minute content driver).
+    multi_module_pkgs = [(p, mods) for p, mods in facts.packages if mods]
+    if len(multi_module_pkgs) > 1:
+        for index, (pkg, mods) in enumerate(multi_module_pkgs[:max_packages]):
+            shown = mods[:6]
+            more = len(mods) - len(shown)
+            tail = f", and {more} more" if more > 0 else ""
+            scenes.append(
+                _slide(
+                    f"pkg-{index + 1}",
+                    section=f"{pkg}/",
+                    title=f"The {pkg} area",
+                    narration=(
+                        f"The {pkg} area holds {len(mods)} "
+                        f"module{'s' if len(mods) != 1 else ''}: "
+                        f"{', '.join(shown)}{tail}."
+                    ),
+                    bullets=[f"{m}.py" for m in shown],
+                    trigger="area",
+                )
+            )
 
     # 4 — By the numbers (real stats). Show the test count when we found one;
     # otherwise fall back to the package count so the card always has five cells.

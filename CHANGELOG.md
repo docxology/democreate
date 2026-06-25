@@ -35,6 +35,10 @@ resolves to the latest archived release.
   dependencies, excluding stdlib / intra-repo / dev-test tooling), a **test count**
   in the stat card when discoverable, a representative (largest-symbol) code
   excerpt, and better module selection (public-over-private, deduped by name).
+- **Longer, denser project summaries (~3–5 min):** a **per-package tour** (one
+  slide per substantial area — date/`__init__`/test-only dirs filtered out), module
+  narration now drawn from the docstring's first two sentences plus the module's
+  real named classes/functions and counts, and up to **6 key modules** by default.
 - The test suite mirrors `src/democreate/` (one `tests/<subsystem>/` per package);
   pytest runs with `--import-mode=importlib`.
 

@@ -125,6 +125,30 @@ def test_collect_facts_dependencies_and_tests(tmp_path: Path) -> None:
     assert facts.test_count == 2
 
 
+def test_substantive_packages_filters_noise() -> None:
+    from democreate.portfolio import _substantive_packages
+
+    groups = [
+        ("core", ["__init__", "engine", "loop"]),     # 2 substantive → kept
+        ("2026-03-27", ["run_once"]),                  # date dir → dropped
+        ("pkgonly", ["__init__"]),                     # only __init__ → dropped
+        ("tests", ["test_a", "test_b"]),               # only tests → dropped
+        ("io", ["reader", "writer", "codec"]),         # 3 → kept, ranked first
+    ]
+    out = _substantive_packages(groups)
+    names = [p for p, _ in out]
+    assert names == ["io", "core"]  # ranked by module count; noise excluded
+    assert ("core", ["engine", "loop"]) in out
+
+
+def test_key_modules_carry_named_symbols(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path, "named")
+    facts = collect_project_facts(repo)
+    engine = next(m for m in facts.key_modules if m.name == "engine")
+    assert "Engine" in engine.symbols          # the public class is named
+    assert engine.class_count >= 1 and engine.function_count >= 1
+
+
 def test_collect_facts_no_readme(tmp_path: Path) -> None:
     repo = _make_repo(tmp_path, "noreadme", readme=False)
     facts = collect_project_facts(repo)
