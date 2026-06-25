@@ -15,6 +15,8 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.project_paths`](#democreateproject_paths)
 - [`democreate.errors`](#democreateerrors)
 - [`democreate.cli`](#democreatecli)
+- [`democreate.translation.translator`](#democreatetranslationtranslator)
+- [`democreate.translation.localize`](#democreatetranslationlocalize)
 - [`democreate.narration.script`](#democreatenarrationscript)
 - [`democreate.narration.project_summary`](#democreatenarrationproject_summary)
 - [`democreate.narration.tts`](#democreatenarrationtts)
@@ -173,11 +175,11 @@ Portfolio orchestration: a directory of repositories becomes a shelf of videos.
 
 ### Functions
 
-- **`build_project_demo(repo: 'Path', workspace, *, config=None, max_modules: 'int' = 3, title: 'str | None' = None)`** — Collect facts, render an architecture diagram, and build the summary demo.
-- **`collect_project_facts(repo: 'Path', *, max_modules: 'int' = 3) -> 'ProjectFacts'`** — Walk ``repo`` and assemble its render-ready :class:`ProjectFacts`.
+- **`build_project_demo(repo: 'Path', workspace, *, config=None, max_modules: 'int' = 6, title: 'str | None' = None)`** — Collect facts, render an architecture diagram, and build the summary demo.
+- **`collect_project_facts(repo: 'Path', *, max_modules: 'int' = 6) -> 'ProjectFacts'`** — Walk ``repo`` and assemble its render-ready :class:`ProjectFacts`.
 - **`discover_projects(projects_dir: 'Path', *, skip: 'tuple[str, ...]' = ()) -> 'list[Path]'`** — Return the sorted project directories under ``projects_dir``.
-- **`render_portfolio(projects_dir: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_projects: 'int' = 0, max_modules: 'int' = 3, skip: 'tuple[str, ...]' = (), timestamp: 'str | None' = None, verify: 'bool' = True) -> 'PortfolioReport'`** — Render a summary video for every project under ``projects_dir``.
-- **`render_project(repo: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_modules: 'int' = 3, timestamp: 'str | None' = None, verify: 'bool' = True) -> 'ProjectResult'`** — Render one repository to a timestamped, verified summary MP4.
+- **`render_portfolio(projects_dir: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'tuple[str, ...]' = (), timestamp: 'str | None' = None, verify: 'bool' = True) -> 'PortfolioReport'`** — Render a summary video for every project under ``projects_dir``.
+- **`render_project(repo: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_modules: 'int' = 6, timestamp: 'str | None' = None, verify: 'bool' = True) -> 'ProjectResult'`** — Render one repository to a timestamped, verified summary MP4.
 - **`utc_stamp(now: 'datetime | None' = None) -> 'str'`** — Return a filesystem-safe UTC timestamp like ``20260625T164530Z``.
 
 ## `democreate.project_paths` {#democreateproject_paths}
@@ -221,15 +223,54 @@ The ``democreate`` command-line interface.
 - **`gif(demo: 'Path', output: 'Path' = PosixPath('output'), out: 'Path' = PosixPath('demo.gif'), fps: 'int' = 8, theme: 'str' = 'dark') -> 'None'`** — Build a demo and export an animated GIF preview of its frames.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
 - **`inspect(demo: 'Path') -> 'None'`** — Validate a demo and print a structural summary.
+- **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
-- **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 3, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
+- **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
 - **`render(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', fps: 'int' = 0, captions: 'bool' = False, animate: 'bool' = True, animation_fps: 'int' = 15, theme: 'str' = 'noir', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', header: 'bool' = False, config: 'Path' = None) -> 'None'`** — Render a demo to an HD MP4 with real voiceover, then verify its content.
 - **`stego(image: 'Path', demo: 'Path' = None) -> 'None'`** — Extract (and optionally verify) the steganographic provenance in a PNG.
 - **`thumbnail(demo: 'Path', out: 'Path' = PosixPath('poster.png'), theme: 'str' = 'dark', subtitle: 'str' = '') -> 'None'`** — Render a poster / thumbnail frame for a demo.
 - **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True, render_it: 'bool' = False, tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir') -> 'None'`** — Generate a codebase tour demo from a repository (build and/or render it).
 - **`verify(video: 'Path', width: 'int' = 0, height: 'int' = 0, min_duration: 'float' = 1.0) -> 'None'`** — Content-assert a video: real streams, expected size, non-silent, non-black.
 - **`version() -> 'None'`** — Print the installed DemoCreate version.
+
+## `democreate.translation.translator` {#democreatetranslationtranslator}
+
+Translators and language helpers for localized demos.
+
+### Classes
+
+- **`IdentityTranslator`** — Deterministic default: returns text unchanged (a no-op translation).
+  - `translate(self, text: 'str', *, source: 'str', target: 'str') -> 'str'` — Return ``text`` unchanged.
+- **`LanguageConfig`** *(dataclass)* — Which language the audio is spoken in and which the subtitles are written in.
+  - `tag(self) -> 'str'` — A filename tag making the audio/subtitle languages explicit.
+- **`OllamaTranslator`** — Translate via a local `ollama` server (guarded; needs a running server).
+  - `is_available(self) -> 'bool'` — Whether the ollama server answers its tags endpoint.
+  - `translate(self, text: 'str', *, source: 'str', target: 'str') -> 'str'` — Translate ``text`` via ollama; passthrough on empty or same-language.
+- **`Translator`** — Abstract translator: source-language text → target-language text.
+  - `is_available(self) -> 'bool'` — Whether this translator can run.
+  - `translate(self, text: 'str', *, source: 'str', target: 'str') -> 'str'` — Translate ``text`` from ``source`` to ``target``.
+
+### Functions
+
+- **`get_translator(name: 'str' = 'auto', **kwargs: 'object') -> 'Translator'`** — Return a translator by name.
+- **`language_name(code: 'str') -> 'str'`** — Return a human language name for a code (falls back to the code itself).
+- **`localized_captions(timed_demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str', fmt: 'str' = 'srt') -> 'str'`** — Emit subtitles in ``target`` against a *timed* demo's existing timing.
+- **`translate_demo(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str') -> 'Demo'`** — Return a copy of ``demo`` with every chunk's narration translated.
+
+## `democreate.translation.localize` {#democreatetranslationlocalize}
+
+Render a demo with audio in one language and subtitles in another.
+
+### Classes
+
+- **`LocalizedResult`** *(dataclass)* — One localized render (one audio/subtitle language pair).
+  - `to_dict(self) -> 'dict[str, object]'` — Serialize to a JSON-ready dict.
+
+### Functions
+
+- **`localize_batch(demo: 'Demo', workspace, *, pairs: 'list[tuple[str, str]]', source: 'str' = 'en', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None) -> 'list[LocalizedResult]'`** — Render one localized video per ``(audio_lang, subtitle_lang)`` pair.
+- **`localize_render(demo: 'Demo', workspace, *, languages: 'LanguageConfig', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None) -> 'LocalizedResult'`** — Render one audio/subtitle language pair; return a :class:`LocalizedResult`.
 
 ## `democreate.narration.script` {#democreatenarrationscript}
 
@@ -260,7 +301,7 @@ Project-summary script generation: a repo's facts become a narrated ``Demo``.
 
 ### Functions
 
-- **`generate_project_summary_demo(facts: 'ProjectFacts', *, title: 'str | None' = None, architecture_image: 'str | None' = None, width: 'int' = 1920, height: 'int' = 1080, fps: 'int' = 30, voice: 'str' = 'default', max_modules: 'int' = 3) -> 'Demo'`** — Build a narrated project-summary :class:`Demo` from collected facts.
+- **`generate_project_summary_demo(facts: 'ProjectFacts', *, title: 'str | None' = None, architecture_image: 'str | None' = None, width: 'int' = 1920, height: 'int' = 1080, fps: 'int' = 30, voice: 'str' = 'default', max_modules: 'int' = 6, max_packages: 'int' = 6) -> 'Demo'`** — Build a narrated project-summary :class:`Demo` from collected facts.
 
 ## `democreate.narration.tts` {#democreatenarrationtts}
 

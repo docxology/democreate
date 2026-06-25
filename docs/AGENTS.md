@@ -2,7 +2,7 @@
 
 Operating rules for any agent modifying this repository. These are project-wide
 invariants; each subsystem directory under `src/democreate/` (`capture/`,
-`narration/`, `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`) also
+`narration/`, `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`, `translation/`) also
 carries its own `AGENTS.md` with subsystem-specific scope and backend maps — read
 the local pair (`AGENTS.md` + `README.md`) before touching a subsystem.
 

@@ -17,6 +17,10 @@ democreate tour      REPO     [--output] [--title] [--build/--no-build]
 democreate portfolio DIR      [--output] [--tts] [--voice] [--theme] [--resolution]
                               [--max-projects] [--max-modules] [--skip]
                                                       a timestamped summary video per project
+democreate localize  DEMO     [--audio-lang] [--subtitle-lang] [--source-lang]
+                              [--pairs] [--translator] [--model] [--host]
+                              [--tts] [--voice] [--theme] [--resolution] [--burn]
+                                                      audio in one language, subtitles in another
 democreate captions  DEMO     [--format srt|vtt|ass]  emit subtitles to stdout
 democreate render    DEMO     [--output] [--tts] [--voice] [--fps] [--captions]
                               [--animate/--no-animate] [--animation-fps] [--theme]
@@ -140,6 +144,37 @@ democreate portfolio ~/code -o output --resolution 720p --max-projects 3
 | `--max-projects` | `0` (all) | Cap the number of projects rendered. |
 | `--max-modules` | `3` | Key-module code scenes per project. |
 | `--skip` | (none) | Comma-separated project names to skip. |
+
+## `localize`
+
+Render a demo with **audio in one language and subtitles in another**, using a
+local, configurable translator (an `ollama` server). The narration is translated
+to the audio language and synthesized (driving the timing); the subtitle track is
+translated against that same timing. Each output filename encodes both languages
+(`<stem>-audio_<a>-subs_<s>.mp4`), with a subtitle-language `.srt`/`.vtt` sidecar.
+
+```bash
+democreate localize demo.json --audio-lang en --subtitle-lang ru --model lfm2.5
+democreate localize demo.json --pairs "en:ru,ru:en,en:es" --model lfm2.5   # batch
+democreate localize demo.json --translator identity     # no-op (source language)
+```
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `DEMO` (arg) | required | Demo `.json`/`.yaml`. |
+| `--audio-lang` | `en` | Spoken (TTS) language code. |
+| `--subtitle-lang` | `ru` | Subtitle-track language code. |
+| `--source-lang` | `en` | Language the demo is authored in. |
+| `--pairs` | (none) | Batch: `audio:subs,audio:subs` (overrides the two above). |
+| `--translator` | `ollama` | `identity` (no-op) or `ollama`. |
+| `--model` | `smollm2` | ollama model tag (e.g. `lfm2.5`). |
+| `--host` | `http://localhost:11434` | ollama host. |
+| `--tts` / `--voice` | `kokoro` / `af_heart` | TTS for the audio language (must suit it). |
+| `--theme` / `--resolution` | `noir` / `1080p` | Look + size. |
+| `--burn / --no-burn` | `--no-burn` | Burn the subtitle track into the picture. |
+
+> Subtitles are text and work for any language; *audio* in a language needs a TTS
+> voice for it (Kokoro langs or an installed system voice).
 
 ## `captions`
 

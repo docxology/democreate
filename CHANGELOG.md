@@ -9,6 +9,12 @@ resolves to the latest archived release.
 ## [0.7.0] - 2026-06-25
 
 ### Added
+- **Localized videos — audio and subtitles in different languages** (new
+  `democreate.translation` subsystem + `democreate localize`): translate narration
+  with a local, configurable `ollama` server (deterministic no-op default) so a
+  render carries audio in one language and subtitles in another (e.g. English audio
+  + Russian subtitles), in lock-step, with the languages encoded in the filename.
+  Single pair or a `--pairs` batch.
 - **Project-summary generator** (`democreate.narration.project_summary.generate_project_summary_demo`):
   a deterministic, README + AST-driven generator that *describes* a codebase via
   a fixed seven-beat arc — title card → what-it-is bullets (from the real README)

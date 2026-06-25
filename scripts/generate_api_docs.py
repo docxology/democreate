@@ -35,6 +35,8 @@ MODULES: list[str] = [
     "democreate.project_paths",
     "democreate.errors",
     "democreate.cli",
+    "democreate.translation.translator",
+    "democreate.translation.localize",
     "democreate.narration.script",
     "democreate.narration.project_summary",
     "democreate.narration.tts",

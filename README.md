@@ -53,7 +53,7 @@ write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (680 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (688 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -233,6 +233,30 @@ For a single repository, `democreate tour REPO --render` closes the same loop �
 generate the tour demo and render it straight to a verified MP4. See
 [`docs/cli.md`](docs/cli.md).
 
+## Localized videos — audio and subtitles in different languages
+
+`democreate localize` renders a demo with **audio in one language and subtitles in
+another** — English audio with Russian subtitles, or vice-versa — using a **local,
+configurable** translator (an [`ollama`](https://ollama.com) server; no cloud, no
+API key). The narration is translated to the audio language and synthesized (that
+drives the timing); the subtitle track is translated separately against the same
+timing, so the two languages stay in lock-step. The filename makes both explicit:
+
+```bash
+# English audio (Kokoro) + Russian subtitles (ollama)
+democreate localize demo.json --audio-lang en --subtitle-lang ru --model lfm2.5
+# → output/video/<stem>-audio_en-subs_ru.mp4  + a Russian .srt/.vtt sidecar
+
+# a batch of language combinations in one run
+democreate localize demo.json --pairs "en:ru,ru:en,en:es" --model lfm2.5
+```
+
+The default translator is a deterministic no-op (renders the source language), so
+the path is import-safe and offline-testable; `--translator ollama` localizes for
+real. Subtitles work for any language (text only); *audio* in a language needs a
+TTS voice for it — Kokoro's languages or an installed system voice (so Russian
+*audio* needs a Russian voice present). See [`docs/cli.md`](docs/cli.md).
+
 ## Demo a research paper (PDF + codebase)
 
 Point `democreate paper` at a PDF and (optionally) its codebase to get a narrated
@@ -255,7 +279,7 @@ Details: [`docs/paper.md`](docs/paper.md).
 
 ## Architecture
 
-A `Demo` (the declarative spine) threads through seven subsystems. The deterministic
+A `Demo` (the declarative spine) threads through eight subsystems. The deterministic
 defaults carry the core pipeline; system binaries and guarded adapter slots
 upgrade specific media surfaces without changing the orchestration.
 
@@ -300,6 +324,7 @@ Each subsystem directory under `src/democreate/` carries its own `README.md`
 | `assembly/` | Timeline, compositing, captions, effects. | `ManifestCompositor`, pure SRT/VTT/ASS, Pillow effects. | `video` |
 | `export/` | Spine + frames + audio → deliverables. | Jinja2 HTML player, Pillow GIF, Markdown/JSON/chapters, pure WAV concat. Real HD MP4 assembly + content verifier when `ffmpeg` is present. | `video` |
 | `paper/` | Research-paper ingestion (PDF + figures → demo). | poppler CLI (`pdfinfo`/`pdftotext`/`pdftoppm`), `build_paper_demo`. | `pdf` |
+| `translation/` | Localize: audio in one language, subtitles in another. | `IdentityTranslator` (no-op). `OllamaTranslator` adds local translation (a running `ollama` server, no pip dep). | — (local `ollama`) |
 
 Spine modules: `schema.py` (the model), `media.py` (`AudioClip` / `FrameState`),
 `config.py` (`Theme` / `AudioConfig` / `VideoConfig` / `RenderConfig`),

@@ -269,7 +269,7 @@
       "chunks": [
         {
           "id": "arch-c",
-          "text": "Under the hood, seven subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.",
+          "text": "Under the hood, eight subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.",
           "actions": [
             {
               "type": "open_file",
@@ -293,7 +293,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Six hundred eighty collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
+          "text": "And it is real. Six hundred eighty eight collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
           "actions": []
         }
       ],
@@ -301,11 +301,11 @@
         "section": "By the numbers",
         "stats": [
           [
-            "680",
+            "688",
             "collected tests"
           ],
           [
-            "7",
+            "8",
             "subsystems"
           ],
           [

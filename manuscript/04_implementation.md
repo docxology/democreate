@@ -1,6 +1,6 @@
 # Implementation {#sec:implementation}
 
-DemoCreate is organized as a single `democreate` package under `src/`: 53 source modules in total, a small set of shared top-level modules plus seven subsystem packages (`capture/`, `narration/`, `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`). This section maps the module structure and describes each subsystem, emphasizing the deterministic default in each case. Two figures in this section show the rendering primitives directly: [@fig:frame_code] is a real synthetic editor frame, and [@fig:waveform] is a real speech-waveform scrubber — both produced by calling the package's own public APIs.
+DemoCreate is organized as a single `democreate` package under `src/`: 56 source modules in total, a small set of shared top-level modules plus eight subsystem packages (`capture/`, `narration/`, `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`, `translation/`). This section maps the module structure and describes each subsystem, emphasizing the deterministic default in each case. Two figures in this section show the rendering primitives directly: [@fig:frame_code] is a real synthetic editor frame, and [@fig:waveform] is a real speech-waveform scrubber — both produced by calling the package's own public APIs.
 
 ## Module Map
 

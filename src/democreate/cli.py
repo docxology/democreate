@@ -13,6 +13,7 @@ Commands::
     democreate tour      REPO  [--output]  generate a codebase tour (--render for MP4)
     democreate portfolio DIR   [--output]  a timestamped summary video per project
     democreate paper     PDF   [--repo]    narrated demo of a research paper (PDF)
+    democreate localize  DEMO             audio in one language, subtitles in another
     democreate captions  DEMO  [--format]  emit subtitles to stdout
     democreate verify    VIDEO             content-assert a video (real/non-silent/non-black)
     democreate config    [OUT] [--theme]   write a commented render-config YAML
@@ -485,6 +486,69 @@ def paper(
         if not report.ok:
             raise typer.Exit(code=1)
         console.print("[green]✓ verified: real video + non-silent audio[/]")
+
+
+@app.command()
+def localize(
+    demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
+    output: Path = typer.Option(Path("output"), "--output", "-o"),
+    audio_lang: str = typer.Option("en", "--audio-lang", help="Spoken (TTS) language code"),
+    subtitle_lang: str = typer.Option("ru", "--subtitle-lang", help="Subtitle-track language code"),
+    source_lang: str = typer.Option("en", "--source-lang", help="Language the demo is authored in"),
+    pairs: str = typer.Option("", "--pairs", help="Batch: 'audio:subs,audio:subs' (overrides --audio-lang/--subtitle-lang)"),
+    translator: str = typer.Option("ollama", "--translator", help="identity|ollama"),
+    model: str = typer.Option("smollm2", "--model", help="ollama model tag"),
+    host: str = typer.Option("http://localhost:11434", "--host", help="ollama host"),
+    tts: str = typer.Option("kokoro", "--tts", help="TTS backend for the audio language"),
+    voice: str = typer.Option("af_heart", "--voice", "-v", help="Voice id for the audio language"),
+    theme: str = typer.Option("noir", "--theme"),
+    resolution: str = typer.Option("1080p", "--resolution"),
+    burn: bool = typer.Option(False, "--burn/--no-burn", help="Burn subtitles into the picture"),
+) -> None:
+    """Render localized videos — audio in one language, subtitles in another.
+
+    Translation is local (an ``ollama`` server) and configurable; the default
+    translator is a no-op. Each video's filename encodes both languages, e.g.
+    ``demo-audio_en-subs_ru.mp4``. Use ``--pairs`` to make a batch of combinations.
+    """
+    from .project_paths import Workspace
+    from .translation import get_translator, localize_batch
+
+    theme = _validate_theme(theme)
+    resolution = _validate_resolution(resolution)
+    cfg = _resolve_config(None, theme, voice, tts)
+    if resolution:
+        cfg.set_resolution(resolution)
+    d = _load_demo(demo)
+    tr = get_translator(translator, model=model, host=host)
+    if translator.lower() == "ollama" and not tr.is_available():
+        console.print(
+            f"[red]✗ ollama not reachable at {host}[/] — start it (`ollama serve`) "
+            f"and `ollama pull {model}`, or use --translator identity."
+        )
+        raise typer.Exit(code=1)
+
+    if pairs.strip():
+        parsed = [
+            (a.strip(), s.strip())
+            for a, s in (p.split(":", 1) for p in pairs.split(",") if ":" in p)
+        ]
+    else:
+        parsed = [(audio_lang, subtitle_lang)]
+    console.print(
+        f"[cyan]localizing[/] {len(parsed)} pair(s) via '{translator}' "
+        f"({model})… source={source_lang}"
+    )
+    results = localize_batch(
+        d, Workspace(output), pairs=parsed, source=source_lang, translator=tr,
+        config=cfg, tts=cfg.audio.backend, voice=cfg.audio.voice, burn=burn,
+    )
+    for r in results:
+        mark = "[green]✓[/]" if r.ok else "[red]✗[/]"
+        detail = f"{r.duration_s:.0f}s → {r.video_path}" if r.ok else (r.error or "failed")
+        console.print(f"  {mark} audio={r.languages.audio} subs={r.languages.subtitle}: {detail}")
+    if not any(r.ok for r in results):
+        raise typer.Exit(code=1)
 
 
 @app.command()

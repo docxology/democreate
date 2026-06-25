@@ -206,7 +206,7 @@ def build() -> Demo:
 
         # 10 — Architecture (diagram background)
         _slide("arch", "Architecture",
-               "Under the hood, seven subsystems compose: the spine flows into "
+               "Under the hood, eight subsystems compose: the spine flows into "
                "narration, then rendering, then export — every stage a pure "
                "function of the one artifact.",
                title="Seven subsystems, one spine",
@@ -214,11 +214,11 @@ def build() -> Demo:
 
         # 11 — By the numbers (stat slide)
         _slide("numbers", "By the numbers",
-               "And it is real. Six hundred eighty collected tests, seven "
+               "And it is real. Six hundred eighty eight collected tests, seven "
                "subsystems, five themes, four K output — and zero binary "
                "dependencies for the core path.",
                title="DemoCreate by the numbers",
-               stats=[("680", "collected tests"), ("7", "subsystems"),
+               stats=[("688", "collected tests"), ("8", "subsystems"),
                       ("5", "built-in themes"), ("4K", "max resolution"),
                       ("0", "binary deps")],
                trigger="real"),
