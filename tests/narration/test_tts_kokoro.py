@@ -25,6 +25,32 @@ def _clear_kokoro_env(monkeypatch) -> None:
     monkeypatch.delenv("KOKORO_VOICES_PATH", raising=False)
 
 
+def test_split_for_tts_keeps_short_text_whole() -> None:
+    from democreate.narration.tts import _split_for_tts
+
+    assert _split_for_tts("Short sentence.") == ["Short sentence."]
+    assert _split_for_tts("") == []
+
+
+def test_split_for_tts_bounds_long_text() -> None:
+    from democreate.narration.tts import _split_for_tts
+
+    text = " ".join(f"Sentence number {i} about modules." for i in range(60))
+    segments = _split_for_tts(text, max_chars=200)
+    assert len(segments) > 1
+    assert all(len(s) <= 200 for s in segments)
+    assert " ".join(segments).split() == text.split()  # no words lost
+
+
+def test_split_for_tts_splits_one_overlong_sentence() -> None:
+    from democreate.narration.tts import _split_for_tts
+
+    text = "word " * 200  # a single ~1000-char run with no sentence terminator
+    segments = _split_for_tts(text, max_chars=120)
+    assert len(segments) > 1
+    assert all(len(s) <= 120 for s in segments)
+
+
 def test_cache_dir_override(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("DEMOCREATE_KOKORO_DIR", str(tmp_path))
     assert _kokoro_cache_dir() == tmp_path

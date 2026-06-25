@@ -53,7 +53,7 @@ write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (677 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (680 tests · 7 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*

@@ -50,6 +50,13 @@ resolves to the latest archived release.
   coverage-gated suite on every push/PR.
 
 ### Fixed
+- `KokoroTTSBackend` now handles arbitrarily long / phoneme-dense narration: text
+  is split into sub-limit segments and a segment that still overflows Kokoro's
+  ~510-token cap is recursively halved and concatenated (was a hard
+  `index 510 out of bounds` crash on a dense docstring).
+- Project-summary narration skips symbol-dense docstrings (bitmask/formula tables,
+  arrow lists) that read as gibberish aloud, falling back to the clean first
+  sentence plus the factual class/function summary.
 - `KokoroTTSBackend` availability check probed the wrong module name (`kokoro`
   instead of the `kokoro_onnx` the `tts` extra installs); synthesis was a no-op
   raise even when installed.

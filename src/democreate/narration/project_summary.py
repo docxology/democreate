@@ -247,6 +247,21 @@ def _terminal_scene(
     return scene
 
 
+def _is_speakable(text: str) -> bool:
+    """Whether ``text`` reads as natural prose (not a symbol/number table).
+
+    Rejects arrow lists and digit/symbol-dense strings (e.g. a bitmask or formula
+    table) that make poor, bloated TTS narration.
+    """
+    if not text:
+        return False
+    if "→" in text or "->" in text or "::" in text:
+        return False
+    digits = sum(c.isdigit() for c in text)
+    letters_space = sum(c.isalpha() or c.isspace() for c in text)
+    return digits / len(text) <= 0.12 and letters_space / len(text) >= 0.72
+
+
 # Varied openers so consecutive code scenes don't all begin "Take X." — picked by
 # scene index for deterministic, non-repetitive narration.
 _MODULE_OPENERS = ("Take", "Next,", "And", "Then", "Consider")
@@ -264,7 +279,16 @@ def _module_narration(module: KeyModule, index: int = 0) -> str:
         index: 0-based position among the code scenes (drives opener variety).
     """
     opener = _MODULE_OPENERS[index % len(_MODULE_OPENERS)]
-    summary = _first_sentences(module.docstring, count=2) if module.docstring else ""
+    # Two sentences for richer narration, but drop symbol-dense ones (bitmask
+    # tables, formula dumps, arrow lists) — they read as gibberish aloud and bloat
+    # the scene; fall back to the clean first sentence, then to the factual clause.
+    summary = ""
+    if module.docstring:
+        summary = _first_sentences(module.docstring, count=2)
+        if not _is_speakable(summary):
+            summary = _first_sentences(module.docstring, count=1)
+        if not _is_speakable(summary):
+            summary = ""
 
     # A concise, specific "what's inside" clause from real counts + named symbols.
     parts: list[str] = []

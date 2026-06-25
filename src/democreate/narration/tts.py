@@ -100,6 +100,75 @@ def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
     return model, voices
 
 
+def _kokoro_synth_segment(engine, text, *, voice, speed, lang):  # pragma: no cover - model
+    """Synthesize one segment, recovering from Kokoro's ~510-phoneme overflow.
+
+    Char-based splitting cannot bound *phonemes* (numbers, arrows, and symbols
+    expand into many), so a short-looking segment can still exceed the limit. On
+    any failure we split the segment in half on word boundaries and recurse, then
+    concatenate — guaranteeing success for arbitrary, phoneme-dense narration.
+    """
+    import numpy as np
+
+    try:
+        return engine.create(text, voice=voice, speed=speed, lang=lang)
+    except Exception:
+        words = text.split()
+        if len(words) <= 1:
+            raise
+        mid = len(words) // 2
+        left, rate = _kokoro_synth_segment(
+            engine, " ".join(words[:mid]), voice=voice, speed=speed, lang=lang
+        )
+        right, _ = _kokoro_synth_segment(
+            engine, " ".join(words[mid:]), voice=voice, speed=speed, lang=lang
+        )
+        return np.concatenate([left, right]), rate
+
+
+def _split_for_tts(text: str, *, max_chars: int = 250) -> list[str]:
+    """Split ``text`` into segments under ``max_chars``, at sentence/word bounds.
+
+    Kokoro's ONNX model has a per-call token limit (~510 phoneme tokens); a long
+    narration chunk overflows it (``index 510 out of bounds``). Splitting at
+    sentence boundaries — falling back to word boundaries for a single overlong
+    sentence — keeps each synthesis call safely within the limit. Pure and
+    deterministic, so it is unit-tested without the model installed.
+    """
+    clean = " ".join(text.split())
+    if len(clean) <= max_chars:
+        return [clean] if clean else []
+
+    # Sentence-ish split that keeps the terminator attached.
+    import re
+
+    sentences = re.findall(r"[^.!?]+[.!?]?", clean)
+    segments: list[str] = []
+    cur = ""
+    for sentence in (s.strip() for s in sentences if s.strip()):
+        if len(sentence) > max_chars:  # a single overlong sentence → split on words
+            if cur:
+                segments.append(cur)
+                cur = ""
+            word_cur = ""
+            for word in sentence.split():
+                if word_cur and len(word_cur) + 1 + len(word) > max_chars:
+                    segments.append(word_cur)
+                    word_cur = word
+                else:
+                    word_cur = f"{word_cur} {word}".strip()
+            if word_cur:
+                cur = word_cur
+        elif cur and len(cur) + 1 + len(sentence) > max_chars:
+            segments.append(cur)
+            cur = sentence
+        else:
+            cur = f"{cur} {sentence}".strip()
+    if cur:
+        segments.append(cur)
+    return segments
+
+
 def _kokoro_cache_dir() -> Path:
     """Return the directory Kokoro model files are looked for in.
 
@@ -566,9 +635,20 @@ class KokoroTTSBackend(TTSBackend):
             chosen = _KOKORO_DEFAULT_VOICE
         if chosen != requested:
             logger.info("kokoro voice %r unavailable; using %r", requested, chosen)
-        samples, native_rate = engine.create(
-            text, voice=chosen, speed=self.speed, lang=self.lang
-        )
+
+        # Split long narration so each call stays under Kokoro's ~510-token limit,
+        # then concatenate the audio into one clip (audio stays the timing truth).
+        import numpy as np
+
+        segments = _split_for_tts(text) or [text]
+        pieces = []
+        native_rate = self.sample_rate
+        for segment in segments:
+            samples, native_rate = _kokoro_synth_segment(
+                engine, segment, voice=chosen, speed=self.speed, lang=self.lang
+            )
+            pieces.append(samples)
+        samples = pieces[0] if len(pieces) == 1 else np.concatenate(pieces)
         raw = out_path.with_suffix(".kokoro.wav")
         sf.write(str(raw), samples, native_rate)
         _transcode_audio_file(raw, out_path, self.sample_rate)
