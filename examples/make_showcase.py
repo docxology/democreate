@@ -214,11 +214,11 @@ def build() -> Demo:
 
         # 11 — By the numbers (stat slide)
         _slide("numbers", "By the numbers",
-               "And it is real. Six hundred ninety one collected tests, seven "
+               "And it is real. Six hundred ninety three collected tests, seven "
                "subsystems, five themes, four K output — and zero binary "
                "dependencies for the core path.",
                title="DemoCreate by the numbers",
-               stats=[("691", "collected tests"), ("8", "subsystems"),
+               stats=[("693", "collected tests"), ("8", "subsystems"),
                       ("5", "built-in themes"), ("4K", "max resolution"),
                       ("0", "binary deps")],
                trigger="real"),

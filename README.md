@@ -53,7 +53,7 @@ write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (691 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (693 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -206,8 +206,14 @@ crossfades, and Ken Burns. See [`examples/README.md`](examples/README.md).
 ```bash
 democreate portfolio ~/code -o output --voice Samantha
 # → output/<project>/video/<project>-summary-<UTC>.mp4  (one folder per project)
+# → output/project_videos/<project>-summary-<UTC>.mp4    (every video, flat, one place)
 # → output/portfolio_index.json  +  output/portfolio_index.html  (a gallery)
 ```
+
+Each project keeps its own `output/<project>/` workspace **and** a copy of its
+summary video is gathered into a flat `output/project_videos/` folder, so all the
+videos — for any number of projects — sit in one browsable place. Both are
+gitignored (regeneratable).
 
 Each summary is *describing*, not enumerating. From a first-principles read of what
 makes a viewer understand software, it builds a fixed seven-beat arc regardless of

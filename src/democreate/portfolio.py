@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import html
 import json
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -47,6 +48,7 @@ __all__ = [
     "build_project_demo",
     "render_project",
     "render_portfolio",
+    "collect_project_videos",
 ]
 
 logger = get_logger(__name__)
@@ -115,6 +117,7 @@ class PortfolioReport:
     results: list[ProjectResult] = field(default_factory=list)
     index_json: Path | None = None
     index_html: Path | None = None
+    project_videos_dir: Path | None = None
     timestamp: str = ""
 
     @property
@@ -128,6 +131,9 @@ class PortfolioReport:
             "timestamp": self.timestamp,
             "ok_count": self.ok_count,
             "total": len(self.results),
+            "project_videos_dir": (
+                str(self.project_videos_dir) if self.project_videos_dir else None
+            ),
             "projects": [r.to_dict() for r in self.results],
         }
 
@@ -684,6 +690,7 @@ def render_portfolio(
             results.append(ProjectResult(name=repo.name, ok=False, error=str(exc)))
 
     report = PortfolioReport(results=results, timestamp=stamp)
+    report.project_videos_dir = collect_project_videos(output_root, results)
     report.index_json = _write_index_json(output_root, report)
     report.index_html = _write_index_html(output_root, report)
     logger.info(
@@ -693,6 +700,31 @@ def render_portfolio(
         output_root,
     )
     return report
+
+
+def collect_project_videos(
+    output_root: Path, results: list[ProjectResult]
+) -> Path:
+    """Copy every rendered project video into a flat ``project_videos/`` folder.
+
+    Each project keeps its own ``output_root/<name>/`` workspace; this gathers a
+    copy of every successful summary MP4 into ``output_root/project_videos/`` so
+    all videos — for any number of projects — sit in one browsable place. The
+    folder is gitignored (it lives under ``output/`` and is also named in
+    ``.gitignore``); failed projects are skipped.
+
+    Returns:
+        The ``project_videos`` directory path.
+    """
+    dest = Path(output_root) / "project_videos"
+    dest.mkdir(parents=True, exist_ok=True)
+    copied = 0
+    for result in results:
+        if result.ok and result.video_path and Path(result.video_path).exists():
+            shutil.copy2(result.video_path, dest / Path(result.video_path).name)
+            copied += 1
+    logger.info("collected %d project video(s) into %s", copied, dest)
+    return dest
 
 
 def _write_index_json(output_root: Path, report: PortfolioReport) -> Path:

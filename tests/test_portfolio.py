@@ -215,6 +215,50 @@ def test_index_files_written(tmp_path: Path, monkeypatch) -> None:
     assert "solo" in html and "portfolio" in html.lower()
 
 
+def test_project_videos_collected_flat(tmp_path: Path, monkeypatch) -> None:
+    out = tmp_path / "out"
+    projects = tmp_path / "projects"
+    projects.mkdir()
+    _make_repo(projects, "alpha")
+    _make_repo(projects, "bravo")
+
+    def fake_render(repo, output_root, **kwargs):
+        # Write a real (tiny) video file in the per-project workspace.
+        vp = Path(output_root) / repo.name / "video" / f"{repo.name}-summary-X.mp4"
+        vp.parent.mkdir(parents=True, exist_ok=True)
+        vp.write_bytes(b"\x00\x00fakevideo")
+        return ProjectResult(name=repo.name, ok=True, video_path=vp, scenes=9)
+
+    monkeypatch.setattr(portfolio, "render_project", fake_render)
+    report = render_portfolio(projects, out, timestamp="20260625T000000Z")
+
+    pv = out / "project_videos"
+    assert report.project_videos_dir == pv
+    collected = sorted(p.name for p in pv.glob("*.mp4"))
+    assert collected == ["alpha-summary-X.mp4", "bravo-summary-X.mp4"]
+
+
+def test_failed_project_not_collected(tmp_path: Path, monkeypatch) -> None:
+    out = tmp_path / "out"
+    projects = tmp_path / "projects"
+    projects.mkdir()
+    _make_repo(projects, "good")
+    _make_repo(projects, "bad")
+
+    def fake_render(repo, output_root, **kwargs):
+        if repo.name == "bad":
+            return ProjectResult(name="bad", ok=False, error="boom")
+        vp = Path(output_root) / "good" / "video" / "good-summary-X.mp4"
+        vp.parent.mkdir(parents=True, exist_ok=True)
+        vp.write_bytes(b"\x00\x00v")
+        return ProjectResult(name="good", ok=True, video_path=vp, scenes=9)
+
+    monkeypatch.setattr(portfolio, "render_project", fake_render)
+    render_portfolio(projects, out, timestamp="20260625T000000Z")
+    collected = [p.name for p in (out / "project_videos").glob("*.mp4")]
+    assert collected == ["good-summary-X.mp4"]  # only the successful one
+
+
 def test_timestamp_in_output_path(tmp_path: Path, monkeypatch) -> None:
     captured = {}
     out = tmp_path / "out"

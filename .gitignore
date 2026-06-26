@@ -1,5 +1,7 @@
 # Generated outputs are regeneratable; never commit them.
 output/
+# Flat collection of all per-project summary videos (regeneratable; never public).
+project_videos/
 .coverage
 .coverage.*
 coverage.xml
