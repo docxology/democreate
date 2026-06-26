@@ -141,8 +141,11 @@ def localize_render(
         demo, tr, source=languages.source, target=languages.subtitle,
         fmt="vtt", timing_demo=audio_demo,
     )
-    srt_path = Path(workspace.captions) / f"{stem}-subs_{languages.subtitle}.srt"
-    vtt_path = Path(workspace.captions) / f"{stem}-subs_{languages.subtitle}.vtt"
+    # Name sidecars with the FULL audio+subtitle tag (matching the video): the
+    # subtitle timing is derived from the audio, so two renders sharing a subtitle
+    # language but differing in audio (e.g. en/ru vs ru/ru) must not collide.
+    srt_path = Path(workspace.captions) / f"{stem}-{tag}.srt"
+    vtt_path = Path(workspace.captions) / f"{stem}-{tag}.vtt"
     srt_path.write_text(srt, encoding="utf-8")
     vtt_path.write_text(vtt, encoding="utf-8")
 

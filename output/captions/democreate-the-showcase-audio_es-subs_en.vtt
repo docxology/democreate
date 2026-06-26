@@ -1,0 +1,46 @@
+WEBVTT
+
+00:00:00.300 --> 00:00:07.900
+What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.
+
+00:00:08.840 --> 00:00:20.840
+One declarative artifact — describing a codebase or a research paper — compiles through a deterministic pipeline into a verified, provenance-signed video. Here is the whole idea on one screen.
+
+00:00:24.740 --> 00:00:33.940
+A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.
+
+00:00:36.608 --> 00:00:45.408
+The spine is plain data. A demo is scenes; a scene is chunks; a chunk is typed actions. Rendering never mutates it.
+
+00:00:47.004 --> 00:01:03.404
+Every capability hides behind an interface with a deterministic default. Silent gives you zero dependencies; the system voice is a real OS binary; and a wired Kokoro neural voice — the very voice narrating this video — is a fully-local upgrade.
+
+00:01:06.211 --> 00:01:18.211
+Timing is measured, never guessed. We synthesize the narration, measure its real duration, transcribe it back to word timestamps, and anchor each action to the word it is spoken on.
+
+00:01:20.063 --> 00:01:28.463
+Everything you are watching is generated from that spine. The code you just saw typed itself in. Look at this frame.
+
+00:01:29.392 --> 00:01:38.992
+One commented YAML controls the whole look and sound — five built-in themes, any aspect ratio, resolution up to four K, and near-lossless quality.
+
+00:01:41.431 --> 00:01:54.231
+The same engine demos a research paper: it reads the PDF with no Python dependency, recovers the real abstract, the real figure captions, and the sections — and shows each figure whole.
+
+00:01:55.326 --> 00:02:08.526
+And it does not only describe itself. Point it at a folder of repositories and it renders one narrated, content-verified video per project — each read from that project's own README and docstrings.
+
+00:02:09.626 --> 00:02:19.626
+Under the hood, eight subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.
+
+00:02:22.667 --> 00:02:33.067
+And it is real. Six hundred ninety one collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.
+
+00:02:34.684 --> 00:02:43.084
+Every render carries its own provenance, three ways — so a video can prove where it came from, and resist tampering.
+
+00:02:43.864 --> 00:02:53.464
+Then one command renders a high-definition video with a real neural voiceover, and proves it is genuine — real streams, not silent, not black.
+
+00:02:56.052 --> 00:03:04.852
+Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.

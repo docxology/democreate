@@ -257,11 +257,13 @@ real. Subtitles work for any language (text only); *audio* in a language needs a
 TTS voice for it — Kokoro's languages or an installed system voice (so Russian
 *audio* needs a Russian voice present). See [`docs/cli.md`](docs/cli.md).
 
-**Four committed examples** demonstrate it on the showcase itself (in
-`output/video/`, each with a subtitle-language `.srt`/`.vtt` under `output/captions/`):
-`…-audio_en-subs_en.mp4` (baseline), `…-audio_en-subs_ru.mp4` (English audio,
-Russian subtitles), `…-audio_en-subs_es.mp4` (English audio, Spanish subtitles),
-and `…-audio_es-subs_en.mp4` (**Spanish audio**, English subtitles — the reverse).
+**Five committed examples** demonstrate it on the showcase itself (in
+`output/video/`, each with a matching `audio_X-subs_Y.srt`/`.vtt` under
+`output/captions/`): `…-audio_en-subs_en.mp4` (baseline), `…-audio_en-subs_ru.mp4`
+(English audio, Russian subtitles), `…-audio_en-subs_es.mp4` (English audio,
+Spanish subtitles), `…-audio_es-subs_en.mp4` (**Spanish audio**, English subtitles
+— the reverse), and `…-audio_ru-subs_ru.mp4` (**Russian audio + Russian subtitles**,
+spoken by a system Russian voice since Kokoro has no Russian).
 
 ## Demo a research paper (PDF + codebase)
 
