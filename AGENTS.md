@@ -73,10 +73,17 @@ pure function of the artifact. Read [`README.md`](README.md) and
 
 ## Verification before claiming done
 
-- `ruff check .` clean and `mypy src` clean.
+- `ruff check` clean, `mypy` clean.
 - `.venv/bin/python -m pytest -q` green.
 - `.venv/bin/python -m pytest --cov` reports ≥90% on the core.
-- `python -c "import democreate"` succeeds on a core-only install.
+- The package imports with only core deps: `python -c "import democreate"`.
 
-See [`docs/testing_philosophy.md`](docs/testing_philosophy.md) for the full
-testing contract and [`docs/`](docs/README.md) for the documentation hub.
+**Subsystem test ownership.** A subsystem `src/democreate/<x>/` is owned by
+its matching `tests/<x>/test_*.py` files; changes to a subsystem must
+scope the run to `tests/<x>/`. Do not import `democreate` (or anything
+that triggers registration) at the top level of a subsystem test file
+unless the test explicitly needs the live registry. This keeps each
+subsystem test suite fast, side-effect tolerant, and runnable in
+isolation under `--import-mode=importlib` (configured in
+`pyproject.toml`). See
+[`docs/testing_philosophy.md`](docs/testing_philosophy.md).

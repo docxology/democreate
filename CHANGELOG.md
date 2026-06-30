@@ -6,6 +6,10 @@ All notable changes to DemoCreate are documented here. The format is based on
 [`10.5281/zenodo.20693216`](https://doi.org/10.5281/zenodo.20693216) always
 resolves to the latest archived release.
 
+## [Unreleased]
+
+<!-- Add unreleased changes here. -->
+
 ## [0.7.0] - 2026-06-25
 
 ### Added

@@ -31,6 +31,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Multimedia :: Video",
     "Topic :: Software Development :: Documentation",
 ]
@@ -91,6 +93,8 @@ democreate = "democreate.cli:app"
 [project.urls]
 Homepage = "https://github.com/docxology/democreate"
 Repository = "https://github.com/docxology/democreate"
+Documentation = "https://github.com/docxology/democreate/tree/main/docs"
+Changelog = "https://github.com/docxology/democreate/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
