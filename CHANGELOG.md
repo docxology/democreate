@@ -8,7 +8,20 @@ resolves to the latest archived release.
 
 ## [Unreleased]
 
-<!-- Add unreleased changes here. -->
+### Added
+- **ElevenLabs cloud TTS backend** (`democreate.narration.tts.ElevenLabsTTSBackend`,
+  the `elevenlabs` extra, `--tts elevenlabs`): a wired highest-fidelity hosted voice
+  that transcodes to the pipeline's canonical 16-bit mono PCM WAV; requires the
+  `elevenlabs` package and an `ELEVENLABS_API_KEY` and fails with a clear, typed
+  error (never a silent WAV) when either is missing.
+
+### Fixed
+- `ElevenLabsTTSBackend.synthesize` forwarded the schema's cross-backend
+  `voice="default"` sentinel straight to the ElevenLabs API as a literal
+  voice_id, 404ing (`voice_not_found`) on any real `democreate render`/`tour
+  --render` call with `--tts elevenlabs`. Now resolved to `self.voice_id`
+  like every other unset-voice case, matching how System/Kokoro/Silent
+  already treat the sentinel.
 
 ## [0.7.0] - 2026-06-25
 

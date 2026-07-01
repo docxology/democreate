@@ -10,6 +10,9 @@ narration pipeline import-safe and fully testable with no heavy dependencies.
 Kokoro model via ``kokoro-onnx``); it raises
 :class:`~democreate.errors.BackendUnavailableError` only when the ``tts`` extra or
 the model files are absent (fetch them with ``democreate fetch-voice``).
+:class:`ElevenLabsTTSBackend` is a **wired** cloud voice (the ``elevenlabs`` extra);
+it needs the ``elevenlabs`` package and an ``ELEVENLABS_API_KEY`` and fails with a
+clear, typed error when either is missing — never a silent empty WAV.
 :class:`ChatterboxTTSBackend` remains a guarded adapter slot whose synthesis is not
 yet wired.
 
@@ -31,7 +34,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from .._logging import get_logger
-from ..errors import BackendUnavailableError
+from ..errors import BackendUnavailableError, DemoCreateError
 from ..media import AudioClip
 from ..schema import Demo
 
@@ -40,6 +43,7 @@ __all__ = [
     "SilentTTSBackend",
     "SystemTTSBackend",
     "KokoroTTSBackend",
+    "ElevenLabsTTSBackend",
     "ChatterboxTTSBackend",
     "get_tts_backend",
     "synthesize_demo",
@@ -69,6 +73,46 @@ _KOKORO_RELEASE = (
 )
 _KOKORO_MODEL_URL = f"{_KOKORO_RELEASE}/kokoro-v1.0.onnx"
 _KOKORO_VOICES_URL = f"{_KOKORO_RELEASE}/voices-v1.0.bin"
+
+# ElevenLabs cloud TTS defaults. The `elevenlabs` package is a light pure-Python
+# client (no torch/onnx), gated by the `elevenlabs` extra; the API key is read
+# from the env var named by the backend's `api_key_env` (default below). Output
+# is requested as WAV at the nearest supported rate, then transcoded to the
+# pipeline's canonical 16-bit mono PCM WAV — audio stays the timing truth.
+_ELEVENLABS_DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM"  # "Rachel", an ElevenLabs stock voice
+_ELEVENLABS_DEFAULT_MODEL = "eleven_multilingual_v2"
+_ELEVENLABS_MODELS: dict[str, str] = {
+    "multilingual_v2": "eleven_multilingual_v2",
+    "turbo_v2_5": "eleven_turbo_v2_5",
+    "flash_v2_5": "eleven_flash_v2_5",
+}
+# WAV output-format strings that encode the sample rate. Requesting the nearest
+# supported rate minimizes transcoding work; anything else raises early.
+_ELEVENLABS_FORMAT_MAP: dict[int, str] = {
+    8000: "wav_8000",
+    16000: "wav_16000",
+    22050: "wav_22050",
+    24000: "wav_24000",
+    32000: "wav_32000",
+    44100: "wav_44100",
+    48000: "wav_48000",
+}
+
+
+def _resolve_elevenlabs_voice_id(voice: str | None, configured_voice_id: str) -> str:
+    """Resolve the voice id ElevenLabs should actually receive.
+
+    `Demo.voice`/chunk `voice` use the literal string ``"default"`` as a
+    cross-backend sentinel meaning "no override" (schema.py); an unset
+    per-chunk override can also arrive as ``""``. System/Kokoro/Silent
+    backends tolerate either as-is; ElevenLabs calls a real API that 404s on
+    the literal string "default" (``voice_not_found``), so both must resolve
+    to the backend's configured voice instead. Pure and deterministic, so it
+    is unit-tested without the network.
+    """
+    if not voice or voice == "default":
+        return configured_voice_id
+    return voice
 
 
 def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
@@ -664,6 +708,157 @@ class KokoroTTSBackend(TTSBackend):
         )
 
 
+class ElevenLabsTTSBackend(TTSBackend):
+    """ElevenLabs cloud TTS backend — highest-fidelity hosted voice synthesis.
+
+    Calls the ElevenLabs cloud API to synthesize narration in a chosen stock or
+    cloned voice, then transcodes the result to the pipeline's canonical 16-bit
+    mono PCM WAV at ``sample_rate`` Hz; the returned duration is *measured* from
+    that file (audio stays the single source of timing truth).
+
+    Two things must be present for :meth:`synthesize` to run: the light
+    ``elevenlabs`` client package (the ``elevenlabs`` extra) and an API key in the
+    environment variable named by ``api_key_env`` (default ``ELEVENLABS_API_KEY``).
+    Neither is required merely to *construct* the backend, so a demo config can
+    reference it and fail only at synthesis time with a clear, typed error.
+
+    Args:
+        voice_id: ElevenLabs voice id used when a per-call/per-chunk ``voice`` is
+            not supplied. Defaults to :data:`_ELEVENLABS_DEFAULT_VOICE`.
+        model: ElevenLabs model id, or one of the short aliases in
+            :data:`_ELEVENLABS_MODELS` (e.g. ``"turbo_v2_5"``). Unknown values are
+            passed through verbatim so new model ids need no code change.
+        api_key_env: Name of the environment variable holding the API key.
+        sample_rate: Canonical output sample rate in Hz. Must be one of
+            8000 / 16000 / 22050 / 24000 / 32000 / 44100 / 48000.
+
+    Raises:
+        ValueError: If ``sample_rate`` is not an ElevenLabs-supported WAV rate.
+    """
+
+    name = "elevenlabs"
+
+    def __init__(
+        self,
+        *,
+        voice_id: str | None = None,
+        model: str = _ELEVENLABS_DEFAULT_MODEL,
+        api_key_env: str = "ELEVENLABS_API_KEY",
+        sample_rate: int = _DEFAULT_SAMPLE_RATE,
+    ) -> None:
+        if sample_rate not in _ELEVENLABS_FORMAT_MAP:
+            raise ValueError(
+                f"unsupported sample_rate {sample_rate}; "
+                f"choose from {sorted(_ELEVENLABS_FORMAT_MAP)}"
+            )
+        self.voice_id = voice_id or _ELEVENLABS_DEFAULT_VOICE
+        self.model = _ELEVENLABS_MODELS.get(model, model)
+        self._api_key_env = api_key_env
+        self.sample_rate = sample_rate
+        self._output_format = _ELEVENLABS_FORMAT_MAP[sample_rate]
+
+    def _api_key(self) -> str | None:
+        """Return the API key from the configured env var, or ``None`` if unset."""
+        return os.environ.get(self._api_key_env)
+
+    def is_available(self) -> bool:
+        """Return whether the ``elevenlabs`` package AND an API key are present.
+
+        Performs no network call, matching every other backend's contract: it
+        only checks that the client is importable and a key is configured.
+        """
+        return _dep_available("elevenlabs") and bool(self._api_key())
+
+    def _require_available(self) -> None:
+        """Raise a clear, typed error if the package or key is missing.
+
+        Missing *package* → :class:`BackendUnavailableError` (carries the extra so
+        the message says exactly what to install). Missing *key* →
+        :class:`DemoCreateError` (nothing to install; the user must export a key).
+        """
+        if not _dep_available("elevenlabs"):
+            raise BackendUnavailableError("elevenlabs (cloud TTS)", extra="elevenlabs")
+        if not self._api_key():
+            raise DemoCreateError(
+                f"ElevenLabs API key not set — export {self._api_key_env}=<your-key>"
+            )
+
+    def synthesize(
+        self, text: str, out_path: Path, *, voice: str | None = None
+    ) -> AudioClip:
+        """Synthesize ``text`` via ElevenLabs and write a canonical WAV.
+
+        Empty/whitespace text falls back to a short silent clip so timing stays
+        sane (the cloud API rejects empty input). A missing package or key raises
+        before any network call.
+
+        Args:
+            text: Narration text to synthesize.
+            out_path: Destination ``.wav`` file; parent dirs are created.
+            voice: Per-call voice id override (falls back to :attr:`voice_id`).
+
+        Returns:
+            An :class:`~democreate.media.AudioClip` with the *measured* duration.
+
+        Raises:
+            BackendUnavailableError: If the ``elevenlabs`` package is absent.
+            DemoCreateError: If no API key is configured.
+        """
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        # Empty/whitespace text needs no cloud call — short-circuit to silence
+        # before the availability check so an empty chunk never demands a key.
+        if not text.strip():
+            return SilentTTSBackend(sample_rate=self.sample_rate).synthesize(
+                text, out_path
+            )
+
+        self._require_available()
+        effective_voice_id = _resolve_elevenlabs_voice_id(voice, self.voice_id)
+        return self._synthesize_remote(text, out_path, effective_voice_id)
+
+    def _synthesize_remote(  # pragma: no cover - requires elevenlabs + network
+        self, text: str, out_path: Path, voice_id: str
+    ) -> AudioClip:
+        """Perform the real cloud call + transcode (only runs with dep + key)."""
+        from elevenlabs.client import ElevenLabs
+
+        client = ElevenLabs(api_key=self._api_key())
+        logger.debug(
+            "ElevenLabs synthesize: voice=%s model=%s rate=%d",
+            voice_id,
+            self.model,
+            self.sample_rate,
+        )
+        audio_iter = client.text_to_speech.convert(
+            voice_id,
+            text=text,
+            model_id=self.model,
+            output_format=self._output_format,
+        )
+
+        # Stream raw WAV to a temp file, then transcode to canonical 16-bit mono
+        # PCM. Transcoding is unconditional: ElevenLabs WAV output may be stereo
+        # regardless of rate, and the assembly pipeline expects mono.
+        raw = out_path.with_name(out_path.stem + "_el_raw.wav")
+        try:
+            with open(raw, "wb") as fh:
+                for chunk in audio_iter:
+                    fh.write(chunk)
+            _transcode_audio_file(raw, out_path, self.sample_rate)
+        finally:
+            raw.unlink(missing_ok=True)
+
+        measured_ms = measure_wav_duration_ms(out_path)
+        logger.info("elevenlabs TTS spoke %d ms to %s", measured_ms, out_path)
+        return AudioClip(
+            path=out_path,
+            duration_ms=measured_ms,
+            sample_rate=self.sample_rate,
+            text=text,
+        )
+
+
 class ChatterboxTTSBackend(TTSBackend):
     """Chatterbox TTS backend (optional, requires the ``tts`` extra).
 
@@ -701,7 +896,8 @@ def get_tts_backend(
 
     Args:
         name: One of ``"auto"``/``"silent"`` (the deterministic default),
-            ``"system"`` (real OS voice via ``say``/``espeak``), ``"kokoro"``, or
+            ``"system"`` (real OS voice via ``say``/``espeak``), ``"kokoro"``
+            (local neural), ``"elevenlabs"`` (cloud, needs a key), or
             ``"chatterbox"``. ``"auto"`` selects the always-available silent
             backend so the pipeline never fails to run.
         voice: Optional voice id forwarded to voiced backends.
@@ -722,11 +918,13 @@ def get_tts_backend(
         return SystemTTSBackend(voice=voice)
     if key == "kokoro":
         return KokoroTTSBackend(voice=voice, lang=lang or "en-us")
+    if key == "elevenlabs":
+        return ElevenLabsTTSBackend(voice_id=voice or None)
     if key == "chatterbox":
         return ChatterboxTTSBackend(voice=voice)
     raise ValueError(
         f"unknown TTS backend {name!r}; expected one of "
-        "'auto', 'silent', 'system', 'kokoro', 'chatterbox'"
+        "'auto', 'silent', 'system', 'kokoro', 'elevenlabs', 'chatterbox'"
     )
 
 

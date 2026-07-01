@@ -53,6 +53,8 @@ dependencies = [
 # default to real capture/synthesis where that adapter is wired. Install only
 # what you need.
 tts = ["kokoro-onnx>=0.3.0", "soundfile>=0.12.0", "numpy>=1.24.0"]
+# Cloud TTS via the ElevenLabs API (light pure-Python client; no torch/onnx).
+elevenlabs = ["elevenlabs>=1.0.0"]
 whisper = ["openai-whisper>=20231117"]
 capture = ["mss>=9.0.0", "numpy>=1.24.0"]
 browser = ["playwright>=1.40.0"]
@@ -67,6 +69,7 @@ all = [
     "kokoro-onnx>=0.3.0",
     "soundfile>=0.12.0",
     "numpy>=1.24.0",
+    "elevenlabs>=1.0.0",
     "openai-whisper>=20231117",
     "mss>=9.0.0",
     "playwright>=1.40.0",

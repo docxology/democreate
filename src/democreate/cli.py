@@ -168,7 +168,7 @@ def inspect(demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"))
 def build(
     demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
     output: Path = typer.Option(Path("output"), "--output", "-o", help="Output directory"),
-    tts: str = typer.Option("auto", "--tts", help="TTS backend: auto|silent|kokoro|chatterbox"),
+    tts: str = typer.Option("auto", "--tts", help="TTS backend: auto|silent|kokoro|elevenlabs|chatterbox"),
     strict: bool = typer.Option(True, "--strict/--no-strict", help="Fail on invalid demo"),
 ) -> None:
     """Run the full pipeline: TTS, sync, frames, captions, and HTML player."""
@@ -191,7 +191,7 @@ def tour(
     render_it: bool = typer.Option(
         False, "--render/--no-render", help="Render an MP4 with a real voiceover"
     ),
-    tts: str = typer.Option("system", "--tts", help="TTS backend when --render: system|silent"),
+    tts: str = typer.Option("system", "--tts", help="TTS backend when --render: system|silent|kokoro|elevenlabs"),
     voice: str = typer.Option("", "--voice", "-v", help="Voice id when --render"),
     theme: str = typer.Option("noir", "--theme", help="Theme preset when --render"),
 ) -> None:
@@ -229,7 +229,7 @@ def tour(
 def portfolio(
     projects_dir: Path = typer.Argument(..., help="Directory of project subdirectories"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),
-    tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro"),
+    tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro|elevenlabs"),
     voice: str = typer.Option("", "--voice", "-v", help="Voice id (system: e.g. Samantha)"),
     theme: str = typer.Option("noir", "--theme", help="Theme preset: noir|dark|light|midnight|paper"),
     resolution: str = typer.Option("1080p", "--resolution", help="720p|1080p|1440p|2160p|4k"),
@@ -299,7 +299,7 @@ def captions(
 def render(
     demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),
-    tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro|chatterbox"),
+    tts: str = typer.Option("system", "--tts", help="TTS backend: system|silent|kokoro|elevenlabs|chatterbox"),
     voice: str = typer.Option("", "--voice", "-v", help="Optional voice id (system: e.g. Samantha, Daniel)"),
     fps: int = typer.Option(0, "--fps", help="Frame rate (0 = demo default)"),
     captions: bool = typer.Option(False, "--captions/--no-captions", help="Burn subtitles into the video"),
@@ -334,7 +334,7 @@ def render(
     if watermark:
         cfg.metadata.watermark = watermark
     cfg.metadata.header = header
-    use_voice = cfg.audio.voice if cfg.audio.backend in {"system", "kokoro", "chatterbox"} else None
+    use_voice = cfg.audio.voice if cfg.audio.backend in {"system", "kokoro", "elevenlabs", "chatterbox"} else None
     backend = get_tts_backend(cfg.audio.backend, voice=use_voice)
     console.print(
         f"[cyan]rendering[/] {d.title!r} at {d.width}x{d.height} "

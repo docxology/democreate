@@ -23,3 +23,6 @@ __pycache__/
 
 # Internal Algorithm working doc (PAI-specific); not part of the public package
 ISA.md
+
+# Secrets (API keys) — never committed
+.env

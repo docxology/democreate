@@ -7,7 +7,7 @@ Guidance for agents editing this subsystem. Read alongside `README.md`.
 The narration half of the build: `script`/`project_summary` → `Demo`, `tts` →
 audio, `sync` → timestamps. `project_summary.py` builds the *describing*
 project-summary demo consumed by `democreate.portfolio`; `tts.py` carries the
-wired local Kokoro neural voice. It consumes the schema spine
+wired local Kokoro neural voice and the wired ElevenLabs cloud voice. It consumes the schema spine
 (`Demo/Scene/Chunk/Action/WordTimestamp`) and the shared `AudioClip`; it never
 redefines those types.
 
