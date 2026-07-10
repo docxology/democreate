@@ -7,7 +7,7 @@ business logic of its own.
 Commands::
 
     democreate init      [PATH]            write a starter demo artifact
-    democreate inspect   DEMO              validate and summarize a demo
+    democreate inspect   DEMO [--json]       validate and summarize a demo
     democreate build     DEMO  [--output]  run the full pipeline -> frames/audio/player
     democreate render    DEMO  [--output]  render an animated HD MP4 + voiceover, verify
     democreate tour      REPO  [--output]  generate a codebase tour (--render for MP4)
@@ -145,18 +145,33 @@ def init(
 
 
 @app.command()
-def inspect(demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml")) -> None:
+def inspect(
+    demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
+    json_out: bool = typer.Option(False, "--json", help="Emit a JSON summary to stdout"),
+) -> None:
     """Validate a demo and print a structural summary."""
     d = _load_demo(demo)
     problems = d.validate()
+    summary = {
+        "title": d.title,
+        "scenes": len(d.scenes),
+        "chunks": len(d.iter_chunks()),
+        "actions": len(d.iter_actions()),
+        "estimated_duration_s": round(d.estimated_duration_ms() / 1000, 1),
+        "valid": not problems,
+        "problems": problems,
+    }
+    if json_out:
+        typer.echo(json.dumps(summary))
+        raise typer.Exit(code=0 if not problems else 1)
     table = Table(title=f"Demo: {d.title}")
     table.add_column("metric")
     table.add_column("value", justify="right")
-    table.add_row("scenes", str(len(d.scenes)))
-    table.add_row("chunks", str(len(d.iter_chunks())))
-    table.add_row("actions", str(len(d.iter_actions())))
-    table.add_row("estimated duration (s)", f"{d.estimated_duration_ms() / 1000:.1f}")
-    table.add_row("valid", "yes" if not problems else f"NO ({len(problems)} problems)")
+    table.add_row("scenes", str(summary["scenes"]))
+    table.add_row("chunks", str(summary["chunks"]))
+    table.add_row("actions", str(summary["actions"]))
+    table.add_row("estimated duration (s)", f"{summary['estimated_duration_s']:.1f}")
+    table.add_row("valid", "yes" if summary["valid"] else f"NO ({len(problems)} problems)")
     console.print(table)
     for p in problems:
         console.print(f"  [red]•[/] {p}")
@@ -683,6 +698,7 @@ def backends() -> None:
         ("Replay (pynput)", "pynput", "replay"),
         ("Legacy compositor slot (moviepy)", "moviepy", "video"),
         ("Codebase (tree-sitter)", "tree_sitter", "codebase"),
+        ("PDF export (weasyprint)", "weasyprint", "docs"),
     ]
     table = Table(title="DemoCreate backends")
     table.add_column("capability")

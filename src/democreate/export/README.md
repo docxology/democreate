@@ -73,7 +73,7 @@ write a signed, content-hashed provenance payload; `extract_provenance`/
 | Capability | Upgraded by extra | Install |
 |------------|-------------------|---------|
 | `export_video` MP4 encode | system `ffmpeg` binary; the `video` extra supplies Python-side helpers, not the binary | install `ffmpeg` (`brew install ffmpeg`, `apt-get install ffmpeg`) |
-| `export_pdf` | a Markdown→PDF engine (`weasyprint` etc.) | install an engine, e.g. `uv pip install weasyprint` |
+| `export_pdf` | a Markdown→PDF engine (`weasyprint` etc.) | `uv sync --extra docs` |
 
 All other functions need nothing beyond the core install.
 

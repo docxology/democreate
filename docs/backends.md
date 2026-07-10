@@ -29,6 +29,7 @@ manifest, captions, and the interactive HTML player.
 | `assembly/` | Audio assembly + animation | `audio.py` (stdlib `wave` concat), `animator.py` (timed frames) | `normalize_audio` / `apply_fade` via **`ffmpeg`** | `video` | `ffmpeg` on `PATH` (no pip needed) | OS binary |
 | `export/` | Video encode + verify | ffmpeg-argv/concat builders + Jinja2 HTML player | `assemble_video` / `encode_frame_sequence` (real HD MP4) + `verify_video` (content assertions) via **`ffmpeg`/`ffprobe`** | `video` | `ffmpeg`/`ffprobe` on `PATH` (no pip needed); Python helpers in the `video` extra | OS binary, plus `uv pip install -e ".[video]"` if using helper libraries |
 | `paper/` | Read research-paper PDF | — | **poppler CLI** (`pdfinfo` / `pdftotext` / `pdftoppm`, zero pip) | `pdf` | poppler binaries on `PATH` | OS binary (`brew install poppler` / `apt-get install poppler-utils`) |
+| `export/` | PDF export of transcript | `to_markdown` (always available) | `export_pdf` via **WeasyPrint** | `docs` | `weasyprint` | `uv pip install -e ".[docs]"` |
 
 Install everything at once with the aggregate extra:
 

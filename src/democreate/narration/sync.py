@@ -306,17 +306,25 @@ def absolute_word_timestamps(
     demo: Demo,
     clips: list[AudioClip],
     transcriber: Transcriber | None = None,
+    *,
+    lead_ms: int = 0,
+    gap_ms: int = 0,
 ) -> list[WordTimestamp]:
     """Return every word of the demo timestamped on the absolute timeline.
 
     Words are transcribed per chunk and shifted by each chunk's cumulative start
-    offset, producing a single flat stream suitable for caption generation.
+    offset (mirroring :func:`sync_demo`'s silence model: ``lead_ms`` of lead
+    silence, then each clip's measured duration with ``gap_ms`` of silence
+    inserted between consecutive clips), producing a single flat stream suitable
+    for caption generation that stays locked to the assembled voiceover.
 
     Args:
         demo: The demo whose narration to flatten.
         clips: Audio clips produced by TTS, matched to chunks by ``chunk_id``.
         transcriber: Transcriber to use; defaults to
             :class:`HeuristicTranscriber`.
+        lead_ms: Lead silence before the first clip (must match the render).
+        gap_ms: Silence inserted between consecutive clips (must match the render).
 
     Returns:
         A flat, ordered list of absolute :class:`~democreate.schema.WordTimestamp`.
@@ -325,8 +333,10 @@ def absolute_word_timestamps(
     by_chunk = _clips_by_chunk(clips)
 
     out: list[WordTimestamp] = []
-    cumulative_ms = 0
-    for chunk in demo.iter_chunks():
+    cumulative_ms = lead_ms
+    for index, chunk in enumerate(demo.iter_chunks()):
+        if index > 0:
+            cumulative_ms += gap_ms
         clip = by_chunk.get(chunk.id)
         audio_path: Path | None = None
         duration_ms = _FALLBACK_DURATION_MS

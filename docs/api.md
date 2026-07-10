@@ -348,7 +348,7 @@ TTS->STT synchronization: anchoring actions to real spoken word timestamps.
 
 ### Functions
 
-- **`absolute_word_timestamps(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None) -> 'list[WordTimestamp]'`** — Return every word of the demo timestamped on the absolute timeline.
+- **`absolute_word_timestamps(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: int = 0, gap_ms: int = 0) -> 'list[WordTimestamp]'`** — Return every word of the demo timestamped on the absolute timeline (mirrors `sync_demo`'s silence model).
 - **`get_transcriber(name: 'str' = 'auto') -> 'Transcriber'`** — Return a transcriber by name.
 - **`sync_demo(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: 'int' = 0, gap_ms: 'int' = 0) -> 'Demo'`** — Assign absolute timestamps to every chunk and action from real audio.
 

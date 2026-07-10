@@ -65,6 +65,9 @@ codebase = ["tree-sitter>=0.21.0", "tree-sitter-languages>=1.10.0"]
 # pdf: richer PDF extraction. The default paper workflow uses the poppler CLI
 # (pdfinfo/pdftotext/pdftoppm) with no pip dependency; pymupdf is an upgrade.
 pdf = ["pymupdf>=1.24.0"]
+# docs: PDF export of the demo transcript via WeasyPrint (HTML→PDF). The
+# `to_markdown` export is always available; this upgrades `export_pdf`.
+docs = ["weasyprint>=62.0"]
 all = [
     "kokoro-onnx>=0.3.0",
     "soundfile>=0.12.0",
@@ -81,6 +84,7 @@ all = [
     "tree-sitter>=0.21.0",
     "tree-sitter-languages>=1.10.0",
     "pymupdf>=1.24.0",
+    "weasyprint>=62.0",
 ]
 dev = [
     "pytest>=8.0.0",

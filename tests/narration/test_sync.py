@@ -266,3 +266,33 @@ def test_absolute_word_timestamps_via_chunk_audio_path(
     synthesize_demo(sample_demo, tmp_workspace)
     words = absolute_word_timestamps(sample_demo, [])
     assert len(words) > 0
+
+
+def test_absolute_word_timestamps_lead_and_gap(sample_demo, tmp_workspace) -> None:
+    """lead_ms/gap_ms must shift the absolute timeline, matching sync_demo."""
+    clips = synthesize_demo(sample_demo, tmp_workspace)
+    lead_ms = 300
+    gap_ms = 220
+    words = absolute_word_timestamps(
+        sample_demo, clips, lead_ms=lead_ms, gap_ms=gap_ms
+    )
+    assert words, "expected at least one word"
+    # The very first word must start at or after lead_ms (not 0).
+    assert words[0].start_ms >= lead_ms
+    # sync_demo and absolute_word_timestamps must agree on the first chunk's start.
+    from democreate.schema import Demo
+
+    demo_copy = Demo(
+        title=sample_demo.title,
+        scenes=[
+            type(s)(id=s.id, title=s.title, kind=s.kind,
+                   chunks=[type(c)(id=c.id, text=c.text, actions=list(c.actions))
+                           for c in s.chunks])
+            for s in sample_demo.scenes
+        ],
+    )
+    sync_demo(demo_copy, clips, lead_ms=lead_ms, gap_ms=gap_ms)
+    first_chunk = demo_copy.iter_chunks()[0]
+    assert first_chunk.start_ms == lead_ms
+    # The first word's absolute start equals lead_ms + its in-chunk start.
+    assert words[0].start_ms == lead_ms + 0  # first word starts at chunk start

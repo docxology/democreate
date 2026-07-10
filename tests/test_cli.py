@@ -46,6 +46,32 @@ def test_inspect_invalid_demo_exits_nonzero(tmp_path: Path) -> None:
     assert res.exit_code == 1
 
 
+def test_inspect_json_flag(tmp_path: Path) -> None:
+    """`inspect --json` emits machine-readable JSON with the same fields."""
+    demo_path = tmp_path / "demo.json"
+    runner.invoke(app, ["init", str(demo_path)])
+    res = runner.invoke(app, ["inspect", str(demo_path), "--json"])
+    assert res.exit_code == 0
+    data = json.loads(res.stdout.strip())
+    assert data["valid"] is True
+    assert "scenes" in data
+    assert "chunks" in data
+    assert "actions" in data
+    assert "estimated_duration_s" in data
+    assert data["problems"] == []
+
+
+def test_inspect_json_invalid(tmp_path: Path) -> None:
+    """`inspect --json` on an invalid demo exits non-zero but still emits JSON."""
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"title": ""}), encoding="utf-8")
+    res = runner.invoke(app, ["inspect", str(bad), "--json"])
+    assert res.exit_code == 1
+    data = json.loads(res.stdout.strip())
+    assert data["valid"] is False
+    assert len(data["problems"]) > 0
+
+
 def test_build_end_to_end(tmp_path: Path) -> None:
     demo_path = tmp_path / "demo.json"
     runner.invoke(app, ["init", str(demo_path)])

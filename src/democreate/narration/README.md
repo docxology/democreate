@@ -59,7 +59,7 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `sync_demo(demo, clips, transcriber=None) -> Demo` — cumulative `chunk.start_ms`,
   fuzzy `trigger_word` matching (`difflib`, case-insensitive), default action
   duration 600 ms.
-- `absolute_word_timestamps(demo, clips, transcriber=None) -> list[WordTimestamp]`
+- `absolute_word_timestamps(demo, clips, transcriber=None, *, lead_ms=0, gap_ms=0) -> list[WordTimestamp]`
   — flat absolute-ms word stream for captioning.
 
 ### `script.py`

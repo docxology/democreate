@@ -371,7 +371,7 @@ class SyntheticRenderer(FrameSource):
             except ClassNotFound:  # pragma: no cover - rare
                 lexer = get_lexer_by_name("python")
 
-            def color_for(tok) -> tuple:
+            def color_for(tok) -> tuple[int, int, int]:
                 if tok in Token.Keyword or tok in Token.Name.Builtin.Pseudo:
                     return t.syn_keyword
                 if tok in Token.Name.Function or tok in Token.Name.Class:

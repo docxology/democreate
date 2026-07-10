@@ -63,10 +63,12 @@ democreate init demo.yaml --format yaml
 
 Load a `.json`/`.yaml` demo, validate it, and print a structural summary table
 (scenes, chunks, actions, estimated duration, validity). Exits non-zero if the
-demo is invalid, listing each problem.
+demo is invalid, listing each problem. Pass `--json` for machine-readable output
+(the same summary as a JSON object).
 
 ```bash
 democreate inspect demo.json
+democreate inspect demo.json --json
 ```
 
 ## `build`

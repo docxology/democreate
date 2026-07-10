@@ -9,14 +9,31 @@ resolves to the latest archived release.
 ## [Unreleased]
 
 ### Added
-- **ElevenLabs cloud TTS backend** (`democreate.narration.tts.ElevenLabsTTSBackend`,
-  the `elevenlabs` extra, `--tts elevenlabs`): a wired highest-fidelity hosted voice
-  that transcodes to the pipeline's canonical 16-bit mono PCM WAV; requires the
-  `elevenlabs` package and an `ELEVENLABS_API_KEY` and fails with a clear, typed
-  error (never a silent WAV) when either is missing.
+- **`democreate inspect --json`** — machine-readable JSON output for the
+  `inspect` command (scenes, chunks, actions, estimated duration, validity,
+  problems), consistent with every other CLI command's `--json` flag.
+- **`docs` optional extra** (`weasyprint>=62.0`) — `export_pdf` in
+  `democreate.export.formats` now has a matching pyproject extra, so
+  `BackendUnavailableError("pdf", extra="docs")` points at a real install
+  target. `uv sync --extra docs` installs WeasyPrint for PDF transcript export.
+- **`absolute_word_timestamps` silence-model parity** — the function now
+  accepts `lead_ms` and `gap_ms` keyword arguments (defaulting to 0) so
+  word-level caption timestamps mirror `sync_demo`'s assembled-voiceover
+  timeline. Previously it ignored lead/gap silence, causing word-level
+  captions to drift ahead of the spoken audio by `lead_ms` at the start and a
+  further `gap_ms` per chunk.
+- `democreate backends` now lists the WeasyPrint PDF-export capability.
 
 ### Fixed
-- `ElevenLabsTTSBackend.synthesize` forwarded the schema's cross-backend
+- `export_pdf` raised `BackendUnavailableError("pdf", extra="docs")` but no
+  `docs` extra existed in `pyproject.toml` — the install hint pointed at a
+  phantom extra. The `docs` extra is now declared.
+- `absolute_word_timestamps` did not account for `lead_ms`/`gap_ms` in the
+  cumulative timeline, so its flat word stream drifted from the real audio
+  timeline and from `sync_demo`'s action timestamps.
+- `SyntheticRenderer._highlight`'s nested `color_for` returned an untyped
+  bare `tuple`; now `tuple[int, int, int]` for stricter mypy checking.
+- ElevenLabsTTSBackend.synthesize forwarded the schema's cross-backend
   `voice="default"` sentinel straight to the ElevenLabs API as a literal
   voice_id, 404ing (`voice_not_found`) on any real `democreate render`/`tour
   --render` call with `--tts elevenlabs`. Now resolved to `self.voice_id`
