@@ -9,6 +9,30 @@ resolves to the latest archived release.
 ## [Unreleased]
 
 ### Added
+- **`Demo.merge`** — compose a demo from multiple fragments. Scene/chunk ID
+  collisions are auto-resolved with unique suffixes, and metadata is
+  shallow-merged. Enables assembling a demo from separate declarative files.
+- **`Demo.filter_scenes`** — extract a sub-demo by scene IDs, kinds, and/or
+  slice range. Supports partial renders ("only the code scenes", "scenes 3-7").
+- **`Demo.to_file` / `Demo.from_file`** — one-liner I/O. Format (JSON/YAML) is
+  inferred from the file extension, replacing manual `path.write_text(...)`.
+- **`Demo.scene_by_id` / `Demo.chunk_by_id`** — O(n) lookup helpers replacing
+  manual iteration in every caller.
+- **`Demo.__repr__`** — compact, introspectable representation for debugging:
+  `Demo(title='Tour', scenes=15, chunks=15, actions=11, 3840x2160@30fps)`.
+- **`Demo.validate` now checks action params** — `OPEN_FILE` must have `path`,
+  `CREATE_FILE` must have `code`, etc. `WAIT` and `SPEAK` are exempt.
+- **`generate_codebase_demo` `max_scenes` parameter** — bounds the number of
+  module scenes generated from a large repo (default 0 = all).
+- **`to_markdown` `format` parameter** — three output shapes: `"full"`
+  (default, readable transcript with action bullets), `"compact"` (one line
+  per scene), and `"outline"` (nested bullet outline).
+- **`Pipeline.dry_run`** — validate a demo without running TTS, sync, or
+  rendering. Returns the problem list (or raises in strict mode). No files
+  are created.
+- **`export_pdf` styled HTML** — the PDF transcript is now a proper typeset
+  document with headings, paragraphs, and inline code formatting, not a
+  `<pre>` text dump.
 - **`democreate inspect --json`** — machine-readable JSON output for the
   `inspect` command (scenes, chunks, actions, estimated duration, validity,
   problems), consistent with every other CLI command's `--json` flag.

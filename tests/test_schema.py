@@ -135,3 +135,162 @@ def test_from_dict_defaults() -> None:
 def test_all_scene_kinds_roundtrip(kind: SceneKind) -> None:
     s = Scene(id="s", kind=kind)
     assert Scene.from_dict(s.to_dict()).kind is kind
+
+
+# -- new method tests ------------------------------------------------------
+
+def test_scene_by_id_found() -> None:
+    d = _demo()
+    scene = d.scene_by_id("s1")
+    assert scene is not None
+    assert scene.title == "Intro"
+
+
+def test_scene_by_id_missing() -> None:
+    assert _demo().scene_by_id("nope") is None
+
+
+def test_chunk_by_id_found() -> None:
+    d = _demo()
+    chunk = d.chunk_by_id("c1")
+    assert chunk is not None
+    assert chunk.text == "open the file please"
+
+
+def test_chunk_by_id_missing() -> None:
+    assert _demo().chunk_by_id("nope") is None
+
+
+def test_merge_non_colliding() -> None:
+    d1 = _demo()
+    s2 = Scene(id="s2", title="Second")
+    s2.chunks.append(Chunk(id="c2", text="another scene"))
+    d2 = Demo(title="Second", scenes=[s2])
+    merged = d1.merge(d2)
+    assert len(merged.scenes) == 2
+    assert merged.scenes[0].id == "s1"
+    assert merged.scenes[1].id == "s2"
+    # originals not mutated
+    assert len(d1.scenes) == 1
+
+
+def test_merge_colliding_ids() -> None:
+    d1 = _demo()
+    d2 = _demo()  # same scene id "s1" and chunk id "c1"
+    merged = d1.merge(d2)
+    problems = merged.validate()
+    assert problems == [], f"merged demo should be valid: {problems}"
+    assert len(merged.scenes) == 2
+    assert merged.scenes[0].id == "s1"
+    assert merged.scenes[1].id == "s1_0"  # collision-suffixed
+
+
+def test_merge_metadata() -> None:
+    d1 = Demo(title="A", metadata={"author": "x", "keep": "yes"})
+    d2 = Demo(title="B", metadata={"author": "y"})
+    merged = d1.merge(d2)
+    assert merged.metadata["author"] == "y"  # other wins
+    assert merged.metadata["keep"] == "yes"  # original kept
+
+
+def test_filter_scenes_by_id() -> None:
+    s1 = Scene(id="a", title="A")
+    s2 = Scene(id="b", title="B")
+    s3 = Scene(id="c", title="C")
+    d = Demo(title="T", scenes=[s1, s2, s3])
+    filtered = d.filter_scenes(ids=["a", "c"])
+    assert len(filtered.scenes) == 2
+    assert filtered.scenes[0].id == "a"
+    assert filtered.scenes[1].id == "c"
+
+
+def test_filter_scenes_by_kind() -> None:
+    s1 = Scene(id="a", kind=SceneKind.SLIDE)
+    s2 = Scene(id="b", kind=SceneKind.CODEBASE)
+    s3 = Scene(id="c", kind=SceneKind.SLIDE)
+    d = Demo(title="T", scenes=[s1, s2, s3])
+    filtered = d.filter_scenes(kinds=[SceneKind.SLIDE])
+    assert len(filtered.scenes) == 2
+    assert all(s.kind == SceneKind.SLIDE for s in filtered.scenes)
+
+
+def test_filter_scenes_by_slice() -> None:
+    scenes = [Scene(id=f"s{i}") for i in range(5)]
+    d = Demo(title="T", scenes=scenes)
+    filtered = d.filter_scenes(slice_start=1, slice_end=4)
+    assert len(filtered.scenes) == 3
+    assert filtered.scenes[0].id == "s1"
+    assert filtered.scenes[-1].id == "s3"
+
+
+def test_filter_scenes_combined() -> None:
+    s1 = Scene(id="a", kind=SceneKind.SLIDE)
+    s2 = Scene(id="b", kind=SceneKind.CODEBASE)
+    s3 = Scene(id="c", kind=SceneKind.SLIDE)
+    d = Demo(title="T", scenes=[s1, s2, s3])
+    filtered = d.filter_scenes(ids=["a", "b", "c"], kinds=[SceneKind.SLIDE])
+    assert len(filtered.scenes) == 2
+    assert {s.id for s in filtered.scenes} == {"a", "c"}
+
+
+def test_to_file_and_from_file_json(tmp_path) -> None:
+    d = _demo()
+    path = tmp_path / "demo.json"
+    written = d.to_file(path)
+    assert written == path
+    loaded = Demo.from_file(path)
+    assert loaded == d
+
+
+def test_to_file_and_from_file_yaml(tmp_path) -> None:
+    d = _demo()
+    path = tmp_path / "demo.yaml"
+    d.to_file(path)
+    loaded = Demo.from_file(path)
+    assert loaded == d
+
+
+def test_repr() -> None:
+    d = _demo()
+    r = repr(d)
+    assert "Demo(" in r
+    assert "scenes=1" in r
+    assert "1920x1080" in r
+    assert "30fps" in r
+
+
+def test_validate_missing_action_params() -> None:
+    s = Scene(id="s")
+    # OPEN_FILE without path
+    s.chunks.append(Chunk(id="c", actions=[Action(ActionType.OPEN_FILE, {})]))
+    problems = Demo(title="T", scenes=[s]).validate()
+    assert any("missing required param 'path'" in p for p in problems)
+
+
+def test_validate_create_file_missing_code() -> None:
+    s = Scene(id="s")
+    s.chunks.append(
+        Chunk(id="c", actions=[Action(ActionType.CREATE_FILE, {"path": "x.py"})])
+    )
+    problems = Demo(title="T", scenes=[s]).validate()
+    assert any("missing required param 'code'" in p for p in problems)
+
+
+def test_validate_action_with_all_params_passes() -> None:
+    s = Scene(id="s")
+    s.chunks.append(
+        Chunk(
+            id="c",
+            actions=[
+                Action(ActionType.OPEN_FILE, {"path": "x.py"}),
+                Action(ActionType.CREATE_FILE, {"path": "y.py", "code": "x=1"}),
+            ],
+        )
+    )
+    assert Demo(title="T", scenes=[s]).validate() == []
+
+
+def test_validate_wait_action_never_requires_params() -> None:
+    s = Scene(id="s")
+    s.chunks.append(Chunk(id="c", actions=[Action(ActionType.WAIT, {})]))
+    assert Demo(title="T", scenes=[s]).validate() == []

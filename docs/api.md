@@ -58,16 +58,22 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
 - **`Demo`** *(dataclass)* — The top-level declarative artifact for a complete walkthrough.
+  - `chunk_by_id(self, chunk_id: 'str') -> 'Chunk | None'` — Return the first chunk with ``id == chunk_id`` across all scenes.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Total estimated runtime from narration word counts.
+  - `filter_scenes(self, *, ids: 'list[str] | None' = None, kinds: 'list[SceneKind] | None' = None, slice_start: 'int | None' = None, slice_end: 'int | None' = None) -> 'Demo'` — Return a new :class:`Demo` containing only the matching scenes.
   - `is_valid(self) -> 'bool'` — ``True`` iff :meth:`validate` returns no problems.
   - `iter_actions(self) -> 'list[Action]'` — Flat, ordered list of every action across all scenes/chunks.
   - `iter_chunks(self) -> 'list[Chunk]'` — Flat, ordered list of every chunk across all scenes.
+  - `merge(self, other: 'Demo', *, offset: 'int' = 0) -> 'Demo'` — Append ``other``'s scenes onto this demo, returning a new :class:`Demo`.
+  - `scene_by_id(self, scene_id: 'str') -> 'Scene | None'` — Return the first scene with ``id == scene_id``, or ``None``.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
+  - `to_file(self, path: 'str | Path') -> 'Path'` — Write this demo to a ``.json`` or ``.yaml`` file and return its path.
   - `to_json(self, *, indent: 'int | None' = 2) -> 'str'` — Serialize to a JSON string.
   - `to_yaml(self) -> 'str'` — Serialize to a YAML string. Requires PyYAML (a core dependency).
   - `validate(self) -> 'list[str]'` — Return a list of human-readable structural problems (empty == valid).
 - **`DemoCreateError`** — Base class for every error DemoCreate raises deliberately.
 - **`Pipeline`** — Configurable orchestrator over the DemoCreate subsystems.
+  - `dry_run(self, demo: 'Demo') -> 'list[str]'` — Validate ``demo`` without running TTS, sync, or rendering.
   - `run(self, demo: 'Demo', workspace: 'Workspace | None' = None) -> 'PipelineResult'` — Render ``demo`` end-to-end, returning a :class:`PipelineResult`.
 - **`PipelineResult`** *(dataclass)* — Paths and artifacts produced by a pipeline run.
   - `summary(self) -> 'dict[str, object]'` — A compact JSON-able summary of what was produced.
@@ -104,11 +110,16 @@ Declarative demo schema — the deterministic spine of DemoCreate.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
 - **`Demo`** *(dataclass)* — The top-level declarative artifact for a complete walkthrough.
+  - `chunk_by_id(self, chunk_id: 'str') -> 'Chunk | None'` — Return the first chunk with ``id == chunk_id`` across all scenes.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Total estimated runtime from narration word counts.
+  - `filter_scenes(self, *, ids: 'list[str] | None' = None, kinds: 'list[SceneKind] | None' = None, slice_start: 'int | None' = None, slice_end: 'int | None' = None) -> 'Demo'` — Return a new :class:`Demo` containing only the matching scenes.
   - `is_valid(self) -> 'bool'` — ``True`` iff :meth:`validate` returns no problems.
   - `iter_actions(self) -> 'list[Action]'` — Flat, ordered list of every action across all scenes/chunks.
   - `iter_chunks(self) -> 'list[Chunk]'` — Flat, ordered list of every chunk across all scenes.
+  - `merge(self, other: 'Demo', *, offset: 'int' = 0) -> 'Demo'` — Append ``other``'s scenes onto this demo, returning a new :class:`Demo`.
+  - `scene_by_id(self, scene_id: 'str') -> 'Scene | None'` — Return the first scene with ``id == scene_id``, or ``None``.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
+  - `to_file(self, path: 'str | Path') -> 'Path'` — Write this demo to a ``.json`` or ``.yaml`` file and return its path.
   - `to_json(self, *, indent: 'int | None' = 2) -> 'str'` — Serialize to a JSON string.
   - `to_yaml(self) -> 'str'` — Serialize to a YAML string. Requires PyYAML (a core dependency).
   - `validate(self) -> 'list[str]'` — Return a list of human-readable structural problems (empty == valid).
@@ -153,6 +164,7 @@ End-to-end orchestration: a declarative :class:`Demo` becomes rendered output.
 ### Classes
 
 - **`Pipeline`** — Configurable orchestrator over the DemoCreate subsystems.
+  - `dry_run(self, demo: 'Demo') -> 'list[str]'` — Validate ``demo`` without running TTS, sync, or rendering.
   - `run(self, demo: 'Demo', workspace: 'Workspace | None' = None) -> 'PipelineResult'` — Render ``demo`` end-to-end, returning a :class:`PipelineResult`.
 - **`PipelineResult`** *(dataclass)* — Paths and artifacts produced by a pipeline run.
   - `summary(self) -> 'dict[str, object]'` — A compact JSON-able summary of what was produced.
@@ -177,6 +189,7 @@ Portfolio orchestration: a directory of repositories becomes a shelf of videos.
 
 - **`build_project_demo(repo: 'Path', workspace, *, config=None, max_modules: 'int' = 6, title: 'str | None' = None)`** — Collect facts, render an architecture diagram, and build the summary demo.
 - **`collect_project_facts(repo: 'Path', *, max_modules: 'int' = 6) -> 'ProjectFacts'`** — Walk ``repo`` and assemble its render-ready :class:`ProjectFacts`.
+- **`collect_project_videos(output_root: 'Path', results: 'list[ProjectResult]') -> 'Path'`** — Copy every rendered project video into a flat ``project_videos/`` folder.
 - **`discover_projects(projects_dir: 'Path', *, skip: 'tuple[str, ...]' = ()) -> 'list[Path]'`** — Return the sorted project directories under ``projects_dir``.
 - **`render_portfolio(projects_dir: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'tuple[str, ...]' = (), timestamp: 'str | None' = None, verify: 'bool' = True) -> 'PortfolioReport'`** — Render a summary video for every project under ``projects_dir``.
 - **`render_project(repo: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_modules: 'int' = 6, timestamp: 'str | None' = None, verify: 'bool' = True) -> 'ProjectResult'`** — Render one repository to a timestamped, verified summary MP4.
@@ -222,7 +235,7 @@ The ``democreate`` command-line interface.
 - **`fetch_voice() -> 'None'`** — Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
 - **`gif(demo: 'Path', output: 'Path' = PosixPath('output'), out: 'Path' = PosixPath('demo.gif'), fps: 'int' = 8, theme: 'str' = 'dark') -> 'None'`** — Build a demo and export an animated GIF preview of its frames.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
-- **`inspect(demo: 'Path') -> 'None'`** — Validate a demo and print a structural summary.
+- **`inspect(demo: 'Path', json_out: 'bool' = False) -> 'None'`** — Validate a demo and print a structural summary.
 - **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
@@ -255,7 +268,7 @@ Translators and language helpers for localized demos.
 
 - **`get_translator(name: 'str' = 'auto', **kwargs: 'object') -> 'Translator'`** — Return a translator by name.
 - **`language_name(code: 'str') -> 'str'`** — Return a human language name for a code (falls back to the code itself).
-- **`localized_captions(timed_demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str', fmt: 'str' = 'srt') -> 'str'`** — Emit subtitles in ``target`` against a *timed* demo's existing timing.
+- **`localized_captions(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str', fmt: 'str' = 'srt', timing_demo: 'Demo | None' = None) -> 'str'`** — Emit subtitles in ``target`` from the **source** demo, with audio timing.
 - **`translate_demo(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str') -> 'Demo'`** — Return a copy of ``demo`` with every chunk's narration translated.
 
 ## `democreate.translation.localize` {#democreatetranslationlocalize}
@@ -287,7 +300,7 @@ Script generation: turning structured context into a declarative Demo.
 
 ### Functions
 
-- **`generate_codebase_demo(summaries: 'list[Any]', *, title: 'str') -> 'Demo'`** — Build a codebase-tour :class:`Demo` from a list of module summaries.
+- **`generate_codebase_demo(summaries: 'list[Any]', *, title: 'str', max_scenes: 'int' = 0) -> 'Demo'`** — Build a codebase-tour :class:`Demo` from a list of module summaries.
 
 ## `democreate.narration.project_summary` {#democreatenarrationproject_summary}
 
@@ -312,6 +325,9 @@ Text-to-speech backends for DemoCreate narration.
 - **`ChatterboxTTSBackend`** — Chatterbox TTS backend (optional, requires the ``tts`` extra).
   - `is_available(self) -> 'bool'` — Return whether the ``chatterbox`` package is installed.
   - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Chatterbox (only runs when installed).
+- **`ElevenLabsTTSBackend`** — ElevenLabs cloud TTS backend — highest-fidelity hosted voice synthesis.
+  - `is_available(self) -> 'bool'` — Return whether the ``elevenlabs`` package AND an API key are present.
+  - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` via ElevenLabs and write a canonical WAV.
 - **`KokoroTTSBackend`** — Kokoro neural TTS backend — a high-quality, fully-local voice.
   - `is_available(self) -> 'bool'` — Return whether ``kokoro-onnx`` AND its model files are present.
   - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Kokoro to a canonical WAV; measure its duration.
@@ -329,7 +345,7 @@ Text-to-speech backends for DemoCreate narration.
 ### Functions
 
 - **`fetch_kokoro_model(dest: 'Path | None' = None) -> 'tuple[Path, Path]'`** — Download the Kokoro model + voices into the cache dir if absent.
-- **`get_tts_backend(name: 'str' = 'auto', *, voice: 'str | None' = None) -> 'TTSBackend'`** — Return a TTS backend by name.
+- **`get_tts_backend(name: 'str' = 'auto', *, voice: 'str | None' = None, lang: 'str | None' = None) -> 'TTSBackend'`** — Return a TTS backend by name.
 - **`measure_wav_duration_ms(path: 'Path | str') -> 'int'`** — Return the true duration of a WAV file in milliseconds.
 - **`synthesize_demo(demo: 'Demo', workspace, backend: 'TTSBackend | None' = None) -> 'list[AudioClip]'`** — Synthesize audio for every chunk of ``demo`` into the workspace.
 
@@ -348,7 +364,7 @@ TTS->STT synchronization: anchoring actions to real spoken word timestamps.
 
 ### Functions
 
-- **`absolute_word_timestamps(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: int = 0, gap_ms: int = 0) -> 'list[WordTimestamp]'`** — Return every word of the demo timestamped on the absolute timeline (mirrors `sync_demo`'s silence model).
+- **`absolute_word_timestamps(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: 'int' = 0, gap_ms: 'int' = 0) -> 'list[WordTimestamp]'`** — Return every word of the demo timestamped on the absolute timeline.
 - **`get_transcriber(name: 'str' = 'auto') -> 'Transcriber'`** — Return a transcriber by name.
 - **`sync_demo(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: 'int' = 0, gap_ms: 'int' = 0) -> 'Demo'`** — Assign absolute timestamps to every chunk and action from real audio.
 
@@ -618,7 +634,7 @@ Document-format exports for a :class:`~democreate.schema.Demo`.
 
 ### Functions
 
-- **`export_pdf(demo: 'Demo', out_path: 'Path') -> 'Path'`** — Render the demo transcript to a PDF.
+- **`export_pdf(demo: 'Demo', out_path: 'Path') -> 'Path'`** — Render the demo transcript to a styled PDF.
 - **`to_chapters(demo: 'Demo') -> 'list[dict]'`** — Build a chapter list for players and YouTube descriptions.
 - **`to_json(demo: 'Demo', *, indent: 'int' = 2, relative_to: 'Path | str | None' = None) -> 'str'`** — Serialize the demo to JSON.
-- **`to_markdown(demo: 'Demo') -> 'str'`** — Render the demo as a readable Markdown transcript.
+- **`to_markdown(demo: 'Demo', *, format: 'str' = 'full') -> 'str'`** — Render the demo as a readable Markdown transcript.

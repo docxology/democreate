@@ -217,3 +217,27 @@ def test_llm_stores_provider_and_model() -> None:
 def test_script_generator_base_not_implemented() -> None:
     with pytest.raises(NotImplementedError):
         ScriptGenerator().generate({})
+
+
+# --- max_scenes bound -----------------------------------------------------
+
+
+def test_generate_codebase_demo_max_scenes_bounds_output() -> None:
+    """max_scenes limits the number of module scenes generated."""
+    summaries = [
+        {"name": f"mod_{i}.py", "path": f"mod_{i}.py", "functions": [], "classes": []}
+        for i in range(10)
+    ]
+    demo = generate_codebase_demo(summaries, title="Bounded", max_scenes=3)
+    assert len(demo.scenes) == 3
+    assert demo.validate() == []
+
+
+def test_generate_codebase_demo_max_scenes_zero_means_all() -> None:
+    """max_scenes=0 means no limit."""
+    summaries = [
+        {"name": f"m{i}.py", "functions": [], "classes": []}
+        for i in range(5)
+    ]
+    demo = generate_codebase_demo(summaries, title="All", max_scenes=0)
+    assert len(demo.scenes) == 5

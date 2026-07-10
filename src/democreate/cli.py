@@ -83,10 +83,7 @@ def _validate_resolution(value: str) -> str:
 
 def _load_demo(path: Path) -> Demo:
     """Load a :class:`Demo` from a ``.json`` or ``.yaml`` file."""
-    text = path.read_text(encoding="utf-8")
-    if path.suffix.lower() in {".yaml", ".yml"}:
-        return Demo.from_yaml(text)
-    return Demo.from_json(text)
+    return Demo.from_file(path)
 
 
 def _starter_demo() -> Demo:

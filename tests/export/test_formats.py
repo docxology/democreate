@@ -96,3 +96,40 @@ def test_export_pdf_without_engine(sample_demo: Demo, tmp_path: Path, monkeypatc
     with pytest.raises(BackendUnavailableError) as exc:
         export_pdf(sample_demo, tmp_path / "out.pdf")
     assert exc.value.backend == "pdf"
+
+
+# -- new format parameter tests --------------------------------------------
+
+def test_to_markdown_compact_format(sample_demo: Demo) -> None:
+    """Compact format: one narration line per scene, no action bullets."""
+    md = to_markdown(sample_demo, format="compact")
+    assert md.startswith(f"# {sample_demo.title}")
+    for scene in sample_demo.scenes:
+        assert f"## {scene.title}" in md
+    # No action bullets in compact mode
+    assert "- open file" not in md
+
+
+def test_to_markdown_outline_format(sample_demo: Demo) -> None:
+    """Outline format: nested bullets with scene titles and chunk first clauses."""
+    md = to_markdown(sample_demo, format="outline")
+    assert md.startswith(f"# {sample_demo.title}")
+    assert "- **" in md  # bold scene titles
+    assert "(" in md  # kind annotation
+
+
+def test_to_markdown_compact_empty_demo() -> None:
+    md = to_markdown(Demo(title="Empty"), format="compact")
+    assert md == "# Empty\n"
+
+
+def test_to_markdown_outline_empty_demo() -> None:
+    md = to_markdown(Demo(title="Empty"), format="outline")
+    assert md == "# Empty\n"
+
+
+def test_to_markdown_default_format_is_full(sample_demo: Demo) -> None:
+    """Default format (no format kwarg) should match 'full'."""
+    full = to_markdown(sample_demo, format="full")
+    default = to_markdown(sample_demo)
+    assert full == default

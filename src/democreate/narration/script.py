@@ -234,7 +234,12 @@ def _callable_name(item: Any) -> str:
     return str(getattr(item, "name", item))
 
 
-def generate_codebase_demo(summaries: list[Any], *, title: str) -> Demo:
+def generate_codebase_demo(
+    summaries: list[Any],
+    *,
+    title: str,
+    max_scenes: int = 0,
+) -> Demo:
     """Build a codebase-tour :class:`Demo` from a list of module summaries.
 
     Each summary is duck-typed: it may expose ``.name``, ``.functions``, and
@@ -246,9 +251,12 @@ def generate_codebase_demo(summaries: list[Any], *, title: str) -> Demo:
     Args:
         summaries: Module summaries (objects or dicts) to narrate.
         title: Title for the generated demo.
+        max_scenes: Maximum number of module scenes to generate (``0`` = all).
+            Large repos produce bounded demos; the most substantive modules are
+            kept (summaries are already ordered by the walker).
 
     Returns:
-        A populated :class:`Demo`, one scene per module.
+        A populated :class:`Demo`, one scene per module (up to ``max_scenes``).
 
     Raises:
         ValueError: If ``title`` is empty.
@@ -260,6 +268,8 @@ def generate_codebase_demo(summaries: list[Any], *, title: str) -> Demo:
     demo = Demo(title=clean_title)
 
     for index, summary in enumerate(summaries):
+        if max_scenes > 0 and index >= max_scenes:
+            break
         name = str(_summary_field(summary, "name", f"module_{index + 1}"))
         path = str(_summary_field(summary, "path", name))
         functions = _as_list(_summary_field(summary, "functions", []))

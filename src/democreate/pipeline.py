@@ -116,6 +116,26 @@ class Pipeline:
         self.strict = strict
         self.config = config or RenderConfig()
 
+    def dry_run(self, demo: Demo) -> list[str]:
+        """Validate ``demo`` without running TTS, sync, or rendering.
+
+        Returns the validation problems list (empty == valid). When ``strict``
+        is ``True``, raises :class:`SchemaValidationError` on an invalid demo.
+
+        Args:
+            demo: The demo to validate.
+
+        Returns:
+            A list of human-readable validation problems (empty == valid).
+
+        Raises:
+            SchemaValidationError: When ``strict`` is ``True`` and the demo is invalid.
+        """
+        problems = demo.validate()
+        if problems and self.strict:
+            raise SchemaValidationError(problems)
+        return problems
+
     def run(self, demo: Demo, workspace: Workspace | None = None) -> PipelineResult:
         """Render ``demo`` end-to-end, returning a :class:`PipelineResult`.
 

@@ -37,6 +37,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 __all__ = [
@@ -259,6 +260,28 @@ class Scene:
         )
 
 
+# Required params for each action type. An action is invalid if any listed param
+# is absent from its ``params`` dict. ``WAIT`` is exempt (needs only a duration).
+_REQUIRED_ACTION_PARAMS: dict[ActionType, list[str]] = {
+    ActionType.OPEN_FILE: ["path"],
+    ActionType.CREATE_FILE: ["path", "code"],
+    ActionType.TYPE_CODE: ["code"],
+    ActionType.HIGHLIGHT_LINES: ["lines"],
+    ActionType.CLOSE_FILE: ["path"],
+    ActionType.RUN_COMMAND: ["command"],
+    ActionType.NAVIGATE: ["url"],
+    ActionType.CLICK: ["selector"],
+    ActionType.SCROLL: ["direction"],
+    ActionType.FILL: ["selector", "value"],
+}
+
+
+def _missing_action_params(action: Action) -> list[str]:
+    """Return the list of required params missing from ``action.params``."""
+    required = _REQUIRED_ACTION_PARAMS.get(action.type, [])
+    return [p for p in required if p not in action.params]
+
+
 @dataclass
 class WordTimestamp:
     """A single word with millisecond start/end, produced by a transcriber."""
@@ -302,6 +325,174 @@ class Demo:
     metadata: dict[str, Any] = field(default_factory=dict)
     schema_version: str = SCHEMA_VERSION
 
+    # -- lookup helpers ----------------------------------------------------
+
+    def scene_by_id(self, scene_id: str) -> Scene | None:
+        """Return the first scene with ``id == scene_id``, or ``None``."""
+        for scene in self.scenes:
+            if scene.id == scene_id:
+                return scene
+        return None
+
+    def chunk_by_id(self, chunk_id: str) -> Chunk | None:
+        """Return the first chunk with ``id == chunk_id`` across all scenes."""
+        for chunk in self.iter_chunks():
+            if chunk.id == chunk_id:
+                return chunk
+        return None
+
+    # -- composition helpers -----------------------------------------------
+
+    def merge(self, other: Demo, *, offset: int = 0) -> Demo:
+        """Append ``other``'s scenes onto this demo, returning a new :class:`Demo`.
+
+        Scene and chunk IDs from ``other`` are suffixed with ``_offset`` when a
+        collision would occur, so the merged demo is always valid. Metadata dicts
+        are shallow-merged (``other`` wins on key conflict).
+
+        Args:
+            other: The demo whose scenes to append.
+            offset: Numeric suffix base for collision-avoidance (usually 0).
+
+        Returns:
+            A new :class:`Demo` (the original is not mutated).
+        """
+        existing_scene_ids = {s.id for s in self.scenes}
+        existing_chunk_ids = {c.id for c in self.iter_chunks()}
+        merged_scenes: list[Scene] = list(self.scenes)
+        for scene in other.scenes:
+            sid = scene.id
+            if sid in existing_scene_ids:
+                # Collision: find a unique suffix.
+                i = offset
+                while f"{scene.id}_{i}" in existing_scene_ids:
+                    i += 1
+                sid = f"{scene.id}_{i}"
+            existing_scene_ids.add(sid)
+            new_scene = Scene(
+                id=sid,
+                title=scene.title,
+                kind=scene.kind,
+                context=dict(scene.context),
+            )
+            for chunk in scene.chunks:
+                cid = chunk.id
+                if cid in existing_chunk_ids:
+                    i = offset
+                    while f"{chunk.id}_{i}" in existing_chunk_ids:
+                        i += 1
+                    cid = f"{chunk.id}_{i}"
+                existing_chunk_ids.add(cid)
+                new_scene.chunks.append(
+                    Chunk(
+                        id=cid,
+                        text=chunk.text,
+                        actions=list(chunk.actions),
+                        voice=chunk.voice,
+                    )
+                )
+            merged_scenes.append(new_scene)
+        return Demo(
+            title=self.title,
+            scenes=merged_scenes,
+            width=self.width,
+            height=self.height,
+            fps=self.fps,
+            voice=self.voice,
+            metadata={**self.metadata, **other.metadata},
+        )
+
+    def filter_scenes(
+        self,
+        *,
+        ids: list[str] | None = None,
+        kinds: list[SceneKind] | None = None,
+        slice_start: int | None = None,
+        slice_end: int | None = None,
+    ) -> Demo:
+        """Return a new :class:`Demo` containing only the matching scenes.
+
+        Selection is the intersection of all given criteria: if both ``ids`` and
+        ``kinds`` are supplied, a scene must match both. ``slice_start``/``slice_end``
+        apply Python-slice semantics to the post-filter scene list.
+
+        Args:
+            ids: If given, keep only scenes whose ``id`` is in this list.
+            kinds: If given, keep only scenes whose ``kind`` is in this list.
+            slice_start: Slice start index (inclusive, 0-based).
+            slice_end: Slice end index (exclusive).
+
+        Returns:
+            A new :class:`Demo` with the filtered scenes.
+        """
+        id_set = set(ids) if ids else None
+        kind_set = set(kinds) if kinds else None
+        filtered = [
+            s for s in self.scenes
+            if (id_set is None or s.id in id_set)
+            and (kind_set is None or s.kind in kind_set)
+        ]
+        if slice_start is not None or slice_end is not None:
+            filtered = filtered[slice(slice_start, slice_end)]
+        return Demo(
+            title=self.title,
+            scenes=filtered,
+            width=self.width,
+            height=self.height,
+            fps=self.fps,
+            voice=self.voice,
+            metadata=dict(self.metadata),
+        )
+
+    # -- I/O helpers -------------------------------------------------------
+
+    def to_file(self, path: str | Path) -> Path:
+        """Write this demo to a ``.json`` or ``.yaml`` file and return its path.
+
+        The format is inferred from the file extension.
+
+        Args:
+            path: Destination file path (``.json``, ``.yaml``, or ``.yml``).
+
+        Returns:
+            The resolved :class:`~pathlib.Path` of the written file.
+        """
+        from pathlib import Path as _P
+
+        p = _P(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if p.suffix.lower() in {".yaml", ".yml"}:
+            p.write_text(self.to_yaml(), encoding="utf-8")
+        else:
+            p.write_text(self.to_json(), encoding="utf-8")
+        return p
+
+    @classmethod
+    def from_file(cls, path: str | Path) -> Demo:
+        """Load a :class:`Demo` from a ``.json`` or ``.yaml`` file.
+
+        Args:
+            path: Path to a demo file. The format is inferred from the extension.
+
+        Returns:
+            A populated :class:`Demo`.
+        """
+        from pathlib import Path as _P
+
+        p = _P(path)
+        text = p.read_text(encoding="utf-8")
+        if p.suffix.lower() in {".yaml", ".yml"}:
+            return cls.from_yaml(text)
+        return cls.from_json(text)
+
+    def __repr__(self) -> str:
+        """Compact, introspectable representation for debugging."""
+        return (
+            f"Demo(title={self.title!r}, scenes={len(self.scenes)}, "
+            f"chunks={len(self.iter_chunks())}, actions={len(self.iter_actions())}, "
+            f"{self.width}x{self.height}@{self.fps}fps)"
+        )
+
     # -- iteration helpers -------------------------------------------------
 
     def iter_chunks(self) -> list[Chunk]:
@@ -323,7 +514,9 @@ class Demo:
 
         Checks: non-empty title, unique scene ids, unique chunk ids, positive
         frame geometry and fps, and that every action references a known
-        ``ActionType``. Does not raise — callers decide how strict to be.
+        ``ActionType``. Also validates that actions have their required params
+        (e.g. ``OPEN_FILE`` needs ``path``, ``CREATE_FILE`` needs ``code``).
+        Does not raise — callers decide how strict to be.
         """
         errors: list[str] = []
         if not self.title.strip():
@@ -348,6 +541,13 @@ class Demo:
                         errors.append(
                             f"chunk {chunk.id!r} has action with invalid type "
                             f"{action.type!r}"
+                        )
+                        continue
+                    missing = _missing_action_params(action)
+                    for param in missing:
+                        errors.append(
+                            f"chunk {chunk.id!r} action {action.type.value} "
+                            f"missing required param '{param}'"
                         )
         return errors
 

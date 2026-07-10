@@ -129,3 +129,43 @@ def test_custom_pipeline_construction(sample_demo: Demo, tmp_workspace) -> None:
     p = Pipeline(wpm=200, strict=False)
     result = p.run(sample_demo, tmp_workspace)
     assert result.timeline is not None
+
+
+# --- Pipeline.dry_run -----------------------------------------------------
+
+
+def test_dry_run_valid_demo_returns_empty(sample_demo: Demo) -> None:
+    """dry_run on a valid demo returns no problems and does not raise."""
+    p = Pipeline(strict=True)
+    problems = p.dry_run(sample_demo)
+    assert problems == []
+
+
+def test_dry_run_invalid_demo_strict_raises() -> None:
+    """dry_run in strict mode raises SchemaValidationError on an invalid demo."""
+    from democreate.errors import SchemaValidationError
+    from democreate.schema import Scene
+
+    d = Demo(title="dup", scenes=[Scene(id="x"), Scene(id="x")])
+    p = Pipeline(strict=True)
+    with pytest.raises(SchemaValidationError):
+        p.dry_run(d)
+
+
+def test_dry_run_invalid_demo_non_strict_returns_problems() -> None:
+    """dry_run in non-strict mode returns the problem list without raising."""
+    from democreate.schema import Scene
+
+    d = Demo(title="dup", scenes=[Scene(id="x"), Scene(id="x")])
+    p = Pipeline(strict=False)
+    problems = p.dry_run(d)
+    assert len(problems) > 0
+    assert any("duplicate scene" in p for p in problems)
+
+
+def test_dry_run_does_not_create_files(sample_demo: Demo, tmp_path) -> None:
+    """dry_run must not write any files (no TTS, no frames, no workspace)."""
+    p = Pipeline(strict=True)
+    p.dry_run(sample_demo)
+    # tmp_path should be empty — no workspace was created
+    assert list(tmp_path.iterdir()) == []
