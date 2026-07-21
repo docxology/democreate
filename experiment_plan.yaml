@@ -5,13 +5,13 @@
 # preserving reproducibility and acceptable latency.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.7.0"
+version: "0.7.1"
 domain: software_tooling
 
 goal: >-
   Quantify the synchronization accuracy, reproducibility, and latency of the
   pure-Python deterministic default backends versus the adapter-backed media
-  condition (system TTS/ffmpeg plus guarded neural TTS, Whisper, capture,
+  condition (system TTS/ffmpeg plus wired Kokoro neural TTS, Whisper, capture,
   animation, and legacy MoviePy slots where wired), and show that the
   deterministic spine produces faithful demo artifacts with light dependencies
   alone.
@@ -47,10 +47,10 @@ conditions:
   - id: high_fidelity
     label: "Adapter-backed media paths (extras/system binaries)"
     description: >-
-      System TTS and ffmpeg where available, plus Kokoro/Chatterbox, Whisper,
+      System TTS and ffmpeg where available, plus Kokoro (wired), Whisper,
       mss/Playwright, Manim, and MoviePy adapter slots where they are wired.
     backends:
-      tts: system_or_guarded_neural
+      tts: system_or_wired_kokoro
       stt: heuristic_or_guarded_whisper
       capture: playwright
       animation: manim

@@ -14,7 +14,7 @@ abstract: >-
   synchronization: narration audio is generated, transcribed back to word-level
   timestamps, and used to align the action stream with the narration.
 type: software
-version: "0.7.0"
+version: "0.7.1"
 date-released: "2026-06-25"
 doi: 10.5281/zenodo.20693216
 identifiers:
@@ -49,7 +49,7 @@ keywords:
 preferred-citation:
   type: software
   title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-  version: "0.7.0"
+  version: "0.7.1"
   doi: 10.5281/zenodo.20693216
   license: MIT
   url: "https://github.com/docxology/democreate"

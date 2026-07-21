@@ -10,7 +10,9 @@ summary: >-
   Declarative, deterministic audio-visual demo generation for software:
   codebase tours, website walkthroughs, and terminal/CLI demos built from an
   ordered action stream plus narration chunks, with pluggable capture/render
-  backends and TTS->STT synchronization.
+  backends and TTS->STT synchronization. Includes portfolio batch rendering
+  (one narrated video per project), localized videos (audio + subtitles in
+  different languages), and a wired Kokoro neural TTS voice.
 
 # Artifact contract --------------------------------------------------------
 # required: a release is invalid if any required output cannot be produced by

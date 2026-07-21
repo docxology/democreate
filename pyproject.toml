@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "democreate"
-version = "0.7.0"
+version = "0.7.1"
 description = "Declarative, deterministic audio-visual demo generation for codebases, websites, and terminals — a virtual-IDE action stream with TTS→STT synchronization and pluggable capture/render backends."
 readme = "README.md"
 requires-python = ">=3.10"

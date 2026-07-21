@@ -9,6 +9,14 @@ resolves to the latest archived release.
 ## [Unreleased]
 
 ### Added
+- **`.humos/` sidecar contract** — DemoCreate now carries a HumOS sidecar
+  (`sidecar.toml`, `bridges.toml`, `conformance.toml`) declaring standalone
+  coupling and a `data` bridge to `hum-dashboard` for versioned demo video
+  integration.
+
+## [0.7.1] - 2026-07-20
+
+### Added
 - **`Demo.merge`** — compose a demo from multiple fragments. Scene/chunk ID
   collisions are auto-resolved with unique suffixes, and metadata is
   shallow-merged. Enables assembling a demo from separate declarative files.

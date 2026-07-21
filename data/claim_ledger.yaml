@@ -7,17 +7,17 @@
 # experiment_plan.yaml metrics.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.7.0"
+version: "0.7.1"
 
 claims:
   - id: C0
     claim: "Pure-Python core line coverage is at or above 90%."
-    value: 90
+    value: 90.19
     unit: percent
     direction: ">="
     backed_by: "domain_profile.yaml:validation_gates#coverage_core"
-    source: "pyproject.toml [tool.coverage.report] fail_under = 90"
-    status: asserted
+    source: "pyproject.toml [tool.coverage.report] fail_under = 90; measured 90.19% on 2026-07-20"
+    status: verified
 
   - id: C1
     claim: "Median action/narration synchronization error with default backends is within budget."
