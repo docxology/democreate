@@ -1,0 +1,8 @@
+# Conformance contract for DemoCreate.
+
+[conformance]
+coverage_floor     = 90
+gate_argv          = [".venv/bin/python", "-m", "pytest", "--cov", "--cov-report=term-missing", "-q"]
+required_surfaces   = ["README.md", "AGENTS.md", "pyproject.toml", "src/democreate/__init__.py"]
+cli_aliases        = ["democreate"]
+runtime            = "python>=3.10"

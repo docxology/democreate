@@ -1,0 +1,23 @@
+# .humos/sidecar.toml - HumOS sidecar registration for DemoCreate.
+# Coupling is standalone: the sidecar makes the project discoverable by
+# lab tooling; it grants no humos.* import surface. DemoCreate is a
+# zero-runtime-dependency declarative demo generator whose outputs
+# (videos, HTML players, transcripts) are consumable by hum-dashboard.
+
+[sidecar]
+schema_version = 1
+project_id     = "democreate"
+project_slug   = "democreate"
+project_name   = "DemoCreate — Declarative AV Demo Generation"
+archetype      = "project"
+coupling       = "standalone"
+
+[registry]
+humos_root    = "../../../../../.."
+auto_register = true
+
+[project_meta]
+owner    = "daniel"
+status   = "active"
+priority = "high"
+tags     = ["video", "demo", "demo-generation", "tts", "codebase-tour", "audio-visual", "docxology"]

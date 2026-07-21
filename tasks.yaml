@@ -108,26 +108,32 @@ tasks:
     `working/demo_create/` as self-versioned/ignored; no root vendoring was
     performed.'
 - id: dc-6
-  title: Quickstart + docs validation for v0.1
-  status: todo
-  start: '2026-06-22'
-  end: '2026-06-30'
-  progress: 0
-  milestone: false
-  deps:
-  - dc-3
-  tags:
-  - docs
-  notes: ''
-- id: dc-m1
-  title: democreate v0.1
-  status: todo
-  start: '2026-07-04'
-  end: '2026-07-04'
-  progress: 0
+  title: v0.7.0 release — translation, portfolio, wired neural TTS
+  status: done
+  start: '2026-06-25'
+  end: '2026-06-25'
+  progress: 100
   milestone: true
   deps:
   - dc-3
   - dc-5
-  tags: []
+  tags:
+  - release
+  notes: |-
+    Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
+    90.19% coverage. ruff clean, mypy clean. New features: translation subsystem
+    (localize command), portfolio batch rendering, wired Kokoro neural TTS,
+    tour --render, project-summary generator. .humos/sidecar.toml added for
+    HumOS ecosystem integration.
+- id: dc-7
+  title: HumOS dashboard integration — versioned demos per repo
+  status: todo
+  start: '2026-07-20'
+  end: '2026-07-21'
+  progress: 0
+  milestone: false
+  deps:
+  - dc-6
+  tags:
+  - integration
   notes: ''

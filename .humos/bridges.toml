@@ -1,0 +1,11 @@
+# Cross-project relationships for DemoCreate.
+
+[[dependency]]
+project_id  = "hum-dashboard"
+type        = "data"
+description = "DemoCreate produces versioned demo videos (MP4), interactive HTML players, transcripts, and provenance artifacts that hum-dashboard can surface on per-repo detail pages. The dashboard discovers rendered demos by scanning a shared output directory."
+
+[[dependency]]
+project_id  = "hum-docxology"
+type        = "code"
+description = "DemoCreate is managed and cloned via the hum-docxology repo manager under repos/public/DemoCreate/."
