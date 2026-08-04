@@ -121,7 +121,7 @@ def test_export_video_empty_frames_raises(tmp_path: Path) -> None:
 def test_export_video_without_backend(tmp_path: Path, monkeypatch) -> None:
     import democreate.export.video as video_mod
 
-    monkeypatch.setattr(video_mod, "_has_ffmpeg", lambda: False)
+    monkeypatch.setattr(video_mod, "ffmpeg_available", lambda: False)
     frame = _make_png(tmp_path / "00000.png", (0, 0, 0))
     with pytest.raises(BackendUnavailableError) as exc:
         export_video([frame], None, tmp_path / "o.mp4")

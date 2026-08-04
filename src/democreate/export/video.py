@@ -409,11 +409,6 @@ def _libass_available() -> bool:  # pragma: no cover - depends on ffmpeg build
         return False
 
 
-def _has_ffmpeg() -> bool:
-    """Return ``True`` if the ``ffmpeg`` binary is resolvable on ``PATH``."""
-    return shutil.which("ffmpeg") is not None
-
-
 def export_video(
     frame_paths: list[Path],
     audio_path: Path | None,
@@ -443,7 +438,7 @@ def export_video(
     """
     if not frame_paths:
         raise ValueError("export_video requires at least one frame")
-    if not _has_ffmpeg():
+    if not ffmpeg_available():
         raise BackendUnavailableError("ffmpeg", extra="video")
 
     import subprocess

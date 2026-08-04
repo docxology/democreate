@@ -142,3 +142,10 @@ def test_version_strings_agree() -> None:
     assert version in (abstract + config), (
         f"manuscript does not reference the current version {version}"
     )
+    # The README must state the same current version (a previous bump updated
+    # the metadata trio but left README prose on the prior version).
+    readme = README.read_text(encoding="utf-8")
+    assert version in readme, (
+        f"README does not reference the current version {version}; "
+        "update the Status / demo / citation lines."
+    )

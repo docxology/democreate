@@ -15,7 +15,7 @@ Optional extras and system binaries upgrade specific media surfaces; a wired
 guarded adapter slots. The look (themes, fonts, motion) and sound (voice, pacing,
 normalization) are fully **configurable**.
 
-- **Status:** alpha (`0.7.0`), Python ≥ 3.10, MIT licensed.
+- **Status:** alpha (`0.7.1`), Python ≥ 3.10, MIT licensed.
 - **CI:** [![CI](https://github.com/docxology/democreate/actions/workflows/ci.yml/badge.svg)](https://github.com/docxology/democreate/actions/workflows/ci.yml) — ruff + mypy + the full ≥90% coverage-gated suite on every push.
 - **DOI (concept, resolves to latest):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693216.svg)](https://doi.org/10.5281/zenodo.20693216)
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
@@ -25,7 +25,7 @@ normalization) are fully **configurable**.
 
 ## Watch the demos
 
-DemoCreate `v0.7.0` produces **real, content-verified videos** (H.264 +
+DemoCreate `v0.7.1` produces **real, content-verified videos** (H.264 +
 AAC, with chapters, container metadata tags, and a signed steganographic
 provenance poster) — in the **noir** aesthetic: near-black surfaces, bright
 white text, and a single refined red as the only chroma.
@@ -400,7 +400,7 @@ a deterministic, backend-pluggable spine.
 
 Cite via the **concept DOI** (always resolves to the latest archived release):
 [`10.5281/zenodo.20693216`](https://doi.org/10.5281/zenodo.20693216). The
-version-specific archive DOI for `0.7.0` is minted on its Zenodo release.
+version-specific archive DOI for `0.7.1` is minted on its Zenodo release.
 
 ```bibtex
 @software{democreate,
@@ -408,7 +408,7 @@ version-specific archive DOI for `0.7.0` is minted on its Zenodo release.
   title   = {DemoCreate: Declarative, Deterministic Audio-Visual Demo Generation},
   year    = {2026},
   url     = {https://github.com/docxology/democreate},
-  version = {0.7.0},
+  version = {0.7.1},
   doi     = {10.5281/zenodo.20693216},
   license = {MIT}
 }

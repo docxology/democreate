@@ -22,7 +22,7 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
     (`BackendUnavailableError("ffmpeg", extra="video")`).
   - `formats.export_pdf` → needs a Markdown→PDF engine
     (`BackendUnavailableError("pdf", extra="docs")`).
-  Their backend-detection helpers (`_has_ffmpeg`, `_has_pdf_engine`) stay pure
+  Their backend-detection helpers (`ffmpeg_available`, `_has_pdf_engine`) stay pure
   and ARE tested (via `monkeypatch` of the helper).
 
 ## Security note (do not regress)
