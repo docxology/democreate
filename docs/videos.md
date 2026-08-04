@@ -1,6 +1,6 @@
 # The Produced Videos
 
-DemoCreate `v0.7.0` produces **real, content-verified videos** — both
+DemoCreate `v0.7.1` produces **real, content-verified videos** — both
 re-rendered in the **noir** aesthetic (near-black surfaces, bright-white text,
 and a single refined red as the only chroma). The canonical package showcase is
 now a **3840×2160 H.264 + AAC** render, while the paper demos remain **1920×1080

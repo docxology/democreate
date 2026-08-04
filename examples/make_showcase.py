@@ -263,7 +263,7 @@ def build() -> Demo:
         fps=30,
         voice="af_heart",
         metadata={"author": "Daniel Ari Friedman", "self_referential": True,
-                  "version": "0.7.0"},
+                  "version": "0.7.1"},
     )
 
 

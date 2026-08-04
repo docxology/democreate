@@ -1,4 +1,4 @@
-# Manuscript — DemoCreate v0.7.0
+# Manuscript — DemoCreate v0.7.1
 
 ## Overview
 
@@ -71,7 +71,7 @@ cd ..  # project root
 - **Ground every claim in `src/democreate`.** The chapters describe a real
   package — 56 source modules across eight subsystems (`capture/`, `narration/`,
   `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`, `translation/`) plus `schema.py`,
-  `config.py`, `media.py`, `pipeline.py`, `cli.py`. Authoritative v0.7.0 numbers:
+  `config.py`, `media.py`, `pipeline.py`, `cli.py`. Authoritative v0.7.1 numbers:
   744 collected tests, ≥90% coverage gate, five themes (default
   **noir**), package demo 155.6 s at 3840×2160 (15 scenes/chapters), paper demo 188.0 s
   (12 scenes/chapters, 6-part section structure), both re-rendered in noir.
