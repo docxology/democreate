@@ -25,6 +25,7 @@ from .._logging import get_logger
 from ..errors import BackendUnavailableError, RenderError
 from ..schema import Demo
 from .interactive import build_timeline
+from .metadata import _escape_ffmetadata
 
 __all__ = [
     "measured_chapters",
@@ -123,24 +124,6 @@ def to_youtube_chapters(demo: Demo, *, chapters=None) -> str:
         title = str(chapter["title"])
         lines.append(f"{_format_timestamp(start_ms)} {title}")
     return "\n".join(lines)
-
-
-def _escape_ffmetadata(value: str) -> str:
-    """Escape a value for an ``FFMETADATA1`` document.
-
-    ffmpeg treats ``=``, ``;``, ``#``, ``\\`` and newlines as special and
-    requires them to be backslash-escaped inside keys and values.
-
-    Args:
-        value: Raw text to escape.
-
-    Returns:
-        The escaped text, safe to place after ``key=`` in a metadata block.
-    """
-    out = value.replace("\\", "\\\\")
-    for char in ("=", ";", "#"):
-        out = out.replace(char, "\\" + char)
-    return out.replace("\n", "\\\n")
 
 
 def to_ffmetadata(demo: Demo, *, chapters=None, total_ms=None) -> str:
