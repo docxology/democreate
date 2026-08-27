@@ -7,7 +7,7 @@ through the project venv (`.venv/bin/python scripts/<name>.py …`).
 
 | Script | Purpose |
 |--------|---------|
-| `00_preflight.py` | Environment preflight — checks the venv, core imports, and which optional backends/binaries (ffmpeg, poppler, system voice) are available. |
+| `00_preflight.py` | Environment preflight — checks the core imports and which optional backend extras (kokoro, whisper, mss, playwright, manim, moviepy, tree-sitter, pynput) are installed. |
 | `generate_demo.py` | Build one demo artifact end-to-end (`build_demo`) from a `.json`/`.yaml` demo into an output workspace. |
 | `generate_portfolio.py` | Render a timestamped summary video per project under a directory (`democreate.portfolio.render_portfolio`) — the batch front door for `democreate portfolio`. |
 | `generate_api_docs.py` | Regenerate `docs/api.md` from the live package (a curated module list → public classes/functions). Re-run after the public API changes. |

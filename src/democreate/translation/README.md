@@ -22,7 +22,8 @@ stay in lock-step. The output filename encodes both, e.g.
 `demo-audio_en-subs_ru.mp4`.
 
 > Subtitles work for any language (text only). *Audio* in a language needs a TTS
-> voice for it — Kokoro's languages (en/es/fr/it/ja/zh/hi/pt) or an installed
+> voice for it — a Kokoro-supported language (kokoro-onnx ships voices for
+> English, Spanish, French, German, Japanese, Korean, and Chinese) or an installed
 > system voice. So "English audio + Russian subtitles" works out of the box;
 > Russian *audio* needs a Russian voice present.
 

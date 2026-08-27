@@ -24,7 +24,7 @@ and self-contained.
 | [gallery.md](gallery.md) | **Real rendered frames** — a typing editor frame, a paper figure, a title slide, the architecture diagram, and a theme strip — produced by [`_gallery/make_gallery.py`](_gallery/make_gallery.py). |
 | [videos.md](videos.md) | **The two produced videos** — the package demo (`output/video/demo.mp4`) and the research-paper demo (`output/paper_demo/video/demo.mp4`): exact paths, sizes/durations, one-line regenerate commands, what each shows, companion artifacts, and real embedded stills. |
 | [schema.md](schema.md) | Full reference of `Demo` / `Scene` / `Chunk` / `Action` / `ActionType` / `SceneKind`, with a JSON example. |
-| [cli.md](cli.md) | Every `democreate` command — `init`, `inspect`, `build`, `tour`, `captions`, `render`, `verify`, `paper`, `thumbnail`, `gif`, `config`, `stego`, `backends`, `version` — with all options. |
+| [cli.md](cli.md) | Every `democreate` command — `init`, `inspect`, `build`, `tour`, `portfolio`, `localize`, `captions`, `render`, `verify`, `paper`, `thumbnail`, `gif`, `config`, `stego`, `fetch-voice`, `backends`, `version` — with all options. |
 | [config.md](config.md) | `Theme` / `AudioConfig` / `VideoConfig` / `MetadataConfig` / `RenderConfig`, the **five theme presets** (default **noir**), **resolution tiers**, aspect presets, a sample YAML, and `democreate config` / `--config` / `--theme` / `--resolution` / `--aspect`. |
 | [video.md](video.md) | The animated render: typing animation, animated cursor, waveform, progress bar, scene transitions, Ken Burns, `animation_fps`, **resolution & quality (`crf`/`preset`)**, **on-screen metadata bars**, encode, and content verification. |
 | [audio.md](audio.md) | Voiceover assembly: the system voice, lead/gap/trail silence, `loudnorm` normalization, and fades. |
@@ -41,8 +41,8 @@ and self-contained.
 - **Subsystem docs** live next to the code. Subsystem directories under
   `src/democreate/` carry their own `README.md` (what it does) and `AGENTS.md`
   (rules for changing it): `capture/`, `narration/`, `animation/`, `codebase/`,
-  `assembly/`, `export/`, `paper/`. Read the local pair before touching a
-  subsystem.
+  `assembly/`, `export/`, `paper/`, `translation/`. Read the local pair before
+  touching a subsystem.
 - **Source of truth for behavior** is the code and its tests under `tests/`. The
   docs here describe intent and contracts; the tests (744 collected, ≥90% coverage)
   enforce them.

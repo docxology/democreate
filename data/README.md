@@ -15,6 +15,7 @@ and available backends — they are not stored here.
 | File | Purpose |
 |------|---------|
 | `claim_ledger.yaml` | Every numeric/falsifiable claim (coverage gate, sync-error budget, latency, default wpm, corpus size) with its backing gate or experiment and an honest status. |
+| `benchmarks.json` | Measured build/render benchmark figures (the source the evaluation prose is bound to); regenerate with `scripts/benchmark.py`. |
 | `AGENTS.md` | Operating rules for agents editing or consuming files in this directory. |
 
 ## How this directory fits the pipeline

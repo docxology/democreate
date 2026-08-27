@@ -25,7 +25,7 @@ adapter-backed artifacts belong in `output/`.
 
 3. **Keep the metadata trio in sync.** `CITATION.cff`, `codemeta.json`, and
    `.zenodo.json` at the project root must share the same title, version
-   `0.7.1`), keywords, author (Daniel Ari Friedman, ORCID
+   (`0.7.1`), keywords, author (Daniel Ari Friedman, ORCID
    0000-0001-6232-9096, Active Inference Institute), and license (MIT). A change
    to one requires changing all three, plus this ledger and the experiment plan
    if a numeric claim or version is affected.
@@ -55,5 +55,6 @@ adapter-backed artifacts belong in `output/`.
 | File | Edited by |
 |------|-----------|
 | `claim_ledger.yaml` | Analysis/manuscript pipeline; reviewed before release. |
+| `benchmarks.json` | `scripts/benchmark.py` (regenerate after pipeline changes). |
 | `README.md` | Maintainers documenting the data contract. |
 | `AGENTS.md` | Maintainers (this file). |

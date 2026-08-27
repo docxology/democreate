@@ -30,8 +30,9 @@ AAC, with chapters, container metadata tags, and a signed steganographic
 provenance poster) — in the **noir** aesthetic: near-black surfaces, bright
 white text, and a single refined red as the only chroma.
 
-The repository tracks exactly **one self-describing output bundle** — DemoCreate
-explaining itself — checked in as the canonical, completely-working example:
+The repository regenerates exactly **one self-describing output bundle** —
+DemoCreate explaining itself — as the canonical, completely-working example
+(`output/` is gitignored, so a fresh clone renders it on demand):
 
 - **The showcase** — `output/video/demo.mp4` (3840×2160 · ~156 s), plus its
   interactive player (`output/web/player.html`), YouTube chapters
@@ -48,7 +49,7 @@ declarative source — including the **research-paper demo** (*Policy Entangleme
 in Active Inference*, 1920×1080 · ~188 s), produced on demand with
 `democreate paper` (see below). A test
 ([`tests/test_output_public_allowlist.py`](tests/test_output_public_allowlist.py))
-gates the repo so only the self-descriptor bundle is ever committed. Full
+gates the repo so nothing outside the self-descriptor bundle is ever committed. Full
 write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
@@ -373,6 +374,7 @@ backend. Install only what you need.
 | Extra | Upgrades | Dependencies | Install |
 |-------|----------|--------------|---------|
 | `tts` | Real narration | `kokoro-onnx`, `soundfile`, `numpy` | `uv pip install -e ".[tts]"` |
+| `elevenlabs` | Cloud narration (ElevenLabs API key) | `elevenlabs` | `uv pip install -e ".[elevenlabs]"` |
 | `whisper` | Word-timestamp transcription | `openai-whisper` | `uv pip install -e ".[whisper]"` |
 | `capture` | Real screen capture | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
 | `browser` | Website driving | `playwright` | `uv pip install -e ".[browser]"` |

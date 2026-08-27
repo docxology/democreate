@@ -36,14 +36,23 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `SilentTTSBackend` — **default**. Writes valid 16-bit mono PCM silence via the
   stdlib `wave` module. Duration estimated from word count at a configurable
   `wpm` (default 150, floor 300 ms). `sample_rate` default 22050.
+- `SystemTTSBackend` — real OS voice with **zero pip dependencies** (macOS `say`,
+  Linux `espeak`/`espeak-ng`); transcodes to canonical PCM WAV via `ffmpeg`
+  (else macOS `afconvert`) and measures duration from the file.
 - `KokoroTTSBackend` — **wired** neural voice (open-weight Kokoro via
   `kokoro-onnx`, fully local). Needs the `tts` extra plus the model files
   (`democreate fetch-voice`); resolves them from `KOKORO_MODEL_PATH`/
   `KOKORO_VOICES_PATH` or `~/.cache/democreate/kokoro`, else raises
   `BackendUnavailableError`. An unknown voice name falls back to a valid one.
+- `ElevenLabsTTSBackend` — cloud voice via the light `elevenlabs` client (the
+  `elevenlabs` extra) and an `ELEVENLABS_API_KEY` API key; raises
+  `BackendUnavailableError(..., extra="elevenlabs")` at synthesis time when
+  either is missing.
 - `ChatterboxTTSBackend` — guarded adapter slot; constructor raises
   `BackendUnavailableError(..., extra="tts")` until its engine API is wired.
-- `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent.
+- `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent;
+  `"system"`, `"kokoro"`, `"elevenlabs"`, `"chatterbox"` select the
+  corresponding backend.
 - `synthesize_demo(demo, workspace, backend=None) -> list[AudioClip]` — voices
   every chunk in order, mutating `chunk.audio_path`.
 - `fetch_kokoro_model(dest=None) -> tuple[Path, Path]` — explicit one-time download
@@ -86,7 +95,9 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 
 | Backend | Dependency | pyproject extra |
 |---------|-----------|-----------------|
+| `SystemTTSBackend` | OS speech engine (`say` / `espeak`) | — (zero pip) |
 | `KokoroTTSBackend` | wired neural voice (kokoro-onnx) | `tts` + model files |
+| `ElevenLabsTTSBackend` | `elevenlabs` client + API key | `elevenlabs` |
 | `ChatterboxTTSBackend` | `chatterbox` adapter slot | `tts` |
 | `WhisperTranscriber` | `whisper` adapter slot | `whisper` |
 | `LLMScriptGenerator` | provider SDK | `llm` |
@@ -99,5 +110,6 @@ timings end to end — the same input always yields the same `Demo`.
 
 ## Tests
 
-`tests/narration/test_tts.py`, `tests/narration/test_sync.py`,
-`tests/narration/test_script.py` — real WAV I/O on temp files, no mocks.
+`tests/narration/` — `test_tts.py`, `test_tts_system.py`, `test_tts_kokoro.py`,
+`test_tts_elevenlabs.py`, `test_sync.py`, `test_script.py`, `test_llm.py`,
+`test_project_summary.py` — real WAV I/O on temp files, no mocks.

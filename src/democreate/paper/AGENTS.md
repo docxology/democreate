@@ -5,7 +5,7 @@ Guidance for AI agents editing this subsystem.
 ## What this package is
 
 PDF ingestion for DemoCreate, built **only** on the poppler CLI (`pdfinfo`,
-`pdftotext`, `pdftoppm`) and assuming `ghostscript` is present. No pip PDF
+`pdftotext`, `pdftoppm`). No pip PDF
 library is imported anywhere. This is deliberate: poppler is ubiquitous on
 scientific machines and avoids a heavyweight binary-wheel dependency.
 

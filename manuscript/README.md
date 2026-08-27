@@ -1,4 +1,4 @@
-# DemoCreate Manuscript (v0.6.2)
+# DemoCreate Manuscript (v0.7.1)
 
 Academic write-up of **DemoCreate** (`democreate`) — a Python package that
 generates audio-visual demos of **software** (codebase tours, website

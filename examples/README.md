@@ -5,15 +5,16 @@ Worked DemoCreate artifacts you can render and inspect.
 ## `make_showcase.py` → `democreate_showcase.json` (the definitive demo)
 
 The **canonical package demo**: DemoCreate's definitive showcase, authored as a
-DemoCreate `Demo` and exercising *every* renderable surface. **Fourteen scenes** —
+DemoCreate `Demo` and exercising *every* renderable surface. **Fifteen scenes** —
 (1) hero title card, (2) the one-glance graphical abstract, (3) a **bullet slide**
 *"A demo is a value, not a recording"*, (4–6) three **code scenes** typing in
 (`schema.py` spine, `tts.py` deterministic backends, `sync.py`
 audio-as-ground-truth), (7) a meta **bullet slide** *"What you are seeing"*,
 (8) the themes strip, (9) a real research-paper **figure** (fit-contained, whole),
-(10) the architecture diagram, (11) a **stat-card slide** *"by the numbers"*
-(744 collected tests · 7 subsystems · 5 themes · 4K · 0 binary deps), (12) a provenance **bullet
-slide**, (13) a **terminal** render+verify, (14) the outro. 3840×2160, no-crop
+(10) a describe-any-codebase **portfolio slide**, (11) the architecture diagram,
+(12) a **stat-card slide** *"by the numbers"*
+(744 collected tests · 8 subsystems · 5 themes · 4K · 0 binary deps), (13) a provenance **bullet
+slide**, (14) a **terminal** render+verify, (15) the outro. 3840×2160, no-crop
 (figures fit whole, code autosizes, Ken Burns off), a moving waveform + bottom
 metadata bar throughout.
 
@@ -32,8 +33,8 @@ uv run democreate render examples/democreate_showcase.json -o output \
 uv run democreate verify output/video/demo.mp4 --width 3840 --height 2160
 ```
 
-`render` produces `output/video/demo.mp4` — a 129.7-second 4K H.264/AAC video
-with **14 chapters**, container tags (`title="DemoCreate — The Showcase"` /
+`render` produces `output/video/demo.mp4` — a 155.6-second 4K H.264/AAC video
+with **15 chapters**, container tags (`title="DemoCreate — The Showcase"` /
 `artist="Daniel Ari Friedman"`), and a signed steganographic provenance poster.
 The build self-verifies it (real streams, non-silent audio, non-black frames).
 Full write-up: [`../docs/videos.md`](../docs/videos.md).
@@ -58,7 +59,7 @@ democreate render examples/democreate_intro.json -o output --voice Samantha
 democreate verify output/video/demo.mp4 --width 1920 --height 1080
 ```
 
-`render` produces `output/video/demo.mp4` — a ~67-second 1080p H.264/AAC video.
+`render` produces `output/video/demo.mp4` — a ~78-second 1080p H.264/AAC video.
 The build self-verifies it (real streams, audio covers video, non-silent audio,
 non-black frames); `verify` re-checks any video file independently.
 

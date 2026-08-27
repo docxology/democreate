@@ -7,8 +7,7 @@ demo of a paper, the sibling of DemoCreate's software demos.
 This subsystem uses the **poppler** command-line tools (`pdfinfo`, `pdftotext`,
 `pdftoppm`) via `subprocess`. There is **no pip PDF dependency**: poppler ships
 on most scientific workstations (`brew install poppler`, `apt install
-poppler-utils`). `ghostscript` (`gs`) is also assumed available for downstream
-rasterization workflows.
+poppler-utils`). No other binaries are needed.
 
 ## Layers
 
