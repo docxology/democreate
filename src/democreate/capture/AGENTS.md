@@ -28,6 +28,7 @@ spine value types (`FrameState`, `Demo`, `Scene`, `Action`, `ActionType`,
 | Module | Default (pure) | Real backend (guarded) | Extra |
 |--------|----------------|------------------------|-------|
 | `screen.py` | `SyntheticRenderer` | `MssScreenCapture` (`mss`) | `capture` |
+| `_screen_renderer.py` | implementation of `FrameSource`/`SyntheticRenderer` (private; re-exported by `screen.py`) | — | — |
 | `terminal.py` | all of it (pure) | — | — |
 | `browser.py` | `NullBrowserDriver` | `PlaywrightBrowserDriver` (`playwright`) | `browser` |
 | `replay.py` | event model (pure) | `record_session`/`replay_session` (`pynput`/`pyautogui`) | `replay` |

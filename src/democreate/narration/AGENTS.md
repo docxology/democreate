@@ -7,7 +7,11 @@ Guidance for agents editing this subsystem. Read alongside `README.md`.
 The narration half of the build: `script`/`project_summary` → `Demo`, `tts` →
 audio, `sync` → timestamps. `project_summary.py` builds the *describing*
 project-summary demo consumed by `democreate.portfolio`; `tts.py` carries the
-wired local Kokoro neural voice and the wired ElevenLabs cloud voice. It consumes the schema spine
+wired local Kokoro neural voice and the wired ElevenLabs cloud voice. The
+`_tts_audio.py` / `_tts_kokoro.py` / `_tts_backends.py` private siblings hold the
+implementation; `tts.py` stays the stable import surface (every public name and
+the `_`-private helpers used by `cli.py` and the tests are re-exported there).
+It consumes the schema spine
 (`Demo/Scene/Chunk/Action/WordTimestamp`) and the shared `AudioClip`; it never
 redefines those types.
 
