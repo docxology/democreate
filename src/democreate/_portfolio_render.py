@@ -18,6 +18,8 @@ from .narration.project_summary import (
     generate_project_summary_demo,
 )
 from ._portfolio_facts import (
+    PortfolioReport,
+    ProjectResult,
     collect_project_facts,
     discover_projects,
     utc_stamp,
@@ -158,86 +160,6 @@ def render_project(
         scenes=len(demo.scenes),
         facts=facts.to_dict(),
     )
-
-
-def render_portfolio(
-    projects_dir: Path,
-    output_root: Path,
-    *,
-    config=None,
-    tts: str = "system",
-    voice: str = "",
-    max_projects: int = 0,
-    max_modules: int = 6,
-    skip: tuple[str, ...] = (),
-    timestamp: str | None = None,
-    verify: bool = True,
-) -> PortfolioReport:
-    """Render a summary video for every project under ``projects_dir``.
-
-    Each project gets its own ``output_root/<name>/`` subfolder. One project's
-    failure is isolated: it is recorded as ``ok=False`` with its error and the
-    batch continues. Writes ``portfolio_index.json`` and ``portfolio_index.html``.
-
-    Args:
-        projects_dir: Directory of project subdirectories.
-        output_root: Output parent directory.
-        config: Optional :class:`~democreate.config.RenderConfig`.
-        tts: TTS backend.
-        voice: Optional voice id override.
-        max_projects: Cap on number of projects (``0`` = all discovered).
-        max_modules: Key-module bound per project.
-        skip: Project names to exclude.
-        timestamp: Shared UTC stamp for this batch (deterministic tests); else now.
-        verify: Run content verification per project.
-
-    Returns:
-        A :class:`PortfolioReport`.
-    """
-    output_root = Path(output_root)
-    output_root.mkdir(parents=True, exist_ok=True)
-    stamp = timestamp or utc_stamp()
-
-    projects = discover_projects(projects_dir, skip=skip)
-    if max_projects > 0:
-        projects = projects[:max_projects]
-
-    # Resolve through the public module namespace so the documented patch
-    # point (``democreate.portfolio.render_project``) keeps working for tests
-    # and downstream customization.
-    from . import portfolio as _public
-
-    results: list[ProjectResult] = []
-    for repo in projects:
-        logger.info("portfolio: rendering %s", repo.name)
-        try:
-            results.append(
-                _public.render_project(
-                    repo,
-                    output_root,
-                    config=config,
-                    tts=tts,
-                    voice=voice,
-                    max_modules=max_modules,
-                    timestamp=stamp,
-                    verify=verify,
-                )
-            )
-        except Exception as exc:  # noqa: BLE001 - one repo must never abort the batch
-            logger.warning("portfolio: %s failed: %s", repo.name, exc)
-            results.append(ProjectResult(name=repo.name, ok=False, error=str(exc)))
-
-    report = PortfolioReport(results=results, timestamp=stamp)
-    report.project_videos_dir = collect_project_videos(output_root, results)
-    report.index_json = _write_index_json(output_root, report)
-    report.index_html = _write_index_html(output_root, report)
-    logger.info(
-        "portfolio complete: %d/%d ok → %s",
-        report.ok_count,
-        len(results),
-        output_root,
-    )
-    return report
 
 
 def collect_project_videos(
