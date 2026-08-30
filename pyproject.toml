@@ -94,6 +94,19 @@ dev = [
     "types-PyYAML>=6.0",
 ]
 
+# PEP 735 dependency group (installed by default by `uv run`/`uv sync`). Mirrors
+# the `dev` extra above so `uv run pytest` uses the project interpreter instead
+# of silently falling back to whatever pytest is on PATH (which cannot import
+# democreate and breaks the preflight subprocess smoke test). Keep in sync.
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+    "types-PyYAML>=6.0",
+]
+
 [project.scripts]
 democreate = "democreate.cli:app"
 
