@@ -16,7 +16,7 @@ fit-CONTAINed (the whole image is always visible, never cropped or stretched).
 Run from the project root with the project venv::
 
     cd /Users/4d/Documents/GitHub/projects/working/demo_create
-    .venv/bin/python manuscript/figures/make_figures.py
+    .venv/bin/python docs/manuscript/figures/make_figures.py
 
 Outputs (into this directory). Every figure is 1600x900 except the waveform
 strip, which is 1600x300:
@@ -147,9 +147,9 @@ THEME_CODE = [
 # --- shared helpers --------------------------------------------------------
 
 def _save(img: Image.Image, name: str) -> Path:
-    """Save ``img`` under ``manuscript/figures/``, mirrored into ``output/figures/``.
+    """Save ``img`` under ``docs/manuscript/figures/``, mirrored into ``output/figures/``.
 
-    Figures are checked in under ``manuscript/figures/`` for the project's own
+    Figures are checked in under ``docs/manuscript/figures/`` for the project's own
     ``build_manuscript.py``; they are *also* mirrored into ``output/figures/`` so
     the shared template render pipeline — which resolves a ``figures/x.png``
     reference to ``output/figures/`` — finds them and renders natively.

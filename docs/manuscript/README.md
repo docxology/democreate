@@ -82,7 +82,7 @@ Figures are produced by calling the real `democreate` APIs (and, for
 videos). Regenerate from the project root:
 
 ```bash
-.venv/bin/python manuscript/figures/make_figures.py
+.venv/bin/python docs/manuscript/figures/make_figures.py
 ```
 
 The generated figures are:

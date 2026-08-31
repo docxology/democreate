@@ -44,8 +44,10 @@ and self-contained.
   `assembly/`, `export/`, `paper/`, `translation/`. Read the local pair before
   touching a subsystem.
 - **Source of truth for behavior** is the code and its tests under `tests/`. The
-  docs here describe intent and contracts; the tests (744 collected, ≥90% coverage)
-  enforce them.
+  docs here describe intent and contracts; the tests enforce them — ≥90% core coverage is a hard gate, and the
+  collected test count is command-verifiable at any time:
+  `.venv/bin/python -m pytest --collect-only -q | tail -1`
+  (744 collected, verified 2026-08-31).
 
 ## The three load-bearing ideas (one paragraph each)
 

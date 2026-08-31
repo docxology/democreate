@@ -7,13 +7,16 @@ do not delete it.
 
 ## Minor
 
-- [ ] `docs/README.md` states "(744 collected, ≥90% coverage)" as a bare number.
-      Verified 2026-08-31 via `.venv/bin/python -m pytest --collect-only -q`
-      (744 collected). Numbers rot — consider "verify with
-      `.venv/bin/python -m pytest --collect-only -q | tail -1`" instead of a count.
-- [ ] Version string is stated in three places (`pyproject.toml`,
-      `src/democreate/__init__.py`, README badge/text). `pyproject.toml` is
-      canonical; README prose could link to it instead of restating `0.7.1`.
+- [x] `docs/README.md` stated "(744 collected, ≥90% coverage)" as a bare number.
+      Fixed 2026-08-31: the line now points to the command
+      (`.venv/bin/python -m pytest --collect-only -q | tail -1`) with a dated
+      verification note; re-verified 2026-08-31 (744 collected, full suite
+      727 passed / 17 skipped).
+- [x] Version string was stated in three places (`pyproject.toml`,
+      `src/democreate/__init__.py`, README prose). Fixed 2026-08-31:
+      `pyproject.toml` is canonical; `__version__` is read from installed
+      package metadata (`importlib.metadata.version("democreate")`) and README
+      prose links to `pyproject.toml` instead of restating the number.
 - [x] `docs/manuscript/MANUSCRIPT_STATUS.md` "Location" line described the
       legacy fallback with the same path as the canonical location
       (self-referential). Fixed 2026-08-31.
@@ -28,8 +31,10 @@ do not delete it.
 
 ## Major
 
-- [ ] Finish the `manuscript/` → `docs/manuscript/` migration at the repo level:
-      the tree move itself was done pre-2026-08-31 (deletions staged in the
-      working tree), and the script constant is now fixed, but a repo-wide grep
-      for stale `manuscript/` references should be run after the migration
-      commits land: `grep -rn 'manuscript/' --include='*.md' . | grep -v docs/manuscript`
+- [x] Finish the `manuscript/` → `docs/manuscript/` migration at the repo level.
+      Done 2026-08-31: tree move committed (old top-level `manuscript/`
+      deletions + new `docs/manuscript/` + path updates in README,
+      domain_profile.yaml, examples/, scripts/, src, tests). Post-migration
+      sweep clean: `grep -rn 'manuscript/' --include='*.md' . | grep -v
+      docs/manuscript` returns nothing outside TODO/REVIEW_LOG. Full suite
+      green: 727 passed, 17 skipped (`.venv/bin/python -m pytest -q`).

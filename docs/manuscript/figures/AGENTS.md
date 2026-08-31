@@ -1,4 +1,4 @@
-# AGENTS.md — manuscript/figures/
+# AGENTS.md — docs/manuscript/figures/
 
 - All figures are **registry-backed generated artifacts**: rebuild with
   `make_figures.py` / `graphical_abstract.py`; do not retouch PNGs.

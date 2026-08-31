@@ -28,7 +28,7 @@ conventions. Authors and tools editing these chapters must preserve them.
   by the toolchain.
 - All figure PNGs live in `figures/` and are produced by the real `democreate`
   APIs via `figures/make_figures.py`. Regenerate them (from the project root,
-  `.venv/bin/python manuscript/figures/make_figures.py`) when the code changes;
+  `.venv/bin/python docs/manuscript/figures/make_figures.py`) when the code changes;
   never hand-edit a figure PNG. The `@fig:provenance` figure
   (`figures/provenance.png`, inserted in `10_provenance_and_distribution.md`) is
   driven by a real `config.MetadataConfig`, so its labels track the package's

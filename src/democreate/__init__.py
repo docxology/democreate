@@ -23,6 +23,8 @@ The most common entry point is the :class:`~democreate.pipeline.Pipeline`, or th
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
+
 from ._logging import get_logger, log_stage
 from .errors import (
     BackendUnavailableError,
@@ -45,7 +47,12 @@ from .schema import (
     WordTimestamp,
 )
 
-__version__ = "0.7.1"
+# Version is canonical in pyproject.toml; read it from installed metadata so
+# there is exactly one authored copy of the number.
+try:
+    __version__ = version("democreate")
+except PackageNotFoundError:  # pragma: no cover - unbuilt source tree
+    __version__ = "0.0.0.dev0"
 
 __all__ = [
     "__version__",

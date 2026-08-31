@@ -15,7 +15,7 @@ straight from ``democreate.config.THEMES["dark"]``.
 
 Run directly::
 
-    .venv/bin/python manuscript/figures/graphical_abstract.py
+    .venv/bin/python docs/manuscript/figures/graphical_abstract.py
 """
 
 from __future__ import annotations

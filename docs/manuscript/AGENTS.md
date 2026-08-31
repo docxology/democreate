@@ -40,7 +40,7 @@ Regenerate the `make_figures.py` set with:
 
 ```bash
 cd ..  # project root
-.venv/bin/python manuscript/figures/make_figures.py
+.venv/bin/python docs/manuscript/figures/make_figures.py
 ```
 
 | File | Label | Source API | Inserted in |

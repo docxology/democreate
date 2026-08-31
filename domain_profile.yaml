@@ -1,7 +1,7 @@
 # Domain profile for DemoCreate.
 # Declares the scientific/engineering domain this project operates in, the
 # output artifacts it is expected to produce, the validation gates that must
-# pass before a release, the figure types its manuscript/analysis pipeline
+# pass before a release, the figure types its docs/manuscript/analysis pipeline
 # emits, and the rubric dimensions used to benchmark generated demos.
 
 domain: software_tooling

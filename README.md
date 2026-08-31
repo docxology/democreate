@@ -15,13 +15,13 @@ Optional extras and system binaries upgrade specific media surfaces; a wired
 guarded adapter slots. The look (themes, fonts, motion) and sound (voice, pacing,
 normalization) are fully **configurable**.
 
-- **Status:** alpha (`0.7.1`), Python ≥ 3.10, MIT licensed.
+- **Status:** alpha, Python ≥ 3.10, MIT licensed. Version is canonical in [`pyproject.toml`](pyproject.toml).
 - **CI:** [![CI](https://github.com/docxology/democreate/actions/workflows/ci.yml/badge.svg)](https://github.com/docxology/democreate/actions/workflows/ci.yml) — ruff + mypy + the full ≥90% coverage-gated suite on every push.
 - **DOI (concept, resolves to latest):** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20693216.svg)](https://doi.org/10.5281/zenodo.20693216)
 - **Docs hub:** [`docs/`](docs/README.md) — architecture, schema, CLI, backends,
   testing, troubleshooting.
 
-![DemoCreate graphical abstract — a declarative demo of a codebase or a research paper compiles through a deterministic pipeline into a verified, provenance-signed HD video.](manuscript/figures/graphical_abstract.png)
+![DemoCreate graphical abstract — a declarative demo of a codebase or a research paper compiles through a deterministic pipeline into a verified, provenance-signed HD video.](docs/manuscript/figures/graphical_abstract.png)
 
 ## Watch the demos
 

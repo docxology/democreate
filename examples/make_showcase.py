@@ -9,13 +9,13 @@ never cropped), **terminal** scenes, and a closing card — all locked to a real
 spoken voiceover with a moving waveform.
 
 It reuses generated assets (regenerate with ``examples/make_assets.py`` and
-``manuscript/figures/make_figures.py``):
+``docs/manuscript/figures/make_figures.py``):
 
 * ``examples/assets/architecture.png`` — generated architecture diagram
 * ``examples/assets/dashboard.png``    — real browser screenshot of the player
-* ``manuscript/figures/graphical_abstract.png`` — the one-glance cover
-* ``manuscript/figures/themes.png``    — the five-theme strip
-* ``manuscript/figures/paper_fig.png`` — a real research-paper figure
+* ``docs/manuscript/figures/graphical_abstract.png`` — the one-glance cover
+* ``docs/manuscript/figures/themes.png``    — the five-theme strip
+* ``docs/manuscript/figures/paper_fig.png`` — a real research-paper figure
 
 Render it to an animated 4K MP4 with a real voiceover via::
 
@@ -32,7 +32,7 @@ from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
 
 _REPO = Path(__file__).resolve().parents[1]
 _ASSETS = _REPO / "examples" / "assets"
-_FIGS = _REPO / "manuscript" / "figures"
+_FIGS = _REPO / "docs" / "manuscript" / "figures"
 
 
 def _slide(id_, section, narration, *, title="", subtitle="", bg=None,

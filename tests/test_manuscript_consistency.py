@@ -24,7 +24,7 @@ import tomllib
 import democreate
 
 ROOT = Path(__file__).resolve().parent.parent
-MANUSCRIPT = ROOT / "manuscript"
+MANUSCRIPT = ROOT / "docs" / "manuscript"
 README = ROOT / "README.md"
 
 
@@ -59,7 +59,7 @@ def test_stated_test_count_matches_suite(collected_test_count: int) -> None:
     assert stated == collected_test_count, (
         f"abstract claims {stated} collected tests, but pytest collects "
         f"{collected_test_count}. "
-        "Update the manuscript/README test counts (and re-render the stat-card "
+        "Update the docs/manuscript README test counts (and re-render the stat-card "
         "figures) to match the suite."
     )
 
@@ -83,7 +83,7 @@ def test_total_test_count_is_consistent_across_prose(
     # so those .py strings cannot drift from the prose (RedTeam graphical_abstract
     # finding). Folded into this test — not a new one — so it does not change the
     # suite size and desync the rendered stat-card videos.
-    for rel in ("manuscript/figures/graphical_abstract.py",):
+    for rel in ("docs/manuscript/figures/graphical_abstract.py",):
         for raw in re.findall(r"(\d+)\s+tests\b", (ROOT / rel).read_text(encoding="utf-8")):
             found.setdefault(raw, []).append(Path(rel).name)
     expected = str(collected_test_count)
