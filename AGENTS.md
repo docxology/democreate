@@ -14,6 +14,21 @@ canonical, project-wide contract. The detailed agent guidance lives in
 pure function of the artifact. Read [`README.md`](README.md) and
 [`docs/architecture.md`](docs/architecture.md) for the full picture.
 
+## Current state & where to look next (orientation ladder)
+
+- **What this is:** the two sections below, plus [`README.md`](README.md).
+- **Current status:** `tasks.yaml` (task/Gantt source of truth — statuses and
+  dated evidence notes) and the `## [Unreleased]` section of
+  [`CHANGELOG.md`](CHANGELOG.md). Do not trust memory or prose tables; check
+  those two files.
+- **What to do next:** [`TODO.md`](TODO.md) — the backlog file (Minor/Medium/
+  Major, one line + paths each). Add new findings there as entries; mark
+  closed items `[x]` with a date rather than deleting them.
+- **How to verify:** run `.venv/bin/python -m pytest -q` (full suite),
+  `ruff check . && mypy src`, and `python -c "import democreate"` — details in
+  "Verification before claiming done" below. Collect-only head-count:
+  `.venv/bin/python -m pytest --collect-only -q | tail -1`.
+
 ## The non-negotiables
 
 1. **Thin orchestrators.** `cli.py` and `pipeline.py` carry no business logic —

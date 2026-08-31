@@ -2,8 +2,8 @@
 """Build the DemoCreate manuscript PDF from its declarative ``config.yaml``.
 
 This is the reproducible front door for the academic write-up under
-``manuscript/``. It reads the chapter order, metadata, bibliography, and build
-gates from ``manuscript/config.yaml`` (the single source of truth) and drives
+``docs/manuscript/``. It reads the chapter order, metadata, bibliography, and build
+gates from ``docs/manuscript/config.yaml`` (the single source of truth) and drives
 Pandoc — with ``pandoc-crossref`` for ``@fig:``/``@sec:`` cross-references and
 ``--citeproc`` for ``[@key]`` citations — through a XeLaTeX-class engine
 (``tectonic`` by default) to a single PDF.
@@ -18,7 +18,7 @@ Two build gates protect "properly rendering":
   this catches the markdown defects (e.g. a code fence closed on the same line
   as following prose) that silently drop figures from the concatenated build.
 
-    uv run python scripts/build_manuscript.py            # build manuscript/output/*.pdf
+    uv run python scripts/build_manuscript.py            # build docs/manuscript/output/*.pdf
     uv run python scripts/build_manuscript.py --check     # gates only, no PDF
 """
 
@@ -34,7 +34,7 @@ from pathlib import Path
 import yaml
 
 _REPO = Path(__file__).resolve().parents[1]
-_MANUSCRIPT = _REPO / "manuscript"
+_MANUSCRIPT = _REPO / "docs" / "manuscript"
 
 # Engines that understand the Unicode glyphs + fontspec the preamble relies on,
 # in preference order. The first one found on PATH is used.
