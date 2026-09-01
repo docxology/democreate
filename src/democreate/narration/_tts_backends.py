@@ -17,11 +17,11 @@ from .._logging import get_logger
 from ..errors import BackendUnavailableError, DemoCreateError
 from ..media import AudioClip
 from ._tts_audio import (
+    _CHANNELS,
     _DEFAULT_SAMPLE_RATE,
     _DEFAULT_WPM,
     _MIN_DURATION_MS,
     _SAMPLE_WIDTH_BYTES,
-    _CHANNELS,
     _dep_available,
     _probe_system_tts,
     _transcode_audio_file,

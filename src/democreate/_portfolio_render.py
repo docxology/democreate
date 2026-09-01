@@ -10,21 +10,18 @@ import html
 import json
 import shutil
 from pathlib import Path
-from typing import Any
 
 from ._logging import get_logger
-from .narration.project_summary import (
-    ProjectFacts,
-    generate_project_summary_demo,
-)
 from ._portfolio_facts import (
     PortfolioReport,
     ProjectResult,
     collect_project_facts,
-    discover_projects,
     utc_stamp,
 )
-from ._portfolio_facts import PortfolioReport, ProjectResult
+from .narration.project_summary import (
+    ProjectFacts,
+    generate_project_summary_demo,
+)
 
 logger = get_logger(__name__)
 

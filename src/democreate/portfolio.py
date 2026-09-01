@@ -24,28 +24,25 @@ Facts collection (:func:`collect_project_facts`) and project discovery
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 from ._logging import get_logger
 from ._portfolio_facts import (  # noqa: F401 (re-exports)
     PortfolioReport,
     ProjectResult,
+    _code_excerpt,
+    _collect_dependencies,
+    _count_tests,
     _looks_like_project,
     _readme_summary,
-    _strip_md,
-    _code_excerpt,
-    _count_tests,
-    _collect_dependencies,
-    _run_command,
     _relpath,
+    _run_command,
+    _strip_md,
     _substantive_packages,
     collect_project_facts,
     discover_projects,
     utc_stamp,
 )
-from .config import RenderConfig  # noqa: F401
 from ._portfolio_render import (  # noqa: F401 (re-exports)
     _write_index_html,
     _write_index_json,
@@ -53,6 +50,7 @@ from ._portfolio_render import (  # noqa: F401 (re-exports)
     collect_project_videos,
     render_project,
 )
+from .config import RenderConfig  # noqa: F401
 
 __all__ = [
     "ProjectResult",

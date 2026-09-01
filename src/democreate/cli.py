@@ -44,7 +44,7 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
-from ._cli_common import (  # noqa: F401 (re-exports)
+from ._cli_common import (  # noqa: E402, F401 (re-exports)
     _load_demo,
     _resolve_config,
     _validate_aspect,

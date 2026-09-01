@@ -21,9 +21,9 @@ from ..errors import BackendUnavailableError
 from ..media import FrameState
 from ..schema import Demo, SceneKind
 from ._screen_renderer import (  # noqa: F401 (re-exports)
+    WAVEFORM_BAND_FRAC,
     FrameSource,
     SyntheticRenderer,
-    WAVEFORM_BAND_FRAC,
     waveform_band_box,
 )
 

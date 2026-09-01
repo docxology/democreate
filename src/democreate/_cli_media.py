@@ -21,6 +21,7 @@ from ._cli_common import (
     console,
 )
 
+
 def render(
     demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),

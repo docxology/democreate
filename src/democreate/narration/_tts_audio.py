@@ -39,7 +39,6 @@ def measure_wav_duration_ms(path: Path | str) -> int:
     Raises:
         DemoCreateError: If the file cannot be read as WAV.
     """
-    from ..errors import DemoCreateError
 
     try:
         with wave.open(str(path), "rb") as wav:

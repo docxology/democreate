@@ -16,7 +16,6 @@ from ._logging import get_logger
 from .narration.project_summary import (
     KeyModule,
     ProjectFacts,
-    generate_project_summary_demo,
 )
 
 __all__ = [
@@ -379,7 +378,6 @@ def _substantive_packages(
     ``__init__``/test modules from each listing, keeps only areas with at least two
     substantive modules, and orders by module count (largest first).
     """
-    import re
 
     out: list[tuple[str, list[str]]] = []
     for pkg, mods in groups:
