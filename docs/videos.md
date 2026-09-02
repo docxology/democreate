@@ -22,9 +22,9 @@ DemoCreate's **definitive showcase** is itself a DemoCreate demo — the package
 dogfooding its own pipeline through *every* renderable surface. It is the
 canonical package demo: one declarative file (`examples/democreate_showcase.json`,
 authored by [`examples/make_showcase.py`](../examples/make_showcase.py)) compiled
-into a narrated 4K walkthrough that touches all 14 scene types the renderer
-supports, including the **bullet slides** and **stat-card slides**, now re-rendered
-in the **noir** look.
+into a narrated 4K walkthrough that exercises the full render surface —
+all 4 `SceneKind` kinds and every slide layout — including the **bullet slides**
+and **stat-card slides** — now re-rendered in the **noir** look.
 
 - **Path:** `output/video/demo.mp4`
 - **Size / duration:** 3840×2160 · 155.6 s

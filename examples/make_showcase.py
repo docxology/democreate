@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Build the definitive "DemoCreate showcase" demo artifact (v0.6.2).
+"""Build the definitive "DemoCreate showcase" demo artifact (v0.7.1).
 
 This is the most comprehensive self-referential demo: a tightly-paced, narrated
 tour that exercises *every* renderable surface — a title card, a one-glance
@@ -209,12 +209,12 @@ def build() -> Demo:
                "Under the hood, eight subsystems compose: the spine flows into "
                "narration, then rendering, then export — every stage a pure "
                "function of the one artifact.",
-               title="Seven subsystems, one spine",
+               title="Eight subsystems, one spine",
                bg=_ASSETS / "architecture.png", trigger="subsystems"),
 
         # 11 — By the numbers (stat slide)
         _slide("numbers", "By the numbers",
-               "And it is real. Six hundred ninety three collected tests, seven "
+               "And it is real. Seven hundred forty four collected tests, eight "
                "subsystems, five themes, four K output — and zero binary "
                "dependencies for the core path.",
                title="DemoCreate by the numbers",

@@ -264,7 +264,7 @@
     },
     {
       "id": "arch",
-      "title": "Seven subsystems, one spine",
+      "title": "Eight subsystems, one spine",
       "kind": "slide",
       "chunks": [
         {
@@ -274,7 +274,7 @@
             {
               "type": "open_file",
               "params": {
-                "path": "Seven subsystems, one spine"
+                "path": "Eight subsystems, one spine"
               },
               "trigger_word": "subsystems"
             }
@@ -293,7 +293,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Six hundred ninety three collected tests, seven subsystems, five themes, four K output — and zero binary dependencies for the core path.",
+          "text": "And it is real. Seven hundred forty four collected tests, eight subsystems, five themes, four K output — and zero binary dependencies for the core path.",
           "actions": []
         }
       ],
