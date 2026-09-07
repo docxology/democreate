@@ -230,6 +230,9 @@ def portfolio(
     if resolution:
         cfg.set_resolution(resolution)
     skip_names = tuple(s.strip() for s in skip.split(",") if s.strip())
+    if not projects_dir.is_dir():
+        console.print(f"[red]✗ projects directory not found: {projects_dir}[/]")
+        raise typer.Exit(code=2)
     console.print(
         f"[cyan]portfolio[/] {projects_dir} → {output} "
         f"at {cfg.video.width}x{cfg.video.height}, '{cfg.theme.name}' theme…"
@@ -252,7 +255,7 @@ def portfolio(
         f"[green]✓[/] {report.ok_count}/{len(report.results)} rendered · "
         f"index: {report.index_html}"
     )
-    if report.ok_count == 0 and report.results:
+    if report.ok_count == 0:
         raise typer.Exit(code=1)
 
 
@@ -276,16 +279,13 @@ def captions(
 
 
 @app.command()
-
-
-@app.command()
 def paper(
     pdf: Path = typer.Argument(..., help="Path to the paper PDF"),
     repo: Path = typer.Option(None, "--repo", "-r", help="Associated codebase directory"),
     figures: Path = typer.Option(None, "--figures", help="Directory of exported figure images"),
     output: Path = typer.Option(Path("output"), "--output", "-o"),
     pages: str = typer.Option("1", "--pages", help="Comma-separated 1-based PDF pages to show"),
-    theme: str = typer.Option("paper", "--theme", help="Theme preset: paper|dark|light|midnight"),
+    theme: str = typer.Option("paper", "--theme", help="Theme preset: noir|paper|dark|light|midnight"),
     voice: str = typer.Option("", "--voice", "-v"),
     tts: str = typer.Option("system", "--tts"),
     aspect: str = typer.Option("", "--aspect", help="Aspect preset: 16:9|9:16|1:1|4:3|4:5"),
@@ -461,7 +461,7 @@ def localize(
 
 def config(
     out: Path = typer.Argument(Path("democreate.yaml"), help="Where to write the config"),
-    theme: str = typer.Option("dark", "--theme", help="Base theme preset"),
+    theme: str = typer.Option("noir", "--theme", help="Base theme preset"),
 ) -> None:
     """Write a fully-commented render-config YAML you can edit and pass to --config."""
     from .config import RenderConfig
@@ -514,6 +514,7 @@ def backends() -> None:
     rows = [
         ("TTS (kokoro)", "kokoro_onnx", "tts"),
         ("TTS (chatterbox)", "chatterbox", "tts"),
+        ("TTS (elevenlabs)", "elevenlabs", "elevenlabs"),
         ("Transcribe (whisper)", "whisper", "whisper"),
         ("Capture (mss)", "mss", "capture"),
         ("Browser (playwright)", "playwright", "browser"),

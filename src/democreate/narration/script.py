@@ -388,11 +388,11 @@ class LLMScriptGenerator(ScriptGenerator):
             BackendUnavailableError: If no provider is configured.
         """
         if not self.provider:
-            raise BackendUnavailableError("llm", extra="llm")
+            raise BackendUnavailableError("llm")
         return self._generate_with_provider(context)  # pragma: no cover
 
     def _generate_with_provider(  # pragma: no cover - requires a provider
         self, context: dict[str, Any]
     ) -> Demo:
         """Call the real provider (only runs when one is configured)."""
-        raise BackendUnavailableError("llm", extra="llm")
+        raise BackendUnavailableError("llm")

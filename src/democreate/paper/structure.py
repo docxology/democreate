@@ -103,7 +103,6 @@ _MATH_OPERATOR_FOLD = {
     "⋆": "*",  # ⋆ star operator
     "∗": "*",  # ∗ asterisk operator
     "−": "-",  # − minus sign
-    "·": "·",  # middle dot (keep, but normalize variants below)
     "…": "...",  # … ellipsis
 }
 

@@ -3,10 +3,10 @@
 DemoCreate ingests research papers without any pip PDF dependency: it shells out
 to the poppler utilities (``pdfinfo``, ``pdftotext``, ``pdftoppm``) that ship on
 most scientific workstations. Every function that touches a binary first checks
-that the binary is on ``PATH`` and raises
-:class:`~democreate.errors.BackendUnavailableError` (``backend="poppler"``,
-``extra="pdf"``) if it is missing, so callers get an actionable message instead
-of an opaque ``FileNotFoundError``.
+``shutil.which`` and raises
+:class:`~democreate.errors.BackendUnavailableError` (``backend="poppler"``) if it
+is missing, so callers get an actionable message instead of an opaque
+``FileNotFoundError``.
 
 All subprocess calls are deterministic, read-only, and operate on real files.
 """
@@ -64,7 +64,7 @@ def _require(binary: str) -> str:
     """
     found = shutil.which(binary)
     if found is None:
-        raise BackendUnavailableError("poppler", extra="pdf")
+        raise BackendUnavailableError("poppler")
     return found
 
 

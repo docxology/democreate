@@ -125,8 +125,8 @@ def export_html_player(
             verbatim; when ``None`` one is computed from chunk timings.
         out_path: Destination ``.html`` path. Parent directories are created.
         frames_dir: Optional relative directory (served alongside the HTML) that
-            holds per-chunk ``<chunk_id>.png`` frames; when given, the player
-            shows the current frame as an ``<img>``.
+            holds the compositor's numbered frames (``frame_%04d.png``); when
+            given, the player shows the current frame as an ``<img>``.
 
     Returns:
         ``out_path``.

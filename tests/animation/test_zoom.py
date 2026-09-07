@@ -91,6 +91,21 @@ def test_compute_zoom_path_starts_and_ends_zoomed_out() -> None:
     assert kfs[-1].scale == pytest.approx(1.0)
 
 
+def test_compute_zoom_path_lead_in_precedes_first_event() -> None:
+    """The lead-in sits ``hold_ms`` before the first cursor event and eases in."""
+    kfs = compute_zoom_path([(500, 100, 100)], (1280, 720))
+    assert kfs[0].t_ms == 100
+    assert kfs[0].scale == pytest.approx(1.0)
+    assert kfs[1].t_ms == 500
+    assert kfs[1].scale > 1.0
+
+
+def test_compute_zoom_path_lead_in_clamps_at_zero() -> None:
+    kfs = compute_zoom_path([(0, 50, 50)], (1280, 720))
+    assert kfs[0].t_ms == 0
+    assert kfs[0].scale == pytest.approx(1.0)
+
+
 def test_compute_zoom_path_invalid_zoom() -> None:
     with pytest.raises(ValueError):
         compute_zoom_path([(0, 1, 1)], (100, 100), zoom=0.5)

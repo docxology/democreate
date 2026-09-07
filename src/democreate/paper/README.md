@@ -60,6 +60,8 @@ print(summary.abstract[:200])
 ## Backend guarantee
 
 Every binary-backed function checks `shutil.which` first and raises
-`BackendUnavailableError("poppler", extra="pdf")` if a poppler tool is missing,
-so callers get an actionable message instead of a raw `FileNotFoundError`.
+`BackendUnavailableError("poppler")` if a poppler tool is missing (poppler is an
+OS binary — install it with `brew install poppler` / `apt-get install
+poppler-utils`), so callers get an actionable message instead of a raw
+`FileNotFoundError`.
 Missing or non-PDF input files raise `DemoCreateError`.

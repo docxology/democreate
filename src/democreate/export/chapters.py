@@ -139,8 +139,9 @@ def to_ffmetadata(demo: Demo, *, chapters=None, total_ms=None) -> str:
         demo: The demo to lay out.
         chapters: Optional pre-computed chapter list (e.g. from
             :func:`measured_chapters`) to use instead of the estimated timeline.
-        total_ms: The timeline length for the final chapter's ``END`` (required
-            when ``chapters`` is supplied).
+        total_ms: The timeline length used for the final chapter's ``END``.
+            When an explicit ``chapters`` list is supplied without
+            ``total_ms``, the last chapter's start is used as the end.
 
     Returns:
         A complete metadata document terminated by a trailing newline.

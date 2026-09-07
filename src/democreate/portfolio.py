@@ -50,7 +50,6 @@ from ._portfolio_render import (  # noqa: F401 (re-exports)
     collect_project_videos,
     render_project,
 )
-from .config import RenderConfig  # noqa: F401
 
 __all__ = [
     "ProjectResult",

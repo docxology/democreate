@@ -19,6 +19,7 @@ manifest, captions, and the interactive HTML player.
 | Subsystem | Capability | Deterministic default | Real backend | Extra | Dependency | Install |
 |-----------|-----------|-----------------------|--------------|-------|------------|---------|
 | `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (smoke-tested OS voice, zero pip); **`KokoroTTSBackend`** (wired neural voice, fully local); `ChatterboxTTSBackend` is a guarded slot | `tts` | usable `say`/`espeak` plus `ffmpeg`/`afconvert` (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` + the model files | usable OS voice, or `uv pip install -e ".[tts]"` then `democreate fetch-voice` |
+| `narration/` | Cloud text-to-speech | — (local/OS defaults cover it) | **`ElevenLabsTTSBackend`** (cloud voice, needs `ELEVENLABS_API_KEY`) | `elevenlabs` | `elevenlabs` | `uv pip install -e ".[elevenlabs]"` |
 | `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (even word spacing) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
 | `narration/` | Narration text | **template generator** (deterministic, default) | `LLMNarrator` (OpenAI-compatible, **stdlib `urllib`, zero pip**) | — | OpenAI-compatible API + `OPENAI_API_KEY` | env var only (no install) |
 | `capture/` | Screen pixels | `SyntheticRenderer` (scaled TrueType fonts + pygments + themes) | `MssScreenCapture` | `capture` | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
@@ -28,7 +29,7 @@ manifest, captions, and the interactive HTML player.
 | `codebase/` | Code analysis | stdlib `ast` walker | tree-sitter multi-language | `codebase` | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
 | `assembly/` | Audio assembly + animation | `audio.py` (stdlib `wave` concat), `animator.py` (timed frames) | `normalize_audio` / `apply_fade` via **`ffmpeg`** | `video` | `ffmpeg` on `PATH` (no pip needed) | OS binary |
 | `export/` | Video encode + verify | ffmpeg-argv/concat builders + Jinja2 HTML player | `assemble_video` / `encode_frame_sequence` (real HD MP4) + `verify_video` (content assertions) via **`ffmpeg`/`ffprobe`** | `video` | `ffmpeg`/`ffprobe` on `PATH` (no pip needed); Python helpers in the `video` extra | OS binary, plus `uv pip install -e ".[video]"` if using helper libraries |
-| `paper/` | Read research-paper PDF | — | **poppler CLI** (`pdfinfo` / `pdftotext` / `pdftoppm`, zero pip) | `pdf` | poppler binaries on `PATH` | OS binary (`brew install poppler` / `apt-get install poppler-utils`) |
+| `paper/` | Read research-paper PDF | — | **poppler CLI** (`pdfinfo` / `pdftotext` / `pdftoppm`, zero pip) | — | poppler binaries on `PATH` | OS binary (`brew install poppler` / `apt-get install poppler-utils`) |
 | `export/` | PDF export of transcript | `to_markdown` (always available) | `export_pdf` via **WeasyPrint** | `docs` | `weasyprint` | `uv pip install -e ".[docs]"` |
 
 Install everything at once with the aggregate extra:
@@ -86,7 +87,7 @@ binaries:
 - **Research-paper PDF reading** — the `paper/` subsystem shells out to the
   poppler utilities `pdfinfo` / `pdftotext` / `pdftoppm` to read metadata, extract
   text, and rasterize pages — **no pip PDF dependency**. Missing poppler raises
-  `BackendUnavailableError(backend="poppler", extra="pdf")`. See [paper.md](paper.md).
+  `BackendUnavailableError(backend="poppler")`. See [paper.md](paper.md).
 
 `democreate backends` shows the TTS and ffmpeg rows as `available` / `absent`
 based on the smoke-tested synthesis/transcode path and the OS binaries.
@@ -122,7 +123,6 @@ the pipeline's canonical WAV; duration is measured from the file (audio stays th
 single source of timing truth).
 
 ## Optional LLM narration
-
 The deterministic template generator (`narration/script.py`) is **always the
 default** and is never changed by the LLM module. When an OpenAI-compatible API is
 configured via environment variables, `LLMNarrator` (`narration/llm.py`) can
@@ -130,7 +130,21 @@ generate richer narration or polish the template's output through a
 `/chat/completions` endpoint. It is **import-safe and dependency-free** — it uses
 only the standard library `urllib`, so there is **no pip extra** — and its
 network-touching methods are guarded: they raise `BackendUnavailableError` when no
-key is configured, so an unconfigured environment simply uses the template.
+key is configured.
+
+The module is a deliberate **library-only surface**: the CLI/pipeline always uses
+the deterministic template, because narration text carries the `trigger_word`
+anchoring contract (a polished line may drop a chunk's trigger words and degrade
+action anchoring) and the default path must stay deterministic and byte-stable.
+Library users opt in explicitly:
+
+```python
+from democreate.narration.llm import get_narrator
+
+narrator = get_narrator()                      # env-configured
+texts = [c.text for c in demo.iter_chunks()]
+polished = narrator.rewrite_chunks(texts, context=demo.title)
+```
 
 Environment variables consulted:
 

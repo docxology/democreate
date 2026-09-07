@@ -29,7 +29,7 @@ and **stat-card slides** — now re-rendered in the **noir** look.
 - **Path:** `output/video/demo.mp4`
 - **Size / duration:** 3840×2160 · 155.6 s
 - **Resolution / codecs:** 3840×2160 · H.264 + AAC (48 kHz)
-- **Chapters:** 14 embedded chapter markers (one per scene)
+- **Chapters:** 15 embedded chapter markers (one per scene)
 - **Container tags:** `title="DemoCreate — The Showcase"`,
   `artist="Daniel Ari Friedman"`
 - **Provenance:** signed steganographic poster that verifies; watermark
@@ -64,7 +64,7 @@ uv run democreate render examples/democreate_showcase.json -o output \
 10. **Describe-any-codebase slide** — the `democreate portfolio` capability: one
     narrated video per project, read from each repo's own README and docstrings.
 11. **Architecture diagram** — the pipeline.
-12. **Stat-card slide** — *"by the numbers"* (744 tests · 8 subsystems · 5 themes
+12. **Stat-card slide** — *"by the numbers"* (776 tests · 8 subsystems · 5 themes
     · 4K · 0 binary deps), the `FrameState.stats` surface.
 13. **Bullet slide** — the provenance story.
 14. **Terminal scene** — a build + render + verify session.
@@ -95,7 +95,7 @@ clock · watermark) run throughout.
 *Video 1 — a code scene typing in character-by-character with live pygments highlighting (noir: monochrome with red keywords), lifted from the encoded 4K render.*
 
 ![Showcase stat-card slide](_videoframes/showcase_stats.png)
-*Video 1 — the "by the numbers" stat-card slide (744 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
+*Video 1 — the "by the numbers" stat-card slide (776 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), the `FrameState.stats` surface, lifted from the encoded 4K noir render.*
 
 > The earlier intro demo (`examples/democreate_intro.json`, 78 s) still renders,
 > but the showcase **supersedes it** as the canonical package demo — see
@@ -167,7 +167,7 @@ democreate render examples/democreate_paper_showcase.json -o output/paper_showca
 
 ![Paper demo problem slide](_videoframes/paper_abstract.png)
 *Video 2 — the dynamic opening: "The convenient lie of independence" as a bullet
-slide (a refreshed noir still from `output/paper_demo/video/demo.mp4`), replacing
+slide (a refreshed noir still from `output/paper_showcase/video/demo.mp4`), replacing
 the old single static "Abstract" read.*
 
 ![Paper demo λ-sweep montage](_videoframes/paper_sweep.png)

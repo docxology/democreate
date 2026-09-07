@@ -16,7 +16,8 @@ scientific machines and avoids a heavyweight binary-wheel dependency.
   everywhere — never bare strings for filesystem paths.
 - **Never** import an optional/heavy dependency at module top level. Detect
   binaries with `shutil.which`. If a poppler binary is absent when a real
-  function runs, raise `BackendUnavailableError("poppler", extra="pdf")`.
+  function runs, raise `BackendUnavailableError("poppler")` (poppler is an OS
+  binary — there is no pip extra; the remedy is the system package manager).
 - Missing or non-PDF input files raise `DemoCreateError`. Chain underlying
   subprocess failures with `... from exc`. No bare `except`.
 - Subprocess bodies are marked `# pragma: no cover` — they can only run with the

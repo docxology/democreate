@@ -1,6 +1,6 @@
 # API reference
 
-> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.7.0`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
+> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.7.1`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
 
 This reference lists the public classes and functions of each documented module with the one-line summary of their docstring. For prose and examples, see the topic docs linked from [README.md](README.md); for the full contracts, read the source and its tests.
 
@@ -153,7 +153,6 @@ Shared media value types used across capture, narration, and assembly.
 ### Classes
 
 - **`AudioClip`** *(dataclass)* — A rendered narration audio file and its measured properties.
-  - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 - **`FrameState`** *(dataclass)* — A renderable snapshot of the virtual environment at one instant.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 
@@ -231,20 +230,15 @@ The ``democreate`` command-line interface.
 - **`backends() -> 'None'`** — List subsystem backends and whether their optional extras are installed.
 - **`build(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'auto', strict: 'bool' = True) -> 'None'`** — Run the full pipeline: TTS, sync, frames, captions, and HTML player.
 - **`captions(demo: 'Path', fmt: 'str' = 'srt') -> 'None'`** — Emit subtitles for a demo to stdout.
-- **`config(out: 'Path' = PosixPath('democreate.yaml'), theme: 'str' = 'dark') -> 'None'`** — Write a fully-commented render-config YAML you can edit and pass to --config.
+- **`config(out: 'Path' = PosixPath('democreate.yaml'), theme: 'str' = 'noir') -> 'None'`** — Write a fully-commented render-config YAML you can edit and pass to --config.
 - **`fetch_voice() -> 'None'`** — Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
-- **`gif(demo: 'Path', output: 'Path' = PosixPath('output'), out: 'Path' = PosixPath('demo.gif'), fps: 'int' = 8, theme: 'str' = 'dark') -> 'None'`** — Build a demo and export an animated GIF preview of its frames.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
 - **`inspect(demo: 'Path', json_out: 'bool' = False) -> 'None'`** — Validate a demo and print a structural summary.
 - **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
 - **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
-- **`render(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', fps: 'int' = 0, captions: 'bool' = False, animate: 'bool' = True, animation_fps: 'int' = 15, theme: 'str' = 'noir', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', header: 'bool' = False, config: 'Path' = None) -> 'None'`** — Render a demo to an HD MP4 with real voiceover, then verify its content.
-- **`stego(image: 'Path', demo: 'Path' = None) -> 'None'`** — Extract (and optionally verify) the steganographic provenance in a PNG.
-- **`thumbnail(demo: 'Path', out: 'Path' = PosixPath('poster.png'), theme: 'str' = 'dark', subtitle: 'str' = '') -> 'None'`** — Render a poster / thumbnail frame for a demo.
 - **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True, render_it: 'bool' = False, tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir') -> 'None'`** — Generate a codebase tour demo from a repository (build and/or render it).
-- **`verify(video: 'Path', width: 'int' = 0, height: 'int' = 0, min_duration: 'float' = 1.0) -> 'None'`** — Content-assert a video: real streams, expected size, non-silent, non-black.
 - **`version() -> 'None'`** — Print the installed DemoCreate version.
 
 ## `democreate.translation.translator` {#democreatetranslationtranslator}
@@ -345,7 +339,7 @@ Text-to-speech backends for DemoCreate narration.
 ### Functions
 
 - **`fetch_kokoro_model(dest: 'Path | None' = None) -> 'tuple[Path, Path]'`** — Download the Kokoro model + voices into the cache dir if absent.
-- **`get_tts_backend(name: 'str' = 'auto', *, voice: 'str | None' = None, lang: 'str | None' = None) -> 'TTSBackend'`** — Return a TTS backend by name.
+- **`get_tts_backend(name: 'str' = 'auto', *, voice: 'str | None' = None, lang: 'str | None' = None, rate_wpm: 'int | None' = None) -> 'TTSBackend'`** — Return a TTS backend by name.
 - **`measure_wav_duration_ms(path: 'Path | str') -> 'int'`** — Return the true duration of a WAV file in milliseconds.
 - **`synthesize_demo(demo: 'Demo', workspace, backend: 'TTSBackend | None' = None) -> 'list[AudioClip]'`** — Synthesize audio for every chunk of ``demo`` into the workspace.
 
@@ -577,7 +571,7 @@ Video and GIF export.
 
 - **`assemble_video(frame_paths: 'list[Path]', durations_ms: 'list[int]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 30, size: 'tuple[int, int] | None' = None, subtitles: 'Path | None' = None, crf: 'int' = 18, preset: 'str' = 'medium') -> 'Path'`** — Encode an audio-synced MP4 holding each frame for its measured duration.
 - **`build_concat_demuxer_file(frames_with_durations: 'list[tuple[Path, float]]', *, repeat_last: 'bool' = True) -> 'str'`** — Build an ffmpeg concat-demuxer script holding each frame for its duration.
-- **`build_ffmpeg_command(frames_glob: 'str', audio_path: 'str | None', out_path: 'Path', *, fps: 'int' = 30) -> 'list[str]'`** — Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
+- **`build_ffmpeg_command(frames_glob: 'str', audio_path: 'str | None', out_path: 'Path', *, fps: 'int' = 30, start_number: 'int | None' = None) -> 'list[str]'`** — Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
 - **`concat_wavs(wav_paths: 'list[Path]', out_path: 'Path') -> 'Path'`** — Concatenate canonical WAV clips gap-free into one track (pure stdlib).
 - **`encode_frame_sequence(frame_paths: 'list[Path]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 15, crf: 'int' = 18, preset: 'str' = 'medium') -> 'Path'`** — Encode uniformly-timed frames (+ audio) into an MP4 via the image2 demuxer.
 - **`export_video(frame_paths: 'list[Path]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 30) -> 'Path'`** — Encode frames (+ optional audio) into an MP4.

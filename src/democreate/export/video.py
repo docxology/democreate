@@ -42,6 +42,7 @@ def build_ffmpeg_command(
     out_path: Path,
     *,
     fps: int = 30,
+    start_number: int | None = None,
 ) -> list[str]:
     """Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
 
@@ -55,6 +56,9 @@ def build_ffmpeg_command(
         audio_path: Path to an audio file to mux in, or ``None`` for silent video.
         out_path: Destination path for the encoded video.
         fps: Output frame rate (also the input frame rate for the image sequence).
+        start_number: Value for ffmpeg's image2 ``-start_number`` input option
+            (the number the first frame's pattern index maps to); ``None``
+            omits the option and lets ffmpeg default it.
 
     Returns:
         The argv list, beginning with ``"ffmpeg"``, ready to hand to
@@ -71,6 +75,10 @@ def build_ffmpeg_command(
         "-y",
         "-framerate",
         str(fps),
+    ]
+    if start_number is not None:
+        cmd += ["-start_number", str(start_number)]
+    cmd += [
         "-i",
         frames_glob,
     ]
@@ -423,7 +431,8 @@ def export_video(
     ``image2`` demuxer can sequence them.
 
     Args:
-        frame_paths: Ordered frame image paths (must live in one directory).
+        frame_paths: Ordered frame image paths (must live in one directory and
+            share a zero-padded numeric stem suffix, e.g. ``frame_0000.png``).
         audio_path: Optional audio track to mux in.
         out_path: Destination ``.mp4`` path.
         fps: Output frame rate.
@@ -444,11 +453,26 @@ def export_video(
     import subprocess
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    parent = frame_paths[0].parent
-    suffix = frame_paths[0].suffix
-    glob = str(parent / f"%05d{suffix}")
+    # Derive the printf pattern + start number from the first frame's stem
+    # (e.g. frame_0000.png → frame_%04d.png starting at 0), matching
+    # :func:`encode_frame_sequence`. A hardcoded ``%05d`` matches nothing when
+    # the prefix differs and silently drops frames without ``-start_number``.
+    first = frame_paths[0].resolve()
+    stem = first.stem
+    digits = len(stem) - len(stem.rstrip("0123456789"))
+    if digits == 0:
+        raise ValueError(
+            f"frame name {first.name!r} has no zero-padded numeric suffix; "
+            "export_video needs a frame_%04d-style sequence"
+        )
+    prefix = stem[: len(stem) - digits]
+    pattern = str(first.parent / f"{prefix}%0{digits}d{first.suffix}")
     cmd = build_ffmpeg_command(
-        glob, str(audio_path) if audio_path else None, out_path, fps=fps
+        pattern,
+        str(audio_path) if audio_path else None,
+        out_path,
+        fps=fps,
+        start_number=int(stem[len(prefix) :]),
     )
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:

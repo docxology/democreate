@@ -171,9 +171,10 @@ def _draw_cursor(draw, xy: tuple[int, int], scale: float, *, ripple: float = 0.0
     x, y = int(xy[0]), int(xy[1])
     s = max(10, int(28 * scale))
     if ripple > 0:
+        # A fixed-accent ring: the frames are RGB, so Pillow drops any RGBA
+        # alpha — there is no per-ripple fade to compute.
         r = int(s * (0.6 + 2.4 * ripple))
-        fade = int(200 * (1 - ripple))
-        draw.ellipse([x - r, y - r, x + r, y + r], outline=(*accent, fade), width=3)
+        draw.ellipse([x - r, y - r, x + r, y + r], outline=accent, width=3)
     # arrow cursor: a filled triangle with a tail, white with a dark outline
     pts = [(x, y), (x, y + s), (x + int(s * 0.28), y + int(s * 0.72)),
            (x + int(s * 0.5), y + int(s * 0.72)), (x + int(s * 0.28), y + int(s * 0.5))]

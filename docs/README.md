@@ -8,8 +8,8 @@ pure function of it — and every heavy backend (TTS, transcription, capture,
 animation, video assembly, PDF) sits behind an abstract interface with a
 pure-Python deterministic default. The package produces a real demo with only its
 light core dependencies. Optional extras and zero-pip system binaries upgrade
-specific media surfaces; neural TTS, Whisper, and Manim remain guarded adapter
-slots.
+specific media surfaces; **Kokoro neural TTS is fully wired** (a local neural
+voice), while Whisper, Chatterbox, and Manim remain guarded adapter slots.
 
 This `docs/` directory is the project's documentation hub. Each file is focused
 and self-contained.
@@ -22,7 +22,7 @@ and self-contained.
 | [quickstart.md](quickstart.md) | Clean clone to a rendered demo: `uv` install, `build`, `render --theme`, `paper <pdf> --repo`. |
 | [recipes.md](recipes.md) | A cookbook of runnable commands: software demo, paper demo, vertical `9:16` cut, themed render, GIF + thumbnail, chapters, typing animation, optional LLM narration. |
 | [gallery.md](gallery.md) | **Real rendered frames** — a typing editor frame, a paper figure, a title slide, the architecture diagram, and a theme strip — produced by [`_gallery/make_gallery.py`](_gallery/make_gallery.py). |
-| [videos.md](videos.md) | **The two produced videos** — the package demo (`output/video/demo.mp4`) and the research-paper demo (`output/paper_demo/video/demo.mp4`): exact paths, sizes/durations, one-line regenerate commands, what each shows, companion artifacts, and real embedded stills. |
+| [videos.md](videos.md) | **The two produced videos** — the package demo (`output/video/demo.mp4`) and the research-paper demo (`output/paper_showcase/video/demo.mp4`): exact paths, sizes/durations, one-line regenerate commands, what each shows, companion artifacts, and real embedded stills. |
 | [schema.md](schema.md) | Full reference of `Demo` / `Scene` / `Chunk` / `Action` / `ActionType` / `SceneKind`, with a JSON example. |
 | [cli.md](cli.md) | Every `democreate` command — `init`, `inspect`, `build`, `tour`, `portfolio`, `localize`, `captions`, `render`, `verify`, `paper`, `thumbnail`, `gif`, `config`, `stego`, `fetch-voice`, `backends`, `version` — with all options. |
 | [config.md](config.md) | `Theme` / `AudioConfig` / `VideoConfig` / `MetadataConfig` / `RenderConfig`, the **five theme presets** (default **noir**), **resolution tiers**, aspect presets, a sample YAML, and `democreate config` / `--config` / `--theme` / `--resolution` / `--aspect`. |
@@ -47,7 +47,7 @@ and self-contained.
   docs here describe intent and contracts; the tests enforce them — ≥90% core coverage is a hard gate, and the
   collected test count is command-verifiable at any time:
   `.venv/bin/python -m pytest --collect-only -q | tail -1`
-  (744 collected, verified 2026-08-31).
+  (776 collected, verified 2026-09-06).
 
 ## The three load-bearing ideas (one paragraph each)
 

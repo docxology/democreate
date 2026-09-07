@@ -41,7 +41,7 @@ from .sync import (
 )
 from .tts import (
     ChatterboxTTSBackend,
-    KokoroTTSBackend,
+    ElevenLabsTTSBackend,
     SilentTTSBackend,
     SystemTTSBackend,
     TTSBackend,
@@ -58,6 +58,7 @@ __all__ = [
     "KokoroTTSBackend",
     "ChatterboxTTSBackend",
     "get_tts_backend",
+    "ElevenLabsTTSBackend",
     "synthesize_demo",
     "measure_wav_duration_ms",
     # sync

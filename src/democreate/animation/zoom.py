@@ -154,9 +154,12 @@ def compute_zoom_path(
 
     keyframes: list[ZoomKeyframe] = []
     first_t = ordered[0][0]
-    # Lead-in: zoomed out just before the first cursor event.
+    # Lead-in: zoomed out hold_ms before the first cursor event (clamped at 0
+    # for an immediate first event) so the ease-in has somewhere to come from.
     keyframes.append(
-        ZoomKeyframe(t_ms=first_t, center_x=cx0, center_y=cy0, scale=1.0)
+        ZoomKeyframe(
+            t_ms=max(0, first_t - hold_ms), center_x=cx0, center_y=cy0, scale=1.0
+        )
     )
     for t_ms, (x, y) in ordered:
         keyframes.append(

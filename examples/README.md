@@ -13,7 +13,7 @@ audio-as-ground-truth), (7) a meta **bullet slide** *"What you are seeing"*,
 (8) the themes strip, (9) a real research-paper **figure** (fit-contained, whole),
 (10) a describe-any-codebase **portfolio slide**, (11) the architecture diagram,
 (12) a **stat-card slide** *"by the numbers"*
-(744 collected tests · 8 subsystems · 5 themes · 4K · 0 binary deps), (13) a provenance **bullet
+(776 collected tests · 8 subsystems · 5 themes · 4K · 0 binary deps), (13) a provenance **bullet
 slide**, (14) a **terminal** render+verify, (15) the outro. 3840×2160, no-crop
 (figures fit whole, code autosizes, Ken Burns off), a moving waveform + bottom
 metadata bar throughout.
@@ -42,8 +42,9 @@ Full write-up: [`../docs/videos.md`](../docs/videos.md).
 ## `make_intro_demo.py` → `democreate_intro.json` (the earlier intro)
 
 The earlier **dogfood**: DemoCreate's own introduction, authored as a DemoCreate
-`Demo`. Six scenes (title → spine → backends → sync → terminal → outro), nine
-narration chunks, trigger-word-anchored actions, 1920×1080 @ 30fps. The showcase
+`Demo`. Nine scenes (title → architecture diagram → spine → backends → sync →
+player dashboard → build → render → outro), narration chunks,
+trigger-word-anchored actions, 1920×1080 @ 30fps. The showcase
 above **supersedes** it as the canonical package demo; the intro still renders.
 
 ```bash

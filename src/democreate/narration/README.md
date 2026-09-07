@@ -78,7 +78,8 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `generate_codebase_demo(summaries, *, title) -> Demo` — duck-typed over
   `.name/.path/.functions/.classes` (objects **or** dicts). Emits `OPEN_FILE` +
   `HIGHLIGHT_LINES` actions. Does **not** import the codebase subsystem.
-- `LLMScriptGenerator` — guarded provider abstraction (`extra="llm"`), no network.
+- `LLMScriptGenerator` — guarded provider abstraction (unconfigured →
+  `BackendUnavailableError("llm")`), no network.
 
 ### `project_summary.py`
 - `ProjectFacts` — pure data carrier for one project's render-ready facts (name,
@@ -100,7 +101,7 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 | `ElevenLabsTTSBackend` | `elevenlabs` client + API key | `elevenlabs` |
 | `ChatterboxTTSBackend` | `chatterbox` adapter slot | `tts` |
 | `WhisperTranscriber` | `whisper` adapter slot | `whisper` |
-| `LLMScriptGenerator` | provider SDK | `llm` |
+| `LLMScriptGenerator` | provider SDK | — (no pip extra) |
 
 ## Determinism
 

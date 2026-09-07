@@ -25,8 +25,10 @@ import math
 import sys
 import wave
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from PIL import Image, ImageDraw
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from PIL import Image, ImageDraw
 
 from .._logging import get_logger
 
@@ -226,6 +228,8 @@ def render_waveform_strip(
     Returns:
         A :class:`PIL.Image.Image` of exactly ``size``.
     """
+    from PIL import Image, ImageDraw
+
     width, height = size
     width = max(1, int(width))
     height = max(1, int(height))

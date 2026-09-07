@@ -2,19 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from democreate.media import AudioClip, FrameState
+from democreate.media import FrameState
 from democreate.schema import SceneKind
-
-
-def test_audio_clip_to_dict() -> None:
-    clip = AudioClip(path=Path("/tmp/a.wav"), duration_ms=1234, text="hi", chunk_id="c1")
-    d = clip.to_dict()
-    assert d["path"].endswith("a.wav")
-    assert d["duration_ms"] == 1234
-    assert d["sample_rate"] == 22050
-    assert d["chunk_id"] == "c1"
 
 
 def test_frame_state_defaults() -> None:

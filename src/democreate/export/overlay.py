@@ -186,7 +186,8 @@ def draw_header(
 ) -> None:
     """Draw a slim translucent top bar: title (left) and section (right).
 
-    The bar spans the full width at roughly the top 5% of the frame. The title
+    The bar spans the full width, sitting at roughly 6.2–10.5% of the frame
+    height (just below the window chrome and progress bar). The title
     is drawn in ``fg``, the section in ``accent``. If both ``info.title`` and
     ``info.section`` are empty the call is a silent no-op.
 
@@ -228,8 +229,9 @@ def draw_footer(
 ) -> None:
     """Draw a slim translucent bottom bar of provenance, above the frame edge.
 
-    The bar sits at roughly 88–93% of the frame height — high enough to clear a
-    waveform band drawn flush to the bottom. Layout: ``author · source`` at the
+    The bar sits at roughly 95.5–100% of the frame height — the lowest ~4.5%,
+    overlaid on the bottom of the waveform band with a darker composite so the
+    text stays legible over the bars. Layout: ``author · source`` at the
     left, the URL toward the right, a watermark at the far right, and (if set)
     the clock just left of the watermark. Skipped silently when every field is
     empty.

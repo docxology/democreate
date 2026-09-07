@@ -91,6 +91,19 @@ def test_demo_roundtrips() -> None:
     assert d.to_dict()["schema_version"] == SCHEMA_VERSION
 
 
+def test_from_dict_rejects_foreign_schema_version() -> None:
+    """A foreign schema_version is refused, not silently misread."""
+    from democreate.errors import SchemaValidationError
+
+    data = {"title": "T", "schema_version": "9.9"}
+    with pytest.raises(SchemaValidationError) as excinfo:
+        Demo.from_dict(data)
+    assert "9.9" in str(excinfo.value)
+    # The current version round-trips and a missing stamp defaults to it.
+    d = _demo()
+    assert Demo.from_dict(d.to_dict()).schema_version == SCHEMA_VERSION
+    assert Demo.from_dict({"title": "T"}).schema_version == SCHEMA_VERSION
+
 def test_validate_clean_demo() -> None:
     assert _demo().validate() == []
     assert _demo().is_valid()
@@ -123,6 +136,14 @@ def test_validate_flags_duplicate_chunk_ids() -> None:
 
 def test_demo_not_equal_to_other_type() -> None:
     assert (_demo() == 42) is False
+
+
+def test_filter_scenes_empty_list_selects_nothing() -> None:
+    """An explicitly empty ids/kinds list matches nothing (not "no filter")."""
+    d = _demo()
+    assert d.filter_scenes(ids=[]).scenes == []
+    assert d.filter_scenes(kinds=[]).scenes == []
+    assert len(d.filter_scenes().scenes) == 1
 
 
 def test_from_dict_defaults() -> None:

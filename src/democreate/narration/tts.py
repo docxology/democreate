@@ -91,7 +91,11 @@ logger = get_logger(__name__)
 
 
 def get_tts_backend(
-    name: str = "auto", *, voice: str | None = None, lang: str | None = None
+    name: str = "auto",
+    *,
+    voice: str | None = None,
+    lang: str | None = None,
+    rate_wpm: int | None = None,
 ) -> TTSBackend:
     """Return a TTS backend by name.
 
@@ -104,6 +108,8 @@ def get_tts_backend(
         voice: Optional voice id forwarded to voiced backends.
         lang: Optional language code for Kokoro (e.g. ``"en-us"``, ``"es"``) so
             non-English audio is phonemized in the right language.
+        rate_wpm: Optional speaking-rate override forwarded to the system
+            backend (``say -r`` / ``espeak -s``); ignored by the other backends.
 
     Returns:
         A :class:`TTSBackend` instance.
@@ -116,7 +122,7 @@ def get_tts_backend(
     if key in ("auto", "silent"):
         return SilentTTSBackend()
     if key == "system":
-        return SystemTTSBackend(voice=voice)
+        return SystemTTSBackend(voice=voice, rate_wpm=rate_wpm)
     if key == "kokoro":
         return KokoroTTSBackend(voice=voice, lang=lang or "en-us")
     if key == "elevenlabs":

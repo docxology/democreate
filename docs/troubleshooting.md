@@ -76,13 +76,11 @@ an inspectable result.
 ## `paper` fails: poppler not on `PATH`
 
 **Symptom.** `democreate paper paper.pdf` raises
-`BackendUnavailableError: backend 'poppler' is unavailable — install it with
-\`uv sync --extra pdf\``.
+`BackendUnavailableError: backend 'poppler' is unavailable`.
 
 **Cause.** The `paper/` subsystem reads PDFs by shelling out to the poppler
 utilities `pdfinfo` / `pdftotext` / `pdftoppm`. These are **OS binaries**, not a
-pip package — the `pdf` extra carries no Python dependency; you install poppler
-through your system package manager.
+pip package — you install poppler through your system package manager.
 
 **Fix.**
 

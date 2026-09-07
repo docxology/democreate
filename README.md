@@ -54,7 +54,7 @@ write-up — paths, one-line regenerate commands, the 15 showcase scenes — in
 [`docs/videos.md`](docs/videos.md).
 
 ![Showcase stat-card slide](docs/_videoframes/showcase_stats.png)
-*Package demo · the showcase — the "by the numbers" stat-card slide (744 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
+*Package demo · the showcase — the "by the numbers" stat-card slide (776 tests · 8 subsystems · 5 themes · 4K · 0 binary deps), in the noir aesthetic.*
 
 ![Paper demo figure scene](docs/_videoframes/paper_figure.png)
 *Research-paper demo — a paper figure shown with its real caption.*
@@ -258,9 +258,11 @@ democreate localize demo.json --audio-lang en --subtitle-lang ru --model lfm2.5
 democreate localize demo.json --pairs "en:ru,ru:en,en:es" --model lfm2.5
 ```
 
-The default translator is a deterministic no-op (renders the source language), so
-the path is import-safe and offline-testable; `--translator ollama` localizes for
-real. Subtitles work for any language (text only); *audio* in a language needs a
+The library-level default translator is a deterministic no-op, so the path is
+import-safe and offline-testable; the `localize` command itself defaults to
+`--translator ollama` and exits with an actionable error when no server is
+reachable (pass `--translator identity` to render without translation).
+Subtitles work for any language (text only); *audio* in a language needs a
 TTS voice for it — Kokoro's languages or an installed system voice (so Russian
 *audio* needs a Russian voice present). See [`docs/cli.md`](docs/cli.md).
 
@@ -286,10 +288,10 @@ The narration is built from the paper's **real content**: a correct abstract
 (the extractor skips the table of contents), the **actual figure captions**
 (`Figure N: …` parsed from the text), and the paper's **section structure**. PDF
 ingestion uses the **poppler** command-line tools (`pdfinfo`/`pdftotext`/
-`pdftoppm`) with **no pip dependency**; the optional `pdf` extra (pymupdf) adds
-richer extraction. Worked example — the 170-page *Policy Entanglement in Active
-Inference* paper (47 figures, 145-module codebase) renders to a verified
-1080p video narrating its real abstract, figure captions, and 6 sections.
+`pdftoppm`) with **no pip dependency**. Worked example — the 170-page
+*Policy Entanglement in Active Inference* paper (47 figures, 145-module
+codebase) renders to a verified 1080p video narrating its real abstract,
+figure captions, and 6 sections.
 Details: [`docs/paper.md`](docs/paper.md).
 
 ## Architecture
@@ -382,7 +384,6 @@ backend. Install only what you need.
 | `replay` | Input record/replay | `pynput`, `pyautogui` | `uv pip install -e ".[replay]"` |
 | `video` | Video assembly helpers (real MP4 still needs `ffmpeg` on `PATH`) | `moviepy`, `ffmpeg-python` | `uv pip install -e ".[video]"` |
 | `codebase` | Multi-language analysis | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
-| `pdf` | Richer PDF extraction (poppler CLI is the zero-pip default) | `pymupdf` | `uv pip install -e ".[pdf]"` |
 | `docs` | PDF export of the demo transcript | `weasyprint` | `uv pip install -e ".[docs]"` |
 | `all` | Everything | (all of the above) | `uv pip install -e ".[all]"` |
 | `dev` | Test + lint toolchain | `pytest`, `pytest-cov`, `ruff`, `mypy` | `uv pip install -e ".[dev]"` |

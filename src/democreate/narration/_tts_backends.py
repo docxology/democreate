@@ -620,4 +620,4 @@ class ChatterboxTTSBackend(TTSBackend):
         """Synthesize ``text`` with Chatterbox (only runs when installed)."""
         if not _dep_available("chatterbox"):
             raise BackendUnavailableError("chatterbox", extra="tts")
-        raise BackendUnavailableError("chatterbox", extra="tts")
+        raise NotImplementedError("ChatterboxTTSBackend real synthesis not yet wired")

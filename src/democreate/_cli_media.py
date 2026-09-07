@@ -61,7 +61,7 @@ def render(
         cfg.metadata.watermark = watermark
     cfg.metadata.header = header
     use_voice = cfg.audio.voice if cfg.audio.backend in {"system", "kokoro", "elevenlabs", "chatterbox"} else None
-    backend = get_tts_backend(cfg.audio.backend, voice=use_voice)
+    backend = get_tts_backend(cfg.audio.backend, voice=use_voice, rate_wpm=cfg.audio.rate_wpm)
     console.print(
         f"[cyan]rendering[/] {d.title!r} at {d.width}x{d.height} "
         f"via '{cfg.audio.backend}' voice, '{cfg.theme.name}' theme…"
@@ -111,7 +111,7 @@ def verify(
 def thumbnail(
     demo: Path = typer.Argument(..., help="Path to a demo .json/.yaml"),
     out: Path = typer.Option(Path("poster.png"), "--out", "-o"),
-    theme: str = typer.Option("dark", "--theme"),
+    theme: str = typer.Option("noir", "--theme"),
     subtitle: str = typer.Option("", "--subtitle"),
 ) -> None:
     """Render a poster / thumbnail frame for a demo."""
@@ -134,7 +134,7 @@ def gif(
     output: Path = typer.Option(Path("output"), "--output", "-o"),
     out: Path = typer.Option(Path("demo.gif"), "--gif"),
     fps: int = typer.Option(8, "--fps"),
-    theme: str = typer.Option("dark", "--theme"),
+    theme: str = typer.Option("noir", "--theme"),
 ) -> None:
     """Build a demo and export an animated GIF preview of its frames."""
     from .config import RenderConfig

@@ -160,6 +160,16 @@ def test_chatterbox_unavailable_raises() -> None:
         assert isinstance(get_tts_backend("chatterbox"), ChatterboxTTSBackend)
 
 
+def test_get_tts_backend_threads_rate_wpm() -> None:
+    """``rate_wpm`` reaches the system backend (``say -r`` / ``espeak -s``)."""
+    import shutil
+
+    if shutil.which("say") is None and shutil.which("espeak") is None:  # pragma: no cover
+        pytest.skip("no system TTS engine on PATH")
+    backend = get_tts_backend("system", rate_wpm=180)
+    assert backend.rate_wpm == 180
+
+
 def test_base_class_methods_not_implemented() -> None:
     base = TTSBackend()
     with pytest.raises(NotImplementedError):

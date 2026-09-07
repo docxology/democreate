@@ -14,6 +14,102 @@ resolves to the latest archived release.
   coupling and a `data` bridge to `hum-dashboard` for versioned demo video
   integration.
 
+### Fixed
+
+- **`AudioConfig.rate_wpm` is now wired** — `get_tts_backend` gained a
+  `rate_wpm` keyword, threaded from the render config in `render`, `tour`,
+  `portfolio`, `paper`, and `localize`, so the documented speaking-rate
+  override actually reaches `SystemTTSBackend` (`say -r` / `espeak -s`).
+  Previously the knob existed only in the config and was silently ignored.
+- **`export_video` now builds a real image2 pattern** — the printf glob and
+  `-start_number` are derived from the first frame's zero-padded stem
+  (matching `encode_frame_sequence`) instead of a hardcoded `%05d` that
+  matched nothing for the compositor's `frame_%04d.png` names.
+  `build_ffmpeg_command` accepts an optional `start_number`.
+- **`compute_zoom_path` lead-in eases in** — the zoomed-out lead-in keyframe
+  now sits `hold_ms` before the first cursor event (clamped at 0) instead of
+  sharing its timestamp, which made the camera jump fully zoomed-in one frame
+  after appearing zoomed-out.
+- **`background_image` relativizes** — `_PATH_KEYS` includes the key, so the
+  resolved demo JSON and the render manifest rewrite full-frame
+  background-image paths relative to the workspace root like every other path
+  field.
+- `Demo.filter_scenes(ids=[])` / `(kinds=[])` select nothing (previously an
+  empty list was treated as "no filter", returning every scene).
+- `democreate portfolio` validates the projects directory up front (a clean
+  error instead of a raw `FileNotFoundError`) and exits non-zero when zero
+  projects render.
+- `ChatterboxTTSBackend.synthesize` / `WhisperTranscriber.transcribe` raise
+  `NotImplementedError` when their dependency is installed (the repo's
+  unwired-slot convention) instead of an unconditional
+  `BackendUnavailableError`.
+- `democreate backends` lists the `elevenlabs` extra; the `paper --theme`
+  help includes `noir`; `config` / `thumbnail` / `gif` default to the
+  package theme `noir` (previously `dark`).
+- The `narration` package re-exports `ElevenLabsTTSBackend`
+  (`from democreate.narration import ElevenLabsTTSBackend`).
+- Removed dead code: a stray duplicate `@app.command()` that
+  double-registered `paper`, an unused `RenderConfig` re-export in
+  `democreate.portfolio`, the no-op `"·"` math-fold entry, a dead
+  `length < 0` check in `stego.extract` (the header is unsigned),
+  `AudioClip.to_dict` (no `from_dict` counterpart; its sole caller was its
+  own test), and a click-ripple "fade" alpha that Pillow silently drops on
+  RGB frames.
+- Animation `diagram` / `waveform` import PIL lazily per the subsystem
+  contract; overlay / chapters / interactive / paper-script docstrings now
+  match measured behavior.
+- Docs drift: `docs/translation.md` documents `IdentityTranslator` (the
+  documented `NoopTranslator` never existed), real `translate` signatures,
+  the `localize` CLI flags instead of a nonexistent `translation:` YAML
+  block, and sidecar subtitles (burn-in is `--burn`); `docs/cli.md` `--tts`
+  choices include `elevenlabs` and `--max-modules` defaults to `6`;
+  `docs/backends.md` gains the ElevenLabs row; `docs/README.md` states
+  Kokoro is wired and points the paper demo at `output/paper_showcase/`;
+  `docs/videos.md` chapter count corrected to 15; `examples/README.md`
+  intro description matches the nine-scene artifact.
+
+- **`Demo.from_dict` refuses foreign `schema_version`** — loading an artifact
+  stamped with any other version used to succeed silently while unknown future
+  fields were dropped; it now raises `SchemaValidationError` naming both
+  versions. The current `SCHEMA_VERSION` (`"1.0"`) round-trips unchanged.
+- **`AsciicastRecording.from_json` raises `CaptureError`** on empty,
+  malformed-header, or malformed-event recordings (previously a raw
+  `ValueError`/`JSONDecodeError`), wiring the exported-but-never-raised
+  `CaptureError` into a real terminal-capture failure path.
+- **LLM narration errors no longer point at a phantom extra** — `LLMNarrator` /
+  `LLMScriptGenerator` raised `BackendUnavailableError(..., extra="llm")`, but no
+  `llm` extra exists (the module is stdlib-only). The module is now documented as
+  a deliberate library-only surface: the CLI never calls an LLM, because polished
+  narration can drop a chunk's `trigger_word` and degrade TTS→STT anchoring.
+- **`docs/manuscript/figures/graphical_abstract.py` runs again** — the
+  `manuscript/` → `docs/manuscript/` migration left its repo-root anchor one
+  level short (it resolved `docs/docs/_videoframes`), so the cover was not
+  regenerable; the committed cover and the showcase stat-card still are
+  re-rendered at the current test count (753).
+
+
+### Changed
+
+- **`scripts/` enforces the thin-orchestrator contract** — the two scripts that
+  carried business logic now delegate to importable, tested library modules:
+  `scripts/build_manuscript.py` → `democreate.manuscript.build_manuscript`
+  (config load, citation/figure gates, Pandoc invocation, engine discovery) and
+  `scripts/generate_api_docs.py` → `democreate.api_docs.generate` (module
+  inventory + Markdown rendering; deterministic output unchanged). Pure code
+  motion, behavior preserved; both modules are covered by the new
+  `tests/test_manuscript.py` / `tests/test_api_docs.py` (test-count literals
+  synced to the new collection total). `scripts/README.md` / `scripts/AGENTS.md`
+  carry the refreshed inventory (script | purpose | delegates to | command).
+
+### Removed
+
+- **The `pdf` extra (`pymupdf`)** — declared since 0.7.1 and advertised in the
+  README extras table, but no code path ever imported pymupdf: the `paper/`
+  subsystem deliberately reads PDFs through the poppler CLI only. The extra and
+  all of its references are gone; missing poppler now raises
+  `BackendUnavailableError("poppler")` with the OS-package remedy documented,
+  instead of a `uv sync --extra pdf` hint that pointed at nothing.
+
 ## [0.7.1] - 2026-07-20
 
 ### Added

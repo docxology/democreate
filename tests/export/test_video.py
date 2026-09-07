@@ -59,6 +59,21 @@ def test_ffmpeg_command_rejects_bad_fps(tmp_path: Path) -> None:
         build_ffmpeg_command("f/%05d.png", None, tmp_path / "o.mp4", fps=0)
 
 
+def test_ffmpeg_command_start_number(tmp_path: Path) -> None:
+    """An explicit ``start_number`` lands before ``-i`` (an input option)."""
+    cmd = build_ffmpeg_command(
+        "frames/frame_%04d.png", None, tmp_path / "o.mp4", fps=24, start_number=0
+    )
+    idx = cmd.index("-start_number")
+    assert cmd[idx + 1] == "0"
+    assert cmd[idx + 3] == "frames/frame_%04d.png"
+
+
+def test_ffmpeg_command_omits_start_number_by_default(tmp_path: Path) -> None:
+    cmd = build_ffmpeg_command("f/%05d.png", None, tmp_path / "o.mp4")
+    assert "-start_number" not in cmd
+
+
 # -- frames_to_gif ----------------------------------------------------------
 
 

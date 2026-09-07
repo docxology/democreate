@@ -10,6 +10,7 @@ from democreate.capture.terminal import (
     record_commands,
     recording_to_frame_states,
 )
+from democreate.errors import CaptureError
 from democreate.schema import SceneKind
 
 
@@ -76,11 +77,28 @@ def test_from_json_ignores_blank_lines() -> None:
     assert AsciicastRecording.from_json(text) == rec
 
 
-def test_from_json_empty_raises() -> None:
+def test_from_json_empty_raises_capture_error() -> None:
     import pytest
 
-    with pytest.raises(ValueError):
+    with pytest.raises(CaptureError):
         AsciicastRecording.from_json("   \n  ")
+
+
+def test_from_json_malformed_header_raises_capture_error() -> None:
+    import pytest
+
+    with pytest.raises(CaptureError) as excinfo:
+        AsciicastRecording.from_json("{not json}\n")
+    assert "header" in str(excinfo.value)
+
+
+def test_from_json_malformed_event_raises_capture_error() -> None:
+    import pytest
+
+    header = json.dumps({"version": 2, "width": 80, "height": 24})
+    with pytest.raises(CaptureError) as excinfo:
+        AsciicastRecording.from_json(header + "\n{\"oops\": true}\n")
+    assert "event line" in str(excinfo.value)
 
 
 def test_event_to_from_list_roundtrip() -> None:

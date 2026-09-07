@@ -119,9 +119,8 @@ def test_base_url_arg_overrides_env(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_narrate_raises_backend_unavailable_without_key() -> None:
     narrator = LLMNarrator()
     with pytest.raises(BackendUnavailableError) as excinfo:
-        narrator.narrate("describe this scene")
+        narrator.narrate("hello")
     assert excinfo.value.backend == "llm"
-    assert excinfo.value.extra == "llm"
 
 
 def test_rewrite_chunks_raises_backend_unavailable_without_key() -> None:

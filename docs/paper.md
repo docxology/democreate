@@ -70,8 +70,7 @@ workstations — **no pip PDF dependency**:
   (default 150 DPI; the CLI uses 140).
 
 Every function checks its binary is on `PATH` first and raises
-`BackendUnavailableError(backend="poppler", extra="pdf")` with an actionable
-message if it is missing. `poppler_available()` reports readiness.
+`BackendUnavailableError(backend="poppler")` if it is missing. `poppler_available()` reports readiness.
 
 ## Deeper structure: real abstract, captions, sections
 

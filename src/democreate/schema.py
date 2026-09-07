@@ -40,6 +40,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from .errors import SchemaValidationError
+
 __all__ = [
     "ActionType",
     "SceneKind",
@@ -425,8 +427,8 @@ class Demo:
         Returns:
             A new :class:`Demo` with the filtered scenes.
         """
-        id_set = set(ids) if ids else None
-        kind_set = set(kinds) if kinds else None
+        id_set = set(ids) if ids is not None else None
+        kind_set = set(kinds) if kinds is not None else None
         filtered = [
             s for s in self.scenes
             if (id_set is None or s.id in id_set)
@@ -571,6 +573,30 @@ class Demo:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Demo:
+        """Rebuild a :class:`Demo` from its :meth:`to_dict` mapping.
+
+        Args:
+            data: Mapping with at least a ``title``; all other keys default.
+
+        Returns:
+            A populated :class:`Demo`.
+
+        Raises:
+            SchemaValidationError: If the mapping carries a ``schema_version``
+                other than :data:`SCHEMA_VERSION`. Unknown *fields* inside a
+                matching version are tolerated, but a foreign version means the
+                artifact was written by an incompatible writer whose new fields
+                would be silently dropped — refuse it rather than misread it.
+        """
+        version = data.get("schema_version", SCHEMA_VERSION)
+        if version != SCHEMA_VERSION:
+            raise SchemaValidationError(
+                [
+                    f"unsupported schema_version {version!r}: this writer "
+                    f"understands {SCHEMA_VERSION!r}; re-export the artifact "
+                    "with a matching writer before loading"
+                ]
+            )
         return cls(
             title=data["title"],
             scenes=[Scene.from_dict(s) for s in data.get("scenes", [])],
@@ -579,7 +605,7 @@ class Demo:
             fps=data.get("fps", 30),
             voice=data.get("voice", "default"),
             metadata=dict(data.get("metadata", {})),
-            schema_version=data.get("schema_version", SCHEMA_VERSION),
+            schema_version=SCHEMA_VERSION,
         )
 
     def to_json(self, *, indent: int | None = 2) -> str:

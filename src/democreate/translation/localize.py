@@ -126,7 +126,7 @@ def localize_render(
     # non-English audio is phonemized correctly (an explicit ``voice`` wins).
     klang, default_voice = KOKORO_AUDIO_LANGS.get(languages.audio, ("en-us", "af_heart"))
     use_voice = (voice or default_voice) if tts != "silent" else None
-    backend = get_tts_backend(tts, voice=use_voice, lang=klang)
+    backend = get_tts_backend(tts, voice=use_voice, lang=klang, rate_wpm=cfg.audio.rate_wpm)
     result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(
         audio_demo, workspace
     )

@@ -33,7 +33,9 @@ def default_output_root() -> Path:
 #: workspace root. Relativization is restricted to these so an authored title or
 #: caption that merely *starts with* the root path is never mistaken for a path
 #: and mangled (Forge cross-vendor finding).
-_PATH_KEYS = frozenset({"audio_path", "path", "frame_path", "image", "image_path"})
+_PATH_KEYS = frozenset(
+    {"audio_path", "path", "frame_path", "image", "image_path", "background_image"}
+)
 
 
 def relativize_under_root(obj: Any, root: Path | str) -> Any:

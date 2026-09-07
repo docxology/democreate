@@ -85,7 +85,7 @@ democreate build demo.json --output output --tts auto
 |--------|---------|---------|
 | `DEMO` (arg) | required | Path to a `.json`/`.yaml` demo. |
 | `--output`, `-o` | `output` | Output workspace directory. |
-| `--tts` | `auto` | TTS backend: `auto`, `silent`, `kokoro`, `chatterbox`. |
+| `--tts` | `auto` | TTS backend: `auto`, `silent`, `kokoro`, `elevenlabs`, `chatterbox`. |
 | `--strict / --no-strict` | `--strict` | Fail (`SchemaValidationError`) on an invalid demo vs. warn and continue. |
 
 ## `tour`
@@ -108,7 +108,7 @@ democreate tour /path/to/repo --render --voice Samantha   # → output/video/dem
 | `--title`, `-t` | `Codebase Tour` | Demo title. |
 | `--build / --no-build` | `--build` | Build the HTML player. |
 | `--render / --no-render` | `--no-render` | Render a verified MP4 with voiceover. |
-| `--tts` | `system` | TTS backend when `--render` (`system`/`silent`). |
+| `--tts` | `system` | TTS backend when `--render` (`system`/`silent`/`kokoro`/`elevenlabs`). |
 | `--voice`, `-v` | (none) | Voice id when `--render`. |
 | `--theme` | `noir` | Theme preset when `--render`. |
 
@@ -139,12 +139,12 @@ democreate portfolio ~/code -o output --resolution 720p --max-projects 3
 |--------|---------|---------|
 | `PROJECTS_DIR` (arg) | required | Directory of project subdirectories. |
 | `--output`, `-o` | `output` | Output root (one `<name>/` folder per project). |
-| `--tts` | `system` | TTS backend (`system`/`silent`/`kokoro`). |
+| `--tts` | `system` | TTS backend (`system`/`silent`/`kokoro`/`elevenlabs`). |
 | `--voice`, `-v` | (none) | Voice id (e.g. `Samantha`). |
 | `--theme` | `noir` | Theme preset. |
 | `--resolution` | `1080p` | `720p`/`1080p`/`1440p`/`2160p`/`4k`. |
 | `--max-projects` | `0` (all) | Cap the number of projects rendered. |
-| `--max-modules` | `3` | Key-module code scenes per project. |
+| `--max-modules` | `6` | Key-module code scenes per project. |
 | `--skip` | (none) | Comma-separated project names to skip. |
 
 ## `localize`
@@ -228,7 +228,7 @@ democreate render demo.json --no-animate            # static slideshow, audio-sy
 |--------|---------|---------|
 | `DEMO` (arg) | required | Path to a `.json`/`.yaml` demo. |
 | `--output`, `-o` | `output` | Output workspace. |
-| `--tts` | `system` | `system` (real OS voice), `silent`, `kokoro`, `chatterbox`. |
+| `--tts` | `system` | `system` (real OS voice), `silent`, `kokoro`, `elevenlabs`, `chatterbox`. |
 | `--voice`, `-v` | `""` (OS default) | Optional system voice name (macOS: see `say -v '?'`). |
 | `--fps` | `0` | Static-render frame rate (`0` = the demo's fps). |
 | `--captions / --no-captions` | `--no-captions` | Burn subtitles in, static path (needs libass). |
@@ -316,7 +316,7 @@ democreate paper paper.pdf --no-render          # emit paper.json only
 
 Requires poppler on `PATH` (`pdfinfo`/`pdftotext`/`pdftoppm`); rendering also
 needs a usable system TTS and `ffmpeg`. Missing poppler raises
-`BackendUnavailableError(extra="pdf")`.
+`BackendUnavailableError("poppler")`.
 
 ## `thumbnail`
 
@@ -335,7 +335,7 @@ democreate thumbnail demo.json --subtitle "narrated HD demo"
 |--------|---------|---------|
 | `DEMO` (arg) | required | Path to a `.json`/`.yaml` demo. |
 | `--out`, `-o` | `poster.png` | Destination `.png`. |
-| `--theme` | `dark` | Theme preset: `noir`, `dark`, `light`, `midnight`, `paper`. |
+| `--theme` | `noir` | Theme preset: `noir`, `dark`, `light`, `midnight`, `paper`. |
 | `--subtitle` | `""` (auto) | Explicit subtitle; empty uses a generated scene/duration summary. |
 
 ## `gif`
@@ -355,7 +355,7 @@ democreate gif demo.json --gif demo.gif --fps 8 --theme dark
 | `--output`, `-o` | `output` | Output workspace (the demo is built here first). |
 | `--gif` | `demo.gif` | Destination `.gif`. |
 | `--fps` | `8` | Playback frame rate of the GIF. |
-| `--theme` | `dark` | Theme preset (`noir`, `dark`, `light`, `midnight`, `paper`). |
+| `--theme` | `noir` | Theme preset (`noir`, `dark`, `light`, `midnight`, `paper`). |
 
 ## `config`
 
@@ -373,7 +373,7 @@ democreate render demo.json --config democreate.yaml
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `OUT` (arg) | `democreate.yaml` | Where to write the config. |
-| `--theme` | `dark` | Base theme preset to seed defaults from (`noir`, `dark`, `light`, `midnight`, `paper`). |
+| `--theme` | `noir` | Base theme preset to seed defaults from (`noir`, `dark`, `light`, `midnight`, `paper`). |
 
 ## `stego`
 

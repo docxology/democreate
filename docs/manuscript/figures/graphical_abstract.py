@@ -27,7 +27,7 @@ from PIL import Image, ImageDraw, ImageStat
 
 # --- Make the package importable when run as a standalone script -------------
 _THIS = Path(__file__).resolve()
-_REPO = _THIS.parents[2]  # .../demo_create
+_REPO = _THIS.parents[3]  # .../democreate (docs/manuscript/figures/*.py)
 _SRC = _REPO / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
@@ -164,7 +164,7 @@ def _draw_title_band(img: Image.Image, draw: ImageDraw.ImageDraw) -> int:
     )
 
     # right-aligned meta line
-    meta = "744 tests · ≥90% cov · 56 modules / 8 subsystems · Python ≥3.10 · MIT"
+    meta = "776 tests · ≥90% cov · 57 modules / 8 subsystems · Python ≥3.10 · MIT"
     mf = _font(27)
     mw, mh = _measure(draw, meta, mf)
     draw.text((W - pad - mw, 92), meta, font=mf, fill=FAINT)

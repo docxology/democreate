@@ -1,10 +1,23 @@
 """Optional LLM narration backend for DemoCreate.
 
 The deterministic template generator (see :mod:`democreate.narration.script`)
-remains the default and is never changed by this module. This adds an *optional*
-upgrade: when an OpenAI-compatible API is configured via environment variables,
-:class:`LLMNarrator` can generate richer narration or polish the template's
-output through a chat-completions endpoint.
+remains the default and is never changed by this module. This adds an *optional*,
+**import-only** upgrade: when an OpenAI-compatible API is configured via
+environment variables, :class:`LLMNarrator` can generate richer narration or
+polish the template's output through a chat-completions endpoint.
+
+The module is deliberately **not wired into the CLI/pipeline**: narration text
+carries the ``trigger_word`` anchoring contract (a polished line may no longer
+contain a chunk's trigger words, degrading TTS→STT action anchoring), and the
+default path must stay deterministic. Library users opt in explicitly::
+
+    from democreate.narration.llm import get_narrator
+    from democreate.schema import Demo
+
+    narrator = get_narrator()          # config from env (see backends.md)
+    demo = Demo.from_file("demo.json")
+    texts = [c.text for c in demo.iter_chunks()]
+    polished = narrator.rewrite_chunks(texts, context=demo.title)
 
 The module is import-safe and dependency-free. It uses only the standard library
 :mod:`urllib`, and the network-touching methods are guarded — they raise
@@ -157,7 +170,7 @@ class LLMNarrator:
             BackendUnavailableError: If no API key is configured.
         """
         if not self.api_key:
-            raise BackendUnavailableError("llm", extra="llm")
+            raise BackendUnavailableError("llm")
         return self.api_key
 
     def narrate(

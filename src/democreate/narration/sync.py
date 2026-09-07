@@ -172,7 +172,7 @@ class WhisperTranscriber(Transcriber):
         """Transcribe with Whisper (only runs when ``whisper`` is installed)."""
         if not _dep_available("whisper"):
             raise BackendUnavailableError("whisper", extra="whisper")
-        raise BackendUnavailableError("whisper", extra="whisper")
+        raise NotImplementedError("WhisperTranscriber real transcription not yet wired")
 
 
 def get_transcriber(name: str = "auto") -> Transcriber:

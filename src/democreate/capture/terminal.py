@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 
+from ..errors import CaptureError
 from ..media import FrameState
 from ..schema import SceneKind
 
@@ -111,13 +112,25 @@ class AsciicastRecording:
             The parsed :class:`AsciicastRecording`.
 
         Raises:
-            ValueError: If the text contains no header line.
+            CaptureError: If the text is empty, the header is not valid JSON,
+                or any event line is malformed — i.e. the terminal capture
+                step failed.
         """
         stripped = [ln for ln in text.splitlines() if ln.strip()]
         if not stripped:
-            raise ValueError("asciicast recording is empty: no header line")
-        header = json.loads(stripped[0])
-        events = [AsciicastEvent.from_list(json.loads(ln)) for ln in stripped[1:]]
+            raise CaptureError("asciicast recording is empty: no header line")
+        try:
+            header = json.loads(stripped[0])
+        except json.JSONDecodeError as exc:
+            raise CaptureError(f"asciicast header is not valid JSON: {exc}") from exc
+        events: list[AsciicastEvent] = []
+        for line in stripped[1:]:
+            try:
+                events.append(AsciicastEvent.from_list(json.loads(line)))
+            except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+                raise CaptureError(
+                    f"malformed asciicast event line {line[:40]!r}: {exc}"
+                ) from exc
         return cls(
             version=int(header.get("version", 2)),
             width=int(header.get("width", 80)),

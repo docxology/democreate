@@ -34,15 +34,6 @@ class AudioClip:
     text: str = ""
     chunk_id: str | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "path": str(self.path),
-            "duration_ms": self.duration_ms,
-            "sample_rate": self.sample_rate,
-            "text": self.text,
-            "chunk_id": self.chunk_id,
-        }
-
 
 @dataclass
 class FrameState:

@@ -8,8 +8,9 @@ DemoCreate can produce videos with narration in one language and subtitles in an
 # Translate an existing demo to Spanish audio + English subtitles
 democreate localize demo.yaml --audio-lang es --subtitle-lang en
 
-# Requires a running Ollama server (default: http://localhost:11434)
-# Falls back to no-op (identity) translation when Ollama is unavailable.
+# Requires a running Ollama server (default: http://localhost:11434).
+# The command exits with an actionable error when Ollama is unreachable —
+# pass --translator identity to render without translation (no-op).
 ```
 
 ## How it works
@@ -17,34 +18,40 @@ democreate localize demo.yaml --audio-lang es --subtitle-lang en
 The `translation` subsystem wraps the narration pipeline with a configurable translation step:
 
 1. **Narration generation** — script is generated in the source language (default: English).
-2. **Translation** — each narration chunk is passed through `democreate.translation.Translator`, which by default calls a local `ollama` model. When `ollama` is unreachable the `NoopTranslator` (identity) is used, so renders always succeed.
+2. **Translation** — each narration chunk is passed through a
+   `democreate.translation.Translator`. The CLI defaults to `--translator ollama`
+   (a local model); `--translator identity` selects the deterministic no-op
+   (`IdentityTranslator`), which is also the library-level default.
 3. **TTS synthesis** — translated text is synthesized with the target-language TTS backend.
-4. **Subtitle track** — the original-language narration is burned in as SRT subtitles via ffmpeg.
+4. **Subtitle track** — the original-language narration is written as
+   `.srt`/`.vtt` sidecar files next to the video (`--burn` burns them into the
+   picture instead).
 
 ## Configuration
 
-In a demo YAML:
+Localization is configured on the `democreate localize` command line (the demo
+schema has no `translation:` block):
 
-```yaml
-translation:
-  audio_lang: es          # ISO 639-1 language code for TTS
-  subtitle_lang: en       # ISO 639-1 language code for subtitle track
-  model: llama3           # ollama model to use for translation
-  ollama_url: http://localhost:11434
+```bash
+# --audio-lang    ISO 639-1 code for the spoken (TTS) track
+# --subtitle-lang ISO 639-1 code for the subtitle track
+# --model         ollama model tag used for translation
+# --host          ollama host (default: http://localhost:11434)
+democreate localize demo.yaml --audio-lang es --subtitle-lang en --model llama3
 ```
 
 ## Backend API
 
 ```python
-from democreate.translation import Translator, NoopTranslator, OllamaTranslator
+from democreate.translation import IdentityTranslator, OllamaTranslator, Translator
 
-# No-op (identity) — always available
-t = NoopTranslator()
-assert t.translate("Hello", target_lang="es") == "Hello"
+# No-op (identity) — always available, the library-level default
+t = IdentityTranslator()
+assert t.translate("Hello", source="en", target="es") == "Hello"
 
 # Ollama — requires a running server
-t = OllamaTranslator(model="llama3", base_url="http://localhost:11434")
-translated = t.translate("Hello, world.", target_lang="es")
+t = OllamaTranslator(model="llama3", host="http://localhost:11434")
+translated = t.translate("Hello, world.", source="en", target="es")
 ```
 
 ## Supported languages
@@ -59,4 +66,4 @@ The translation subsystem has a no-dependency test suite in `tests/translation/`
 uv run pytest tests/translation/ -v
 ```
 
-Tests use `NoopTranslator` by default and do not require a running ollama server.
+Tests use `IdentityTranslator` by default and do not require a running ollama server.

@@ -15,8 +15,10 @@ canonical DemoCreate pipeline as a ready-to-render diagram.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-from PIL import Image, ImageDraw, ImageFont
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from PIL import Image, ImageDraw, ImageFont
 
 from .._logging import get_logger
 from .fonts import scaled_font
@@ -29,7 +31,6 @@ __all__ = [
 
 logger = get_logger(__name__)
 
-PillowFont = ImageFont.ImageFont | ImageFont.FreeTypeFont
 
 # Text size ratios relative to frame height. Tuned so a 1080px frame yields a
 # comfortable ~59px title down to ~26px sublabels.
@@ -53,7 +54,7 @@ class DiagramNode:
 
 
 def _text_size(
-    draw: ImageDraw.ImageDraw, text: str, font: PillowFont
+    draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
 ) -> tuple[int, int]:
     """Return the ``(width, height)`` of ``text`` rendered with ``font``.
 
@@ -112,6 +113,8 @@ def render_architecture_diagram(
     Returns:
         A :class:`PIL.Image.Image` of exactly ``size``.
     """
+    from PIL import Image, ImageDraw
+
     width, height = int(size[0]), int(size[1])
     width = max(1, width)
     height = max(1, height)
@@ -172,9 +175,11 @@ def render_architecture_diagram(
         stack_top = content_top + header_h + box_gap
 
         # Pre-compute each box's height from its text content.
-        box_specs: list[tuple[int, list[tuple[str, PillowFont, int]]]] = []
+        box_specs: list[
+            tuple[int, list[tuple[str, ImageFont.ImageFont | ImageFont.FreeTypeFont, int]]]
+        ] = []
         for node in nodes:
-            lines: list[tuple[str, PillowFont, int]] = []
+            lines: list[tuple[str, ImageFont.ImageFont | ImageFont.FreeTypeFont, int]] = []
             lw, lh = _text_size(draw, node.label, node_font)
             lines.append((node.label, node_font, lh))
             for sub in node.sublabels:

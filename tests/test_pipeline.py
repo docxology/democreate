@@ -84,6 +84,21 @@ def test_full_pipeline_produces_all_artifacts(sample_demo: Demo, tmp_workspace) 
         assert got["audio_path"] == "a.wav"
 
 
+def test_relativize_rewrites_background_image_paths(tmp_path) -> None:
+    """``background_image`` is a path key: it relativizes; authored titles never do."""
+    from democreate.project_paths import relativize_under_root
+
+    rel = relativize_under_root(
+        {
+            "background_image": str(tmp_path / "frames" / "fig.png"),
+            "title": f"{tmp_path} starts a title",
+        },
+        tmp_path,
+    )
+    assert rel["background_image"] == "frames/fig.png"
+    assert rel["title"] == f"{tmp_path} starts a title"
+
+
 def test_pipeline_sets_timing_on_demo(sample_demo: Demo, tmp_workspace) -> None:
     build_demo(sample_demo, tmp_workspace)
     # sync assigned chunk start times and action timestamps

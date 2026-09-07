@@ -138,7 +138,7 @@ def render_project(
     )
 
     use_voice = cfg.audio.voice if cfg.audio.backend != "silent" else None
-    backend = get_tts_backend(cfg.audio.backend, voice=use_voice)
+    backend = get_tts_backend(cfg.audio.backend, voice=use_voice, rate_wpm=cfg.audio.rate_wpm)
     result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(demo, ws)
 
     stamp = timestamp or utc_stamp()

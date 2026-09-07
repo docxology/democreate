@@ -103,7 +103,7 @@ def test_pdf_info_raises_backend_when_poppler_missing(
     with pytest.raises(BackendUnavailableError) as exc:
         paper_pdf.pdf_info(target)
     assert exc.value.backend == "poppler"
-    assert exc.value.extra == "pdf"
+    assert exc.value.extra is None  # poppler is an OS binary, not a pip extra
 
 
 def test_extract_text_raises_backend_when_poppler_missing(

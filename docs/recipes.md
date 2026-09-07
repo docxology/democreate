@@ -126,17 +126,26 @@ Tune or disable it via `--config` (`video.typing`, `video.typing_fraction`,
 `video.cursor`) — see [config.md](config.md#videoconfig-geometry-motion) and
 [video.md](video.md#typing-animation).
 
-## 8. Optional LLM narration (env-gated)
+## 8. Optional LLM narration (env-gated, library-only)
 
-The deterministic template narrator is always the default. To *optionally* polish
-or generate narration with an OpenAI-compatible endpoint, set an API key in the
-environment; with no key configured the library falls back to the template, so
-this never breaks a render. Configuration is purely via environment variables
+The deterministic template narrator is always the default — the CLI never calls
+an LLM. Polishing narration with an OpenAI-compatible endpoint is a deliberate
+**library-only** surface (polished lines may drop a chunk's `trigger_word`, so
+wiring it into the pipeline would degrade TTS→STT action anchoring). Library
+users opt in explicitly; configuration is purely via environment variables
 ([`narration/llm.py`](api.md#democreatenarrationllm)):
 
 ```bash
 export OPENAI_API_KEY="sk-…"                       # or DEMOCREATE_LLM_API_KEY
 export DEMOCREATE_LLM_BASE_URL="https://api.openai.com/v1"   # optional override
+```
+
+```python
+from democreate.narration.llm import get_narrator
+
+narrator = get_narrator()                      # env-configured, no pip extra
+texts = [c.text for c in demo.iter_chunks()]
+polished = narrator.rewrite_chunks(texts, context=demo.title)
 ```
 
 It uses only the standard library (`urllib`) — **zero pip dependencies** — and the

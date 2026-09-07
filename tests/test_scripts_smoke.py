@@ -35,3 +35,15 @@ def test_generate_demo_script_end_to_end(tmp_path: Path) -> None:
     )
     assert res.returncode == 0, res.stdout + res.stderr
     assert (out / "web" / "player.html").exists()
+
+
+def test_build_manuscript_help_smoke() -> None:
+    """The thin manuscript orchestrator still parses args (no pandoc needed)."""
+    res = subprocess.run(
+        [sys.executable, str(SCRIPTS / "build_manuscript.py"), "--help"],
+        capture_output=True,
+        text=True,
+        cwd=PROJECT_ROOT,
+    )
+    assert res.returncode == 0, res.stdout + res.stderr
+    assert "--check" in res.stdout

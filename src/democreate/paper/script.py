@@ -106,6 +106,11 @@ def build_paper_demo(
         page_images: Optional rendered PDF page images (e.g. the title page) used
             as full-frame backgrounds.
         architecture_image: Optional pre-rendered architecture diagram image.
+        figure_captions: Optional list of extracted figure captions (``Figure
+            N: …``); keyed by figure order so featured figures narrate their
+            real captions instead of generic leads.
+        sections: Optional real section records; their titles drive the
+            "Structure" roadmap beat (abstract excluded).
         width / height / fps: Output geometry.
         voice: Default narration voice.
         max_figures: Cap on how many figures to feature.

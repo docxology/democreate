@@ -194,7 +194,7 @@ def extract(image: Image.Image) -> bytes:
     (length,) = struct.unpack(_HEADER_FORMAT, header)
 
     capacity = capacity_bytes((width, height))
-    if length > capacity or length < 0:
+    if length > capacity:
         raise DemoCreateError(
             f"declared payload length {length} exceeds capacity {capacity}; "
             f"image is corrupt or carries no payload"
