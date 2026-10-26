@@ -266,9 +266,10 @@ Subtitles work for any language (text only); *audio* in a language needs a
 TTS voice for it — Kokoro's languages or an installed system voice (so Russian
 *audio* needs a Russian voice present). See [`docs/cli.md`](docs/cli.md).
 
-**Five committed examples** demonstrate it on the showcase itself (in
-`output/video/`, each with a matching `audio_X-subs_Y.srt`/`.vtt` under
-`output/captions/`): `…-audio_en-subs_en.mp4` (baseline), `…-audio_en-subs_ru.mp4`
+**Five localized cuts** demonstrate it on the showcase itself (rendered on demand
+into `output/video/`, each with a matching `audio_X-subs_Y.srt`/`.vtt` under
+`output/captions/`; both are gitignored, so regenerate them with the commands
+above): `…-audio_en-subs_en.mp4` (baseline), `…-audio_en-subs_ru.mp4`
 (English audio, Russian subtitles), `…-audio_en-subs_es.mp4` (English audio,
 Spanish subtitles), `…-audio_es-subs_en.mp4` (**Spanish audio**, English subtitles
 — the reverse), and `…-audio_ru-subs_ru.mp4` (**Russian audio + Russian subtitles**,
@@ -340,7 +341,7 @@ Each subsystem directory under `src/democreate/` carries its own `README.md`
 | `codebase/` | AST traversal, visualization, import graphs. | stdlib `ast`. | `codebase` |
 | `assembly/` | Timeline, compositing, captions, effects. | `ManifestCompositor`, pure SRT/VTT/ASS, Pillow effects. | `video` |
 | `export/` | Spine + frames + audio → deliverables. | Jinja2 HTML player, Pillow GIF, Markdown/JSON/chapters, pure WAV concat. Real HD MP4 assembly + content verifier when `ffmpeg` is present. | `video` |
-| `paper/` | Research-paper ingestion (PDF + figures → demo). | poppler CLI (`pdfinfo`/`pdftotext`/`pdftoppm`), `build_paper_demo`. | `pdf` |
+| `paper/` | Research-paper ingestion (PDF + figures → demo). | poppler CLI (`pdfinfo`/`pdftotext`/`pdftoppm`), `build_paper_demo`. | — (poppler on `PATH`) |
 | `translation/` | Localize: audio in one language, subtitles in another. | `IdentityTranslator` (no-op). `OllamaTranslator` adds local translation (a running `ollama` server, no pip dep). | — (local `ollama`) |
 
 Spine modules: `schema.py` (the model), `media.py` (`AudioClip` / `FrameState`),

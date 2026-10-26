@@ -8,6 +8,18 @@ resolves to the latest archived release.
 
 ## [Unreleased]
 
+### Changed
+
+- **CI currency** — `actions/checkout@v7`, `actions/setup-python@v7`,
+  `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.10–3.14
+  (matching the declared classifiers).
+- Docs drift: the README subsystem table no longer claims a `pdf` extra for
+  `paper/` (poppler on `PATH`, no pip extra — as `docs/backends.md` already
+  said), the localized showcase cuts are described as rendered-on-demand rather
+  than committed (`output/` is gitignored), `docs/translation.md` is linked from
+  the docs hub again, and `docs/README.md` carries the re-verified collected-test
+  count (776, 2026-10-25).
+
 ### Added
 - **`.humos/` sidecar contract** — DemoCreate now carries a HumOS sidecar
   (`sidecar.toml`, `bridges.toml`, `conformance.toml`) declaring standalone

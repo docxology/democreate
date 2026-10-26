@@ -29,6 +29,7 @@ and self-contained.
 | [video.md](video.md) | The animated render: typing animation, animated cursor, waveform, progress bar, scene transitions, Ken Burns, `animation_fps`, **resolution & quality (`crf`/`preset`)**, **on-screen metadata bars**, encode, and content verification. |
 | [audio.md](audio.md) | Voiceover assembly: the system voice, lead/gap/trail silence, `loudnorm` normalization, and fades. |
 | [paper.md](paper.md) | The research-paper workflow end-to-end: real abstract / figure captions / sections, PDF pages, figures, and a codebase become narrated scenes. |
+| [translation.md](translation.md) | The `localize` workflow: audio in one language, subtitles in another, via `IdentityTranslator` (deterministic no-op, the library default) or `OllamaTranslator` (a local `ollama` server), with sidecar `.srt`/`.vtt` output. |
 | [provenance.md](provenance.md) | The provenance/metadata story: on-screen top/bottom metadata bars, MP4 container tags (`ffprobe`), and the signed steganographic provenance in lossless PNG sidecars (`democreate stego` to verify). |
 | [backends.md](backends.md) | Every subsystem mapped to its deterministic default, the optional extra (or zero-pip system binary) that upgrades it, plus optional LLM narration and the chapters / metadata / poster exports. |
 | [api.md](api.md) | **Generated** API reference (public classes + functions per module) — regenerate with [`scripts/generate_api_docs.py`](../scripts/generate_api_docs.py). |
@@ -47,7 +48,7 @@ and self-contained.
   docs here describe intent and contracts; the tests enforce them — ≥90% core coverage is a hard gate, and the
   collected test count is command-verifiable at any time:
   `.venv/bin/python -m pytest --collect-only -q | tail -1`
-  (776 collected, verified 2026-09-06).
+  (776 collected, verified 2026-10-25).
 
 ## The three load-bearing ideas (one paragraph each)
 
