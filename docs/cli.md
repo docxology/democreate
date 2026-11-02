@@ -129,7 +129,7 @@ README/stat summary, without code scenes).
 
 ```bash
 # one video per project under a folder of repositories
-democreate portfolio ~/Documents/GitHub/HumOS/projects -o output --voice Samantha
+democreate portfolio path/to/repositories -o output --voice Samantha
 
 # a quick, bounded subset at 720p
 democreate portfolio ~/code -o output --resolution 720p --max-projects 3
