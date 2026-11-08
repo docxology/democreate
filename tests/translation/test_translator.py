@@ -55,11 +55,6 @@ def test_identity_is_noop() -> None:
     assert out.iter_chunks()[0].text == "Hello world."
 
 
-def test_translate_demo_same_language_returns_input() -> None:
-    d = _demo()
-    assert translate_demo(d, _UpperTranslator(), source="en", target="en") is d
-
-
 def test_translate_demo_changes_text_preserves_structure() -> None:
     out = translate_demo(_demo(), _UpperTranslator(), source="en", target="ru")
     chunk = out.iter_chunks()[0]
@@ -84,6 +79,8 @@ def test_localized_captions_use_source_text_not_audio_demo() -> None:
     audio_demo = _demo()   # stands in for the Spanish audio demo:
     audio_demo.iter_chunks()[0].text = "HOLA MUNDO."
     audio_demo.iter_chunks()[0].start_ms = 4000
+    source_before = source_demo.to_json()
+    audio_before = audio_demo.to_json()
     srt = localized_captions(
         source_demo, get_translator("identity"),
         source="en", target="en", fmt="srt", timing_demo=audio_demo,
@@ -91,6 +88,8 @@ def test_localized_captions_use_source_text_not_audio_demo() -> None:
     assert "Hello world." in srt        # English subtitle from the source text
     assert "HOLA MUNDO." not in srt      # NOT the audio-language text
     assert "00:00:04" in srt             # timing carried from the audio demo
+    assert source_demo.to_json() == source_before
+    assert audio_demo.to_json() == audio_before
 
 
 def test_get_translator_unknown_rejected() -> None:

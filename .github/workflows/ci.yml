@@ -160,19 +160,31 @@ jobs:
           python scripts/build_manuscript.py --check -o output/ci-visual/manuscript.pdf
           python scripts/build_manuscript.py -o output/ci-visual/manuscript.pdf
           pdftoppm -scale-to 1200 -png output/ci-visual/manuscript.pdf output/ci-visual/pages/page
+      - name: Require committed API and figures to match their generators
+        id: generated_current
+        run: |
+          python - <<'PY'
+          import subprocess
+          paths = ["docs/api.md", "docs/manuscript/figures/*.png", "docs/_gallery/*.png"]
+          state = subprocess.run(["git", "status", "--porcelain=v1", "--untracked-files=all", "--", *paths], stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)
+          if state.stdout:
+              print("Inspect retained artifacts and refresh generated files:\n" + state.stdout)
+              raise SystemExit(1)
+          PY
       - name: Bind retained artifacts to source and generation status
         if: always()
         env:
           GENERATION_OUTCOME: ${{ steps.generate_visuals.outcome }}
           MANUSCRIPT_OUTCOME: ${{ steps.render_manuscript.outcome }}
           LOCALIZATION_OUTCOME: ${{ steps.localization_smoke.outcome }}
+          GENERATED_CURRENT_OUTCOME: ${{ steps.generated_current.outcome }}
         run: |
           python - <<'PY'
           import hashlib, json, os, pathlib, sys
           from PIL import __version__ as pillow_version, features
           root = pathlib.Path(".")
           files = sorted({p for pattern in ("docs/manuscript/figures/*.png", "docs/_gallery/*.png", "docs/api.md", "output/ci-visual/**/*") for p in root.glob(pattern) if p.is_file() and p != root / "output/ci-visual/manifest.json"})
-          manifest = {"commit": os.environ["GITHUB_SHA"], "python": sys.version, "pillow": pillow_version, "freetype": features.version_module("freetype2"), "generation_outcome": os.environ["GENERATION_OUTCOME"], "localization_outcome": os.environ["LOCALIZATION_OUTCOME"], "manuscript_outcome": os.environ["MANUSCRIPT_OUTCOME"], "files": [{"path": p.as_posix(), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]}
+          manifest = {"commit": os.environ["GITHUB_SHA"], "python": sys.version, "pillow": pillow_version, "freetype": features.version_module("freetype2"), "generation_outcome": os.environ["GENERATION_OUTCOME"], "localization_outcome": os.environ["LOCALIZATION_OUTCOME"], "manuscript_outcome": os.environ["MANUSCRIPT_OUTCOME"], "generated_current_outcome": os.environ["GENERATED_CURRENT_OUTCOME"], "files": [{"path": p.as_posix(), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]}
           output = root / "output/ci-visual/manifest.json"
           output.parent.mkdir(parents=True, exist_ok=True)
           output.write_text(json.dumps(manifest, indent=2) + "\n")

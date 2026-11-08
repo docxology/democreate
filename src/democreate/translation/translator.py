@@ -8,9 +8,9 @@ backend that drives a local `ollama` server over its HTTP API using only the
 standard library (``urllib``) — no pip dependency.
 
 Localizing a demo is a pure transform on the spine: :func:`translate_demo`
-returns a copy whose chunk narration is translated; :func:`localized_captions`
-emits subtitle text in a target language against the *existing* (audio-derived)
-timing, so audio in one language and subtitles in another stay in lock-step.
+returns translated narration in a copy, or the untouched input for same-language
+requests. :func:`localized_captions` emits target-language subtitle text using
+audio-derived timing without changing either input.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import urllib.error
 import urllib.request
+from copy import deepcopy
 from dataclasses import dataclass
 
 from .._logging import get_logger
@@ -234,12 +235,12 @@ def _translate_chunk_text(
 def translate_demo(
     demo: Demo, translator: Translator, *, source: str, target: str
 ) -> Demo:
-    """Return a copy of ``demo`` with every chunk's narration translated.
+    """Translate chunk narration without modifying ``demo``.
 
     The structure (scenes, actions, ids, geometry) is preserved; only chunk
     ``text`` changes. ``trigger_word`` anchors are left as-is (they reference the
     source wording); when they no longer match the translated text the sync engine
-    falls back to chunk-start timing, which keeps the render correct.
+    falls back to chunk-start timing, not semantically verified alignment.
 
     A no-op (returns ``demo`` unchanged) when ``source == target``.
     """
@@ -288,14 +289,17 @@ def localized_captions(
     ``demo`` must carry the *source-language* narration (the original), so the
     subtitle text is translated source→target — never from an already-translated
     audio demo (which would mislabel one language as another). ``timing_demo``
-    (default: ``demo``) supplies each chunk's ``start_ms`` (from real audio), so a
-    subtitle track in one language lines up with audio in another.
+    supplies chunk ``start_ms`` and ``duration_ms``. Use the pipeline's resolved
+    Demo for measured, padded audio windows.
     """
     from ..assembly import captions as captions_mod
 
     timing = timing_demo or demo
     subtitle_demo = translate_demo(demo, translator, source=source, target=target)
-    # Carry the (audio-derived) timing across (translate_demo rebuilds chunks fresh).
+    if subtitle_demo is demo:
+        # Same-language translation returns a borrowed input, not writable state.
+        subtitle_demo = deepcopy(subtitle_demo)
+    # Copy audio-derived windows only onto subtitle-owned chunks.
     for time_chunk, sub_chunk in zip(
         timing.iter_chunks(), subtitle_demo.iter_chunks(), strict=True
     ):

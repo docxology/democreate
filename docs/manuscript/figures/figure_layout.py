@@ -16,7 +16,7 @@ BG = (12, 12, 14)
 PANEL = (22, 22, 26)
 FG = (242, 242, 244)
 DIM = (182, 182, 190)
-ACCENT = (224, 49, 57)
+ACCENT = (244, 90, 100)
 
 
 def _lines(draw: ImageDraw.ImageDraw, value: str, size: int, width: int) -> list[str]:

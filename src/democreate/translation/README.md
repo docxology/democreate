@@ -36,10 +36,12 @@ filename encodes both, e.g. `demo-audio_en-subs_ru.mp4`.
 - `get_translator(name="auto") -> Translator` — `auto`/`identity`/`none` → no-op;
   `ollama` → `OllamaTranslator`.
 - `LanguageConfig(source, audio, subtitle)` — with `.tag()` → `audio_en-subs_ru`.
-- `translate_demo(demo, translator, *, source, target) -> Demo` — pure copy with
-  translated chunk narration (structure/ids/actions preserved).
-- `localized_captions(timed_demo, translator, *, source, target, fmt) -> str` —
-  subtitle text in `target` against the demo's existing (synced) timing.
+- `translate_demo(demo, translator, *, source, target) -> Demo` — translated
+  narration in a copy (structure/ids/actions preserved); same-language requests
+  return the untouched input.
+- `localized_captions(demo, translator, *, source, target, fmt, timing_demo=None) -> str`
+  — source-derived subtitle text using the selected timing Demo's clip windows;
+  neither input is mutated. Use `PipelineResult.demo` for measured, padded timing.
 
 ### `localize.py`
 - `localize_render(demo, workspace, *, languages, translator, …) -> LocalizedResult`.

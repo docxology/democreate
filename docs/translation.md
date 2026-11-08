@@ -73,9 +73,10 @@ translator = OllamaTranslator(model="smollm2", host="http://localhost:11434")
 translated = translator.translate("Hello", source="en", target="es")
 ```
 
-`translate_demo` returns a copy; `localized_captions` can receive a distinct
-resolved `timing_demo`. `localize_render` and `localize_batch` orchestrate media
-outputs. See the [source guide](../src/democreate/translation/README.md),
+`translate_demo` returns translated content in a copy, or the untouched input for
+same-language requests. `localized_captions` does not mutate either Demo and can
+receive a distinct resolved `timing_demo`. `localize_render` and `localize_batch`
+orchestrate media outputs. See the [source guide](../src/democreate/translation/README.md),
 [API](api.md), and [testing policy](testing_philosophy.md). The `OllamaTranslator`
 uses stdlib HTTP and can target a configured remote host; “local” describes the
 default endpoint, not a network-isolation guarantee.
