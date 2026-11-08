@@ -20,8 +20,9 @@ if str(_SRC) not in sys.path:
 if str(_THIS.parent) not in sys.path:
     sys.path.insert(0, str(_THIS.parent))
 
-from democreate import __version__  # noqa: E402
 from figure_layout import ACCENT, BG, DIM, FG, arrow, card, text  # noqa: E402
+
+from democreate import __version__  # noqa: E402
 
 __all__ = ["build", "main"]
 
@@ -38,7 +39,7 @@ def build() -> Image.Image:
     """
     image = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(image)
-    text(draw, (70, 58, W - 70, 150), f"DemoCreate {__version__}: a demo you compile",
+    text(draw, (70, 58, W - 70, 158), f"DemoCreate {__version__}: a demo you compile",
          size=72)
     text(draw, (70, 164, W - 70, 232),
          "One authored Demo connects narration, timed actions and visual output.",

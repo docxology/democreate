@@ -151,3 +151,17 @@ def test_generated_reference_links_resolve_in_commonmark(tmp_path: Path) -> None
     headings.feed(html)
     targets = set(re.findall(r'href="#([^"]+)"', html))
     assert targets - headings.anchors == set()
+
+
+def test_reference_includes_public_demo_factory_methods() -> None:
+    """Consumers need the constructors used to load persisted Demo artifacts."""
+    from markdown_it import MarkdownIt
+
+    tokens = MarkdownIt("commonmark").parse(api_docs.render_module("democreate.schema"))
+    names = {
+        child.content.split("(", 1)[0]
+        for token in tokens
+        for child in token.children or []
+        if child.type == "code_inline"
+    }
+    assert {"from_dict", "from_json"} <= names

@@ -23,6 +23,7 @@ import wave
 from pathlib import Path
 
 from PIL import Image, ImageDraw
+
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 if str(HERE) not in sys.path:
@@ -41,7 +42,6 @@ from democreate.capture.screen import render_frame  # noqa: E402
 from democreate.config import THEMES, MetadataConfig  # noqa: E402
 from democreate.media import FrameState  # noqa: E402
 from democreate.schema import Action, SceneKind  # noqa: E402
-
 
 # --- shared visual language ------------------------------------------------
 # The schematics share a bounded text layout and the package's bundled font.
