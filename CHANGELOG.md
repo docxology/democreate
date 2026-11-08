@@ -54,6 +54,18 @@ resolves to archived 0.6.2, not this candidate.
 
 ### Changed
 
+- Rebuilt the graphical abstract and explanatory figures with bounded layout,
+  larger cover labels, complete source panels and explicit synthetic/observed
+  evidence classes. Gallery examples use real public APIs and no invented paper
+  identity; manuscript titles state mechanisms, responsibilities and limitations.
+- Modularized workflow/reference/evidence guidance; retained immutable historical
+  receipts and added `docs/visual-refresh.md` with current native package/media
+  provenance. A new Kokoro `af_heart` 2160p run reproduced the identified MP4 bytes;
+  this is not acoustic validation or a general neural-determinism guarantee.
+- Public API reference now inventories 49 modules, includes classmethod factories
+  and uses working CommonMark navigation. CI checks local file/fragment links,
+  real localized MP4 output, full manuscript rendering and generated-file freshness.
+
 - **CI currency** — `actions/checkout@v7`, `actions/setup-python@v7`,
   `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.11–3.15.
 - **Legacy WAV compatibility** — normalization and fades retain PCM sample rate
@@ -79,6 +91,15 @@ resolves to archived 0.6.2, not this candidate.
   integration.
 
 ### Fixed
+- Localized SRT/VTT use measured, padded `PipelineResult.demo` timings, not stale
+  authored windows. Same-language caption generation copies borrowed input before
+  synchronization; caller-owned authored/timing artifacts remain unchanged.
+- Synthetic typing renders one active caret across row boundaries and saturated
+  character counts. Pixel-level regressions cover zero, boundary and partial states.
+- Manuscript output paths resolve against caller CWD before Pandoc changes directory;
+  long shell recipes are split at real continuations instead of clipping at page trim.
+- `LocalizedResult` documentation distinguishes render success from requested
+  verification and retains produced paths when subsequent verification fails.
 - Scheduled replay preserves scene/file state, partial typing and terminal
   completion; animated typing toggles do not change unrelated event durations.
   Captions clear in lead/gap/trail silence and use measured clip windows.

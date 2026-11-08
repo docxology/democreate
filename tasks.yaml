@@ -132,6 +132,12 @@ tasks:
     Hosted Python 3.11–3.15 passed on 7e4d0e4 after the WAV/toolchain fix.
     Final refutation fixes reproduce malformed-WAV and missing-probe failures,
     retain typed errors/partial observations, and refresh bound media/artifacts.
+    Visual/docs follow-through 2026-11-08 UTC: qualified native core run passed
+    932 tests, 12 skipped, configured coverage 90.87%; Ruff/mypy and real CLI
+    init/inspect/build passed. Fresh current-source Kokoro af_heart 2160p and
+    decoded cue/frame/signal inspection reproduced the prior MP4 bytes.
+    See data/visual-refresh-2026-11-08.json and docs/visual-refresh.md.
+    Release status remains blocked; no acoustic criterion or write permission waived.
     Historical work-log assertion, not current evidence:
     Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
     90.19% coverage. ruff clean, mypy clean. New features: translation subsystem

@@ -344,3 +344,21 @@ claims:
     source: "Actual frame/audio/caption/HTML/transcript/Demo/manifest file inventories compared; not cross-host or neural-model determinism."
     status: verified
     receipt: "data/release-0.8.0.json#core_reproducibility"
+  - id: C34
+    claim: "The configured core line/branch coverage gate passed on the fresh visual-refresh package-source snapshot; designated heavy paths remain excluded."
+    value: 90.87
+    unit: percent
+    direction: ">="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "2026-11-08 qualified native Python 3.15.2: 932 passed, 12 skipped; rounded combined coverage 90.87%, with raw totals and package-file hashes retained."
+    status: verified
+    receipt: "data/visual-refresh-2026-11-08.json#native_core"
+  - id: C35
+    claim: "A fresh current-source Kokoro af_heart 2160p run passes structural checks and reproduces the earlier identified MP4 and six decoded-frame bytes in the available environment."
+    value: "3840x2160"
+    unit: pixels
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#canonical_media"
+    source: "2026-11-08 existing Python 3.14.10 voice environment, asserted repository import and before/after model hashes; not universal neural determinism, listening or acoustic-onset accuracy."
+    status: verified
+    receipt: "data/visual-refresh-2026-11-08.json#canonical"

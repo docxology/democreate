@@ -133,3 +133,18 @@ unrecorded; they are explicitly historical.
 - [x] Medium: closed 2026-11-08 — absent ffprobe aborted optional benchmarks;
   retain available observations and concrete missing tools (`scripts/benchmark.py`).
 
+## 2026-11-08 visual, documentation and runtime follow-through
+
+- [x] Closed 2026-11-08: replace cramped/ambiguous graphical abstracts and figures
+  with bounded layouts, informative titles and truthful synthetic/media labels
+  (`docs/manuscript/figures/`, `docs/_gallery/`, modular guides).
+- [x] Medium: closed 2026-11-08 — generated API navigation and classmethod
+  factories were missing/broken (`api_docs.py`, real CommonMark regressions).
+- [x] Medium: closed 2026-11-08 — localized sidecars ignored measured/padded
+  timings; same-language captions mutated borrowed source (`translation/`).
+- [x] Medium: closed 2026-11-08 — typing emitted multiple carets and manuscript
+  relative outputs/long recipes broke real rendering (`capture/`, `manuscript.py`).
+- [x] Closed 2026-11-08: rerun current-source Kokoro af_heart 2160p with unchanged
+  local model assets; identical MP4 and six decoded frames, signal/cue inspection
+  (`data/visual-refresh-2026-11-08.json`). Not listening or acoustic accuracy.
+

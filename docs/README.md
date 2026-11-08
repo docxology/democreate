@@ -40,12 +40,15 @@ compositor are unwired. Dependency presence does not certify readiness.
 
 - [Synthetic gallery](gallery.md): authored renderer/diagram examples, **not**
   decoded-media or empirical paper evidence; [generator assets](_gallery/README.md).
-- [Video recipes and identities](videos.md): one identified canonical Kokoro
-  package render, separate historical stills and optional external paper inputs.
-  An ignored output path does not identify a current video.
+- [Video recipes and identities](videos.md): the current-source canonical Kokoro
+  reproduction, historical stills and optional external paper inputs. An ignored
+  output path alone does not identify a video.
 - [Immutable 0.8.0 engineering receipt](release-0.8.0.md), backed by
   [structured source-bound evidence](../data/release-0.8.0.json): observed history,
   not proof of the subsequently edited tree.
+- [Visual/documentation refresh receipt](visual-refresh.md), backed by
+  [fresh native engineering evidence](../data/visual-refresh-2026-11-08.json):
+  package-byte binding, regression proof and the canonical reproduction.
 - [Manuscript](manuscript/README.md): scientific framing, figures and evaluation
   limits. Measured clip windows are not acoustic word onsets.
 - [Testing policy](testing_philosophy.md): no mocked core computation, lazy heavy

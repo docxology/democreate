@@ -10,15 +10,18 @@ cryptographic authenticity.
 
 The canonical recipe remains **Kokoro `af_heart`, 2160p**. Required prerequisites:
 installed `tts` extra in a compatible runtime, locally acquired model/voices and
-ffmpeg/ffprobe. The identified **historical 2026-11-08 engineering observation**
-records 3840×2160 H.264, 159.867 s video, 159.905 s AAC audio and −16.4 dB mean
-volume—not LUFS, listening or acoustic-onset evaluation. MP4 SHA-256 is
+ffmpeg/ffprobe. The fresh **2026-11-08 source-bound engineering run** reused the
+existing Python 3.14.10 voice environment and asserted imports from current
+repository source, without changing the core 3.15 pin. It reproduced the earlier
+3840×2160 H.264/AAC MP4 bytes:
 `234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4`.
-The fifteen cue sidecars, input identity and six decoded stills are recorded in
-the [structured receipt](../data/release-0.8.0.json) and
-[immutable engineering narrative](release-0.8.0.md). These identify that run,
-not future output from edited sources. The MP4 is unpublished; silent output
-is not an interchangeable replacement.
+Video/audio durations are 159.867/159.905 s. All fifteen SRT/VTT cue windows agree;
+six decoded frames and the audio amplitude signal were inspected.
+The [fresh structured receipt](../data/visual-refresh-2026-11-08.json) binds package,
+model, caption, frame and video identities. The [earlier record](release-0.8.0.md)
+remains immutable history. Byte equality in this environment is not universal
+neural-TTS determinism, listening quality or acoustic-onset accuracy. The MP4 is
+unpublished; silent output is not an interchangeable replacement.
 
 ```bash
 .venv/bin/python docs/manuscript/figures/make_figures.py

@@ -53,10 +53,11 @@ class LocalizedResult:
 
     Attributes:
         languages: The :class:`LanguageConfig` used.
-        video_path: The produced MP4 (``None`` on failure).
+        video_path: Produced MP4, including when subsequent verification fails.
+            ``None`` when no result path was produced.
         subtitle_srt / subtitle_vtt: Subtitle sidecar files in the subtitle language.
-        duration_s: Verified duration (``0`` when unverified/failed).
-        ok: Whether content verification passed.
+        duration_s: Verifier-reported duration; ``0`` if verification did not run.
+        ok: Render succeeded and, if requested, content verification passed.
         error: Error message on failure.
     """
 

@@ -7,12 +7,15 @@ Do not replace those paths with author-machine or sibling-project paths.
 ## Canonical package showcase
 
 `make_showcase.py` writes `democreate_showcase.json` and copies committed figure
-inputs into `examples/assets/`. Fifteen scenes demonstrate slides, codebase
-views and illustrative terminal commands—not a website capture or all SceneKinds.
-Stat cards describe gates rather than a changing test total.
+inputs into `examples/assets/`. Fifteen scenes demonstrate slides, illustrative
+code views and terminal commands—not captured repository source, a website
+capture or all SceneKinds. Code panels use `illustrative_*.py` labels rather than
+impersonating current source files. Stat cards describe gates, not a test total.
 
 The canonical render is **Kokoro `af_heart`, 2160p**, requiring the `tts` extra,
-model/voice files and ffmpeg. No current canonical voiced 4K receipt is asserted.
+model/voice files and ffmpeg. Source-bound runs, exact inputs and limitations
+are recorded in [`data/visual-refresh-2026-11-08.json`](../data/visual-refresh-2026-11-08.json);
+this is engineering media proof, not listening or acoustic accuracy.
 
 ```bash
 .venv/bin/python examples/make_showcase.py

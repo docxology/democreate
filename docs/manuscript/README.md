@@ -20,7 +20,7 @@ identifiers remain stable when titles improve. Each topic has one detailed home:
 | [Paper inputs](06_research_paper_demos.md) | From PDF Text and Supplied Figures to Demo Scenes |
 | [Evaluation](07_evaluation.md) | Evaluation: Source-Bound Observations and Blocking Acoustic Study |
 | [Reproduction recipes](08_reproducibility.md) | Reproducing Core Builds and Optional Voiced Renders |
-| [Related work](09_scope_and_related_work.md) | Construction Models, Related Systems, and Comparison Limits |
+| [Related work](09_scope_and_related_work.md) | Construction Models and Comparison Limits |
 | [Attribution](10_provenance_and_distribution.md) | Unsigned Attribution, Digest Scope, and Distribution |
 
 The [Abstract](00_abstract.md) opens the paper; [References](99_references.md)
@@ -48,8 +48,8 @@ criteria in evaluation, and digest field coverage in attribution.
   illustrations, not empirical results. Editor/slide/theme/typing images are
   generated synthetic states; the waveform uses a synthetic tone, not speech.
 - The package-only 3×2 montage uses six digest-checked decoded stills identified
-  in `data/release-0.8.0.json`. The raw stills and record retain source identity;
-  montage labels are requested seeks at cue midpoints, not annotated onsets.
+  in `data/visual-refresh-2026-11-08.json`. The fresh native render reproduced the
+  retained raw bytes; labels are requested cue-midpoint seeks, not annotated onsets.
 - `figures/paper_fig.png` is a retained external background input with an
   unrecorded extraction date. A newly composed paper-theme slide does not turn
   that input into a new extraction or establish a paper-video result.
@@ -59,7 +59,7 @@ criteria in evaluation, and digest field coverage in attribution.
 | Package behavior and dependency floors | [`src/democreate/`](../../src/democreate/) and [`pyproject.toml`](../../pyproject.toml) | A passing run or optional runtime availability |
 | Old aggregate timing | [`data/benchmarks.json`](../../data/benchmarks.json) | Original run identity or current performance |
 | Source-bound silent-starter timing | [`data/benchmarks-0.8.0.json`](../../data/benchmarks-0.8.0.json) | Neural-TTS performance or performance of a later edited tree |
-| Identified MP4, sidecars and decoded samples | [`data/release-0.8.0.json`](../../data/release-0.8.0.json) | Listening quality, acoustic accuracy or certification of later edits |
+| Fresh identified MP4, package bytes, sidecars and decoded samples | [`data/visual-refresh-2026-11-08.json`](../../data/visual-refresh-2026-11-08.json) | Listening quality, acoustic accuracy, general neural determinism or certification of later code edits |
 | Prospective acoustic study | [`experiment_plan.yaml`](../../experiment_plan.yaml) | A supplied corpus or measured result |
 | Engineering/release requirements | [`domain_profile.yaml`](../../domain_profile.yaml) | Passing receipts or permission to waive the blocking study |
 
@@ -76,7 +76,7 @@ The figure generator uses committed repository inputs, including local
 `figures/paper_fig.png`; it neither searches nor writes sibling repositories.
 It mirrors figures into root `output/figures/`. Timing consumes the retained
 source-bound `data/benchmarks-0.8.0.json` observation; the montage verifies
-committed decoded-frame hashes against `data/release-0.8.0.json`. These records
+committed decoded-frame hashes against `data/visual-refresh-2026-11-08.json`. These records
 are not measurements of subsequent edits. Old unbound inputs remain historical,
 not fallbacks. A paper-figure refresh is an explicit input replacement, not automatic
 acquisition of an external paper.

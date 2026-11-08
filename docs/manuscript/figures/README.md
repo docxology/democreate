@@ -29,9 +29,10 @@ grid has a sixth comparison-key tile; its compact code is schematic.
 wall clock and whole-render throughput. It retains one silent starter/host/source
 observation, not neural-TTS performance or a controlled historical speedup.
 `video_stills.png` is a package-only 3×2 montage of six decoded PNGs whose hashes
-are checked against `data/release-0.8.0.json`. Labels are requested seeks at cue
-midpoints, not independent event/acoustic annotations. Preserve the original raw
-stills and source record; recomposing them does not validate a new MP4.
+are checked against `data/visual-refresh-2026-11-08.json`. The fresh native render
+and six extractions reproduced the earlier identified bytes; the original raw
+stills are retained, not duplicated. Labels are requested cue-midpoint seeks,
+not independent acoustic annotations or exhaustive timeline review.
 
 ## Generator dimensions and repository-root commands
 

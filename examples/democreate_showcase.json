@@ -74,7 +74,7 @@
     },
     {
       "id": "spine",
-      "title": "src/democreate/schema.py",
+      "title": "illustrative_schema.py",
       "kind": "codebase",
       "chunks": [
         {
@@ -84,7 +84,7 @@
             {
               "type": "create_file",
               "params": {
-                "path": "src/democreate/schema.py",
+                "path": "illustrative_schema.py",
                 "code": "@dataclass\nclass Demo:\n    title: str\n    scenes: list[Scene]\n    width: int = 1920\n    height: int = 1080\n\n@dataclass\nclass Action:\n    type: ActionType\n    params: dict\n    trigger_word: str | None = None"
               },
               "trigger_word": "data",
@@ -111,7 +111,7 @@
     },
     {
       "id": "backends",
-      "title": "src/democreate/narration/tts.py",
+      "title": "illustrative_backends.py",
       "kind": "codebase",
       "chunks": [
         {
@@ -121,7 +121,7 @@
             {
               "type": "create_file",
               "params": {
-                "path": "src/democreate/narration/tts.py",
+                "path": "illustrative_backends.py",
                 "code": "class TTSBackend(ABC):\n    @abstractmethod\n    def synthesize(self, text, out_path, *, voice=None): ...\n\nclass SilentTTSBackend(TTSBackend):   # no heavy deps\nclass SystemTTSBackend(TTSBackend):   # macOS say / espeak\nclass KokoroTTSBackend(TTSBackend):   # neural, optional"
               },
               "trigger_word": "interface",
@@ -147,7 +147,7 @@
     },
     {
       "id": "sync",
-      "title": "src/democreate/narration/sync.py",
+      "title": "illustrative_sync.py",
       "kind": "codebase",
       "chunks": [
         {
@@ -157,7 +157,7 @@
             {
               "type": "create_file",
               "params": {
-                "path": "src/democreate/narration/sync.py",
+                "path": "illustrative_sync.py",
                 "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)        # duration-based word estimates\nfor action in chunk.actions:\n    action.timestamp_ms = word_time(action.trigger_word)\n# every frame is held for its measured clip"
               },
               "trigger_word": "measured",

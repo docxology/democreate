@@ -1,0 +1,516 @@
+{
+  "record_schema": 1,
+  "candidate_version": "0.8.0",
+  "demo_schema": "1.1",
+  "evidence_kind": "source-bound engineering observation, not publication or acoustic validation",
+  "base_revision": "a16aab0917da1c4f165b6db4905d10d14b507444",
+  "source_snapshot": {
+    "kind": "repository",
+    "identity": "docxology/democreate",
+    "revision": "f62af4e48ffc2d1be7057e53ee2d218c7b30be60",
+    "dirty": true
+  },
+  "source_snapshot_note": "f62af4e plus the recorded dirty snapshot, including localized-result doc clarification and generated documentation; not a claim that later documentation bytes are identical.",
+  "package_python_source": {
+    "scope": "66 Python files under src/democreate; excludes runtime dependencies, assets and configuration",
+    "algorithm": "SHA-256 of UTF-8 JSON file rows with sorted keys and separators comma/colon",
+    "files": [
+      {
+        "path": "src/democreate/__init__.py",
+        "sha256": "31e50629afd34c83fb3e05aad060d580ba6d481aa6c4d12c7040a78c0c526577"
+      },
+      {
+        "path": "src/democreate/_cli_common.py",
+        "sha256": "0b032dc683a6d0d5b5551d4120438b71fd327c893a03aa26cc482dbb76742b99"
+      },
+      {
+        "path": "src/democreate/_cli_media.py",
+        "sha256": "b1ae2e2f4828d1bc0e9c867d0864138dfcf00a05c3b5ec249ee08ed2f5eb2de4"
+      },
+      {
+        "path": "src/democreate/_logging.py",
+        "sha256": "197bfccf899003799c6e4b145de496000c640348f02dc9925a7ffe4d024a647c"
+      },
+      {
+        "path": "src/democreate/_portfolio_facts.py",
+        "sha256": "3fd3bf9b936a29c0da7b8e38d0eaeb7fb69370a7075d81bf60206239415862d5"
+      },
+      {
+        "path": "src/democreate/_portfolio_render.py",
+        "sha256": "698b3349821b6c3d562e604618a458c1d36b131ed71b8566688d14184d6241f7"
+      },
+      {
+        "path": "src/democreate/animation/__init__.py",
+        "sha256": "15eece31cadd583e77c6c60fe51c5643a3dfd9e19614ef2441be3257e0075b31"
+      },
+      {
+        "path": "src/democreate/animation/diagram.py",
+        "sha256": "30477b6263d65599e8b3bf3229ef4f9aa1f6e2580c4d6b934658c164a1537dd6"
+      },
+      {
+        "path": "src/democreate/animation/fonts.py",
+        "sha256": "75e08c95069442ecb429f6e4e3482b397ae5760c0258843ee559cb52b05781b1"
+      },
+      {
+        "path": "src/democreate/animation/highlights.py",
+        "sha256": "b6b321b6bb4928bb94f741c47e63371a8fff060f0ba8da0219bc8bc662acb5ca"
+      },
+      {
+        "path": "src/democreate/animation/manim_scenes.py",
+        "sha256": "c28672ab4d167fa30292b54a827db34f2738df1f7bf5ce6da8784875cab6bc47"
+      },
+      {
+        "path": "src/democreate/animation/waveform.py",
+        "sha256": "28e5fd2130c2430712ab3cd300ffc71fddd184846c748978463d4e10f11459e2"
+      },
+      {
+        "path": "src/democreate/animation/zoom.py",
+        "sha256": "044d3b544efb3079bd069e10e46162fbbae43f1e958434adf491a311a73b6af7"
+      },
+      {
+        "path": "src/democreate/api_docs.py",
+        "sha256": "ed4a4d0b3509de86ec161f9bb907c2d63f80d01b6a355652a8eec54e39c5aa00"
+      },
+      {
+        "path": "src/democreate/assembly/__init__.py",
+        "sha256": "189933aac7e07f5d14f4f84bb0756ff35e051a50247c300fa34e425189f94b18"
+      },
+      {
+        "path": "src/democreate/assembly/animator.py",
+        "sha256": "3f837ae4358e5fa49e20f363fe73d66d4fe8815d3faa917cffac49e9f948d4fa"
+      },
+      {
+        "path": "src/democreate/assembly/audio.py",
+        "sha256": "8f47f2f5a28ca0a57b8a9f41f0da1557633464a05167c859d7223b4d416d8dc7"
+      },
+      {
+        "path": "src/democreate/assembly/captions.py",
+        "sha256": "d284cfa7b3ccb6e5f172d5403c91e3b6de1be4bef1d91f5e95202f165d653770"
+      },
+      {
+        "path": "src/democreate/assembly/compositor.py",
+        "sha256": "3b47f9fd7bff22de981b69b76363161bffcbf99622a348154208191d9a676544"
+      },
+      {
+        "path": "src/democreate/assembly/effects.py",
+        "sha256": "847cce20f5a7a50da8a65cbdcc796bea2287de85336758c9c8da2921e5412a40"
+      },
+      {
+        "path": "src/democreate/capture/__init__.py",
+        "sha256": "40a85ec07450cd4ff623e7630b78b41966e7f4b9381cd11a253c7c107ca1c784"
+      },
+      {
+        "path": "src/democreate/capture/_screen_renderer.py",
+        "sha256": "10f634d16333d85168b2bf5ed48b19784cbbf798ff09d1674d452e02ffc1195a"
+      },
+      {
+        "path": "src/democreate/capture/browser.py",
+        "sha256": "984595acf789b42df63ca828707765b6de17018482057bf878d583c4f517e7b7"
+      },
+      {
+        "path": "src/democreate/capture/replay.py",
+        "sha256": "888f0293c41bfe267fbd58d6b535f1d19d2782a106b3fca696223a5a1f599c74"
+      },
+      {
+        "path": "src/democreate/capture/screen.py",
+        "sha256": "1bfb58b9b45631f72d9a7c737f716b621782c54167ca6857b05831cb393a251c"
+      },
+      {
+        "path": "src/democreate/capture/terminal.py",
+        "sha256": "85f47da97f49fbc3c28e96e375046837ad0f58b3fbd20dc537b468ea3b76f7f5"
+      },
+      {
+        "path": "src/democreate/cli.py",
+        "sha256": "aa59ad322152e8424d64e81e6a8199743cb83c1c1a3808389f6d2612131e56d3"
+      },
+      {
+        "path": "src/democreate/codebase/__init__.py",
+        "sha256": "8833d5ef8d2619271659a39af5d5ec67f954fad484a6f72a8ab35e7bfe92745d"
+      },
+      {
+        "path": "src/democreate/codebase/ast_viz.py",
+        "sha256": "f1f84788a25c8cc5de3728fce68c62629f0f5a1586e90d20dcf4b7114fd96e2d"
+      },
+      {
+        "path": "src/democreate/codebase/dependency.py",
+        "sha256": "112961a8ffdab90d5789819e082a34b6aa98276c8b5dafe72dfd7e226572c940"
+      },
+      {
+        "path": "src/democreate/codebase/walker.py",
+        "sha256": "18711ace6de44180ecf3e294feb5b373d113e0bb6e58312ffbae1ea0584614e8"
+      },
+      {
+        "path": "src/democreate/config.py",
+        "sha256": "7d012aac3f551d06fd36507deeca2c3c3e04c3a873fe6cfafe908f630b171f6a"
+      },
+      {
+        "path": "src/democreate/errors.py",
+        "sha256": "7f2921b50f0eeffda63f621020f0dc688992840ee32225b7fa172060ee31ce88"
+      },
+      {
+        "path": "src/democreate/export/__init__.py",
+        "sha256": "cca94f8c5d0ff875809b844202d1c9320c8499b0546184853b881fdb2acb867a"
+      },
+      {
+        "path": "src/democreate/export/chapters.py",
+        "sha256": "dba9aa54b00197f05edfc6b03bbbb050b1f0fb68732fc48344d402a0d260bf2b"
+      },
+      {
+        "path": "src/democreate/export/formats.py",
+        "sha256": "6e5888d95b6699e8df48e07b380dbb713b3ce96a9152f7cb8981dd9b08c6c124"
+      },
+      {
+        "path": "src/democreate/export/interactive.py",
+        "sha256": "fd56ed9eda8aceaea114a1b4e5a963d331908a981f10998e17e713f769db5491"
+      },
+      {
+        "path": "src/democreate/export/metadata.py",
+        "sha256": "4a4bf63cbf6907ba0bd89ead220742edea57451b80741466199a41cd1be3dde2"
+      },
+      {
+        "path": "src/democreate/export/overlay.py",
+        "sha256": "924d0da18046a93c3b485845081123b03e84970cea3b517dc8dbb2b05935cff6"
+      },
+      {
+        "path": "src/democreate/export/poster.py",
+        "sha256": "8a1375d51a2a0d5dd127a55088cfef035ce22ea4cf110cd7541a20d55fdb9fe6"
+      },
+      {
+        "path": "src/democreate/export/stego.py",
+        "sha256": "338ad10cd95f132d15ae15419be47e12618269d66e1eec3c7d4c98b4b3c63e0e"
+      },
+      {
+        "path": "src/democreate/export/verify.py",
+        "sha256": "b9898d10ef2ed9942ed4095cb10a7723fcd64d5842555353da348a548bcf5fa9"
+      },
+      {
+        "path": "src/democreate/export/video.py",
+        "sha256": "339d54a55a2998e66e2aab4d37d60bc2aa7fb47c7832fb9a3cea023eb9a0df76"
+      },
+      {
+        "path": "src/democreate/manuscript.py",
+        "sha256": "1fccaeccd444622a9edf8af0d4207ec618ec7a4fdf87c947774183def8e24c04"
+      },
+      {
+        "path": "src/democreate/media.py",
+        "sha256": "165b1496366f98808357fdde9d44e27aab685d3d8a26413d1c188295b51912b6"
+      },
+      {
+        "path": "src/democreate/narration/__init__.py",
+        "sha256": "65f6362c911371deaa6c3c58b2406b8e83ee827ee8d63409fcdb628533ab597b"
+      },
+      {
+        "path": "src/democreate/narration/_tts_audio.py",
+        "sha256": "b63a22ba6ca50a8ba9933d2a27cee310ca5babef5e7c509c3faeeb23d7efb6e2"
+      },
+      {
+        "path": "src/democreate/narration/_tts_backends.py",
+        "sha256": "7b8da70fd18b9e330946cceb664c5d42f37d2fb56f79dc910f432b517a291de9"
+      },
+      {
+        "path": "src/democreate/narration/_tts_kokoro.py",
+        "sha256": "cf82fa055124d494b164c8c0eb074f7fa7d524e18ab4465484b00db17ffff016"
+      },
+      {
+        "path": "src/democreate/narration/llm.py",
+        "sha256": "621b48ed828aa7f39803406cf52fdb042b6abb38055e824561bd20cf51c91d33"
+      },
+      {
+        "path": "src/democreate/narration/project_summary.py",
+        "sha256": "4c9cde7c0b6979d937f13321583b80d3ec7ae6ef97a516eec95efccc9adc5502"
+      },
+      {
+        "path": "src/democreate/narration/script.py",
+        "sha256": "591921de3f780ac1b952294112cd8c08c712202d3f55bb528db349b1e9e039dc"
+      },
+      {
+        "path": "src/democreate/narration/sync.py",
+        "sha256": "6dbaf7ef062d5a323d4b502d96d4acb64741f0a0c446b89a05a3758225bc2793"
+      },
+      {
+        "path": "src/democreate/narration/tts.py",
+        "sha256": "33046f015e949031c141020ebc82ad120c1b389525be18591fc4d5db5edd6037"
+      },
+      {
+        "path": "src/democreate/paper/__init__.py",
+        "sha256": "31190857722bdd45818d01a647e2a524191920d84f3e4c26eca3b2e4d835e27c"
+      },
+      {
+        "path": "src/democreate/paper/extract.py",
+        "sha256": "363e36e6c76928811a4903092ee83902a2b7f63ade36dca0105b85c5f05cad01"
+      },
+      {
+        "path": "src/democreate/paper/pdf.py",
+        "sha256": "8e7c3f94df84ab75e0c156e9685ad99052600fcdb58865410c772469fc0ae8c3"
+      },
+      {
+        "path": "src/democreate/paper/script.py",
+        "sha256": "1fdbee1542d7a7d0bf56ebf2e65c5f9341836bf21eb621219a4c830e251a250e"
+      },
+      {
+        "path": "src/democreate/paper/structure.py",
+        "sha256": "ee7dee3954bca5afde86e3026521fdadad4a0c2e9a63c476fb70eafd5c9d2bdb"
+      },
+      {
+        "path": "src/democreate/pipeline.py",
+        "sha256": "3d0b600f6015fd8e5a48b305ecd86c15bba49302459a08786c6a2b2a0f8d7f36"
+      },
+      {
+        "path": "src/democreate/portfolio.py",
+        "sha256": "028691539eea38b690a56d2a945d6a35177a4083b889ceefbc782b2d1449d036"
+      },
+      {
+        "path": "src/democreate/project_paths.py",
+        "sha256": "c7d9b72d3a33317a984274ff54c7e53043fec627719fc23c6bba8e0239e8924f"
+      },
+      {
+        "path": "src/democreate/schema.py",
+        "sha256": "49d60db76783d6bf72b08c6c154bdbd62f235155215e09cea2432974fc653948"
+      },
+      {
+        "path": "src/democreate/translation/__init__.py",
+        "sha256": "a0c9e0e3b859de27f5fa17cae79defb24008d890050604a5e822ebb765a65ba0"
+      },
+      {
+        "path": "src/democreate/translation/localize.py",
+        "sha256": "60a74fc3ebc2e53f0c71413236087387aab47f31249882daf0272d44fc102dcd"
+      },
+      {
+        "path": "src/democreate/translation/translator.py",
+        "sha256": "be428757a0be7d4c533181212b93a739345714d685a6bef4a6fc5bae2b3a1c1b"
+      }
+    ],
+    "sha256": "ea008c2774a37470ddd2f617db17f75592df9ebeda21167ec606b99869176294"
+  },
+  "native_core": {
+    "python": "3.15.2",
+    "tests_passed": 932,
+    "tests_skipped": 12,
+    "coverage_totals": {
+      "covered_lines": 5350,
+      "num_statements": 5768,
+      "percent_covered": 90.86538461538461,
+      "percent_covered_display": "90.87",
+      "missing_lines": 418,
+      "excluded_lines": 1166,
+      "percent_statements_covered": 92.75312066574203,
+      "percent_statements_covered_display": "92.75",
+      "num_branches": 1720,
+      "num_partial_branches": 174,
+      "covered_branches": 1454,
+      "missing_branches": 266,
+      "percent_branches_covered": 84.53488372093024,
+      "percent_branches_covered_display": "84.53"
+    },
+    "ruff": "passed",
+    "mypy_source_files": 66,
+    "mypy": "passed; existing annotation-unchecked note retained",
+    "core_only_preflight": "passed; optional voice/browser/heavy packages absent",
+    "cli": [
+      "init",
+      "inspect",
+      "build --tts silent"
+    ],
+    "receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T21:12:00.541914+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "f62af4e48ffc2d1be7057e53ee2d218c7b30be60",
+        "run": "native-integrated-proof",
+        "generation": "20510-d1afa4b0cf094048bff10b8ab9e69d26"
+      },
+      "classification": "test",
+      "timeout_seconds": 1500,
+      "source_after_sha256": "db2e5c7922fb2555d1f373f644f16770f6a068bd8e325d53b348995e7c51247a",
+      "source_unchanged": true
+    }
+  },
+  "canonical": {
+    "video_sha256": "234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4",
+    "video_bytes": 10180819,
+    "width": 3840,
+    "height": 2160,
+    "video_duration_s": 159.866667,
+    "audio_duration_s": 159.905313,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "animation_fps": 15,
+    "voice_backend": "kokoro",
+    "voice": "af_heart",
+    "python": "3.14.10",
+    "structural_verification_ok": true,
+    "caption_cues": 15,
+    "chapters": 15,
+    "caption_sha256": {
+      "srt": "c76be1c5550c2b7830c74d9a9ba6a125f917a8a859abd3ff06c347ca10d12dbe",
+      "vtt": "098ffc406f4af50967bda75143114847ec36433a85de22b58d36c17b576a7595"
+    },
+    "decoded_frames": [
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-00.png",
+        "sha256": "3c9de4ac7bd6cc8cb2168124d037805e1f3fdbc084e714716274ca70018533f6",
+        "cue": 1,
+        "caption": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
+        "seek_seconds": 3.244
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-02.png",
+        "sha256": "d3f2dfcba76c3779720b481a4626dc9cbcfc6e82b2b392d920d74a53245385cf",
+        "cue": 3,
+        "caption": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
+        "seek_seconds": 22.3185
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-05.png",
+        "sha256": "85be578e56ebf95fea5d8dbd82dbe18ce522ce8ca5f8fa6e8972e9c5d4e385a1",
+        "cue": 6,
+        "caption": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
+        "seek_seconds": 57.9435
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-07.png",
+        "sha256": "ef2cbf2d80fc878ecb136a38b63a93d7f70294faaea138f9ba6ed3c54c6bfdc0",
+        "cue": 8,
+        "caption": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
+        "seek_seconds": 76.5165
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-10.png",
+        "sha256": "21bb3e249fcbb4db7c5e0f494a805fac790960d8a3357e9254f0ddbbb8317946",
+        "cue": 11,
+        "caption": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
+        "seek_seconds": 112.3125
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-14.png",
+        "sha256": "22957ade5b699949105ca46205881d5793e6da16917a6174b55b3572d5c5baab",
+        "cue": 15,
+        "caption": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
+        "seek_seconds": 154.1945
+      }
+    ],
+    "audio_inspection": {
+      "sample_rate_for_inspection": 16000,
+      "mono_samples": 2558485,
+      "rms_dbfs": -16.506238540085583,
+      "peak_dbfs": -1.3938019694217376,
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "processing_wavs": {
+      "voiceover_raw.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      },
+      "voiceover_norm.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      },
+      "voiceover.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      }
+    },
+    "model_assets": {
+      "assets_before": [
+        {
+          "name": "voices-v1.0.bin",
+          "size": 28214398,
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "size": 325532387,
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+        }
+      ],
+      "assets_after": [
+        {
+          "name": "voices-v1.0.bin",
+          "size": 28214398,
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "size": 325532387,
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+        }
+      ],
+      "large_model_kernel_seed_protected": false,
+      "large_model_seed_limit_bytes": 268435456,
+      "supplier_digests_available": false,
+      "current_source_override": "repository src via process-local PYTHONPATH",
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "demo_input": {
+      "path": "examples/democreate_showcase.json",
+      "sha256": "31d8a726771ffe40dac2863e685cc7fbee47ee47893bb556f26676f604d702e8"
+    },
+    "source_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T21:12:00.541914+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "f62af4e48ffc2d1be7057e53ee2d218c7b30be60",
+        "run": "native-integrated-proof",
+        "generation": "20510-d1afa4b0cf094048bff10b8ab9e69d26"
+      },
+      "classification": "test",
+      "timeout_seconds": 1500,
+      "source_after_sha256": "db2e5c7922fb2555d1f373f644f16770f6a068bd8e325d53b348995e7c51247a",
+      "source_unchanged": true
+    },
+    "extraction_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T21:18:55.520237+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "f62af4e48ffc2d1be7057e53ee2d218c7b30be60",
+        "run": "native-current-media-inspection",
+        "generation": "20567-5f55239b259a4b8a9844c384d353a87e"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "8c3a96f3141d7100087b0aab277544dbba90d14531a723d27215f870e654a2d2",
+      "source_unchanged": true
+    },
+    "local_video": "output/visual-refresh/canonical-current/video/demo.mp4",
+    "media_published": false,
+    "frame_time_basis": "Requested ffmpeg seeks at cue midpoints; decoded PTS is quantized, not independently onset-annotated.",
+    "prior_bytes_equal": {
+      "receipt": "data/release-0.8.0.json#canonical",
+      "video": true,
+      "six_decoded_frames": true,
+      "scope": "One available environment and identical authored input/model bytes across the two recorded source epochs; not universal neural-TTS or cross-host determinism."
+    }
+  },
+  "release_state": {
+    "candidate_unpublished": true,
+    "acoustic_corpus_evaluator_available": false,
+    "blocking_study_satisfied": false,
+    "release_write_class_observed": false,
+    "metadata_write_class_observed": false,
+    "configuration_sha256_observed": "1f690178a6e84306f24b7aa4d1a2b4daa290aeb447d616d1ae2c872e7c9d2318"
+  },
+  "limits": [
+    "No listening/intelligibility judgment or independently annotated acoustic/visible-event evaluation.",
+    "Six decoded cue-midpoint samples, not exhaustive frame-by-frame validation.",
+    "Large model manually hashed before/after but not kernel-seed protected or supplier-authenticated.",
+    "Optional unwired backends and external curated paper inputs were not exercised.",
+    "Unsigned content hashes establish byte consistency, not authorship or authenticity."
+  ]
+}

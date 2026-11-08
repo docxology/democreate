@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Build the definitive "DemoCreate showcase" demo artifact (v0.8.0).
 
-This self-referential tour includes slides, typed codebase views, illustrative
-terminal output and fitted figure backgrounds. Camera zoom or overlays can
+This self-referential tour includes slides, illustrative typed-code/terminal
+views and fitted figure backgrounds, not captured repository source. Overlays can
 obscure content. The canonical recipe selects a real Kokoro voice; a silent
 render does not establish voiced narration or acoustic alignment.
 
@@ -116,7 +116,7 @@ def build() -> Demo:
               "The spine is plain data: scenes contain narration chunks and typed "
               "actions. Synthesis records audio paths and measured timing in the "
               "resolved output artifact.",
-              "src/democreate/schema.py",
+              "illustrative_schema.py",
               "@dataclass\n"
               "class Demo:\n"
               "    title: str\n"
@@ -137,7 +137,7 @@ def build() -> Demo:
               "Silent narration uses the standard library; a system voice needs "
               "a usable speech binary. This canonical recipe selects locally "
               "provisioned Kokoro.",
-              "src/democreate/narration/tts.py",
+              "illustrative_backends.py",
               "class TTSBackend(ABC):\n"
               "    @abstractmethod\n"
               "    def synthesize(self, text, out_path, *, voice=None): ...\n"
@@ -152,7 +152,7 @@ def build() -> Demo:
               "Clip duration is measured. Word timing is estimated: the default "
               "transcriber spreads known text across the clip by character length. "
               "It does not detect spoken word onsets.",
-              "src/democreate/narration/sync.py",
+              "illustrative_sync.py",
               "clips = synthesize_demo(demo, ws)\n"
               "sync_demo(demo, clips)        # duration-based word estimates\n"
               "for action in chunk.actions:\n"

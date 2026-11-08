@@ -672,7 +672,7 @@ Cursor-following zoom and pan math.
 - **`compute_zoom_path(cursor_points: 'list[tuple[int, int, int]]', frame_size: 'tuple[int, int]', *, zoom: 'float' = 1.6, hold_ms: 'int' = 400) -> 'list[ZoomKeyframe]'`** — Build a zoom keyframe track that follows the cursor.
 - **`ease_in_out_cubic(t: 'float') -> 'float'`** — Cubic ease-in-out.
 - **`ease_in_out_quad(t: 'float') -> 'float'`** — Quadratic ease-in-out.
-- **`interpolate(keyframes: 'list[ZoomKeyframe]', t_ms: 'int', *, easing: 'Callable[[float], float]' = <function ease_in_out_cubic at 0x752edb2bca90>) -> 'ZoomKeyframe'`** — Sample camera state at time ``t_ms`` by easing between bracketing keyframes.
+- **`interpolate(keyframes: 'list[ZoomKeyframe]', t_ms: 'int', *, easing: 'Callable[[float], float]' = <function ease_in_out_cubic at 0x109d72c40>) -> 'ZoomKeyframe'`** — Sample camera state at time ``t_ms`` by easing between bracketing keyframes.
 - **`linear(t: 'float') -> 'float'`** — Identity easing.
 
 ## `democreate.animation.manim_scenes`

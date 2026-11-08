@@ -1,4 +1,4 @@
-# Construction Models, Related Systems, and Comparison Limits {#sec:related}
+# Construction Models and Comparison Limits {#sec:related}
 
 ## Virtual-IDE Actions, Screen Capture, and Terminal Replay
 
