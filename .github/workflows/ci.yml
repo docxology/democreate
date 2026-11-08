@@ -78,6 +78,9 @@ jobs:
       - name: Type-check (mypy)
         run: mypy src
 
+      - name: Focused capture localization and API regressions
+        run: python -m pytest -q --no-cov tests/capture/ tests/translation/ tests/test_api_docs.py
+
       # Full suite incl. the ≥90% coverage gate and the output-public-allowlist
       # gate (which fails if anything other than the self-descriptor bundle is
       # tracked under output/).

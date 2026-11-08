@@ -8,5 +8,7 @@ PNGs.
 The paper-theme diagram and caption are **synthetic illustrations**, not PDF
 extractions or measured paper results. Source/layout and Pillow/FreeType runtime
 must be fixed for byte comparisons; committed PNGs do not prove the latest
-generator has been run. Public captions live in [the gallery guide](../gallery.md);
+generator has been run. The title asserts no external paper identity/page count,
+the typing example is not current source, and the compilation-stage diagram is
+not a dependency graph. Public captions live in [the gallery guide](../gallery.md);
 [video evidence](../videos.md) is deliberately separate.

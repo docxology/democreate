@@ -13,7 +13,8 @@ their default visuals remain synthetic. See [backends](../../../docs/backends.md
 - `SyntheticRenderer` — **default**. Pure Pillow. Draws a clean, deterministic
   frame per `FrameState.scene_kind`:
   - editor: title bar with `file_path`, line-numbered `code_lines`, emphasized
-    `highlight_lines`, and a typing cursor honoring `cursor_typed`;
+    `highlight_lines`, and one typing caret at the `cursor_typed` position
+    (non-newline character count, clamped to the available text);
   - terminal: dark background, `terminal_lines`, trailing prompt;
   - browser: address bar with `url` + placeholder body;
   - slide: centered `title`.

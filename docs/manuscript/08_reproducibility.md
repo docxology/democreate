@@ -67,8 +67,10 @@ This walks Python sources using the stdlib `ast` summarizer, generates a `Demo` 
 The paper path ([@sec:paper]) needs a real readable PDF, poppler, and any requested source/figure inputs. For explicit control of external image inputs, generate the authored Demo first, then render with an image allow-root:
 
 ```bash
-democreate paper ./inputs/paper.pdf --repo ./code --figures ./inputs/figures -o out/paper --no-render
-democreate render out/paper/demos/paper.json -o out/paper --asset-root ./inputs --tts system --theme paper
+democreate paper ./inputs/paper.pdf --repo ./code \
+  --figures ./inputs/figures -o out/paper --no-render
+democreate render out/paper/demos/paper.json -o out/paper \
+  --asset-root ./inputs --tts system --theme paper
 ```
 
 The first command reads PDF metadata/text and requested pages, heuristically extracts abstract/captions/headings, collects supplied figure images and optionally summarizes code. Review those outputs: extraction is best-effort, not semantic verification. The `paper` command's direct render path derives its asset root from the figure directory or PDF directory rather than exposing `--asset-root`; the separate `render` command above makes the external image boundary explicit. The pipeline stages accepted images and writes a resolved `out/paper/demos/demo.json` with workspace-relative paths. Use that emitted artifact with the corresponding workspace when checking the poster digest, not an assumption that pre-render geometry/paths are unchanged. The historical *Policy Entanglement* example requires its unshipped PDF, figures and source; a generic paper command is not an identity-matched reproduction.

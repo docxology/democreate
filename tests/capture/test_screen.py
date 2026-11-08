@@ -99,14 +99,31 @@ def test_long_caption_is_truncated_not_crashing() -> None:
     assert img.size == (500, 300)
 
 
-def test_editor_cursor_at_zero_typed() -> None:
+@pytest.mark.parametrize(("typed", "visible"), [
+    (0, ["", ""]),
+    (5, ["alpha", ""]),
+    (7, ["alpha", "be"]),
+    (99, ["alpha", "beta"]),
+])
+def test_editor_typing_has_one_active_caret(typed: int, visible: list[str]) -> None:
+    """Zero, line-boundary, partial and saturated positions have one caret."""
+    from dataclasses import replace
+
+    from PIL import ImageChops
+
     state = FrameState(
-        scene_kind=SceneKind.CODEBASE,
-        code_lines=["abc", "def"],
-        cursor_typed=0,
+        scene_kind=SceneKind.CODEBASE, code_lines=["alpha", "beta"],
+        cursor_typed=typed,
     )
-    img = render_frame(state, (300, 200))
-    assert img.size == (300, 200)
+    typed_frame = render_frame(state, (640, 360)).convert("RGB")
+    without_caret = render_frame(
+        replace(state, code_lines=visible, cursor_typed=None), (640, 360)
+    ).convert("RGB")
+    difference = ImageChops.difference(typed_frame, without_caret)
+    _, changed_rows = difference.getprojection()
+    spans = sum(row and (index == 0 or not changed_rows[index - 1])
+                for index, row in enumerate(changed_rows))
+    assert spans == 1
 
 
 def test_empty_state_renders() -> None:

@@ -11,43 +11,43 @@ frame renderer and diagram APIs. Regenerate from the repository root with:
 Reproduction requires fixed source, assets and Pillow/FreeType environment.
 Committed PNGs are not proof that the current edited generator has been run.
 
-## Typing animation (editor frame, mid-type)
+## Character-count editor preview, not captured animation
 
-A `codebase` (editor) frame caught partway through DemoCreate's
-character-by-character typing animation: the code is revealed up to the current
-`cursor_typed`, pygments highlights it as it appears, the active line is
-band-highlighted, and the animated caret marks the cursor. In a render this is
-re-rendered per output frame at an increasing `cursor_typed` so the code types
-itself in. See [video.md](video.md#typing-animation).
+An authored `codebase` FrameState reveals a fixed number of non-newline
+characters through `cursor_typed`, with syntax color and an active-line highlight.
+The displayed `illustrative_build.py` is an example of the public build API, not
+a current repository source file; the gallery generator does not execute it.
+This single synthetic state is not recorded or scheduled playback. See
+[scheduled typing and preview semantics](video.md#typing-animation).
 
-![An editor frame mid-typing: code revealed up to the cursor, syntax-highlighted, with a caret and a highlighted active line.](_gallery/typing.png)
+![Synthetic character-count preview of an illustrative build function, not a current source excerpt or video capture.](_gallery/typing.png)
 
 ## Research-paper figure scene (paper theme)
 
 A synthetic architecture diagram is used as a figure background on the `paper`
-theme, fit whole into the frame. Its caption is authored illustration text, not
-extracted PDF evidence. Historical committed PNGs may retain superseded labels;
-the generator source, not an old image caption, defines the next regeneration.
+theme, contained inside the content area. Its diagram and caption are authored
+illustration text, not extracted PDF evidence.
 
 ![Synthetic paper-theme illustration; neither the diagram nor its caption was extracted from a PDF.](_gallery/paper_figure.png)
 
-## Title slide (midnight theme)
+## Synthetic title layout without external-paper claims
 
-A title slide on the high-contrast `midnight` theme: a word-wrapped headline, a
-dimmed subtitle, and a section label in the top chrome — the opening card of a
-paper or codebase demo.
+A word-wrapped title, subtitle and section label demonstrate the `midnight`
+theme. Neither the text nor the image establishes a paper's identity, page count,
+extraction or narration quality.
 
-![A midnight-theme title slide with a headline and subtitle.](_gallery/title_slide.png)
+![An authored midnight-theme title slide, not evidence of an external paper.](_gallery/title_slide.png)
 
-## Architecture diagram
+## Authored compilation flow, not inferred dependencies
 
-The left-to-right codebase architecture diagram
-([`animation/diagram.py`](api.md#democreateanimationdiagram)) that a paper demo
-embeds when given a `--repo`: columns grouped by top-level package, each a stack
-of labeled module boxes with connectors. Carried as a full-frame
-`background_image`, fit whole (contain) into the frame.
+The [`animation/diagram.py`](api.md#democreateanimationdiagram) renderer draws
+explicitly supplied columns and connectors. Here they illustrate
+Demo → narration/timing → visual states → exports, separating core outputs from
+optional speech/MP4. This is not a measured runtime or repository dependency graph.
+Paper demos can use the same renderer for module-group overviews; generic
+left-to-right connectors do not establish actual import dependencies.
 
-![A codebase architecture diagram: columns of module boxes connected left to right.](_gallery/architecture.png)
+![Authored compilation-stage overview, not an inferred repository dependency graph.](_gallery/architecture.png)
 
 ## Theme strip — four of the five presets
 

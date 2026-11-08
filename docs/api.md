@@ -14,6 +14,8 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.portfolio`](#democreateportfolio)
 - [`democreate.project_paths`](#democreateproject_paths)
 - [`democreate.errors`](#democreateerrors)
+- [`democreate.api_docs`](#democreateapi_docs)
+- [`democreate.manuscript`](#democreatemanuscript)
 - [`democreate.cli`](#democreatecli)
 - [`democreate.translation.translator`](#democreatetranslationtranslator)
 - [`democreate.translation.localize`](#democreatetranslationlocalize)
@@ -26,11 +28,20 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.assembly.audio`](#democreateassemblyaudio)
 - [`democreate.assembly.captions`](#democreateassemblycaptions)
 - [`democreate.assembly.compositor`](#democreateassemblycompositor)
+- [`democreate.assembly.effects`](#democreateassemblyeffects)
 - [`democreate.capture.screen`](#democreatecapturescreen)
+- [`democreate.capture.browser`](#democreatecapturebrowser)
+- [`democreate.capture.replay`](#democreatecapturereplay)
+- [`democreate.capture.terminal`](#democreatecaptureterminal)
 - [`democreate.animation.waveform`](#democreateanimationwaveform)
 - [`democreate.animation.diagram`](#democreateanimationdiagram)
 - [`democreate.animation.fonts`](#democreateanimationfonts)
+- [`democreate.animation.highlights`](#democreateanimationhighlights)
+- [`democreate.animation.zoom`](#democreateanimationzoom)
+- [`democreate.animation.manim_scenes`](#democreateanimationmanim_scenes)
 - [`democreate.codebase.walker`](#democreatecodebasewalker)
+- [`democreate.codebase.dependency`](#democreatecodebasedependency)
+- [`democreate.codebase.ast_viz`](#democreatecodebaseast_viz)
 - [`democreate.paper.extract`](#democreatepaperextract)
 - [`democreate.paper.structure`](#democreatepaperstructure)
 - [`democreate.paper.script`](#democreatepaperscript)
@@ -41,20 +52,25 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.export.poster`](#democreateexportposter)
 - [`democreate.export.interactive`](#democreateexportinteractive)
 - [`democreate.export.formats`](#democreateexportformats)
+- [`democreate.export.metadata`](#democreateexportmetadata)
+- [`democreate.export.overlay`](#democreateexportoverlay)
+- [`democreate.export.stego`](#democreateexportstego)
 
-## `democreate` {#democreate}
+## `democreate`
 
 DemoCreate — declarative, deterministic audio-visual demo generation.
 
 ### Classes
 
 - **`Action`** *(dataclass)* — One typed event mutating the virtual environment.
+  - `from_dict(data: 'dict[str, Any]') -> 'Action'` — Inverse of :meth:`to_dict`.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a plain JSON-ready dict (omitting unset optional fields).
 - **`ActionType`** — Every primitive change a demo can express against the virtual environment.
 - **`BackendUnavailableError`** — A requested optional backend is not installed.
 - **`CaptureError`** — A screen, browser, or terminal capture step failed.
 - **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Estimate narration duration from word count at ``wpm`` words/minute.
+  - `from_dict(data: 'dict[str, Any]') -> 'Chunk'` — _(no docstring)_
   - `playback_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Return measured narration duration, or its pre-synthesis estimate.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
@@ -62,6 +78,10 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
   - `chunk_by_id(self, chunk_id: 'str') -> 'Chunk | None'` — Return the first chunk with ``id == chunk_id`` across all scenes.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Total estimated runtime from narration word counts.
   - `filter_scenes(self, *, ids: 'list[str] | None' = None, kinds: 'list[SceneKind] | None' = None, slice_start: 'int | None' = None, slice_end: 'int | None' = None) -> 'Demo'` — Return a new :class:`Demo` containing only the matching scenes.
+  - `from_dict(data: 'dict[str, Any]') -> 'Demo'` — Rebuild a :class:`Demo` from its :meth:`to_dict` mapping.
+  - `from_file(path: 'str | Path') -> 'Demo'` — Load a :class:`Demo` from a ``.json`` or ``.yaml`` file.
+  - `from_json(text: 'str') -> 'Demo'` — Parse a :class:`Demo` from a JSON string.
+  - `from_yaml(text: 'str') -> 'Demo'` — Parse a :class:`Demo` from a YAML string.
   - `is_valid(self) -> 'bool'` — ``True`` iff :meth:`validate` returns no problems.
   - `iter_actions(self) -> 'list[Action]'` — Flat, ordered list of every action across all scenes/chunks.
   - `iter_chunks(self) -> 'list[Chunk]'` — Flat, ordered list of every chunk across all scenes.
@@ -81,11 +101,13 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
 - **`RenderError`** — A frame, video, or export render step failed.
 - **`Scene`** *(dataclass)* — A logical chapter of the demo with a single capture strategy.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Sum of chunk duration estimates.
+  - `from_dict(data: 'dict[str, Any]') -> 'Scene'` — _(no docstring)_
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 - **`SceneKind`** — The capture/render strategy a scene implies.
 - **`SchemaValidationError`** — A :class:`~democreate.schema.Demo` failed structural validation.
 - **`SyncError`** — Audio/action synchronization failed (e.g. transcription mismatch).
 - **`WordTimestamp`** *(dataclass)* — A single word with millisecond start/end, produced by a transcriber.
+  - `from_dict(data: 'dict[str, Any]') -> 'WordTimestamp'` — _(no docstring)_
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 - **`Workspace`** *(dataclass)* — Resolved output locations for one demo build.
   - `clean(self) -> 'None'` — Remove the entire workspace root if it exists (idempotent).
@@ -98,17 +120,19 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
 - **`get_logger(name: 'str') -> 'logging.Logger'`** — Return a logger namespaced under ``democreate``.
 - **`log_stage(stage: 'str', logger: 'logging.Logger | None' = None) -> 'Iterator[None]'`** — Time a named stage, logging start, success, and elapsed milliseconds.
 
-## `democreate.schema` {#democreateschema}
+## `democreate.schema`
 
 Declarative demo schema — the deterministic spine of DemoCreate.
 
 ### Classes
 
 - **`Action`** *(dataclass)* — One typed event mutating the virtual environment.
+  - `from_dict(data: 'dict[str, Any]') -> 'Action'` — Inverse of :meth:`to_dict`.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a plain JSON-ready dict (omitting unset optional fields).
 - **`ActionType`** — Every primitive change a demo can express against the virtual environment.
 - **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Estimate narration duration from word count at ``wpm`` words/minute.
+  - `from_dict(data: 'dict[str, Any]') -> 'Chunk'` — _(no docstring)_
   - `playback_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Return measured narration duration, or its pre-synthesis estimate.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
@@ -116,6 +140,10 @@ Declarative demo schema — the deterministic spine of DemoCreate.
   - `chunk_by_id(self, chunk_id: 'str') -> 'Chunk | None'` — Return the first chunk with ``id == chunk_id`` across all scenes.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Total estimated runtime from narration word counts.
   - `filter_scenes(self, *, ids: 'list[str] | None' = None, kinds: 'list[SceneKind] | None' = None, slice_start: 'int | None' = None, slice_end: 'int | None' = None) -> 'Demo'` — Return a new :class:`Demo` containing only the matching scenes.
+  - `from_dict(data: 'dict[str, Any]') -> 'Demo'` — Rebuild a :class:`Demo` from its :meth:`to_dict` mapping.
+  - `from_file(path: 'str | Path') -> 'Demo'` — Load a :class:`Demo` from a ``.json`` or ``.yaml`` file.
+  - `from_json(text: 'str') -> 'Demo'` — Parse a :class:`Demo` from a JSON string.
+  - `from_yaml(text: 'str') -> 'Demo'` — Parse a :class:`Demo` from a YAML string.
   - `is_valid(self) -> 'bool'` — ``True`` iff :meth:`validate` returns no problems.
   - `iter_actions(self) -> 'list[Action]'` — Flat, ordered list of every action across all scenes/chunks.
   - `iter_chunks(self) -> 'list[Chunk]'` — Flat, ordered list of every chunk across all scenes.
@@ -128,12 +156,14 @@ Declarative demo schema — the deterministic spine of DemoCreate.
   - `validate(self) -> 'list[str]'` — Return a list of human-readable structural problems (empty == valid).
 - **`Scene`** *(dataclass)* — A logical chapter of the demo with a single capture strategy.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Sum of chunk duration estimates.
+  - `from_dict(data: 'dict[str, Any]') -> 'Scene'` — _(no docstring)_
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 - **`SceneKind`** — The capture/render strategy a scene implies.
 - **`WordTimestamp`** *(dataclass)* — A single word with millisecond start/end, produced by a transcriber.
+  - `from_dict(data: 'dict[str, Any]') -> 'WordTimestamp'` — _(no docstring)_
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 
-## `democreate.config` {#democreateconfig}
+## `democreate.config`
 
 Configuration and theming for DemoCreate renders.
 
@@ -142,14 +172,20 @@ Configuration and theming for DemoCreate renders.
 - **`AudioConfig`** *(dataclass)* — Voice and audio-assembly settings.
 - **`MetadataConfig`** *(dataclass)* — Metadata labels and unsigned content association settings.
 - **`RenderConfig`** *(dataclass)* — Top-level render configuration: theme + audio + video + metadata.
+  - `commented_yaml(theme_name: 'str' = 'noir') -> 'str'` — Return a fully-commented default config YAML (for ``democreate config``).
+  - `from_dict(data: 'dict[str, Any]') -> 'RenderConfig'` — Build a config from a (possibly partial) dict.
+  - `from_file(path: 'Path | str') -> 'RenderConfig'` — Load a config from a YAML file.
+  - `from_yaml(text: 'str') -> 'RenderConfig'` — Parse a config from YAML text.
+  - `preset(theme_name: 'str' = 'noir') -> 'RenderConfig'` — Return a config using a named preset theme (default ``"noir"``).
   - `set_aspect(self, name: 'str') -> 'RenderConfig'` — Set ``video.width``/``video.height`` from a named aspect preset.
   - `set_resolution(self, name: 'str') -> 'RenderConfig'` — Set 16:9 ``video.width``/``video.height`` from a resolution tier.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a plain dict (colors stay as lists for YAML cleanliness).
   - `to_yaml(self) -> 'str'` — Serialize the config to YAML.
 - **`Theme`** *(dataclass)* — Colors and font scale for rendered frames.
+  - `from_dict(data: 'dict[str, Any]') -> 'Theme'` — Build a theme from a dict, coercing color lists to tuples.
 - **`VideoConfig`** *(dataclass)* — Geometry and motion settings.
 
-## `democreate.media` {#democreatemedia}
+## `democreate.media`
 
 Shared media value types used across capture, narration, and assembly.
 
@@ -159,7 +195,7 @@ Shared media value types used across capture, narration, and assembly.
 - **`FrameState`** *(dataclass)* — A renderable snapshot of the virtual environment at one instant.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 
-## `democreate.pipeline` {#democreatepipeline}
+## `democreate.pipeline`
 
 End-to-end orchestration: a declarative :class:`Demo` becomes rendered output.
 
@@ -176,7 +212,7 @@ End-to-end orchestration: a declarative :class:`Demo` becomes rendered output.
 - **`build_demo(demo: 'Demo', workspace: 'Workspace | None' = None, **kwargs: 'object') -> 'PipelineResult'`** — Convenience one-shot: construct a default :class:`Pipeline` and run it.
 - **`render_video(result: 'PipelineResult', out_path: 'Path | None' = None, *, fps: 'int | None' = None, burn_captions: 'bool' = False, verify: 'bool' = True, animate: 'bool' = True, animation_fps: 'int | None' = None, config=None)`** — Assemble an audio-synced MP4 from a completed pipeline result.
 
-## `democreate.portfolio` {#democreateportfolio}
+## `democreate.portfolio`
 
 Portfolio orchestration: a directory of repositories becomes a shelf of videos.
 
@@ -197,7 +233,7 @@ Portfolio orchestration: a directory of repositories becomes a shelf of videos.
 - **`render_project(repo: 'Path', output_root: 'Path', *, config=None, tts: 'str' = 'system', voice: 'str' = '', max_modules: 'int' = 6, timestamp: 'str | None' = None, verify: 'bool' = True) -> 'ProjectResult'`** — Render one repository to a timestamped, verified summary MP4.
 - **`utc_stamp(now: 'datetime | None' = None) -> 'str'`** — Return a filesystem-safe UTC timestamp like ``20260625T164530Z``.
 
-## `democreate.project_paths` {#democreateproject_paths}
+## `democreate.project_paths`
 
 Path resolution for DemoCreate runs.
 
@@ -213,7 +249,7 @@ Path resolution for DemoCreate runs.
 - **`relativize_under_root(obj: 'Any', root: 'Path | str') -> 'Any'`** — Rewrite absolute-path strings under ``root`` to ``root``-relative POSIX form.
 - **`stage_demo_assets(demo: 'Demo', workspace: 'Workspace', asset_root: 'Path') -> 'None'`** — Confine required backgrounds to an explicit root and stage portable copies.
 
-## `democreate.errors` {#democreateerrors}
+## `democreate.errors`
 
 Exception hierarchy for DemoCreate.
 
@@ -226,7 +262,35 @@ Exception hierarchy for DemoCreate.
 - **`SchemaValidationError`** — A :class:`~democreate.schema.Demo` failed structural validation.
 - **`SyncError`** — Audio/action synchronization failed (e.g. transcription mismatch).
 
-## `democreate.cli` {#democreatecli}
+## `democreate.api_docs`
+
+Generate ``docs/api.md`` — a Markdown API reference for ``democreate``.
+
+### Functions
+
+- **`generate(out: 'Path') -> 'Path'`** — Write the API reference Markdown to ``out`` from the live package.
+- **`is_public(name: 'str') -> 'bool'`** — Public names do not start with an underscore.
+- **`members(module: 'object', kind: 'str') -> 'list[tuple[str, object]]'`** — Return sorted ``(name, obj)`` members of ``module`` that are defined in it.
+- **`module_anchor(mod_name: 'str') -> 'str'`** — Return the stable Markdown anchor used for a documented module.
+- **`render_module(mod_name: 'str') -> 'str'`** — Render the Markdown section for a single module.
+- **`signature_of(obj: 'object') -> 'str'`** — Best-effort one-line signature; empty string if it cannot be introspected.
+- **`summary(obj: 'object') -> 'str'`** — Return the first non-empty line of an object's docstring, or a placeholder.
+
+## `democreate.manuscript`
+
+Build the DemoCreate manuscript PDF from its declarative ``config.yaml``.
+
+### Functions
+
+- **`build_manuscript(config: 'Path', manuscript_dir: 'Path', output: 'Path', check: 'bool' = False) -> 'int'`** — Run the citation + figure gates and, unless ``check``, build the PDF.
+- **`defined_bib_keys(bib: 'Path') -> 'set[str]'`** — Return the citation keys defined by a BibTeX ``references.bib``.
+- **`extract_preamble(preamble_md: 'Path', out_tex: 'Path') -> 'Path'`** — Strip the ```latex fence from ``preamble.md`` into a raw ``.tex`` header.
+- **`figure_insertions(chapters: 'list[Path]') -> 'list[str]'`** — The ``figures/x.png`` paths inserted as images across the chapters.
+- **`load_config(path: 'Path') -> 'dict[str, Any]'`** — Load the manuscript ``config.yaml``.
+- **`pick_engine() -> 'str'`** — Return the first available XeLaTeX-class PDF engine on ``PATH``.
+- **`used_citation_keys(chapters: 'list[Path]') -> 'set[str]'`** — Citation keys actually used in prose (``[@key]`` / ``@key``), excluding
+
+## `democreate.cli`
 
 The ``democreate`` command-line interface.
 
@@ -246,7 +310,7 @@ The ``democreate`` command-line interface.
 - **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True, render_it: 'bool' = False, tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir') -> 'None'`** — Generate a codebase tour demo from a repository (build and/or render it).
 - **`version() -> 'None'`** — Print the installed DemoCreate version.
 
-## `democreate.translation.translator` {#democreatetranslationtranslator}
+## `democreate.translation.translator`
 
 Translators and language helpers for localized demos.
 
@@ -268,9 +332,9 @@ Translators and language helpers for localized demos.
 - **`get_translator(name: 'str' = 'auto', **kwargs: 'object') -> 'Translator'`** — Return a translator by name.
 - **`language_name(code: 'str') -> 'str'`** — Return a human language name for a code (falls back to the code itself).
 - **`localized_captions(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str', fmt: 'str' = 'srt', timing_demo: 'Demo | None' = None) -> 'str'`** — Emit subtitles in ``target`` from the **source** demo, with audio timing.
-- **`translate_demo(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str') -> 'Demo'`** — Return a copy of ``demo`` with every chunk's narration translated.
+- **`translate_demo(demo: 'Demo', translator: 'Translator', *, source: 'str', target: 'str') -> 'Demo'`** — Translate chunk narration without modifying ``demo``.
 
-## `democreate.translation.localize` {#democreatetranslationlocalize}
+## `democreate.translation.localize`
 
 Render a demo with audio in one language and subtitles in another.
 
@@ -284,7 +348,7 @@ Render a demo with audio in one language and subtitles in another.
 - **`localize_batch(demo: 'Demo', workspace, *, pairs: 'list[tuple[str, str]]', source: 'str' = 'en', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None, asset_root: 'Path | None' = None) -> 'list[LocalizedResult]'`** — Render one localized video per ``(audio_lang, subtitle_lang)`` pair.
 - **`localize_render(demo: 'Demo', workspace, *, languages: 'LanguageConfig', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None, asset_root: 'Path | None' = None) -> 'LocalizedResult'`** — Render one audio/subtitle language pair; return a :class:`LocalizedResult`.
 
-## `democreate.narration.script` {#democreatenarrationscript}
+## `democreate.narration.script`
 
 Script generation: turning structured context into a declarative Demo.
 
@@ -301,7 +365,7 @@ Script generation: turning structured context into a declarative Demo.
 
 - **`generate_codebase_demo(summaries: 'list[Any]', *, title: 'str', max_scenes: 'int' = 0) -> 'Demo'`** — Build a codebase-tour :class:`Demo` from a list of module summaries.
 
-## `democreate.narration.project_summary` {#democreatenarrationproject_summary}
+## `democreate.narration.project_summary`
 
 Project-summary script generation: a repo's facts become a narrated ``Demo``.
 
@@ -315,7 +379,7 @@ Project-summary script generation: a repo's facts become a narrated ``Demo``.
 
 - **`generate_project_summary_demo(facts: 'ProjectFacts', *, title: 'str | None' = None, architecture_image: 'str | None' = None, width: 'int' = 1920, height: 'int' = 1080, fps: 'int' = 30, voice: 'str' = 'default', max_modules: 'int' = 6, max_packages: 'int' = 6) -> 'Demo'`** — Build a narrated project-summary :class:`Demo` from collected facts.
 
-## `democreate.narration.tts` {#democreatenarrationtts}
+## `democreate.narration.tts`
 
 Text-to-speech backends for DemoCreate narration.
 
@@ -348,7 +412,7 @@ Text-to-speech backends for DemoCreate narration.
 - **`measure_wav_duration_ms(path: 'Path | str') -> 'int'`** — Return the true duration of a WAV file in milliseconds.
 - **`synthesize_demo(demo: 'Demo', workspace, backend: 'TTSBackend | None' = None) -> 'list[AudioClip]'`** — Synthesize audio for every chunk of ``demo`` into the workspace.
 
-## `democreate.narration.sync` {#democreatenarrationsync}
+## `democreate.narration.sync`
 
 Measure clip windows and estimate word/action times from supplied narration.
 
@@ -367,7 +431,7 @@ Measure clip windows and estimate word/action times from supplied narration.
 - **`get_transcriber(name: 'str' = 'auto') -> 'Transcriber'`** — Return a transcriber by name.
 - **`sync_demo(demo: 'Demo', clips: 'list[AudioClip]', transcriber: 'Transcriber | None' = None, *, lead_ms: 'int' = 0, gap_ms: 'int' = 0) -> 'Demo'`** — Assign absolute timestamps to every chunk and action from real audio.
 
-## `democreate.narration.llm` {#democreatenarrationllm}
+## `democreate.narration.llm`
 
 Optional LLM narration backend for DemoCreate.
 
@@ -384,13 +448,14 @@ Optional LLM narration backend for DemoCreate.
 - **`get_narrator(**kwargs) -> 'LLMNarrator'`** — Construct an :class:`LLMNarrator`, resolving config from the environment.
 - **`llm_available() -> 'bool'`** — Return whether an LLM API key is configured in the environment.
 
-## `democreate.assembly.animator` {#democreateassemblyanimator}
+## `democreate.assembly.animator`
 
 Timed-frame animation: turn one-frame-per-chunk into smooth, dynamic video.
 
 ### Classes
 
 - **`AnimationConfig`** *(dataclass)* — Settings for timed-frame animation.
+  - `from_video(video, theme=None, audio=None) -> 'AnimationConfig'` — Build animation settings from video (+ optional theme/audio) config.
   - `validate(self) -> 'None'` — Reject timing values that cannot match a fixed-cadence audio render.
 
 ### Functions
@@ -400,7 +465,7 @@ Timed-frame animation: turn one-frame-per-chunk into smooth, dynamic video.
 - **`frame_hold_durations(clips: 'list[AudioClip]', *, lead_ms: 'int' = 0, gap_ms: 'int' = 0, trail_ms: 'int' = 0) -> 'list[int]'`** — Return static frame holds aligned to measured speech and padded audio.
 - **`render_animation_frames(frame_paths: 'list[Path]', clips: 'list[AudioClip]', voiceover_wav: 'Path', out_dir: 'Path', *, size: 'tuple[int, int]', config: 'AnimationConfig | None' = None, scene_ids: 'list[str] | None' = None, kenburns_flags: 'list[bool] | None' = None, frame_states: 'list | None' = None, timeline_entries: 'list[TimelineEntry] | None' = None, typing_flags: 'list[bool] | None' = None, theme=None, overlay_meta=None, demo_title: 'str' = '', draw_captions: 'bool' = True, rerender_states: 'bool' = True) -> 'tuple[list[Path], int]'`** — Render uniform-cadence animated frames with motion: typing, cursor, waveform.
 
-## `democreate.assembly.audio` {#democreateassemblyaudio}
+## `democreate.assembly.audio`
 
 Voiceover post-processing for the assembly stage.
 
@@ -413,7 +478,7 @@ Voiceover post-processing for the assembly stage.
 - **`normalize_audio(in_path: 'Path', out_path: 'Path', *, i: 'float' = -16.0, tp: 'float' = -1.5, lra: 'float' = 11.0) -> 'Path'`** — Loudness-normalize ``in_path`` with ffmpeg's ``loudnorm`` filter.
 - **`write_silence(out_path: 'Path', ms: 'int', *, sample_rate: 'int' = 22050) -> 'Path'`** — Write a silent 16-bit mono PCM WAV of ``ms`` milliseconds.
 
-## `democreate.assembly.captions` {#democreateassemblycaptions}
+## `democreate.assembly.captions`
 
 Pure subtitle/caption formatting.
 
@@ -424,7 +489,7 @@ Pure subtitle/caption formatting.
 - **`to_vtt(demo: 'Demo', *, wpm: 'int' = 150) -> 'str'`** — Render the demo's narration as a WebVTT (``.vtt``) document.
 - **`word_timestamps_to_srt(words: 'list[WordTimestamp]') -> 'str'`** — Render word-level timestamps as a karaoke-granularity SRT document.
 
-## `democreate.assembly.compositor` {#democreateassemblycompositor}
+## `democreate.assembly.compositor`
 
 Timeline construction and compositor backends.
 
@@ -448,7 +513,18 @@ Timeline construction and compositor backends.
 
 - **`build_timeline(demo: 'Demo', *, fps: 'int | None' = None, wpm: 'int' = 150, trail_ms: 'int' = 0) -> 'Timeline'`** — Build measured narration windows and an event-sourced scene timeline.
 
-## `democreate.capture.screen` {#democreatecapturescreen}
+## `democreate.assembly.effects`
+
+Pure Pillow image effects for the assembly stage.
+
+### Functions
+
+- **`crossfade(a: '_ImageModule.Image', b: '_ImageModule.Image', t: 'float') -> '_ImageModule.Image'`** — Blend from image ``a`` to image ``b``.
+- **`fade(image: '_ImageModule.Image', alpha: 'float') -> '_ImageModule.Image'`** — Fade ``image`` toward black.
+- **`highlight_box(image: '_ImageModule.Image', box: 'tuple[int, int, int, int]', *, color: 'tuple[int, int, int]' = (255, 214, 0), width: 'int' = 4) -> '_ImageModule.Image'`** — Draw a rectangular highlight outline on a copy of ``image``.
+- **`lower_third(image: '_ImageModule.Image', text: 'str', *, height: 'int' = 120) -> '_ImageModule.Image'`** — Overlay a translucent caption band ("lower third") at the bottom.
+
+## `democreate.capture.screen`
 
 Frame rendering — the synthetic virtual renderer at the heart of capture.
 
@@ -467,7 +543,81 @@ Frame rendering — the synthetic virtual renderer at the heart of capture.
 - **`render_frame(state: 'FrameState', size: 'tuple[int, int]' = (1920, 1080), *, theme: 'Theme | None' = None) -> '_ImageModule.Image'`** — Render a single frame with the default synthetic renderer.
 - **`waveform_band_box(width: 'int', height: 'int') -> 'tuple[int, int, int, int]'`** — Return the ``(x0, y0, x1, y1)`` band reserved for the waveform overlay.
 
-## `democreate.animation.waveform` {#democreateanimationwaveform}
+## `democreate.capture.browser`
+
+Browser driving for WEBSITE scenes — deterministic by default.
+
+### Classes
+
+- **`BrowserDriver`** — Abstract browser automation surface.
+  - `click(self, selector: 'str') -> 'None'` — Click the first element matching ``selector``.
+  - `click_xy(self, x: 'int', y: 'int', *, button: 'str' = 'left') -> 'None'` — Click viewport coordinates using the requested mouse button.
+  - `close(self) -> 'None'` — Release any browser resources.
+  - `fill(self, selector: 'str', value: 'str') -> 'None'` — Fill the field matching ``selector`` with ``value``.
+  - `navigate(self, url: 'str') -> 'None'` — Load ``url`` in the browser.
+  - `screenshot(self, path: 'Path | str') -> 'Path'` — Capture the current page to ``path``.
+  - `scroll(self, direction: 'str', amount: 'int') -> 'None'` — Scroll ``amount`` pixels up, down, left, or right.
+- **`NullBrowserDriver`** — Deterministic, dependency-free browser driver.
+  - `click(self, selector: 'str') -> 'None'` — Record a click on ``selector``.
+  - `click_xy(self, x: 'int', y: 'int', *, button: 'str' = 'left') -> 'None'` — Record a coordinate click without inventing an element selector.
+  - `close(self) -> 'None'` — Record that the driver was closed (idempotent).
+  - `fill(self, selector: 'str', value: 'str') -> 'None'` — Record filling ``selector`` with the canonical ``value``.
+  - `navigate(self, url: 'str') -> 'None'` — Record a navigation and update the tracked URL.
+  - `screenshot(self, path: 'Path | str') -> 'Path'` — Render a synthetic browser frame to ``path``.
+  - `scroll(self, direction: 'str', amount: 'int') -> 'None'` — Record a directional scroll after validating its pixel delta.
+- **`PlaywrightBrowserDriver`** — Real browser automation via Playwright (extra: ``browser``).
+  - `click(self, selector: 'str') -> 'None'` — Click the element matching ``selector``.
+  - `click_xy(self, x: 'int', y: 'int', *, button: 'str' = 'left') -> 'None'` — Click actual viewport coordinates with the requested mouse button.
+  - `close(self) -> 'None'` — Close the page, browser, and Playwright context.
+  - `fill(self, selector: 'str', value: 'str') -> 'None'` — Fill the field matching ``selector`` with ``value``.
+  - `navigate(self, url: 'str') -> 'None'` — Load ``url`` in the real page.
+  - `screenshot(self, path: 'Path | str') -> 'Path'` — Capture the real page to ``path`` and return it.
+  - `scroll(self, direction: 'str', amount: 'int') -> 'None'` — Apply directional pixel scrolling to the real page.
+
+### Functions
+
+- **`drive_website_scene(scene: 'Scene', driver: 'BrowserDriver | None' = None) -> 'list[dict[str, Any]]'`** — Translate a WEBSITE scene's actions into driver calls.
+
+## `democreate.capture.replay`
+
+Input record/replay — a pure event model with guarded real backends.
+
+### Classes
+
+- **`EventLog`** *(dataclass)* — An ordered log of input events.
+  - `from_json(text: 'str') -> 'EventLog'` — Parse an :class:`EventLog` from a JSON string.
+  - `to_actions(self) -> 'list[Action]'` — Map events onto schema actions for the render pipeline.
+  - `to_json(self, *, indent: 'int | None' = 2) -> 'str'` — Serialize the log to a JSON string.
+- **`InputEvent`** *(dataclass)* — A single recorded input event.
+  - `from_dict(data: 'dict[str, Any]') -> 'InputEvent'` — Inverse of :meth:`to_dict`.
+  - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a JSON-ready dict.
+
+### Functions
+
+- **`record_session(duration_s: 'float' = 5.0, *, out_path: 'Path | str | None' = None) -> 'EventLog'`** — Record a live mouse/keyboard session (extra: ``replay``).
+- **`replay_session(log: 'EventLog', *, speed: 'float' = 1.0) -> 'None'`** — Replay a recorded session onto the live desktop (extra: ``replay``).
+
+## `democreate.capture.terminal`
+
+Terminal recordings in asciinema asciicast v2 format (pure Python).
+
+### Classes
+
+- **`AsciicastEvent`** *(dataclass)* — One terminal event at a relative time.
+  - `from_list(item: 'list') -> 'AsciicastEvent'` — Build an event from a ``[time, kind, data]`` triple.
+  - `to_list(self) -> 'list'` — Return the ``[time, kind, data]`` triple used on disk.
+- **`AsciicastRecording`** *(dataclass)* — An asciicast v2 recording: a header plus a stream of events.
+  - `duration(self) -> 'float'` — Return the time of the last event (0.0 for an empty recording).
+  - `from_json(text: 'str') -> 'AsciicastRecording'` — Parse a recording from asciicast v2 newline-delimited JSON.
+  - `header(self) -> 'dict'` — Return the asciicast v2 header object.
+  - `to_json(self) -> 'str'` — Serialize to asciicast v2 newline-delimited JSON.
+
+### Functions
+
+- **`record_commands(commands: 'list[tuple[str, str]]', *, prompt: 'str' = '$ ') -> 'AsciicastRecording'`** — Build a deterministic recording from ``(command, output)`` pairs.
+- **`recording_to_frame_states(rec: 'AsciicastRecording') -> 'list[FrameState]'`** — Project a recording into terminal frame states for the renderer.
+
+## `democreate.animation.waveform`
 
 Speech-waveform visualization for demo frames.
 
@@ -477,7 +627,7 @@ Speech-waveform visualization for demo frames.
 - **`draw_waveform(draw: 'ImageDraw.ImageDraw', box: 'tuple[int, int, int, int]', envelope: 'list[float]', *, progress: 'float' = 1.0, bar_color: 'tuple[int, int, int]' = (90, 110, 130), played_color: 'tuple[int, int, int]' = (80, 200, 255), playhead_color: 'tuple[int, int, int]' = (240, 245, 255), gap: 'int' = 2) -> 'None'`** — Draw a mirrored-bar waveform with a played/unplayed split and a playhead.
 - **`render_waveform_strip(envelope: 'list[float]', size: 'tuple[int, int]', *, progress: 'float' = 1.0, bg: 'tuple[int, int, int]' = (15, 18, 26)) -> 'Image.Image'`** — Render a full-frame waveform strip image.
 
-## `democreate.animation.diagram` {#democreateanimationdiagram}
+## `democreate.animation.diagram`
 
 Architecture / overview diagram renderer for demo frames.
 
@@ -490,7 +640,7 @@ Architecture / overview diagram renderer for demo frames.
 - **`democreate_architecture_image(size: 'tuple[int, int]' = (1920, 1080), *, bg: 'tuple[int, int, int]' = (13, 17, 23), accent: 'tuple[int, int, int]' = (56, 139, 253), fg: 'tuple[int, int, int]' = (230, 237, 243)) -> 'Image.Image'`** — Render the canonical DemoCreate architecture as a diagram.
 - **`render_architecture_diagram(size: 'tuple[int, int]', *, title: 'str', columns: 'list[tuple[str, list[DiagramNode]]]', bg: 'tuple[int, int, int]' = (13, 17, 23), accent: 'tuple[int, int, int]' = (56, 139, 253), fg: 'tuple[int, int, int]' = (230, 237, 243)) -> 'Image.Image'`** — Render a clean left-to-right architecture diagram.
 
-## `democreate.animation.fonts` {#democreateanimationfonts}
+## `democreate.animation.fonts`
 
 Scalable, host-independent fonts from Pillow's bundled default face.
 
@@ -498,7 +648,43 @@ Scalable, host-independent fonts from Pillow's bundled default face.
 
 - **`scaled_font(frame_height: 'int', ratio: 'float', *, mono: 'bool' = False) -> 'ImageFont.FreeTypeFont'`** — Load a font sized to a fraction of the frame height.
 
-## `democreate.codebase.walker` {#democreatecodebasewalker}
+## `democreate.animation.highlights`
+
+Syntax-highlighted code rendering for demo frames.
+
+### Functions
+
+- **`highlight_to_svg(code: 'str', *, language: 'str' = 'python', theme: 'str' = 'monokai', line_numbers: 'bool' = True) -> 'str'`** — Render ``code`` to a syntax-highlighted SVG string.
+- **`highlight_to_text(code: 'str', *, language: 'str' = 'python') -> 'str'`** — Render ``code`` to plain text via ``rich`` (line numbers included).
+- **`render_code_image(code: 'str', *, language: 'str' = 'python', size: 'tuple[int, int]' = (1280, 720), highlight_lines: 'tuple[int, ...]' = ())`** — Render ``code`` to a Pillow image on a fixed character grid.
+
+## `democreate.animation.zoom`
+
+Cursor-following zoom and pan math.
+
+### Classes
+
+- **`ZoomKeyframe`** *(dataclass)* — A virtual-camera state at one instant.
+
+### Functions
+
+- **`apply_zoom(image, kf: 'ZoomKeyframe')`** — Crop around the keyframe center and resize back to the original size.
+- **`compute_zoom_path(cursor_points: 'list[tuple[int, int, int]]', frame_size: 'tuple[int, int]', *, zoom: 'float' = 1.6, hold_ms: 'int' = 400) -> 'list[ZoomKeyframe]'`** — Build a zoom keyframe track that follows the cursor.
+- **`ease_in_out_cubic(t: 'float') -> 'float'`** — Cubic ease-in-out.
+- **`ease_in_out_quad(t: 'float') -> 'float'`** — Quadratic ease-in-out.
+- **`interpolate(keyframes: 'list[ZoomKeyframe]', t_ms: 'int', *, easing: 'Callable[[float], float]' = <function ease_in_out_cubic at 0x752edb2bca90>) -> 'ZoomKeyframe'`** — Sample camera state at time ``t_ms`` by easing between bracketing keyframes.
+- **`linear(t: 'float') -> 'float'`** — Identity easing.
+
+## `democreate.animation.manim_scenes`
+
+Manim code-walkthrough scene specs.
+
+### Functions
+
+- **`build_code_scene_spec(code: 'str', *, title: 'str' = '', language: 'str' = 'python') -> 'dict[str, Any]'`** — Build a JSON-serializable manim code-walkthrough scene description.
+- **`render_manim_scene(spec: 'dict[str, Any]', out_path: 'Path') -> 'Path'`** — Render a scene spec to a video file using manim.
+
+## `democreate.codebase.walker`
 
 AST-based source walking for the codebase subsystem.
 
@@ -517,7 +703,34 @@ AST-based source walking for the codebase subsystem.
 - **`summarize_source(source: 'str', *, path: 'str' = '<string>', name: 'str | None' = None) -> 'ModuleSummary'`** — Summarize Python source text into a :class:`ModuleSummary`.
 - **`walk_repository(root: 'Path', *, pattern: 'str' = '**/*.py', exclude: 'tuple[str, ...]' = ('__pycache__', '.venv', 'build', 'dist')) -> 'list[ModuleSummary]'`** — Summarize every matching Python file under ``root``.
 
-## `democreate.paper.extract` {#democreatepaperextract}
+## `democreate.codebase.dependency`
+
+Module dependency graphs built from import statements.
+
+### Classes
+
+- **`DependencyGraph`** *(dataclass)* — A directed dependency graph over module names.
+  - `add_edge(self, source: 'str', target: 'str') -> 'None'` — Add a directed edge, creating endpoints as needed.
+  - `add_node(self, node: 'str') -> 'None'` — Add a node if not already present.
+  - `find_cycles(self) -> 'list[list[str]]'` — Find directed cycles via depth-first search.
+  - `neighbors(self, node: 'str') -> 'list[str]'` — Return the direct successors of ``node`` (its dependencies).
+  - `to_dot(self) -> 'str'` — Render the graph as a Graphviz DOT document.
+  - `topological_order(self) -> 'list[str]'` — Return nodes in dependency order (dependencies before dependents).
+
+### Functions
+
+- **`build_import_graph(root: 'Path', *, package: 'str | None' = None) -> 'DependencyGraph'`** — Build an intra-package import dependency graph for a repository.
+
+## `democreate.codebase.ast_viz`
+
+Text and Graphviz visualization of module summaries.
+
+### Functions
+
+- **`module_to_tree(summary: 'ModuleSummary') -> 'str'`** — Render one module summary as an indented text tree.
+- **`repository_to_dot(summaries: 'list[ModuleSummary]') -> 'str'`** — Render a repository's module summaries as a Graphviz DOT graph.
+
+## `democreate.paper.extract`
 
 Structured summarization of a research paper from its PDF + figures.
 
@@ -531,7 +744,7 @@ Structured summarization of a research paper from its PDF + figures.
 - **`collect_figures(figures_dir: 'Path', *, limit: 'int | None' = None) -> 'list[Path]'`** — Collect sorted figure images from a directory (non-recursive).
 - **`summarize_paper(pdf: 'Path', *, figures_dir: 'Path | None' = None, max_abstract_chars: 'int' = 900) -> 'PaperSummary'`** — Build a :class:`PaperSummary` from a PDF and optional figures directory.
 
-## `democreate.paper.structure` {#democreatepaperstructure}
+## `democreate.paper.structure`
 
 Pure-text extraction of a paper's abstract, figure captions, and sections.
 
@@ -549,7 +762,7 @@ Pure-text extraction of a paper's abstract, figure captions, and sections.
 - **`extract_sections(text: 'str') -> 'list[PaperSection]'`** — Extract section headings from paper text.
 - **`summarize_structure(pdf: 'Path', *, max_text_pages: 'int' = 14) -> 'dict[str, Any]'`** — Extract abstract, figure captions, and sections from a PDF.
 
-## `democreate.paper.script` {#democreatepaperscript}
+## `democreate.paper.script`
 
 Build a narrated :class:`~democreate.schema.Demo` from a research paper.
 
@@ -558,7 +771,7 @@ Build a narrated :class:`~democreate.schema.Demo` from a research paper.
 - **`build_paper_demo(summary: 'PaperSummary', *, code_summaries: 'list | None' = None, page_images: 'list[Path] | None' = None, architecture_image: 'Path | None' = None, figure_captions: 'list | None' = None, sections: 'list | None' = None, width: 'int' = 1920, height: 'int' = 1080, fps: 'int' = 30, voice: 'str' = '', max_figures: 'int' = 6) -> 'Demo'`** — Assemble a narrated demo from a paper summary and optional code/pages.
 - **`chunk_sentences(text: 'str', *, max_words: 'int' = 26) -> 'list[str]'`** — Split prose into narration-sized chunks at sentence boundaries.
 
-## `democreate.paper.pdf` {#democreatepaperpdf}
+## `democreate.paper.pdf`
 
 Poppler command-line wrapper for reading and rasterizing PDFs.
 
@@ -571,7 +784,7 @@ Poppler command-line wrapper for reading and rasterizing PDFs.
 - **`render_page(pdf: 'Path', page: 'int', out_path: 'Path', *, dpi: 'int' = 150) -> 'Path'`** — Rasterize a single PDF page to a PNG via ``pdftoppm``.
 - **`render_pages(pdf: 'Path', out_dir: 'Path', *, pages: 'list[int] | None' = None, dpi: 'int' = 150, prefix: 'str' = 'page') -> 'list[Path]'`** — Rasterize several PDF pages to ``out_dir/<prefix>_<NNN>.png``.
 
-## `democreate.export.video` {#democreateexportvideo}
+## `democreate.export.video`
 
 Video and GIF export.
 
@@ -586,7 +799,7 @@ Video and GIF export.
 - **`ffmpeg_available() -> 'bool'`** — Return ``True`` if the ``ffmpeg`` binary is on ``PATH``.
 - **`frames_to_gif(frame_paths: 'list[Path]', out_path: 'Path', *, fps: 'int' = 10) -> 'Path'`** — Assemble an animated GIF from still frames using Pillow.
 
-## `democreate.export.verify` {#democreateexportverify}
+## `democreate.export.verify`
 
 Content-asserting verification for rendered video.
 
@@ -600,7 +813,7 @@ Content-asserting verification for rendered video.
 - **`parse_ffprobe(probe: 'dict[str, Any]', *, path: 'Path', expected_width: 'int | None' = None, expected_height: 'int | None' = None, min_duration_s: 'float' = 1.0, min_audio_ratio: 'float' = 0.9) -> 'VideoReport'`** — Build a :class:`VideoReport` from parsed ``ffprobe -of json`` output (pure).
 - **`verify_video(path: 'Path', *, expected_width: 'int | None' = None, expected_height: 'int | None' = None, min_duration_s: 'float' = 1.0, check_content: 'bool' = True) -> 'VideoReport'`** — Run full content-asserting verification on a real video file.
 
-## `democreate.export.chapters` {#democreateexportchapters}
+## `democreate.export.chapters`
 
 Chapter-marker export for narrated demos.
 
@@ -612,7 +825,7 @@ Chapter-marker export for narrated demos.
 - **`to_youtube_chapters(demo: 'Demo', *, chapters=None) -> 'str'`** — Build a YouTube chapter list from a demo's scenes.
 - **`write_chapters(demo: 'Demo', out_dir: 'Path', *, chapters=None, total_ms=None) -> 'dict[str, Path]'`** — Write both chapter formats to disk.
 
-## `democreate.export.poster` {#democreateexportposter}
+## `democreate.export.poster`
 
 Poster/thumbnail frame and GIF preview export.
 
@@ -621,7 +834,7 @@ Poster/thumbnail frame and GIF preview export.
 - **`demo_to_gif(frame_paths: 'list[Path]', out_path: 'Path', *, fps: 'int' = 8, max_frames: 'int' = 48) -> 'Path'`** — Build an animated GIF preview by evenly sampling a frame sequence.
 - **`render_poster(demo: 'Demo', out_path: 'Path', *, size: 'tuple[int, int]' = (1920, 1080), theme: 'Theme | None' = None, subtitle: 'str | None' = None) -> 'Path'`** — Render a designed poster/thumbnail PNG for a demo.
 
-## `democreate.export.interactive` {#democreateexportinteractive}
+## `democreate.export.interactive`
 
 Export a caption/chapter HTML preview with optional local frame images.
 
@@ -630,7 +843,7 @@ Export a caption/chapter HTML preview with optional local frame images.
 - **`build_timeline(demo: 'Demo') -> 'dict'`** — Build a deterministic caption/chapter timeline from a demo.
 - **`export_html_player(demo: 'Demo', timeline: 'dict | None', out_path: 'Path', *, frames_dir: 'str | None' = None) -> 'Path'`** — Render a caption/chapter preview referencing sibling frame assets.
 
-## `democreate.export.formats` {#democreateexportformats}
+## `democreate.export.formats`
 
 Document-format exports for a :class:`~democreate.schema.Demo`.
 
@@ -640,3 +853,43 @@ Document-format exports for a :class:`~democreate.schema.Demo`.
 - **`to_chapters(demo: 'Demo') -> 'list[dict]'`** — Build a chapter list for players and YouTube descriptions.
 - **`to_json(demo: 'Demo', *, indent: 'int' = 2, relative_to: 'Path | str | None' = None) -> 'str'`** — Serialize the demo to JSON.
 - **`to_markdown(demo: 'Demo', *, format: 'str' = 'full') -> 'str'`** — Render the demo as a readable Markdown transcript.
+
+## `democreate.export.metadata`
+
+MP4 container metadata tags — provenance written into the video container.
+
+### Functions
+
+- **`build_tags(demo: 'Demo', meta: 'MetadataConfig | None' = None, *, version: 'str' = '') -> 'dict[str, str]'`** — Build a dict of ffmpeg container metadata tags from a demo (+ config).
+- **`embed_tags(mp4_in: 'Path', mp4_out: 'Path', tags: 'dict[str, str]') -> 'Path'`** — Write container metadata into an MP4 by stream-copying through ffmpeg.
+- **`ffmpeg_metadata_args(tags: 'dict[str, str]') -> 'list[str]'`** — Build a flat ``-metadata k=v`` argv fragment for direct ffmpeg use.
+- **`to_ffmetadata(tags: 'dict[str, str]') -> 'str'`** — Render tags as an ffmpeg ``;FFMETADATA1`` global-metadata document.
+
+## `democreate.export.overlay`
+
+On-screen top/bottom metadata bars — a broadcast-style provenance overlay.
+
+### Classes
+
+- **`OverlayInfo`** *(dataclass)* — Resolved text for the on-screen metadata bars.
+
+### Functions
+
+- **`draw_footer(image: 'Image.Image', info: 'OverlayInfo', *, accent: 'RGB' = (56, 139, 253), fg: 'RGB' = (235, 238, 243), bg: 'RGB' = (0, 0, 0)) -> 'None'`** — Draw a slim translucent bottom bar of provenance, above the frame edge.
+- **`draw_header(image: 'Image.Image', info: 'OverlayInfo', *, accent: 'RGB' = (56, 139, 253), fg: 'RGB' = (235, 238, 243), bg: 'RGB' = (0, 0, 0)) -> 'None'`** — Draw a slim translucent top bar: title (left) and section (right).
+- **`format_clock(t_ms: 'int', total_ms: 'int') -> 'str'`** — Format a ``current / total`` time readout for the footer clock.
+- **`from_metadata_config(meta: 'MetadataConfig', *, title: 'str' = '', section: 'str' = '', clock: 'str' = '') -> 'OverlayInfo'`** — Build an :class:`OverlayInfo` from a :class:`MetadataConfig`.
+
+## `democreate.export.stego`
+
+LSB steganography and unsigned content-association records for lossless frames.
+
+### Functions
+
+- **`build_provenance(demo: 'Demo', *, author: 'str' = '', version: 'str' = '', extra: 'dict[str, Any] | None' = None) -> 'dict[str, Any]'`** — Build a JSON-able provenance record for ``demo``.
+- **`capacity_bytes(size: 'tuple[int, int]') -> 'int'`** — Return the maximum payload size, in bytes, for an image of ``size``.
+- **`embed(image: 'Image.Image', payload: 'bytes') -> 'Image.Image'`** — Return a copy of ``image`` with ``payload`` hidden in its RGB LSBs.
+- **`embed_provenance(image: 'Image.Image', demo: 'Demo', *, author: 'str' = '', version: 'str' = '', extra: 'dict[str, Any] | None' = None) -> 'tuple[Image.Image, dict[str, Any]]'`** — Build a provenance record and embed it into ``image``.
+- **`extract(image: 'Image.Image') -> 'bytes'`** — Recover the payload hidden in ``image`` by :func:`embed`.
+- **`extract_provenance(image: 'Image.Image') -> 'dict[str, Any]'`** — Extract and JSON-decode the provenance record from ``image``.
+- **`verify_provenance(image: 'Image.Image', demo: 'Demo') -> 'bool'`** — Return whether the unsigned hidden content hash matches ``demo``.

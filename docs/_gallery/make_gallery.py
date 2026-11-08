@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Render a handful of REAL DemoCreate frames for the docs gallery.
+"""Generate synthetic renderer illustrations for the documentation gallery.
 
 Every image in ``docs/gallery.md`` is produced here from the package's own
 synthetic renderer (:func:`democreate.capture.screen.render_frame`) and the
 architecture-diagram renderer — no screenshots, no hand-drawn mockups. The
-output is deterministic for a given source tree, so the gallery can be checked in
-and regenerated whenever the look changes.
+output is deterministic for fixed source, assets, configuration and Pillow/FreeType
+environment; regenerate whenever those inputs change.
 
 Run it with the project virtualenv::
 
@@ -26,28 +26,27 @@ OUT = Path(__file__).resolve().parent
 HD = (1920, 1080)
 STRIP = (1920, 360)
 
-# A small, realistic block of code to show being typed into the editor.
+# An illustrative, executable public-API example; not a current source excerpt.
 _CODE = [
-    "from democreate import Pipeline, Demo",
+    "from democreate import Demo, Workspace, build_demo",
     "",
-    "def render(demo: Demo) -> None:",
-    '    """Render a demo end-to-end."""',
-    "    result = Pipeline(strict=False).run(demo)",
-    "    print(result.summary())",
+    "def build(demo: Demo) -> None:",
+    '    """Build silent core outputs in a workspace."""',
+    '    result = build_demo(demo, Workspace("output"))',
+    "    print(result.player_path)",
 ]
 
 
 def typing_frame() -> None:
     """An editor frame mid-typing: code revealed up to ``cursor_typed`` with a cursor."""
-    full = "\n".join(_CODE)
     state = FrameState(
         scene_kind=SceneKind.CODEBASE,
-        title="render.py",
-        file_path="src/democreate/render.py",
-        caption="DemoCreate types code in character-by-character, highlighting as it goes.",
+        title="illustrative_build.py",
+        file_path="illustrative_build.py",
+        caption="Synthetic character-count preview, not captured playback or current source.",
         code_lines=_CODE,
         highlight_lines=[5],
-        cursor_typed=int(len(full) * 0.62),  # ~62% typed
+        cursor_typed=int(sum(map(len, _CODE)) * 0.62),
         cursor_xy=(int(HD[0] * 0.46), int(HD[1] * 0.52)),
     )
     render_frame(state, HD, theme=THEMES["dark"]).save(OUT / "typing.png")
@@ -55,8 +54,7 @@ def typing_frame() -> None:
 
 def paper_figure_frame() -> None:
     """A synthetic diagram/caption illustration of the paper-theme layout."""
-    # Render a stand-in "figure" image, then use it as a full-frame background so
-    # the frame looks exactly like a paper-demo figure scene.
+    # Compose an authored stand-in diagram; no external PDF is read.
     fig = render_architecture_diagram(
         HD,
         title="Synthetic illustration",
@@ -82,28 +80,42 @@ def paper_figure_frame() -> None:
 
 
 def title_slide_frame() -> None:
-    """A title slide with a headline + subtitle (midnight theme)."""
+    """A synthetic midnight-theme title, with no external-paper claims."""
     state = FrameState(
         scene_kind=SceneKind.SLIDE,
-        title="Policy Entanglement in Active Inference",
-        subtitle="A 170-page paper · narrated demo",
-        section="Paper",
-        caption="A 170-page paper by the authors.",
+        title="From paper notes to editable scenes",
+        subtitle="Synthetic title layout; no external PDF",
+        section="Illustration",
+        caption="Authored title slide, not paper-extraction or narration evidence.",
     )
     render_frame(state, HD, theme=THEMES["midnight"]).save(OUT / "title_slide.png")
 
 
 def architecture_frame() -> None:
-    """The standalone architecture diagram (as a paper demo would embed it)."""
+    """Illustrate authored compilation stages, not inferred module dependencies."""
     columns = [
-        ("narration", [DiagramNode(label="tts"), DiagramNode(label="sync"), DiagramNode(label="script")]),
-        ("capture", [DiagramNode(label="screen"), DiagramNode(label="browser")]),
-        ("assembly", [DiagramNode(label="animator"), DiagramNode(label="audio"), DiagramNode(label="captions")]),
-        ("export", [DiagramNode(label="video"), DiagramNode(label="verify"), DiagramNode(label="chapters")]),
-        ("paper", [DiagramNode(label="pdf"), DiagramNode(label="structure"), DiagramNode(label="script")]),
+        ("Authored inputs", [
+            DiagramNode(label="Demo"),
+            DiagramNode(label="assets + configuration"),
+        ]),
+        ("Narration + timing", [
+            DiagramNode(label="silent / optional speech"),
+            DiagramNode(label="measured clip windows"),
+            DiagramNode(label="estimated word times"),
+        ]),
+        ("Visual states", [
+            DiagramNode(label="scheduled actions"),
+            DiagramNode(label="FrameState"),
+            DiagramNode(label="synthetic frames"),
+        ]),
+        ("Exports", [
+            DiagramNode(label="PNG / SRT / VTT"),
+            DiagramNode(label="timed image HTML"),
+            DiagramNode(label="optional MP4"),
+        ]),
     ]
     render_architecture_diagram(
-        HD, title="Codebase Architecture", columns=columns
+        HD, title="Demo compilation: core and optional outputs", columns=columns
     ).save(OUT / "architecture.png")
 
 

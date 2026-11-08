@@ -300,14 +300,18 @@ class SyntheticRenderer(FrameSource):
         # how many characters of the whole block are revealed (typing animation)
         typed = state.cursor_typed
         revealed = [len(line) for line in code]
+        caret_source: int | None = None
         if typed is not None:
-            remaining = max(0, typed)
+            remaining = min(max(0, typed), sum(revealed))
             for i, line in enumerate(code):
                 revealed[i] = max(0, min(len(line), remaining))
+                if caret_source is None and remaining <= len(line):
+                    caret_source = i
                 remaining -= len(line)
 
         y = content_top
         last_orig = -1
+        caret_drawn = False
         for orig, text, offset, cont in rows:
             if y > content_bottom - line_h + 2:
                 break
@@ -334,11 +338,12 @@ class SyntheticRenderer(FrameSource):
             else:
                 self._draw_spans(draw, spans[orig], visible, pad_x, y, font, char_w)
             # typing caret at the end of the revealed text on the active row
-            if typed is not None and offset <= revealed[orig] < offset + row_src_len + 1 \
-                    and revealed[orig] < len(code[orig]) + 1:
+            if (orig == caret_source and not caret_drawn
+                    and offset <= revealed[orig] <= offset + row_src_len):
                 cx = int(pad_x + self._text_w(draw, visible, font))
                 draw.rectangle([cx, y, cx + max(2, int(char_w * 0.12)), y + line_h - 4],
                                fill=t.cursor)
+                caret_drawn = True
             y += line_h
 
     def _highlight(self, code_lines: list[str], path: str) -> list[list[tuple[str, tuple]]]:
