@@ -1,9 +1,7 @@
 """Tests for :mod:`democreate.assembly.audio`.
 
-Exercises the pure standard-library silence/concat/measure helpers on real
-temporary WAV files. The ffmpeg-backed paths (``normalize_audio``,
-``apply_fade``) are guarded and never invoked here; we only assert that they
-raise :class:`BackendUnavailableError` when the binary is absent.
+Exercises real PCM WAV silence/concat/measure helpers and, when available,
+real FFmpeg normalization/fades, including legacy Python reader compatibility.
 """
 
 from __future__ import annotations
@@ -20,7 +18,7 @@ from democreate.assembly.audio import (
     measure_duration_ms,
     write_silence,
 )
-from democreate.errors import BackendUnavailableError
+from democreate.errors import BackendUnavailableError, RenderError
 
 
 def _write_wav(
@@ -162,15 +160,66 @@ def test_apply_fade_raises_without_ffmpeg(tmp_path: Path) -> None:
 @pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is unavailable")
 @pytest.mark.parametrize("operation", ["normalize_audio", "apply_fade"])
 def test_real_ffmpeg_write_failure_is_render_error(tmp_path: Path, operation: str) -> None:
-    import subprocess
-
     from democreate.assembly import audio
-    from democreate.errors import RenderError
 
     source = _write_wav(tmp_path / "valid.wav", 250)
+    original = source.read_bytes()
     destination = tmp_path / "unwritable.wav"
     destination.mkdir()
-    with pytest.raises(RenderError) as error:
+    with pytest.raises(RenderError):
         getattr(audio, operation)(source, destination)
-    assert isinstance(error.value.__cause__, subprocess.CalledProcessError)
+    assert destination.is_dir()
     assert measure_duration_ms(source) == 250
+    assert source.read_bytes() == original
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is unavailable")
+@pytest.mark.parametrize(
+    "sample_rate,channels", [(22050, 1), (44100, 2), (96000, 1), (44100, 3)]
+)
+def test_normalize_and_fade_preserve_pcm_timing_and_legacy_wav(
+    tmp_path: Path, sample_rate: int, channels: int
+) -> None:
+    """A real tone survives both filters with Python 3.11-readable PCM headers."""
+    import math
+    import struct
+
+    from democreate.assembly.audio import apply_fade, normalize_audio
+
+    source = tmp_path / "tone.wav"
+    frames = round(sample_rate / 2)
+    samples = b"".join(
+        struct.pack("<h", round(2000 * math.sin(2 * math.pi * 440 * frame / sample_rate)))
+        * channels
+        for frame in range(frames)
+    )
+    with wave.open(str(source), "wb") as output:
+        output.setparams((channels, 2, sample_rate, 0, "NONE", "not compressed"))
+        output.writeframes(samples)
+    original = source.read_bytes()
+    normalized = normalize_audio(source, tmp_path / "normalized.wav")
+    faded = apply_fade(normalized, tmp_path / "faded.wav", fade_ms=80)
+    for path in (normalized, faded):
+        data = path.read_bytes()
+        # Format tag 1 is standard PCM; tag 65534 is unreadable by Python 3.11.
+        fmt_offset = data.index(b"fmt ") + 8
+        assert struct.unpack_from("<H", data, fmt_offset)[0] == 1
+        with wave.open(str(path), "rb") as audio:
+            assert (audio.getnchannels(), audio.getsampwidth(), audio.getframerate()) == (
+                channels, 2, sample_rate
+            )
+            assert abs(audio.getnframes() - frames) <= 1
+        assert abs(measure_duration_ms(path) - 500) <= 1
+    with wave.open(str(faded), "rb") as audio:
+        values = [
+            sample[0] for sample in struct.iter_unpack("<h", audio.readframes(frames))
+        ]
+    edge = values[: round(sample_rate * channels * 0.04)]
+    middle = values[
+        round(sample_rate * channels * 0.2): round(sample_rate * channels * 0.3)
+    ]
+    assert sum(value * value for value in middle) / len(middle) > 0
+    assert sum(value * value for value in edge) / len(edge) < (
+        sum(value * value for value in middle) / len(middle) / 2
+    )
+    assert source.read_bytes() == original

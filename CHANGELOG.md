@@ -56,6 +56,12 @@ resolves to archived 0.6.2, not this candidate.
 
 - **CI currency** — `actions/checkout@v7`, `actions/setup-python@v7`,
   `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.11–3.15.
+- **Legacy WAV compatibility** — normalization and fades retain PCM sample rate
+  and channel count and write standard 16-bit PCM headers. This avoids FFmpeg's
+  implicit 192 kHz/WAVE_FORMAT_EXTENSIBLE output, which broke Python 3.11 renders.
+  Processing uses bounded-memory PCM copying and atomically publishes the WAV.
+- CI installs a SHA-256-checked, matched Pandoc 3.13/pandoc-crossref 0.3.26a pair,
+  so manuscript figure/citation checks execute instead of silently skipping.
 - Docs drift: the README subsystem table no longer claims a `pdf` extra for
   `paper/` (poppler on `PATH`, no pip extra — as `docs/backends.md` already
   said), the localized showcase cuts are described as rendered-on-demand rather

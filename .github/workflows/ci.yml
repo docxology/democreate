@@ -29,6 +29,28 @@ jobs:
       - name: Install media binaries
         run: sudo apt-get update && sudo apt-get install -y ffmpeg poppler-utils
 
+      # Matched upstream Pandoc/crossref binaries: execute the manuscript gates
+      # rather than accidentally losing core coverage through missing tools.
+      # Digests are the upstream GitHub release asset SHA-256 values.
+      - name: Install manuscript check tools
+        run: |
+          mkdir -p output/ci-tools/bin
+          curl --fail --location --silent --show-error \
+            https://github.com/jgm/pandoc/releases/download/3.13/pandoc-3.13-linux-amd64.tar.gz \
+            --output output/ci-tools/pandoc.tar.gz
+          curl --fail --location --silent --show-error \
+            https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.26a/pandoc-crossref-Linux-X64.tar.xz \
+            --output output/ci-tools/pandoc-crossref.tar.xz
+          printf '%s\n' \
+            '38aa33b325a2bc96a4c39409631212db55702f564250bcdbead180b3bf646389  output/ci-tools/pandoc.tar.gz' \
+            'e61fc62485bd432c0662c2508eb40a9e501d0f47a90736995793ad73e3c0c017  output/ci-tools/pandoc-crossref.tar.xz' \
+            | sha256sum --check
+          tar -xzf output/ci-tools/pandoc.tar.gz --strip-components=2 \
+            --directory output/ci-tools/bin pandoc-3.13/bin/pandoc
+          tar -xJf output/ci-tools/pandoc-crossref.tar.xz \
+            --directory output/ci-tools/bin pandoc-crossref
+          echo "$GITHUB_WORKSPACE/output/ci-tools/bin" >> "$GITHUB_PATH"
+
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python-version }}

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import tempfile
 import wave
 from pathlib import Path
 
@@ -203,6 +204,38 @@ def ffmpeg_audio_available() -> bool:
     return shutil.which("ffmpeg") is not None
 
 
+def _filter_wav(
+    in_path: Path, out_path: Path, audio_filter: str, operation: str
+) -> Path:  # pragma: no cover - requires the ffmpeg binary
+    """Filter PCM WAV audio without FFmpeg's version-dependent WAV headers."""
+    try:
+        with wave.open(str(in_path), "rb") as source:
+            params = source.getparams()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=out_path.parent) as directory:
+            raw_path = Path(directory) / "audio.pcm"
+            wav_path = Path(directory) / "audio.wav"
+            command = [
+                "ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(in_path),
+                "-af", audio_filter, "-ar", str(params.framerate),
+                "-ac", str(params.nchannels), "-c:a", "pcm_s16le",
+                "-f", "s16le", str(raw_path),
+            ]
+            subprocess.run(
+                command, check=True, stdin=subprocess.DEVNULL, capture_output=True
+            )
+            with raw_path.open("rb") as raw, wave.open(str(wav_path), "wb") as output:
+                output.setnchannels(params.nchannels)
+                output.setsampwidth(2)
+                output.setframerate(params.framerate)
+                while data := raw.read(65536 * params.nchannels):
+                    output.writeframesraw(data)
+            wav_path.replace(out_path)
+    except (OSError, wave.Error, subprocess.CalledProcessError) as exc:
+        raise RenderError(f"ffmpeg audio {operation} failed") from exc
+    return out_path
+
+
 def normalize_audio(
     in_path: Path,
     out_path: Path,
@@ -213,8 +246,13 @@ def normalize_audio(
 ) -> Path:  # pragma: no cover - requires the ffmpeg binary
     """Loudness-normalize ``in_path`` with ffmpeg's ``loudnorm`` filter.
 
+    Preserves the input PCM WAV's sample rate and channel count; writes a
+    standard 16-bit PCM WAV readable on Python 3.11 as well as newer runtimes.
+    FFmpeg's automatic loudnorm output otherwise uses 192 kHz and may emit a
+    WAVE_FORMAT_EXTENSIBLE header unsupported by Python 3.11's ``wave`` reader.
+
     Args:
-        in_path: Source audio path.
+        in_path: Source PCM WAV path.
         out_path: Destination ``.wav`` path (parent dirs are created).
         i: Integrated loudness target in LUFS.
         tp: True-peak ceiling in dBTP.
@@ -225,29 +263,17 @@ def normalize_audio(
 
     Raises:
         BackendUnavailableError: If the ``ffmpeg`` binary is not installed.
-        RenderError: If ffmpeg exits unsuccessfully; the source WAV is unchanged.
+        RenderError: If processing or output fails; the source WAV is unchanged.
     """
     if not ffmpeg_audio_available():
         raise BackendUnavailableError("ffmpeg", extra="video")
 
     in_path = Path(in_path)
     out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        str(in_path),
-        "-af",
-        f"loudnorm=I={i}:TP={tp}:LRA={lra}",
-        str(out_path),
-    ]
     logger.info("normalizing audio: %s -> %s", in_path, out_path)
-    try:
-        subprocess.run(cmd, check=True, capture_output=True)
-    except subprocess.CalledProcessError as exc:
-        raise RenderError("ffmpeg audio normalization failed") from exc
-    return out_path
+    return _filter_wav(
+        in_path, out_path, f"loudnorm=I={i}:TP={tp}:LRA={lra}", "normalization"
+    )
 
 
 def apply_fade(
@@ -260,9 +286,10 @@ def apply_fade(
 
     The fade-out start is computed from the true clip duration via
     :func:`measure_duration_ms`.
+    Sample rate and channel count are preserved in a standard 16-bit PCM WAV.
 
     Args:
-        in_path: Source audio path.
+        in_path: Source PCM WAV path.
         out_path: Destination ``.wav`` path (parent dirs are created).
         fade_ms: Duration of each fade (in and out) in milliseconds.
 
@@ -271,31 +298,17 @@ def apply_fade(
 
     Raises:
         BackendUnavailableError: If the ``ffmpeg`` binary is not installed.
-        RenderError: If ffmpeg exits unsuccessfully; the source WAV is unchanged.
+        RenderError: If processing or output fails; the source WAV is unchanged.
     """
     if not ffmpeg_audio_available():
         raise BackendUnavailableError("ffmpeg", extra="video")
 
     in_path = Path(in_path)
     out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     total_ms = measure_duration_ms(in_path)
     fade_s = max(fade_ms, 0) / 1000.0
     out_start_s = max(total_ms - max(fade_ms, 0), 0) / 1000.0
     afade = f"afade=t=in:st=0:d={fade_s},afade=t=out:st={out_start_s}:d={fade_s}"
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        str(in_path),
-        "-af",
-        afade,
-        str(out_path),
-    ]
     logger.info("applying fade (%d ms) to %s -> %s", fade_ms, in_path, out_path)
-    try:
-        subprocess.run(cmd, check=True, capture_output=True)
-    except subprocess.CalledProcessError as exc:
-        raise RenderError("ffmpeg audio fade failed") from exc
-    return out_path
+    return _filter_wav(in_path, out_path, afade, "fade")

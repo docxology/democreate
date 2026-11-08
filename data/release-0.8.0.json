@@ -193,24 +193,24 @@
     "silent_controls_eligible": false
   },
   "core_validation": {
-    "passed": 917,
+    "passed": 921,
     "skipped": 12,
-    "configured_coverage_percent": 90.47236718854543,
-    "excluded_lines": 1153,
+    "configured_coverage_percent": 90.47364195879048,
+    "excluded_lines": 1163,
     "branch_coverage_enabled": true,
     "coverage_receipt": {
       "outcome": "SUCCEEDED",
       "returncode": 0,
-      "finished": "2026-11-08T03:56:25.002209+00:00",
+      "finished": "2026-11-08T04:55:27.489117+00:00",
       "binding": {
         "source": "docxology/democreate",
-        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
-        "run": "coverage-complete",
-        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-coverage",
+        "generation": "16819-064aec7f260f435f811a67d371d99bad"
       },
       "classification": "test",
-      "timeout_seconds": 900,
-      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
+      "timeout_seconds": 300,
+      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
       "source_unchanged": true
     },
     "coverage_scope": "configured pure-core gate, not all heavy adapters",
@@ -764,6 +764,51 @@
       "timeout_seconds": 180,
       "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
       "source_unchanged": true
+    },
+    "ci-fix-lint": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:54:07.516385+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-lint",
+        "generation": "16814-7a877ecc4d184349a4dd8e0749101f43"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
+      "source_unchanged": true
+    },
+    "ci-fix-audio-video": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:54:51.192920+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-audio-video",
+        "generation": "16816-63490a1d0aa4426a90779a9525ef597f"
+      },
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
+      "source_unchanged": true
+    },
+    "ci-fix-coverage": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:55:27.489117+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-coverage",
+        "generation": "16819-064aec7f260f435f811a67d371d99bad"
+      },
+      "classification": "test",
+      "timeout_seconds": 300,
+      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
+      "source_unchanged": true
     }
   },
   "packages": {
@@ -838,5 +883,44 @@
       }
     }
   },
-  "human_receipt": "docs/release-0.8.0.md"
+  "human_receipt": "docs/release-0.8.0.md",
+  "core_validation_before_hosted_ci": {
+    "passed": 917,
+    "skipped": 12,
+    "configured_coverage_percent": 90.47236718854543,
+    "excluded_lines": 1153,
+    "branch_coverage_enabled": true,
+    "coverage_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:25.002209+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "coverage-complete",
+        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
+      "source_unchanged": true
+    },
+    "coverage_scope": "configured pure-core gate, not all heavy adapters",
+    "mypy": "passed 66 source files; one existing untyped-body note remains",
+    "ruff": "passed"
+  },
+  "hosted_ci": {
+    "first_attempt": {
+      "commit": "865dc3371f42212d54b191748c99cbc148f74acc",
+      "url": "https://github.com/docxology/democreate/actions/runs/42447713930",
+      "conclusion": "failure",
+      "python_3_11_render_failures": 3,
+      "other_matrix_coverage_percent": 89.95,
+      "root_causes": [
+        "FFmpeg WAVE_FORMAT_EXTENSIBLE incompatible with Python 3.11 wave reader",
+        "missing Pandoc/crossref skipped four manuscript checks"
+      ]
+    },
+    "post_fix": "not_yet_observed"
+  }
 }
