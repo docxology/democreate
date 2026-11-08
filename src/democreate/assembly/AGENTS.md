@@ -12,9 +12,9 @@ formatting, and image effects. Do **not** edit files outside this directory
 ## Invariants (do not break)
 
 - **The timeline is pure.** `build_timeline` must do no I/O and depend only on
-  core deps. It produces gap-free, non-overlapping, index-ordered entries —
-  `entries[i].start_ms == entries[i-1].end_ms`, and a synced `start_ms` that
-  would move backwards is clamped forward, never overlapping.
+  core deps. It produces non-overlapping, index-ordered narration windows; synced
+  starts preserve silence. A start that would overlap is clamped forward. Measured
+  playback durations take precedence over pre-synthesis word-count estimates.
 - **`entry_at_ms` uses a half-open window** `[start, end)`. The boundary `end_ms`
   belongs to the next entry; `total_ms` and negatives return `None`.
 - **`frame_count() == round(total_ms / 1000 * fps)`** exactly.
@@ -32,7 +32,7 @@ formatting, and image effects. Do **not** edit files outside this directory
 - **Effects are size-preserving and never mutate the input image** (`.copy()` /
   `Image.blend` produce new images).
 - **Captions** carry one cue per chunk for `to_srt`/`to_vtt`/`to_ass`; cue timing
-  mirrors `build_timeline`'s synced-vs-estimate rule.
+  mirrors `build_timeline`'s measured-duration/synced-start rule.
 
 ## Code style
 

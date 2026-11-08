@@ -1,76 +1,59 @@
 # Examples
 
-Worked DemoCreate artifacts you can render and inspect.
+All JSON artifacts use schema **1.1**. Background images are relative to the
+Demo file directory; each generator stages its assets under sibling `assets/`.
+Do not replace those paths with author-machine or sibling-project paths.
 
-## `make_showcase.py` → `democreate_showcase.json` (the definitive demo)
+## Canonical package showcase
 
-The **canonical package demo**: DemoCreate's definitive showcase, authored as a
-DemoCreate `Demo` and exercising *every* renderable surface. **Fifteen scenes** —
-(1) hero title card, (2) the one-glance graphical abstract, (3) a **bullet slide**
-*"A demo is a value, not a recording"*, (4–6) three **code scenes** typing in
-(`schema.py` spine, `tts.py` deterministic backends, `sync.py`
-audio-as-ground-truth), (7) a meta **bullet slide** *"What you are seeing"*,
-(8) the themes strip, (9) a real research-paper **figure** (fit-contained, whole),
-(10) a describe-any-codebase **portfolio slide**, (11) the architecture diagram,
-(12) a **stat-card slide** *"by the numbers"*
-(776 collected tests · 8 subsystems · 5 themes · 4K · 0 binary deps), (13) a provenance **bullet
-slide**, (14) a **terminal** render+verify, (15) the outro. 3840×2160, no-crop
-(figures fit whole, code autosizes, Ken Burns off), a moving waveform + bottom
-metadata bar throughout.
+`make_showcase.py` writes `democreate_showcase.json` and copies committed figure
+inputs into `examples/assets/`. Fifteen scenes demonstrate slides, codebase
+views and illustrative terminal commands—not a website capture or all SceneKinds.
+Stat cards describe gates rather than a changing test total.
 
-The **bullet slides** and **stat-card slides** are new in `v0.6.1`
-(`FrameState.bullets` / `FrameState.stats`, set via `scene.context["bullets"]` /
-`scene.context["stats"]`).
+The canonical render is **Kokoro `af_heart`, 2160p**, requiring the `tts` extra,
+model/voice files and ffmpeg. No current canonical voiced 4K receipt is asserted.
 
 ```bash
-# 1. build the declarative artifact
-uv run python examples/make_showcase.py      # writes examples/democreate_showcase.json
-
-# 2. render the definitive showcase to a verified 4K MP4
-uv run democreate render examples/democreate_showcase.json -o output \
-  --voice Samantha --resolution 2160p --author "Daniel Ari Friedman" \
-  --watermark "github.com/docxology/democreate"
-uv run democreate verify output/video/demo.mp4 --width 3840 --height 2160
+.venv/bin/python examples/make_showcase.py
+democreate render examples/democreate_showcase.json -o output \
+  --tts kokoro --voice af_heart --resolution 2160p \
+  --author "Daniel Ari Friedman"
+democreate verify output/video/demo.mp4 --width 3840 --height 2160
 ```
 
-`render` produces `output/video/demo.mp4` — a 155.6-second 4K H.264/AAC video
-with **15 chapters**, container tags (`title="DemoCreate — The Showcase"` /
-`artist="Daniel Ari Friedman"`), and a signed steganographic provenance poster.
-The build self-verifies it (real streams, non-silent audio, non-black frames).
-Full write-up: [`../docs/videos.md`](../docs/videos.md).
+The earlier 155.6-second record is historical; a regenerated narration has its own
+duration. PNG provenance payloads are unsigned consistency records, not signatures.
 
-## `make_intro_demo.py` → `democreate_intro.json` (the earlier intro)
+## Earlier introduction
 
-The earlier **dogfood**: DemoCreate's own introduction, authored as a DemoCreate
-`Demo`. Nine scenes (title → architecture diagram → spine → backends → sync →
-player dashboard → build → render → outro), narration chunks,
-trigger-word-anchored actions, 1920×1080 @ 30fps. The showcase
-above **supersedes** it as the canonical package demo; the intro still renders.
+Nine scenes introduce the architecture, spine, backends, clip timing, player and
+CLI. Committed architecture/dashboard inputs are available under `assets/`.
 
 ```bash
-# 1. build the declarative artifact
-python examples/make_intro_demo.py            # writes examples/democreate_intro.json
-
-# 2a. deterministic build (no heavy deps): silent audio, frames, captions, player
-democreate build examples/democreate_intro.json -o output
-open output/web/player.html
-
-# 2b. real HD video with a real spoken voiceover (needs `say`/`espeak` + ffmpeg)
-democreate render examples/democreate_intro.json -o output --voice Samantha
-democreate verify output/video/demo.mp4 --width 1920 --height 1080
+.venv/bin/python examples/make_intro_demo.py
+democreate build examples/democreate_intro.json -o output/intro
+democreate render examples/democreate_intro.json -o output/intro --tts system --voice Samantha
 ```
 
-`render` produces `output/video/demo.mp4` — a ~78-second 1080p H.264/AAC video.
-The build self-verifies it (real streams, audio covers video, non-silent audio,
-non-black frames); `verify` re-checks any video file independently.
+System rendering requires a successful `say`/`espeak` probe plus ffmpeg. Default
+`build` is silent; it is not evidence of a successful voiced render.
 
-### Voices
+## Optional curated paper
 
-`--voice` is the system voice name. On macOS list them with `say -v '?'`
-(e.g. `Samantha`, `Daniel`, `Karen`, `Alex`); on Linux `espeak` voices apply.
+The curated paper's PDF/source/figure outputs are external prerequisites, not
+bundled inputs. Obtain the intended *Policy Entanglement* project explicitly:
 
-### Why this matters
+```bash
+.venv/bin/python examples/make_paper_showcase.py --paper-root /path/to/paper
+democreate render examples/democreate_paper_showcase.json -o output/paper_showcase \
+  --tts system --voice Daniel
+```
 
-The intro is not a screen recording — it is a **value**. Edit
-`make_intro_demo.py` (or the JSON), re-run `render`, and the video updates. You
-never re-record. That is the whole thesis, demonstrated on the tool itself.
+The builder requires `output/pdf/actinf_policy_entanglement_lean_combined.pdf`,
+`src/` and its named `output/figures/*.png` inputs. Before staging any bytes, it
+resolves the PDF, figures and source tree and rejects links escaping the selected
+`--paper-root` (including source descendants). The explicitly selected root is
+the authority, even if it is itself a link. Missing inputs fail; there is no
+fallback project. It never writes into the supplied project.
+See [video recipes](../docs/videos.md) for curated versus template identities.

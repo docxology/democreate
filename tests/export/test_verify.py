@@ -90,3 +90,40 @@ def test_report_to_dict_and_ok_property() -> None:
     d = r.to_dict()
     assert d["ok"] is False
     assert d["problems"] == ["no video stream"]
+
+
+def test_verify_video_reports_missing_ffprobe(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    import pytest
+
+    import democreate.export.verify as verify_mod
+    from democreate.errors import BackendUnavailableError
+
+    monkeypatch.setattr(verify_mod.shutil, "which", lambda _name: None)
+    with pytest.raises(BackendUnavailableError) as exc:
+        verify_mod.verify_video(tmp_path / "unused.mp4")
+    assert exc.value.backend == "ffprobe"
+    assert exc.value.extra is None
+
+
+def test_verify_video_reports_missing_ffmpeg_even_with_ffprobe(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    import pytest
+
+    import democreate.export.verify as verify_mod
+    from democreate.errors import BackendUnavailableError
+
+    original_which = verify_mod.shutil.which
+    if original_which("ffprobe") is None:
+        pytest.skip("requires native ffprobe to isolate missing ffmpeg")
+    monkeypatch.setattr(
+        verify_mod.shutil,
+        "which",
+        lambda name: None if name == "ffmpeg" else original_which(name),
+    )
+    with pytest.raises(BackendUnavailableError) as exc:
+        verify_mod.verify_video(tmp_path / "unused.mp4", check_content=True)
+    assert exc.value.backend == "ffmpeg"
+    assert exc.value.extra is None

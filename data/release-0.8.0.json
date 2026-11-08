@@ -1,0 +1,842 @@
+{
+  "candidate_version": "0.8.0",
+  "schema_version": "1.1",
+  "release_state": "blocked_unpublished",
+  "base_revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+  "canonical": {
+    "video_sha256": "8bbc99a5e37e4f04a7ebdae4d40d457c72dfdd945c873723741375b9af580413",
+    "video_bytes": 10206262,
+    "width": 3840,
+    "height": 2160,
+    "video_duration_s": 159.866667,
+    "audio_duration_s": 159.905313,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "animation_fps": 15,
+    "voice_backend": "kokoro",
+    "voice": "af_heart",
+    "python": "3.14.10",
+    "mean_volume_db": -16.4,
+    "structural_verification_ok": true,
+    "captions_burned": false,
+    "caption_cues": 15,
+    "chapters": 15,
+    "decoded_frames": [
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-00.png",
+        "sha256": "96fe429f7cd17b76e7a1f5560b58dbe4d12e2d3eb0ba415dc4f867640b451f4d",
+        "cue": 1,
+        "caption": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
+        "seek_seconds": 3.244
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-02.png",
+        "sha256": "63bb3e45f46afe6872e2029214acb80096126bf13d96d22daa2d7b8418b6be60",
+        "cue": 3,
+        "caption": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
+        "seek_seconds": 22.3185
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-05.png",
+        "sha256": "47eefa9052ed39dbeb25040eb868708321760ee550f56f07160c96fe38896aed",
+        "cue": 6,
+        "caption": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
+        "seek_seconds": 57.9435
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-07.png",
+        "sha256": "ff488a8e716a6bd4f9422546b2a56abe27db656f260d435ad719057e93c9c16d",
+        "cue": 8,
+        "caption": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
+        "seek_seconds": 76.5165
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-10.png",
+        "sha256": "2b09a233e42f7d7c52ad5bfc8f9c23416deaa8aef4232a4b85b72165859cefbc",
+        "cue": 11,
+        "caption": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
+        "seek_seconds": 112.3125
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-14.png",
+        "sha256": "0f95a3466b1dbbd357507ae7329ef5de26f25ef6659a31a846b476422d052b3d",
+        "cue": 15,
+        "caption": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
+        "seek_seconds": 154.1945
+      }
+    ],
+    "audio_inspection": {
+      "sample_rate_for_inspection": 16000,
+      "mono_samples": 2558485,
+      "rms_dbfs": -16.508512099560054,
+      "peak_dbfs": -1.4037664241037964,
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "demo_input": {
+      "path": "examples/democreate_showcase.json",
+      "sha256": "31d8a726771ffe40dac2863e685cc7fbee47ee47893bb556f26676f604d702e8"
+    },
+    "model_assets": {
+      "assets_before": [
+        {
+          "name": "voices-v1.0.bin",
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+          "size": 28214398
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+          "size": 325532387
+        }
+      ],
+      "assets_after": [
+        {
+          "name": "voices-v1.0.bin",
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+          "size": 28214398
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+          "size": 325532387
+        }
+      ],
+      "large_model_kernel_seed_protected": false,
+      "large_model_seed_limit_bytes": 268435456,
+      "supplier_digests_available": false
+    },
+    "source_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:11:49.470280+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-final",
+        "generation": "16068-5da5ac6b07b248d2922f588229895ad8"
+      },
+      "classification": "test",
+      "timeout_seconds": 1500,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "local_video": "output/wfz/canonical-stage4/video/demo.mp4",
+    "media_published": false,
+    "frame_time_basis": "Requested ffmpeg -ss offsets at cue midpoints; actual decoded PTS is quantized, not independently onset-annotated.",
+    "extraction_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:17:47.421971+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-inspection-final",
+        "generation": "16120-20806dce608548b3bf4d56a39869d56a"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    }
+  },
+  "benchmark": {
+    "path": "data/benchmarks-0.8.0.json",
+    "sha256": "12e203702be23a5f93e70e2f8bb7df0032b30893c248923c66ce7978c45e53e2",
+    "source_sha256": "c81b895a1ba8b89f190afc62e45c58f5fd311eb60d44a7d54e6430ecd8c3b522",
+    "classification": "synthetic silent starter, one environment; not the planned voiced corpus; no improvement comparison"
+  },
+  "browser": {
+    "initial": {
+      "clock": "0.0s",
+      "frame": "../frames/frame_0000.png",
+      "loaded": true,
+      "caption": ""
+    },
+    "first_cue": {
+      "clock": "0.3s",
+      "caption": "first example shows code"
+    },
+    "gap": {
+      "clock": "0.8s",
+      "caption": ""
+    },
+    "next_cue": {
+      "clock": "0.9s",
+      "frame": "../frames/frame_0001.png",
+      "caption": "second code stays visible"
+    },
+    "end": {
+      "clock": "1.9s",
+      "caption": ""
+    },
+    "hostile_title": {
+      "title": "</script><img src=x onerror=\"window.__injected=1\">",
+      "heading": "</script><img src=x onerror=\"window.__injected=1\">",
+      "injected": false,
+      "inlineHandlers": 0,
+      "loaded": true
+    },
+    "chromium_internal_sandbox": false,
+    "outer_qualified_sandbox": true,
+    "reason": "Nested native Chromium sandbox failed under Seatbelt; only owned proof Chrome used --no-sandbox."
+  },
+  "research_gate": {
+    "status": "pending_unmet",
+    "blocking_release": true,
+    "required": "Independent voiced >=30-demo corpus, >=10 per declared mode; pooled absolute event-error median AND median of demo-level absolute onset-error medians <=120 ms.",
+    "missing": [
+      "independently annotated corpus",
+      "acoustic/video onset evaluator",
+      "condition/baseline/ablation results"
+    ],
+    "silent_controls_eligible": false
+  },
+  "core_validation": {
+    "passed": 917,
+    "skipped": 12,
+    "configured_coverage_percent": 90.47236718854543,
+    "excluded_lines": 1153,
+    "branch_coverage_enabled": true,
+    "coverage_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:25.002209+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "coverage-complete",
+        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
+      "source_unchanged": true
+    },
+    "coverage_scope": "configured pure-core gate, not all heavy adapters",
+    "mypy": "passed 66 source files; one existing untyped-body note remains",
+    "ruff": "passed"
+  },
+  "core_reproducibility": {
+    "classification": "same input and source, same core-only Python 3.15.2 prefix; not cross-host/model determinism",
+    "files": {
+      "audio/chunk_0000.wav": {
+        "sha256": "9954b1ec94cd58bd7debcf5e3a34585c545100427917cee822de476787090e3c",
+        "size": 176444
+      },
+      "audio/chunk_0001.wav": {
+        "sha256": "1ce7196c0bfc6545240d8651f59b0e575165a9f7d63488daf6e2284e5c10cec8",
+        "size": 141164
+      },
+      "captions/captions.srt": {
+        "sha256": "26a5d6b97644b28e534e0a05d04ca4d4e549fb315ae2ef80cc3dfe22440c6232",
+        "size": 161
+      },
+      "captions/captions.vtt": {
+        "sha256": "34a38a82ca57281007ec01ef7c889200b732abf7446ea903ed90c4ff1c12a2f9",
+        "size": 165
+      },
+      "demos/demo.json": {
+        "sha256": "f69f55c748f02382e6bcb34efb92d91dcd7af49423988734092da28a4e2d31f5",
+        "size": 1865
+      },
+      "demos/transcript.md": {
+        "sha256": "00807a60dea39fd1caf33a5b28b8612464ac054410a0be3cc312fcf7a864ec10",
+        "size": 286
+      },
+      "frames/frame_0000.png": {
+        "sha256": "801cfba20de3ad1606ce786da3b86852423d890ae4bfa37945f9bf41ddb3bc9c",
+        "size": 17278
+      },
+      "frames/frame_0001.png": {
+        "sha256": "e76892b8e894e8149d5639892e830059532ac8a2be07ec675b15f772f28a13c6",
+        "size": 18808
+      },
+      "manifests/render_manifest.json": {
+        "sha256": "3355318c27c1a163bcedf4e1a034c8d16f8309cd787d2f991cea230b368d7a37",
+        "size": 3286
+      },
+      "web/player.html": {
+        "sha256": "d8aaa4c37e0f02b1c09e4bc305588fdc68d16e74d81341a22dd5efa6690e0002",
+        "size": 5943
+      }
+    },
+    "identical_all_produced_bytes": true,
+    "differing_files": []
+  },
+  "manuscript": {
+    "pdf_sha256": "5cfb863ac0a7c4a3edcc6d1b5f371e5016c0e6b788a7d04d8a96357f2110dfdb",
+    "pages_rendered": 25,
+    "pdfinfo": "Title:           DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers\nAuthor:          Daniel Ari Friedman\nCreator:         LaTeX via pandoc\nProducer:        xdvipdfmx (20260317)\nCreationDate:    Sat Nov  7 20:26:22 2026 PST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           25\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       1195577 bytes\nOptimized:       no\nPDF version:     1.7\n",
+    "citations_used": 28,
+    "citations_defined": 32,
+    "unresolved_citations": 0,
+    "figures_inserted": 12,
+    "figures_rendered": 12,
+    "all_pages_layout_inspected": true,
+    "full_bibliography_independently_validated": false
+  },
+  "dependency_observation": {
+    "observed_at": "2026-11-08T02:22:26.048030+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "uv_lock_sha256": "f4f39874c4f136068a862ab54fdb0dd4bef2a56bcfeb79f3c900ae37454bbe9a",
+    "request_sha256": "1396f6941c6276713e3dc2e393332e2a1c5815828e989fe09bca7b266f114cf9",
+    "response_sha256": "0055b052e3ededf1a8d195e02f178a7b7ea8c179b573816fed084929e0bc15c1",
+    "scope": "Exact locked PyPI registry versions, including optional/platform variants; not every declared dependency range or an authenticity/comprehensive-security guarantee.",
+    "package_versions": 170,
+    "advisory_matches": 0
+  },
+  "toolchain": {
+    "tools": {
+      "python": "Python 3.15.2",
+      "uv": "uv 0.13.7 (Homebrew 2026-11-03 aarch64-apple-darwin)",
+      "ruff": "ruff 0.15.16",
+      "mypy": "mypy 2.1.0 (compiled: no)",
+      "pytest": "pytest 9.0.3",
+      "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.3.34.2)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg-full/9.0.2_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-libplacebo --enable-libqrencode --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --enable-whisper --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.102 / 61.  1.102\nlibavcodec     63.  1.102 / 63.  1.102\nlibavformat    63.  1.102 / 63.  1.102\nlibavdevice    63.  1.102 / 63.  1.102\nlibavfilter    12.  1.102 / 12.  1.102\nlibswscale     10.  1.102 / 10.  1.102\nlibswresample   7.  1.102 /  7.  1.102\n\nExiting with exit code 0",
+      "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.3.34.2)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg-full/9.0.2_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-libplacebo --enable-libqrencode --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --enable-whisper --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.102 / 61.  1.102\nlibavcodec     63.  1.102 / 63.  1.102\nlibavformat    63.  1.102 / 63.  1.102\nlibavdevice    63.  1.102 / 63.  1.102\nlibavfilter    12.  1.102 / 12.  1.102\nlibswscale     10.  1.102 / 10.  1.102\nlibswresample   7.  1.102 /  7.  1.102",
+      "pandoc": "pandoc 3.13\nFeatures: +server +lua\nScripting engine: Lua 5.4\nUser data directory: /Users/friedman/.local/share/pandoc\nCopyright (C) 2006-2025 John MacFarlane. Web:  https://pandoc.org\nThis is free software; see the source for copying conditions. There is no\nwarranty, not even for merchantability or fitness for a particular purpose.",
+      "pandoc-crossref": "pandoc-crossref v0.3.26 git commit UNKNOWN (UNKNOWN) built with Pandoc v3.13, pandoc-types v1.23.1.2 and GHC 9.14.1",
+      "xelatex": "XeTeX 3.141592653-2.6-0.999998 (TeX Live 2026)\nkpathsea version 6.4.2\nCopyright 2026 SIL International, Jonathan Kew and Khaled Hosny.\nThere is NO warranty.  Redistribution of this software is\ncovered by the terms of both the XeTeX copyright and\nthe Lesser GNU General Public License.\nFor more information about these matters, see the file\nnamed COPYING and the XeTeX source.\nPrimary author of XeTeX: Jonathan Kew.\nCompiled with ICU version 78.2; using 78.2\nCompiled with zlib version 1.3.2; using 1.3.2\nCompiled with FreeType2 version 2.14.1; using 2.14.1\nCompiled with Graphite2 version 1.3.14; using 1.3.14\nCompiled with HarfBuzz version 12.3.2; using 12.3.2\nCompiled with libpng version 1.6.55; using 1.6.55\nCompiled with pplib version v2.2\nUsing Mac OS X Core Text and Cocoa frameworks",
+      "pdfinfo": "pdfinfo version 26.11.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "git": "git version 2.56.0"
+    },
+    "voice_environment": {
+      "python": "3.14.10 (main, Oct 26 2026, 13:59:48) [Clang 23.1.3 ]",
+      "packages": {
+        "Jinja2": "3.1.6",
+        "MarkupSafe": "3.0.3",
+        "PyYAML": "6.0.3",
+        "Pygments": "2.20.0",
+        "annotated-doc": "0.0.4",
+        "attrs": "26.1.0",
+        "babel": "2.18.0",
+        "cffi": "2.0.0",
+        "csvw": "4.0.0",
+        "democreate": "0.8.0",
+        "dlinfo": "2.0.0",
+        "espeakng-loader": "0.2.4",
+        "flatbuffers": "25.12.19",
+        "isodate": "0.7.2",
+        "joblib": "1.5.3",
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "kokoro-onnx": "0.5.0",
+        "language-tags": "1.3.1",
+        "markdown-it-py": "4.2.0",
+        "mdurl": "0.1.2",
+        "numpy": "2.4.6",
+        "onnxruntime": "1.26.0",
+        "packaging": "26.2",
+        "phonemizer-fork": "3.3.2",
+        "pillow": "13.0.0",
+        "protobuf": "7.35.0",
+        "pycparser": "3.0",
+        "pyparsing": "3.3.2",
+        "python-dateutil": "2.9.0.post0",
+        "rdflib": "7.6.0",
+        "referencing": "0.37.0",
+        "regex": "2026.5.9",
+        "rfc3986": "1.5.0",
+        "rich": "15.0.0",
+        "rpds-py": "2026.5.1",
+        "segments": "2.4.0",
+        "setuptools": "84.2.1",
+        "shellingham": "1.5.4",
+        "six": "1.17.0",
+        "soundfile": "0.14.0",
+        "termcolor": "3.3.0",
+        "typer": "0.26.7",
+        "typing_extensions": "4.15.0",
+        "uritemplate": "4.2.0",
+        "wheel": "0.48.0"
+      }
+    }
+  },
+  "documentation_check": {
+    "markdown_files": 105,
+    "local_link_targets": 202,
+    "missing": [],
+    "generated_targets": [],
+    "anchor_validation": "not performed; manuscript references separately checked by native builder",
+    "external_http_validation": "not part of this offline check; primary research sources independently spot-checked"
+  },
+  "publication_policy_observation": {
+    "repository": "docxology/democreate",
+    "identity": {
+      "login": "docxology",
+      "mechanism": "token",
+      "detail": null
+    },
+    "write_classes": [
+      "issues"
+    ],
+    "release_class_enabled": false,
+    "configuration_sha256": "067d400d432721b2da8707a2eedb678541183c199ff45e2f8ceb71091f379fa8"
+  },
+  "gates": {
+    "core-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:07:20.869078+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "core-final",
+        "generation": "16042-f3bf4993e98e46f8bac03ac60a87127a"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "16ed46a78660f37573716ec7a1438daf5e9d12057f4a1b9cc0520ff62cc9423d",
+      "source_unchanged": true
+    },
+    "media-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:07:25.078965+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "media-final",
+        "generation": "16055-b410d31b74c745b78f9499b47aab9930"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "16ed46a78660f37573716ec7a1438daf5e9d12057f4a1b9cc0520ff62cc9423d",
+      "source_unchanged": true
+    },
+    "ui-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:16:18.608551+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "ui-final",
+        "generation": "16096-52470c438a344b1eb1045287351ec185"
+      },
+      "classification": "test",
+      "timeout_seconds": 300,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "paper-artifacts": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T02:53:20.095273+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "paper-artifacts",
+        "generation": "15920-e8e6af7e162748beaa0d50280a9cc231"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "da465841dd517c939e520326f4cb0576d6b269b58419848f26a73dcba9a1ef4d",
+      "source_unchanged": true
+    },
+    "canonical-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:11:49.470280+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-final",
+        "generation": "16068-5da5ac6b07b248d2922f588229895ad8"
+      },
+      "classification": "test",
+      "timeout_seconds": 1500,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "canonical-inspection-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:17:47.421971+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-inspection-final",
+        "generation": "16120-20806dce608548b3bf4d56a39869d56a"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "benchmark-final2": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:03:34.419678+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "benchmark-final2",
+        "generation": "16020-9d8a1d4cbf24408ca0ced3d76c46f2a4"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "16ed46a78660f37573716ec7a1438daf5e9d12057f4a1b9cc0520ff62cc9423d",
+      "source_unchanged": true
+    },
+    "coverage-complete": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:25.002209+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "coverage-complete",
+        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
+      "source_unchanged": true
+    },
+    "lint-complete": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:43.343902+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "lint-complete",
+        "generation": "16362-e3a71f99226440189724e16cc6d1b2b3"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "f89edc8b8009cdbdce562c067f4bbbf9da1a87efe2a49d54dbd755d7f1691797",
+      "source_unchanged": true
+    },
+    "manuscript-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:39:29.695260+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "manuscript-final",
+        "generation": "16269-702c9e1dcdd54b7f936a4d1147bac67c"
+      },
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "93687478bee7b91218dfaade5ec573e1ed4bbc734fb8ced1e492b615a6904678",
+      "source_unchanged": true
+    },
+    "package-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:39:33.467677+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "package-final",
+        "generation": "16272-29076203ef0d4dd295a768d92383a4c9"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "93687478bee7b91218dfaade5ec573e1ed4bbc734fb8ced1e492b615a6904678",
+      "source_unchanged": true
+    },
+    "package-inspection2": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:41:07.256083+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "package-inspection2",
+        "generation": "16277-db9d2d11091545259f935f7f45ee4faa"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "93687478bee7b91218dfaade5ec573e1ed4bbc734fb8ced1e492b615a6904678",
+      "source_unchanged": true
+    },
+    "wheel-consumer": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:41:15.226312+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "wheel-consumer",
+        "generation": "16279-d2b83a5b319d415283ed62f03e46f6cf"
+      },
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "93687478bee7b91218dfaade5ec573e1ed4bbc734fb8ced1e492b615a6904678",
+      "source_unchanged": true
+    },
+    "pdf-final-inspection": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:34.640463+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "pdf-final-inspection",
+        "generation": "16360-ed9ef8e0e57d46bf8d778efb7adc21c4"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "f89edc8b8009cdbdce562c067f4bbbf9da1a87efe2a49d54dbd755d7f1691797",
+      "source_unchanged": true
+    },
+    "docs-toolchain": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:39.505414+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "docs-toolchain",
+        "generation": "16361-6949918d3e134cda8dc31bc0897c72a2"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "f89edc8b8009cdbdce562c067f4bbbf9da1a87efe2a49d54dbd755d7f1691797",
+      "source_unchanged": true
+    },
+    "core-all-bytes": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:13:41.125698+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "core-all-bytes",
+        "generation": "16503-5baafa88991c4edbb968ab57d673a69b"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "f89edc8b8009cdbdce562c067f4bbbf9da1a87efe2a49d54dbd755d7f1691797",
+      "source_unchanged": true
+    },
+    "snapshot6": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:25:55.241004+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "snapshot6",
+        "generation": "16583-220aff4bc5e34217818566580c312ce2"
+      },
+      "classification": "test",
+      "timeout_seconds": 60,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "generate6": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:03.627360+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "generate6",
+        "generation": "16585-d34ab0a04cfa46549beecef2a0450961"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "metadata-final": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:08.569518+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "metadata-final",
+        "generation": "16593-bcee723029404c66946d96883daa8791"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "manuscript6": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:22.834879+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "manuscript6",
+        "generation": "16595-41c3f0fa64a14dd5aa8ec3c013542c37"
+      },
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "package6": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:26.590860+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "package6",
+        "generation": "16596-86ac1d790a144b46a8b795e292d695fa"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "package6-inspection": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:29.390956+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "package6-inspection",
+        "generation": "16597-799b184d4a27489e8a0d9787976cbf8c"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "wheel-final-artifact": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:34.487282+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "wheel-final-artifact",
+        "generation": "16598-938ee45cf6df4913ab4c49da5700c03d"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "pdf6-inspection": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:43.836028+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "pdf6-inspection",
+        "generation": "16599-561faa4542c349b8a2be110cd8cce641"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "docs6-toolchain": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:49.439360+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "docs6-toolchain",
+        "generation": "16600-46ee2bb966a343a4a522aea64962f923"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    },
+    "lint6": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:26:53.130945+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "lint6",
+        "generation": "16602-5b87f3c3f00d47aeb211618f3dc32aa7"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "059675297aa237f49e1953a48dd278dc6ae0909a28b7c20d686edc011bce37a5",
+      "source_unchanged": true
+    }
+  },
+  "packages": {
+    "wheel_sha256": "139159aa2c4fbc852a6ce87c762c1cc8475dfd002fa83fc818f252a6bd7a0b16",
+    "sdist_sha256": "bd1fa9cbe19d7edb96de37914d8f54c9c0ad8ea3f26d146c2f4a650ad542cbe3",
+    "wheel_members": 74,
+    "sdist_members": 116,
+    "version": "0.8.0",
+    "requires_python": ">=3.11.5",
+    "runtime_requirements": [
+      "pyyaml>=6.0",
+      "typer>=0.12.0",
+      "rich>=13.0.0",
+      "jinja2>=3.1.0",
+      "pillow>=13.0.0",
+      "kokoro-onnx>=0.3.0; extra == \"tts\"",
+      "soundfile>=0.12.0; extra == \"tts\"",
+      "numpy>=1.24.0; extra == \"tts\"",
+      "elevenlabs>=1.0.0; extra == \"elevenlabs\"",
+      "openai-whisper>=20231117; extra == \"whisper\"",
+      "mss>=9.0.0; extra == \"capture\"",
+      "numpy>=1.24.0; extra == \"capture\"",
+      "playwright>=1.40.0; extra == \"browser\"",
+      "manim>=0.18.0; extra == \"animation\"",
+      "pynput>=1.7.0; extra == \"replay\"",
+      "pyautogui>=0.9.54; extra == \"replay\"",
+      "moviepy>=1.0.3; extra == \"video\"",
+      "ffmpeg-python>=0.2.0; extra == \"video\"",
+      "tree-sitter>=0.21.0; extra == \"codebase\"",
+      "tree-sitter-languages>=1.10.0; extra == \"codebase\"",
+      "weasyprint>=62.0; extra == \"docs\"",
+      "kokoro-onnx>=0.3.0; extra == \"all\"",
+      "soundfile>=0.12.0; extra == \"all\"",
+      "numpy>=1.24.0; extra == \"all\"",
+      "elevenlabs>=1.0.0; extra == \"all\"",
+      "openai-whisper>=20231117; extra == \"all\"",
+      "mss>=9.0.0; extra == \"all\"",
+      "playwright>=1.40.0; extra == \"all\"",
+      "manim>=0.18.0; extra == \"all\"",
+      "pynput>=1.7.0; extra == \"all\"",
+      "pyautogui>=0.9.54; extra == \"all\"",
+      "moviepy>=1.0.3; extra == \"all\"",
+      "ffmpeg-python>=0.2.0; extra == \"all\"",
+      "tree-sitter>=0.21.0; extra == \"all\"",
+      "tree-sitter-languages>=1.10.0; extra == \"all\"",
+      "weasyprint>=62.0; extra == \"all\"",
+      "pytest>=8.0.0; extra == \"dev\"",
+      "pytest-cov>=5.0.0; extra == \"dev\"",
+      "ruff>=0.5.0; extra == \"dev\"",
+      "mypy>=1.10.0; extra == \"dev\"",
+      "types-PyYAML>=6.0; extra == \"dev\""
+    ],
+    "template_present": true,
+    "sensitive_output_paths_present": false,
+    "final_wheel_consumer": {
+      "wheel_sha256": "139159aa2c4fbc852a6ce87c762c1cc8475dfd002fa83fc818f252a6bd7a0b16",
+      "installed_from_final_artifact": true,
+      "core_dependency_prefix_reused": true,
+      "optional_modules_loaded": [],
+      "identical_all_produced_bytes": true,
+      "files": {
+        "audio/chunk_0000.wav": "9954b1ec94cd58bd7debcf5e3a34585c545100427917cee822de476787090e3c",
+        "audio/chunk_0001.wav": "1ce7196c0bfc6545240d8651f59b0e575165a9f7d63488daf6e2284e5c10cec8",
+        "captions/captions.srt": "26a5d6b97644b28e534e0a05d04ca4d4e549fb315ae2ef80cc3dfe22440c6232",
+        "captions/captions.vtt": "34a38a82ca57281007ec01ef7c889200b732abf7446ea903ed90c4ff1c12a2f9",
+        "demos/demo.json": "f69f55c748f02382e6bcb34efb92d91dcd7af49423988734092da28a4e2d31f5",
+        "demos/transcript.md": "00807a60dea39fd1caf33a5b28b8612464ac054410a0be3cc312fcf7a864ec10",
+        "frames/frame_0000.png": "801cfba20de3ad1606ce786da3b86852423d890ae4bfa37945f9bf41ddb3bc9c",
+        "frames/frame_0001.png": "e76892b8e894e8149d5639892e830059532ac8a2be07ec675b15f772f28a13c6",
+        "manifests/render_manifest.json": "3355318c27c1a163bcedf4e1a034c8d16f8309cd787d2f991cea230b368d7a37",
+        "web/player.html": "d8aaa4c37e0f02b1c09e4bc305588fdc68d16e74d81341a22dd5efa6690e0002"
+      }
+    }
+  },
+  "human_receipt": "docs/release-0.8.0.md"
+}

@@ -1,7 +1,14 @@
-# _videoframes/
+# Identified candidate frames and historical stills
 
-Extracted video stills used in the docs: frames from the package showcase
-(`package_title.png`, `package_typing.png`) and the research-paper demo
-(`paper_abstract.png`, `paper_figure.png`, `paper_sweep.png`,
-`showcase_stats.png`). Regenerate from rendered `output/` videos; not
-hand-edited artwork.
+`candidate-0.8.0/` contains six decoded PNGs from the real Kokoro `af_heart`
+3840×2160 candidate MP4. Source/input/model/video/frame identities, extraction
+receipt and requested ffmpeg seek offsets are in `data/release-0.8.0.json`.
+Seek offsets are not independently annotated event/onset timestamps.
+
+The older top-level stills predate the 2026-11-07 repair. Original extraction
+dates and source-video digests are unrecorded; their embedded suite counts and
+narration are obsolete, not current gate results. They remain preserved.
+
+Re-extract only from an identified fresh render and retain its source/input/tool
+identity and extraction timestamps. The canonical package recipe remains Kokoro
+`af_heart` at 2160p; the curated and template paper demos are distinct artifacts.

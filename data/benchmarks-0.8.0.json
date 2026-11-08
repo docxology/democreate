@@ -1,0 +1,636 @@
+{
+  "identity": {
+    "recorded_at_utc": "2026-11-08T03:03:31.337037+00:00",
+    "source_sha256": "c81b895a1ba8b89f190afc62e45c58f5fd311eb60d44a7d54e6430ecd8c3b522",
+    "source_manifest": [
+      {
+        "path": "pyproject.toml",
+        "sha256": "74cedb5fc9fe56bd3a14eaee24fd3a67bee22dafd9c86147234b5c3d5d65df29",
+        "size_bytes": 5724
+      },
+      {
+        "path": "scripts/benchmark.py",
+        "sha256": "8b2c2986bcca123e1ee13f967d416dcf9bd27e1259f96b1b35f7aba7878bf021",
+        "size_bytes": 8955
+      },
+      {
+        "path": "src/democreate/AGENTS.md",
+        "sha256": "cc9fd76a417ece4dfa218aded3390d96135a1f6b4f259bb66b5686c908bdcdd2",
+        "size_bytes": 1354
+      },
+      {
+        "path": "src/democreate/README.md",
+        "sha256": "e2b2b244b5cc56bf5af1b5bd719e27eb217ec0aa2d249f4b0592cf43f711c6a8",
+        "size_bytes": 1020
+      },
+      {
+        "path": "src/democreate/__init__.py",
+        "sha256": "31e50629afd34c83fb3e05aad060d580ba6d481aa6c4d12c7040a78c0c526577",
+        "size_bytes": 2659
+      },
+      {
+        "path": "src/democreate/_cli_common.py",
+        "sha256": "0b032dc683a6d0d5b5551d4120438b71fd327c893a03aa26cc482dbb76742b99",
+        "size_bytes": 2142
+      },
+      {
+        "path": "src/democreate/_cli_media.py",
+        "sha256": "b1ae2e2f4828d1bc0e9c867d0864138dfcf00a05c3b5ec249ee08ed2f5eb2de4",
+        "size_bytes": 7139
+      },
+      {
+        "path": "src/democreate/_logging.py",
+        "sha256": "197bfccf899003799c6e4b145de496000c640348f02dc9925a7ffe4d024a647c",
+        "size_bytes": 2460
+      },
+      {
+        "path": "src/democreate/_portfolio_facts.py",
+        "sha256": "3fd3bf9b936a29c0da7b8e38d0eaeb7fb69370a7075d81bf60206239415862d5",
+        "size_bytes": 16738
+      },
+      {
+        "path": "src/democreate/_portfolio_render.py",
+        "sha256": "698b3349821b6c3d562e604618a458c1d36b131ed71b8566688d14184d6241f7",
+        "size_bytes": 8292
+      },
+      {
+        "path": "src/democreate/animation/AGENTS.md",
+        "sha256": "66fad6d85da94244a053dc0a82af470c6a57ed310fe3c715d84a720e887341a6",
+        "size_bytes": 2189
+      },
+      {
+        "path": "src/democreate/animation/README.md",
+        "sha256": "379155362e846716cf4f95acc41092c973f089eefd9988f6bf8d9cab6af0a4b1",
+        "size_bytes": 3973
+      },
+      {
+        "path": "src/democreate/animation/__init__.py",
+        "sha256": "15eece31cadd583e77c6c60fe51c5643a3dfd9e19614ef2441be3257e0075b31",
+        "size_bytes": 2053
+      },
+      {
+        "path": "src/democreate/animation/diagram.py",
+        "sha256": "30477b6263d65599e8b3bf3229ef4f9aa1f6e2580c4d6b934658c164a1537dd6",
+        "size_bytes": 10641
+      },
+      {
+        "path": "src/democreate/animation/fonts.py",
+        "sha256": "75e08c95069442ecb429f6e4e3482b397ae5760c0258843ee559cb52b05781b1",
+        "size_bytes": 1614
+      },
+      {
+        "path": "src/democreate/animation/highlights.py",
+        "sha256": "b6b321b6bb4928bb94f741c47e63371a8fff060f0ba8da0219bc8bc662acb5ca",
+        "size_bytes": 5091
+      },
+      {
+        "path": "src/democreate/animation/manim_scenes.py",
+        "sha256": "c28672ab4d167fa30292b54a827db34f2738df1f7bf5ce6da8784875cab6bc47",
+        "size_bytes": 3737
+      },
+      {
+        "path": "src/democreate/animation/waveform.py",
+        "sha256": "28e5fd2130c2430712ab3cd300ffc71fddd184846c748978463d4e10f11459e2",
+        "size_bytes": 8249
+      },
+      {
+        "path": "src/democreate/animation/zoom.py",
+        "sha256": "044d3b544efb3079bd069e10e46162fbbae43f1e958434adf491a311a73b6af7",
+        "size_bytes": 8580
+      },
+      {
+        "path": "src/democreate/api_docs.py",
+        "sha256": "ef33e2491a0d554b9bdd2490ed2a63f700e8f294b0a10731b962ddbfb6be81c3",
+        "size_bytes": 8598
+      },
+      {
+        "path": "src/democreate/assembly/AGENTS.md",
+        "sha256": "15645c532f900fad2dafc4fadc9ebdee6233db70c2091e6961084e52648f02b9",
+        "size_bytes": 3264
+      },
+      {
+        "path": "src/democreate/assembly/README.md",
+        "sha256": "66b087a839335cf68ac64d6f3616cb7ca7a511fa77c5bfd6f21d3a432983facc",
+        "size_bytes": 7075
+      },
+      {
+        "path": "src/democreate/assembly/__init__.py",
+        "sha256": "189933aac7e07f5d14f4f84bb0756ff35e051a50247c300fa34e425189f94b18",
+        "size_bytes": 1508
+      },
+      {
+        "path": "src/democreate/assembly/animator.py",
+        "sha256": "3f837ae4358e5fa49e20f363fe73d66d4fe8815d3faa917cffac49e9f948d4fa",
+        "size_bytes": 20457
+      },
+      {
+        "path": "src/democreate/assembly/audio.py",
+        "sha256": "04f53159deff90d8822d1af8ecbcea6f30f771fd57110f7540b5521db6fedea6",
+        "size_bytes": 9466
+      },
+      {
+        "path": "src/democreate/assembly/captions.py",
+        "sha256": "d284cfa7b3ccb6e5f172d5403c91e3b6de1be4bef1d91f5e95202f165d653770",
+        "size_bytes": 5681
+      },
+      {
+        "path": "src/democreate/assembly/compositor.py",
+        "sha256": "3b47f9fd7bff22de981b69b76363161bffcbf99622a348154208191d9a676544",
+        "size_bytes": 18108
+      },
+      {
+        "path": "src/democreate/assembly/effects.py",
+        "sha256": "847cce20f5a7a50da8a65cbdcc796bea2287de85336758c9c8da2921e5412a40",
+        "size_bytes": 3807
+      },
+      {
+        "path": "src/democreate/capture/AGENTS.md",
+        "sha256": "9062d03d8a6045414c22ff16bc0ccfdeb74407fe9a405ca00b36fbefef106d93",
+        "size_bytes": 2581
+      },
+      {
+        "path": "src/democreate/capture/README.md",
+        "sha256": "6b49bc3397034cc8279dde317280dcd38adc569f34248643fc86a7a85d9a23d6",
+        "size_bytes": 5322
+      },
+      {
+        "path": "src/democreate/capture/__init__.py",
+        "sha256": "40a85ec07450cd4ff623e7630b78b41966e7f4b9381cd11a253c7c107ca1c784",
+        "size_bytes": 1860
+      },
+      {
+        "path": "src/democreate/capture/_screen_renderer.py",
+        "sha256": "131fc0109673a2576c36d1ad84e84d32a3af4bc19cb86d95b3decb86f1da64e4",
+        "size_bytes": 28238
+      },
+      {
+        "path": "src/democreate/capture/browser.py",
+        "sha256": "984595acf789b42df63ca828707765b6de17018482057bf878d583c4f517e7b7",
+        "size_bytes": 10794
+      },
+      {
+        "path": "src/democreate/capture/replay.py",
+        "sha256": "888f0293c41bfe267fbd58d6b535f1d19d2782a106b3fca696223a5a1f599c74",
+        "size_bytes": 8611
+      },
+      {
+        "path": "src/democreate/capture/screen.py",
+        "sha256": "1bfb58b9b45631f72d9a7c737f716b621782c54167ca6857b05831cb393a251c",
+        "size_bytes": 3930
+      },
+      {
+        "path": "src/democreate/capture/terminal.py",
+        "sha256": "85f47da97f49fbc3c28e96e375046837ad0f58b3fbd20dc537b468ea3b76f7f5",
+        "size_bytes": 8573
+      },
+      {
+        "path": "src/democreate/cli.py",
+        "sha256": "aa59ad322152e8424d64e81e6a8199743cb83c1c1a3808389f6d2612131e56d3",
+        "size_bytes": 24417
+      },
+      {
+        "path": "src/democreate/codebase/AGENTS.md",
+        "sha256": "36e73d064d589e6e8960ea192f85868d0be5396f6262f1751a1057e6cb6d9b9f",
+        "size_bytes": 2174
+      },
+      {
+        "path": "src/democreate/codebase/README.md",
+        "sha256": "7b2be46eaee89258b66f8ad391e7c6c291568880b764a8b6f9ca74015d557ee2",
+        "size_bytes": 2567
+      },
+      {
+        "path": "src/democreate/codebase/__init__.py",
+        "sha256": "8833d5ef8d2619271659a39af5d5ec67f954fad484a6f72a8ab35e7bfe92745d",
+        "size_bytes": 1248
+      },
+      {
+        "path": "src/democreate/codebase/ast_viz.py",
+        "sha256": "f1f84788a25c8cc5de3728fce68c62629f0f5a1586e90d20dcf4b7114fd96e2d",
+        "size_bytes": 2911
+      },
+      {
+        "path": "src/democreate/codebase/dependency.py",
+        "sha256": "112961a8ffdab90d5789819e082a34b6aa98276c8b5dafe72dfd7e226572c940",
+        "size_bytes": 9974
+      },
+      {
+        "path": "src/democreate/codebase/walker.py",
+        "sha256": "18711ace6de44180ecf3e294feb5b373d113e0bb6e58312ffbae1ea0584614e8",
+        "size_bytes": 11512
+      },
+      {
+        "path": "src/democreate/config.py",
+        "sha256": "7d012aac3f551d06fd36507deeca2c3c3e04c3a873fe6cfafe908f630b171f6a",
+        "size_bytes": 17982
+      },
+      {
+        "path": "src/democreate/errors.py",
+        "sha256": "7f2921b50f0eeffda63f621020f0dc688992840ee32225b7fa172060ee31ce88",
+        "size_bytes": 2126
+      },
+      {
+        "path": "src/democreate/export/AGENTS.md",
+        "sha256": "cbcbe4633a262376f44f6fe844bdd0a2a4c851ab5821bff4e5777b3439ea5800",
+        "size_bytes": 2510
+      },
+      {
+        "path": "src/democreate/export/README.md",
+        "sha256": "206659b61d613e8d58fd7682174ce9536c27d632172892bdf2553ee979b1e0f7",
+        "size_bytes": 6143
+      },
+      {
+        "path": "src/democreate/export/__init__.py",
+        "sha256": "cca94f8c5d0ff875809b844202d1c9320c8499b0546184853b881fdb2acb867a",
+        "size_bytes": 1932
+      },
+      {
+        "path": "src/democreate/export/chapters.py",
+        "sha256": "dba9aa54b00197f05edfc6b03bbbb050b1f0fb68732fc48344d402a0d260bf2b",
+        "size_bytes": 9057
+      },
+      {
+        "path": "src/democreate/export/formats.py",
+        "sha256": "6e5888d95b6699e8df48e07b380dbb713b3ce96a9152f7cb8981dd9b08c6c124",
+        "size_bytes": 7998
+      },
+      {
+        "path": "src/democreate/export/interactive.py",
+        "sha256": "fd56ed9eda8aceaea114a1b4e5a963d331908a981f10998e17e713f769db5491",
+        "size_bytes": 5415
+      },
+      {
+        "path": "src/democreate/export/metadata.py",
+        "sha256": "4a4bf63cbf6907ba0bd89ead220742edea57451b80741466199a41cd1be3dde2",
+        "size_bytes": 6660
+      },
+      {
+        "path": "src/democreate/export/overlay.py",
+        "sha256": "924d0da18046a93c3b485845081123b03e84970cea3b517dc8dbb2b05935cff6",
+        "size_bytes": 10831
+      },
+      {
+        "path": "src/democreate/export/poster.py",
+        "sha256": "8a1375d51a2a0d5dd127a55088cfef035ce22ea4cf110cd7541a20d55fdb9fe6",
+        "size_bytes": 8611
+      },
+      {
+        "path": "src/democreate/export/stego.py",
+        "sha256": "338ad10cd95f132d15ae15419be47e12618269d66e1eec3c7d4c98b4b3c63e0e",
+        "size_bytes": 13332
+      },
+      {
+        "path": "src/democreate/export/templates/AGENTS.md",
+        "sha256": "71fab4c70da536a83dfe57a6a2bc965a9110679103cf75c601baf66fffad706a",
+        "size_bytes": 318
+      },
+      {
+        "path": "src/democreate/export/templates/README.md",
+        "sha256": "862256af83dbc056b2edd4bfd0e6a871cd04deb93350245227ef2b906a49bb4e",
+        "size_bytes": 148
+      },
+      {
+        "path": "src/democreate/export/templates/player.html.j2",
+        "sha256": "39393ccc5132336d279a2a0418196d55ebbe19dd184b4fdce5a73d5312785852",
+        "size_bytes": 5598
+      },
+      {
+        "path": "src/democreate/export/verify.py",
+        "sha256": "b9898d10ef2ed9942ed4095cb10a7723fcd64d5842555353da348a548bcf5fa9",
+        "size_bytes": 10780
+      },
+      {
+        "path": "src/democreate/export/video.py",
+        "sha256": "339d54a55a2998e66e2aab4d37d60bc2aa7fb47c7832fb9a3cea023eb9a0df76",
+        "size_bytes": 19938
+      },
+      {
+        "path": "src/democreate/manuscript.py",
+        "sha256": "3132e43711351d9d77fdd325c68218bb4a9af001410790c257cbb603f19d9295",
+        "size_bytes": 8202
+      },
+      {
+        "path": "src/democreate/media.py",
+        "sha256": "165b1496366f98808357fdde9d44e27aab685d3d8a26413d1c188295b51912b6",
+        "size_bytes": 4188
+      },
+      {
+        "path": "src/democreate/narration/AGENTS.md",
+        "sha256": "7887a1f085e0c0026eb248c2d7a6e2802dca360fb6c300f7b9549736d93730ab",
+        "size_bytes": 3235
+      },
+      {
+        "path": "src/democreate/narration/README.md",
+        "sha256": "5d71030a93d26ab0afe295ab56121f9cc87c2661b91fbf654e9480cbd3d906be",
+        "size_bytes": 6685
+      },
+      {
+        "path": "src/democreate/narration/__init__.py",
+        "sha256": "65f6362c911371deaa6c3c58b2406b8e83ee827ee8d63409fcdb628533ab597b",
+        "size_bytes": 2297
+      },
+      {
+        "path": "src/democreate/narration/_tts_audio.py",
+        "sha256": "b63a22ba6ca50a8ba9933d2a27cee310ca5babef5e7c509c3faeeb23d7efb6e2",
+        "size_bytes": 3978
+      },
+      {
+        "path": "src/democreate/narration/_tts_backends.py",
+        "sha256": "7b8da70fd18b9e330946cceb664c5d42f37d2fb56f79dc910f432b517a291de9",
+        "size_bytes": 24499
+      },
+      {
+        "path": "src/democreate/narration/_tts_kokoro.py",
+        "sha256": "cf82fa055124d494b164c8c0eb074f7fa7d524e18ab4465484b00db17ffff016",
+        "size_bytes": 6526
+      },
+      {
+        "path": "src/democreate/narration/llm.py",
+        "sha256": "621b48ed828aa7f39803406cf52fdb042b6abb38055e824561bd20cf51c91d33",
+        "size_bytes": 11470
+      },
+      {
+        "path": "src/democreate/narration/project_summary.py",
+        "sha256": "4c9cde7c0b6979d937f13321583b80d3ec7ae6ef97a516eec95efccc9adc5502",
+        "size_bytes": 20163
+      },
+      {
+        "path": "src/democreate/narration/script.py",
+        "sha256": "591921de3f780ac1b952294112cd8c08c712202d3f55bb528db349b1e9e039dc",
+        "size_bytes": 12993
+      },
+      {
+        "path": "src/democreate/narration/sync.py",
+        "sha256": "6dbaf7ef062d5a323d4b502d96d4acb64741f0a0c446b89a05a3758225bc2793",
+        "size_bytes": 13148
+      },
+      {
+        "path": "src/democreate/narration/tts.py",
+        "sha256": "33046f015e949031c141020ebc82ad120c1b389525be18591fc4d5db5edd6037",
+        "size_bytes": 6457
+      },
+      {
+        "path": "src/democreate/paper/AGENTS.md",
+        "sha256": "e9ec74d59d8de1a047508b1303d1c99567a13cd25f5ecb2102b0f448df0c6e38",
+        "size_bytes": 2309
+      },
+      {
+        "path": "src/democreate/paper/README.md",
+        "sha256": "2bcfae7c26a4a3157791ededf9c2dac92bb21c4062412e3d16ecd1e5019c8df1",
+        "size_bytes": 3050
+      },
+      {
+        "path": "src/democreate/paper/__init__.py",
+        "sha256": "31190857722bdd45818d01a647e2a524191920d84f3e4c26eca3b2e4d835e27c",
+        "size_bytes": 1423
+      },
+      {
+        "path": "src/democreate/paper/extract.py",
+        "sha256": "363e36e6c76928811a4903092ee83902a2b7f63ade36dca0105b85c5f05cad01",
+        "size_bytes": 8111
+      },
+      {
+        "path": "src/democreate/paper/pdf.py",
+        "sha256": "8e7c3f94df84ab75e0c156e9685ad99052600fcdb58865410c772469fc0ae8c3",
+        "size_bytes": 8230
+      },
+      {
+        "path": "src/democreate/paper/script.py",
+        "sha256": "1fdbee1542d7a7d0bf56ebf2e65c5f9341836bf21eb621219a4c830e251a250e",
+        "size_bytes": 9755
+      },
+      {
+        "path": "src/democreate/paper/structure.py",
+        "sha256": "ee7dee3954bca5afde86e3026521fdadad4a0c2e9a63c476fb70eafd5c9d2bdb",
+        "size_bytes": 16916
+      },
+      {
+        "path": "src/democreate/pipeline.py",
+        "sha256": "3d0b600f6015fd8e5a48b305ecd86c15bba49302459a08786c6a2b2a0f8d7f36",
+        "size_bytes": 22515
+      },
+      {
+        "path": "src/democreate/portfolio.py",
+        "sha256": "028691539eea38b690a56d2a945d6a35177a4083b889ceefbc782b2d1449d036",
+        "size_bytes": 5029
+      },
+      {
+        "path": "src/democreate/project_paths.py",
+        "sha256": "c7d9b72d3a33317a984274ff54c7e53043fec627719fc23c6bba8e0239e8924f",
+        "size_bytes": 9056
+      },
+      {
+        "path": "src/democreate/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      {
+        "path": "src/democreate/schema.py",
+        "sha256": "49d60db76783d6bf72b08c6c154bdbd62f235155215e09cea2432974fc653948",
+        "size_bytes": 24532
+      },
+      {
+        "path": "src/democreate/translation/AGENTS.md",
+        "sha256": "c759962d9faf644e74d501810b72171d192253e7991be3992a13331d8da312b7",
+        "size_bytes": 1991
+      },
+      {
+        "path": "src/democreate/translation/README.md",
+        "sha256": "b00453b21567510517339606fff633b08f596970cfe6ff477b3cd85449ecf348",
+        "size_bytes": 3063
+      },
+      {
+        "path": "src/democreate/translation/__init__.py",
+        "sha256": "a0c9e0e3b859de27f5fa17cae79defb24008d890050604a5e822ebb765a65ba0",
+        "size_bytes": 1245
+      },
+      {
+        "path": "src/democreate/translation/localize.py",
+        "sha256": "2701a11dc01a4dbe2818f7dd940f62b617d4caf9938fe81686a668770152843a",
+        "size_bytes": 8314
+      },
+      {
+        "path": "src/democreate/translation/translator.py",
+        "sha256": "97b19c256889cadc87d17314f5305c1bf296ab4db5cfcfaf8ad12ce49133cf02",
+        "size_bytes": 10852
+      },
+      {
+        "path": "uv.lock",
+        "sha256": "f4f39874c4f136068a862ab54fdb0dd4bef2a56bcfeb79f3c900ae37454bbe9a",
+        "size_bytes": 710625
+      },
+      {
+        "path": "input/starter-demo.json",
+        "sha256": "5e130f740bb00f6205cbbb184be8602d761ee3fd32adb96bbc92f4a063805a17",
+        "size_bytes": 1454
+      }
+    ],
+    "input": {
+      "schema_version": "1.1",
+      "title": "Starter Demo",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "voice": "default",
+      "metadata": {},
+      "scenes": [
+        {
+          "id": "intro",
+          "title": "Welcome",
+          "kind": "codebase",
+          "chunks": [
+            {
+              "id": "c1",
+              "text": "Welcome to this project. Let us open the main module.",
+              "actions": [
+                {
+                  "type": "open_file",
+                  "params": {
+                    "path": "main.py"
+                  },
+                  "trigger_word": "open",
+                  "timestamp_source": "authored"
+                },
+                {
+                  "type": "type_code",
+                  "params": {
+                    "code": "print('hello, world')"
+                  },
+                  "trigger_word": "main",
+                  "timestamp_source": "authored"
+                }
+              ]
+            }
+          ],
+          "context": {}
+        },
+        {
+          "id": "run",
+          "title": "Run It",
+          "kind": "terminal",
+          "chunks": [
+            {
+              "id": "c2",
+              "text": "Now we run the program from the terminal.",
+              "actions": [
+                {
+                  "type": "run_command",
+                  "params": {
+                    "command": "python main.py",
+                    "output": "hello, world"
+                  },
+                  "trigger_word": "run",
+                  "timestamp_source": "authored"
+                }
+              ]
+            }
+          ],
+          "context": {}
+        }
+      ]
+    },
+    "input_sha256": "5e130f740bb00f6205cbbb184be8602d761ee3fd32adb96bbc92f4a063805a17",
+    "geometry": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30
+    },
+    "runtime": {
+      "executable": "/Users/friedman/Documents/Git/gitvault/Username/docxology/Public/democreate/.venv/bin/python",
+      "python": "3.15.2 (main, Oct 26 2026, 13:59:33) [Clang 23.1.3 ]",
+      "implementation": "CPython",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "packages": {
+        "Cython": "3.2.5",
+        "Jinja2": "3.1.6",
+        "MarkupSafe": "3.0.3",
+        "PyYAML": "6.0.3",
+        "Pygments": "2.20.0",
+        "annotated-doc": "0.0.4",
+        "ast_serialize": "0.5.0",
+        "coverage": "7.14.1",
+        "democreate": "0.8.0",
+        "iniconfig": "2.3.0",
+        "librt": "0.11.0",
+        "markdown-it-py": "4.2.0",
+        "mdurl": "0.1.2",
+        "mypy": "2.1.0",
+        "mypy_extensions": "1.1.0",
+        "packaging": "26.2",
+        "pathspec": "1.1.1",
+        "pillow": "13.0.0",
+        "pluggy": "1.6.0",
+        "pytest": "9.0.3",
+        "pytest-cov": "7.1.0",
+        "rich": "15.0.0",
+        "ruff": "0.15.16",
+        "setuptools": "84.2.1",
+        "shellingham": "1.5.4",
+        "typer": "0.26.7",
+        "types-PyYAML": "6.0.12.20260518",
+        "typing_extensions": "4.15.0",
+        "wheel": "0.48.0"
+      }
+    },
+    "tools": {
+      "ffmpeg": {
+        "available": true,
+        "returncode": 0,
+        "output": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.3.34.2)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg-full/9.0.2_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-libplacebo --enable-libqrencode --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --enable-whisper --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.102 / 61.  1.102\nlibavcodec     63.  1.102 / 63.  1.102\nlibavformat    63.  1.102 / 63.  1.102\nlibavdevice    63.  1.102 / 63.  1.102\nlibavfilter    12.  1.102 / 12.  1.102\nlibswscale     10.  1.102 / 10.  1.102\nlibswresample   7.  1.102 /  7.  1.102\n\nExiting with exit code 0"
+      },
+      "ffprobe": {
+        "available": true,
+        "returncode": 0,
+        "output": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.3.34.2)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg-full/9.0.2_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-libplacebo --enable-libqrencode --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --enable-whisper --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.102 / 61.  1.102\nlibavcodec     63.  1.102 / 63.  1.102\nlibavformat    63.  1.102 / 63.  1.102\nlibavdevice    63.  1.102 / 63.  1.102\nlibavfilter    12.  1.102 / 12.  1.102\nlibswscale     10.  1.102 / 10.  1.102\nlibswresample   7.  1.102 /  7.  1.102"
+      }
+    },
+    "backends": {
+      "tts": "silent",
+      "transcriber": "heuristic",
+      "capture": "synthetic"
+    }
+  },
+  "build": {
+    "stage": "build_demo wall clock (validation, TTS, sync, frames, exports)",
+    "runs": 5,
+    "samples_ms": [
+      328.35662504658103,
+      18.89945799484849,
+      19.17954202508554,
+      19.533417013008147,
+      18.047999998088926
+    ],
+    "median_ms": 19.2,
+    "input_construction_timed": false
+  },
+  "render": {
+    "stage": "render_video wall clock; verify=False",
+    "includes": [
+      "voiceover",
+      "animation",
+      "encoding",
+      "chapter mux",
+      "provenance"
+    ],
+    "samples_ms": [
+      1933.491582982242
+    ],
+    "verification_timed": false,
+    "output_seconds": 8.266667,
+    "output_duration_basis": "ffprobe video-stream duration; outside timer",
+    "timeline_seconds": 8.32,
+    "encoded_geometry": {
+      "width": 1920,
+      "height": 1080
+    },
+    "render_ms": 1933.5,
+    "ms_per_output_second": 233.9,
+    "animation_fps": 15
+  },
+  "sync": {
+    "kind": "heuristic structural sanity; not acoustic accuracy",
+    "actions": 3,
+    "actions_timestamped": 3,
+    "monotonic": true
+  }
+}

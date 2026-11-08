@@ -23,7 +23,7 @@ from .diagram import (
     democreate_architecture_image,
     render_architecture_diagram,
 )
-from .fonts import load_font, resolve_font_path, scaled_font
+from .fonts import load_font, scaled_font
 from .highlights import highlight_to_svg, highlight_to_text, render_code_image
 from .manim_scenes import build_code_scene_spec, render_manim_scene
 from .waveform import compute_envelope, draw_waveform, render_waveform_strip
@@ -41,7 +41,6 @@ __all__ = [
     # fonts
     "load_font",
     "scaled_font",
-    "resolve_font_path",
     # highlights
     "highlight_to_svg",
     "highlight_to_text",

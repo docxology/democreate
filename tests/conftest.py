@@ -78,7 +78,7 @@ def sample_demo() -> Demo:
             actions=[
                 Action(
                     ActionType.TYPE_CODE,
-                    {"code": "demo = Demo(title='Tour')"},
+                    {"code": "\ndemo = Demo(title='Tour')"},
                     trigger_word="declarative",
                 )
             ],

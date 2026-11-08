@@ -6,10 +6,9 @@ walkthrough. It merges two prior-art ideas into one artifact:
 * **CodeVideo's event-sourced model** — content is an ordered stream of typed
   :class:`Action` objects mutating a virtual environment (editor, terminal,
   browser, camera). The same stream re-renders to any output format.
-* **VSpeak's chunk/trigger model** — narration is grouped into :class:`Chunk`
-  units, and each action carries an optional ``trigger_word`` that anchors it to
-  a spoken word so the sync engine can assign a millisecond timestamp from real
-  TTS audio rather than guessing timing in advance.
+* **Chunk/trigger narration** — narration is grouped into :class:`Chunk` units.
+  Optional ``trigger_word`` values select duration-based word estimates, not
+  measured acoustic onsets.
 
 Everything here is pure Python: no I/O, no heavy dependencies. The schema
 round-trips losslessly through ``dict``/JSON/YAML and validates its own
@@ -36,7 +35,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -53,14 +52,14 @@ __all__ = [
     "SCHEMA_VERSION",
 ]
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 # Words-per-minute used to estimate narration duration when no real audio exists
 # yet. 150 wpm is a comfortable technical-narration pace.
 DEFAULT_WPM = 150
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """Every primitive change a demo can express against the virtual environment.
 
     The string values are the on-disk representation; they are stable and must
@@ -90,7 +89,7 @@ class ActionType(str, Enum):
     WAIT = "wait"
 
 
-class SceneKind(str, Enum):
+class SceneKind(StrEnum):
     """The capture/render strategy a scene implies."""
 
     CODEBASE = "codebase"
@@ -119,6 +118,8 @@ class Action:
         timestamp_ms: Absolute time (ms from demo start) the action fires. ``None``
             until the sync engine fills it in.
         duration_ms: How long the action takes to play out (e.g. typing, a zoom).
+        timestamp_source: ``"authored"`` for an explicit absolute time, or
+            ``"sync"`` for a derived time that must refresh after narration edits.
     """
 
     type: ActionType
@@ -126,9 +127,12 @@ class Action:
     trigger_word: str | None = None
     timestamp_ms: int | None = None
     duration_ms: int | None = None
+    timestamp_source: str = "authored"
 
     def __post_init__(self) -> None:
         self.type = _coerce_enum(ActionType, self.type)
+        if self.timestamp_source not in ("authored", "sync"):
+            raise SchemaValidationError(["action timestamp_source must be authored or sync"])
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain JSON-ready dict (omitting unset optional fields)."""
@@ -137,6 +141,7 @@ class Action:
             out["trigger_word"] = self.trigger_word
         if self.timestamp_ms is not None:
             out["timestamp_ms"] = self.timestamp_ms
+        out["timestamp_source"] = self.timestamp_source
         if self.duration_ms is not None:
             out["duration_ms"] = self.duration_ms
         return out
@@ -153,12 +158,13 @@ class Action:
             trigger_word=data.get("trigger_word"),
             timestamp_ms=_int_or_none(data.get("timestamp_ms")),
             duration_ms=_int_or_none(data.get("duration_ms")),
+            timestamp_source=data.get("timestamp_source", "authored"),
         )
 
 
 @dataclass
 class Chunk:
-    """A narration unit and the actions it triggers (VSpeak model).
+    """A narration unit and the actions it triggers.
 
     Attributes:
         id: Stable identifier, unique within the demo.
@@ -167,6 +173,8 @@ class Chunk:
         voice: Optional per-chunk voice override.
         audio_path: Path to rendered TTS audio, filled by the TTS backend.
         start_ms: Absolute start time of this chunk's audio, filled by sync.
+        duration_ms: Measured clip duration, filled by sync. Estimates are used
+            only before audio has been synthesized.
     """
 
     id: str
@@ -175,6 +183,7 @@ class Chunk:
     voice: str | None = None
     audio_path: str | None = None
     start_ms: int | None = None
+    duration_ms: int | None = None
 
     def word_count(self) -> int:
         """Number of whitespace-delimited words in the narration."""
@@ -191,6 +200,18 @@ class Chunk:
             return 300
         return int(round(words / wpm * 60_000))
 
+    def playback_duration_ms(self, wpm: int = DEFAULT_WPM) -> int:
+        """Return measured narration duration, or its pre-synthesis estimate.
+
+        Args:
+            wpm: Speaking rate used only when no measured duration is recorded.
+        """
+        return (
+            self.duration_ms
+            if self.duration_ms is not None
+            else self.estimated_duration_ms(wpm)
+        )
+
     def to_dict(self) -> dict[str, Any]:
         out: dict[str, Any] = {
             "id": self.id,
@@ -203,6 +224,8 @@ class Chunk:
             out["audio_path"] = self.audio_path
         if self.start_ms is not None:
             out["start_ms"] = self.start_ms
+        if self.duration_ms is not None:
+            out["duration_ms"] = self.duration_ms
         return out
 
     @classmethod
@@ -214,6 +237,7 @@ class Chunk:
             voice=data.get("voice"),
             audio_path=data.get("audio_path"),
             start_ms=data.get("start_ms"),
+            duration_ms=data.get("duration_ms"),
         )
 
 
@@ -272,7 +296,6 @@ _REQUIRED_ACTION_PARAMS: dict[ActionType, list[str]] = {
     ActionType.CLOSE_FILE: ["path"],
     ActionType.RUN_COMMAND: ["command"],
     ActionType.NAVIGATE: ["url"],
-    ActionType.CLICK: ["selector"],
     ActionType.SCROLL: ["direction"],
     ActionType.FILL: ["selector", "value"],
 }
@@ -280,6 +303,9 @@ _REQUIRED_ACTION_PARAMS: dict[ActionType, list[str]] = {
 
 def _missing_action_params(action: Action) -> list[str]:
     """Return the list of required params missing from ``action.params``."""
+    if action.type == ActionType.CLICK:
+        if "selector" not in action.params and "xy" not in action.params:
+            return ["selector or xy"]
     required = _REQUIRED_ACTION_PARAMS.get(action.type, [])
     return [p for p in required if p not in action.params]
 
@@ -538,6 +564,8 @@ class Demo:
                 if chunk.id in seen_chunk_ids:
                     errors.append(f"duplicate chunk id: {chunk.id!r}")
                 seen_chunk_ids.add(chunk.id)
+                if chunk.duration_ms is not None and chunk.duration_ms < 0:
+                    errors.append(f"chunk {chunk.id!r} duration_ms must be nonnegative")
                 for action in chunk.actions:
                     if not isinstance(action.type, ActionType):
                         errors.append(

@@ -5,7 +5,7 @@ All logic lives in :mod:`democreate.portfolio`; this script is a runnable front
 door for the common case — a directory of repositories in, an ``output/<name>/``
 folder per project out, plus a portfolio index.
 
-    uv run python scripts/generate_portfolio.py ~/Documents/GitHub/HumOS/projects \
+    uv run python scripts/generate_portfolio.py /path/to/projects \
         --output output --resolution 1080p --voice Samantha --max-projects 3
 """
 
@@ -28,9 +28,12 @@ def main() -> None:
     parser.add_argument("--voice", default="")
     parser.add_argument("--tts", default="system")
     parser.add_argument("--max-projects", type=int, default=0)
-    parser.add_argument("--max-modules", type=int, default=3)
+    parser.add_argument("--max-modules", type=int, default=6)
     parser.add_argument("--skip", default="")
     args = parser.parse_args()
+
+    if not args.projects_dir.is_dir():
+        parser.error(f"Not a directory: {args.projects_dir}")
 
     cfg = RenderConfig.preset(args.theme)
     cfg.set_resolution(args.resolution)
@@ -50,6 +53,8 @@ def main() -> None:
         skip=skip,
     )
     print(f"{report.ok_count}/{len(report.results)} rendered → {report.index_json}")
+    if report.ok_count == 0:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -236,3 +236,59 @@ def test_extract_provenance_non_object_raises() -> None:
     stego_img = stego.embed(img, json.dumps([1, 2, 3]).encode("utf-8"))
     with pytest.raises(DemoCreateError):
         stego.extract_provenance(stego_img)
+
+
+@pytest.mark.parametrize("field", ["context", "fps", "voice", "chunk_voice"])
+def test_provenance_binds_authored_render_inputs(sample_demo: Demo, field: str) -> None:
+    sample_demo.scenes[0].context = {
+        "bullets": ["original"],
+        "stats": [["count", "1"]],
+    }
+    image, _ = stego.embed_provenance(_solid(128, 128), sample_demo)
+    changed = Demo.from_json(sample_demo.to_json())
+    if field == "context":
+        changed.scenes[0].context["bullets"][0] = "replacement"
+    elif field == "fps":
+        changed.fps += 1
+    elif field == "voice":
+        changed.voice = "different-demo-voice"
+    else:
+        changed.iter_chunks()[0].voice = "different-chunk-voice"
+    assert not stego.verify_provenance(image, changed)
+
+
+def test_provenance_ignores_transient_render_state(sample_demo: Demo) -> None:
+    image, _ = stego.embed_provenance(_solid(128, 128), sample_demo)
+    rendered = Demo.from_json(sample_demo.to_json())
+    for index, chunk in enumerate(rendered.iter_chunks()):
+        chunk.audio_path = f"/render/audio/chunk_{index:04d}.wav"
+        chunk.start_ms = index * 4321
+        chunk.duration_ms = 4321
+        for action in chunk.actions:
+            action.timestamp_ms = chunk.start_ms + 123
+            action.duration_ms = 456
+            action.timestamp_source = "sync"
+    assert stego.verify_provenance(image, rendered)
+
+
+def test_content_association_does_not_authenticate_carrier_pixels(
+    sample_demo: Demo,
+) -> None:
+    image, _ = stego.embed_provenance(_solid(128, 128), sample_demo)
+    changed = image.copy()
+    red, green, blue = changed.getpixel((0, 0))
+    changed.putpixel((0, 0), (red ^ 2, green, blue))
+    assert changed.tobytes() != image.tobytes()
+    assert stego.verify_provenance(changed, sample_demo)
+
+    copied = stego.embed(_solid(128, 128, (0, 0, 0)), stego.extract(image))
+    assert copied.tobytes() != image.tobytes()
+    assert stego.verify_provenance(copied, sample_demo)
+
+
+def test_content_association_does_not_authenticate_author(sample_demo: Demo) -> None:
+    record = stego.build_provenance(sample_demo, author="self-asserted")
+    record["author"] = "anyone can replace this"
+    image = stego.embed(_solid(128, 128), json.dumps(record).encode("utf-8"))
+    assert stego.extract_provenance(image)["author"] == "anyone can replace this"
+    assert stego.verify_provenance(image, sample_demo)

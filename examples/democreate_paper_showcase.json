@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "title": "Policy Entanglement in Active Inference — A Visual Tour",
   "width": 1920,
   "height": 1080,
@@ -8,7 +8,9 @@
   "metadata": {
     "kind": "paper",
     "curated": true,
-    "pdf": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/pdf/actinf_policy_entanglement_lean_combined.pdf"
+    "pdf": "assets/paper/actinf_policy_entanglement_lean_combined.pdf",
+    "version": "0.8.0",
+    "prerequisite": "Optional curated example: supply --paper-root to make_paper_showcase.py to stage required external paper inputs."
   },
   "scenes": [
     {
@@ -124,7 +126,7 @@
       ],
       "context": {
         "section": "Turn the Knob",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/paper/lambda_sweep.png"
+        "background_image": "assets/paper/lambda_sweep.png"
       }
     },
     {
@@ -147,7 +149,7 @@
       ],
       "context": {
         "section": "Hidden in the Joint",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/joint_heatmap_lambda2.png"
+        "background_image": "assets/paper/joint_heatmap_lambda2.png"
       }
     },
     {
@@ -170,7 +172,7 @@
       ],
       "context": {
         "section": "Proven, Then Witnessed",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/ising_mi_curve.png"
+        "background_image": "assets/paper/ising_mi_curve.png"
       }
     },
     {
@@ -193,7 +195,7 @@
       ],
       "context": {
         "section": "Coordination on Demand",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/optimal_lambda.png"
+        "background_image": "assets/paper/optimal_lambda.png"
       }
     },
     {
@@ -216,7 +218,7 @@
       ],
       "context": {
         "section": "Coordination Has a Price",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/coupling_tax_quadratic.png"
+        "background_image": "assets/paper/coupling_tax_quadratic.png"
       }
     },
     {
@@ -239,7 +241,7 @@
       ],
       "context": {
         "section": "A Principled Path",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/log_weight_flow.png"
+        "background_image": "assets/paper/log_weight_flow.png"
       }
     },
     {
@@ -262,7 +264,7 @@
       ],
       "context": {
         "section": "It Collapses to a Few Modes",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/archetype_dendrogram.png"
+        "background_image": "assets/paper/archetype_dendrogram.png"
       }
     },
     {
@@ -285,7 +287,7 @@
       ],
       "context": {
         "section": "And It Scales",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/multi_k_tt_rank_profile.png"
+        "background_image": "assets/paper/multi_k_tt_rank_profile.png"
       }
     },
     {
@@ -308,7 +310,7 @@
       ],
       "context": {
         "section": "When to Act as One",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/phase_diagram.png"
+        "background_image": "assets/paper/phase_diagram.png"
       }
     },
     {
@@ -331,7 +333,7 @@
       ],
       "context": {
         "section": "Not Just Theory",
-        "background_image": "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean/output/figures/pymdp_coupled_rollout.png"
+        "background_image": "assets/paper/pymdp_coupled_rollout.png"
       }
     },
     {
@@ -354,7 +356,7 @@
       ],
       "context": {
         "section": "Reproducible",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/paper/architecture.png"
+        "background_image": "assets/paper/architecture.png"
       }
     },
     {

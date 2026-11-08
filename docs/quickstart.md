@@ -1,6 +1,6 @@
 # Quickstart
 
-From a clean clone to a rendered demo. Requires Python ≥ 3.10 and
+From a clean clone to a rendered demo. Requires Python ≥ 3.11.5 and
 [uv](https://github.com/astral-sh/uv). No heavy binaries (ffmpeg, torch, chrome)
 are needed for the default path — the deterministic backends carry the whole
 pipeline.

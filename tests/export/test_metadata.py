@@ -131,4 +131,4 @@ def test_embed_tags_raises_when_ffmpeg_missing(
     with pytest.raises(BackendUnavailableError) as excinfo:
         md.embed_tags(mp4_in, tmp_path / "out.mp4", tags)
     assert excinfo.value.backend == "ffmpeg"
-    assert excinfo.value.extra == "video"
+    assert excinfo.value.extra is None

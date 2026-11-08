@@ -2,20 +2,19 @@
 
 The :class:`Pipeline` wires the subsystems together in the canonical order::
 
-    script? -> validate -> TTS -> TTS->STT sync -> timeline -> compose(frames+manifest)
+    script? -> validate -> copy/stage -> TTS -> word timing -> timeline -> compose
             -> captions -> interactive player + transcript + chapters
 
-Every stage is a pure function of the (mutated) demo plus a
-:class:`~democreate.project_paths.Workspace`. With only the core dependencies
-installed, the deterministic default backends carry the whole pipeline to a real,
-inspectable result (silent audio, synthetic frames, a manifest, captions, an HTML
-player). Optional extras and system binaries upgrade individual surfaces without
-changing this orchestration; guarded adapter slots fail explicitly when an
-integration is not available.
+The pipeline enriches a copy of the authored demo, leaving its input reusable.
+Core defaults produce inspectable silent audio, synthetic frames, captions and
+an HTML preview without heavy optional packages. Byte comparisons require fixed
+inputs, assets, configuration and runtime. Optional adapters and system binaries
+have their own prerequisites; guarded unwired slots fail explicitly.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -27,13 +26,15 @@ from .assembly.compositor import (
     Timeline,
     build_timeline,
 )
+from .config import RenderConfig
 from .errors import RenderError, SchemaValidationError
 from .export import formats as formats_mod
+from .export.interactive import build_timeline as build_player_timeline
 from .export.interactive import export_html_player
 from .media import AudioClip
 from .narration.sync import Transcriber, sync_demo
 from .narration.tts import TTSBackend, synthesize_demo
-from .project_paths import Workspace
+from .project_paths import Workspace, relativize_under_root, stage_demo_assets
 from .schema import Demo
 
 logger = get_logger(__name__)
@@ -56,6 +57,8 @@ class PipelineResult:
         player_path: The interactive HTML player.
         transcript_path: The Markdown transcript.
         demo_path: The serialized demo JSON.
+        rerender_states: Use the built-in state renderer during animation. Explicit
+            compositor overrides retain their supplied raster content instead.
     """
 
     demo: Demo
@@ -68,6 +71,8 @@ class PipelineResult:
     player_path: Path | None = None
     transcript_path: Path | None = None
     demo_path: Path | None = None
+    config: RenderConfig = field(default_factory=RenderConfig)
+    rerender_states: bool = False
 
     def summary(self) -> dict[str, object]:
         """A compact JSON-able summary of what was produced."""
@@ -103,10 +108,9 @@ class Pipeline:
         compositor: Compositor | None = None,
         wpm: int = 150,
         strict: bool = True,
-        config=None,
+        config: RenderConfig | None = None,
+        asset_root: Path | str | None = None,
     ) -> None:
-        from .config import RenderConfig
-
         self.tts_backend = tts_backend
         self.transcriber = transcriber
         # When no compositor is supplied, build one sized to each demo in run()
@@ -115,6 +119,7 @@ class Pipeline:
         self.wpm = wpm
         self.strict = strict
         self.config = config or RenderConfig()
+        self.asset_root = Path(asset_root).resolve() if asset_root is not None else Path.cwd()
 
     def dry_run(self, demo: Demo) -> list[str]:
         """Validate ``demo`` without running TTS, sync, or rendering.
@@ -140,12 +145,13 @@ class Pipeline:
         """Render ``demo`` end-to-end, returning a :class:`PipelineResult`.
 
         Args:
-            demo: The demo to render. It is mutated in place (audio paths, timing).
+            demo: Authored input, left unchanged; resolved timing/assets are in
+                ``result.demo``.
             workspace: Output workspace; a default ``./output`` workspace is used
                 if omitted.
         """
         ws = workspace or Workspace()
-        result = PipelineResult(demo=demo, workspace=ws)
+        ws.ensure_safe()
 
         problems = demo.validate()
         if problems:
@@ -154,26 +160,39 @@ class Pipeline:
             for p in problems:
                 logger.warning("demo validation: %s", p)
 
+        demo = deepcopy(demo)
+        result = PipelineResult(
+            demo=demo, workspace=ws, config=self.config,
+            rerender_states=self._compositor_override is None,
+        )
+        stage_demo_assets(demo, ws, self.asset_root)
         with log_stage("narration synthesis (TTS)", logger):
             result.clips = synthesize_demo(demo, ws, backend=self.tts_backend)
 
-        with log_stage("TTS->STT synchronization", logger):
-            # Anchor chunk/action times to the SAME silence model used to
-            # assemble the voiceover and lay out the frames, so captions and the
-            # interactive player stay locked to the spoken audio (no drift).
+        with log_stage("narration timing", logger):
+            # Share configured clip windows with voiceover and captions.
+            # Trigger-word positions remain estimates, not acoustic detections.
             sync_demo(demo, result.clips, transcriber=self.transcriber,
                       lead_ms=self.config.audio.lead_silence_ms,
                       gap_ms=self.config.audio.gap_ms)
 
         with log_stage("timeline", logger):
-            result.timeline = build_timeline(demo, fps=demo.fps, wpm=self.wpm)
+            result.timeline = build_timeline(
+                demo, fps=demo.fps, wpm=self.wpm,
+                trail_ms=self.config.audio.trail_silence_ms,
+            )
 
         with log_stage("compose frames + manifest", logger):
-            compositor = self._compositor_override or ManifestCompositor(
-                width=demo.width, height=demo.height, theme=self.config.theme
-            )
+            compositor = self._compositor_override
+            if compositor is None:
+                compositor = ManifestCompositor(
+                    width=demo.width, height=demo.height, theme=self.config.theme
+                )
             result.manifest_path = compositor.compose(result.timeline, ws)
-            result.frame_paths = sorted(ws.frames.glob("frame_*.png"))
+            result.frame_paths = [
+                ws.frames / f"frame_{entry.index:04d}.png"
+                for entry in result.timeline.entries
+            ]
 
         with log_stage("captions", logger):
             srt = ws.captions / "captions.srt"
@@ -186,11 +205,10 @@ class Pipeline:
             # The player needs its own caption/chapter timeline (built from the
             # demo), not the compositor's frame timeline. Frames live in a sibling
             # directory, so reference them relatively for a portable player.
+            player_timeline = build_player_timeline(demo)
+            player_timeline["total_ms"] = result.timeline.total_ms
             result.player_path = export_html_player(
-                demo,
-                None,
-                ws.web / "player.html",
-                frames_dir="../frames",
+                demo, player_timeline, ws.web / "player.html", frames_dir="../frames"
             )
             transcript = ws.demos / "transcript.md"
             transcript.write_text(formats_mod.to_markdown(demo), encoding="utf-8")
@@ -312,9 +330,9 @@ def render_video(
 ):
     """Assemble an audio-synced MP4 from a completed pipeline result.
 
-    Frames map one-to-one to narration clips (one timeline entry per chunk), so
-    each frame is held on screen for its clip's *measured* duration and the
-    concatenated voiceover shares the same timebase by construction — no drift.
+    Frame holds derive from measured narration durations and configured silence.
+    Encoded endpoints can differ through frame/audio-codec rounding; this shared
+    nominal timebase does not establish acoustic word-onset accuracy.
 
     With ``animate=True`` (the default), the still per-chunk frames are re-sampled
     onto a fixed ``animation_fps`` and overlaid with a moving speech waveform and a
@@ -325,7 +343,7 @@ def render_video(
         out_path: Destination ``.mp4`` (default ``<workspace>/video/demo.mp4``).
         fps: Output frame rate (default the demo's fps; with ``animate`` the output
             is encoded at ``animation_fps``).
-        burn_captions: Burn the SRT into the picture (best-effort; needs libass).
+        burn_captions: Burn the SRT into the picture; missing libass fails explicitly.
         verify: Run content-asserting verification on the result.
         animate: Render a moving waveform + progress bar at ``animation_fps``.
         animation_fps: Frame rate of the animated render.
@@ -339,13 +357,13 @@ def render_video(
         RenderError: If the result lacks frames/clips or their counts disagree.
         BackendUnavailableError: If ffmpeg is not installed.
     """
-    from .config import RenderConfig
     from .export.verify import verify_video
     from .export.video import assemble_video
 
-    cfg = config or RenderConfig()
+    cfg = config or result.config
     demo = result.demo
     ws = result.workspace
+    ws.ensure_safe()
     if not result.clips or not result.frame_paths:
         raise RenderError("result has no clips/frames; run the pipeline first")
     if len(result.frame_paths) != len(result.clips):
@@ -355,7 +373,12 @@ def render_video(
         )
 
     out_path = out_path or (ws.video / "demo.mp4")
-    durations_ms = [clip.duration_ms for clip in result.clips]
+    from .assembly.animator import frame_hold_durations
+
+    durations_ms = frame_hold_durations(
+        result.clips, lead_ms=cfg.audio.lead_silence_ms,
+        gap_ms=cfg.audio.gap_ms, trail_ms=cfg.audio.trail_silence_ms,
+    )
     anim_fps = animation_fps or cfg.video.animation_fps
 
     with log_stage("assemble voiceover audio", logger):
@@ -383,15 +406,19 @@ def render_video(
                 scene_ids=scene_ids,
                 kenburns_flags=kenburns,
                 frame_states=frame_states,
+                timeline_entries=result.timeline.entries if result.timeline else None,
                 typing_flags=typing_flags,
                 theme=cfg.theme,
                 overlay_meta=cfg.metadata,
                 demo_title=cfg.metadata.title or demo.title,
+                draw_captions=False,
+                rerender_states=result.rerender_states,
             )
         with log_stage("encode animated HD video (ffmpeg)", logger):
             encode_frame_sequence(
                 anim_frames, voiceover, out_path, fps=anim_fps,
                 crf=cfg.video.crf, preset=cfg.video.preset,
+                captions=result.caption_paths.get("srt") if burn_captions else None,
             )
     else:
         with log_stage("assemble HD video (ffmpeg)", logger):
@@ -411,9 +438,9 @@ def render_video(
     # Chapter markers: a YouTube chapter file plus chapters embedded in the MP4.
     # When animating, align them to the measured audio timeline (not estimates).
     with log_stage("chapters", logger):
-        _embed_chapters(demo, out_path, ws, result if animate else None, cfg)
+        _embed_chapters(demo, out_path, ws, result, cfg)
 
-    # Provenance: container metadata tags + steganographic poster/bookend PNGs.
+    # Container credits and an unsigned digest-association poster.
     with log_stage("metadata + provenance", logger):
         _embed_provenance(demo, out_path, ws, cfg)
 
@@ -434,12 +461,10 @@ def render_video(
 
 
 def _embed_provenance(demo: Demo, out_path: Path, ws: Workspace, cfg) -> None:
-    """Embed MP4 metadata tags and a steganographic provenance poster/bookends.
+    """Embed container credits and an unsigned digest record in a PNG poster.
 
-    Container tags are read by players/``ffprobe``. The steganographic payload —
-    a signed (content-hashed) provenance record — is written into *lossless* PNG
-    sidecars (a poster plus first/last "transmission bookend" frames), because LSB
-    steganography does not survive an H.264 re-encode of the video pixels.
+    This is content association, not author authentication or an image/video
+    signature. LSB payloads survive only in the lossless PNG sidecar.
     """
     from . import __version__
     from .errors import BackendUnavailableError
@@ -474,8 +499,9 @@ def _embed_provenance(demo: Demo, out_path: Path, ws: Workspace, cfg) -> None:
                 subtitle=meta.author or None,
             )
             img = Image.open(poster).convert("RGB")
+            resolved_demo = Demo.from_dict(relativize_under_root(demo.to_dict(), ws.root))
             stego, prov = embed_provenance(
-                img, demo, author=meta.author, version=__version__,
+                img, resolved_demo, author=meta.author, version=__version__,
                 extra={"date": meta.date, "source": meta.source, "url": meta.url},
             )
             stego.save(prov_dir / "poster_signed.png", format="PNG")

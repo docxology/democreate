@@ -19,6 +19,8 @@ and raise `BackendUnavailableError` when their dependency is missing.
   - slide: centered `title`.
   Any non-empty `caption` is overlaid as a lower-third subtitle. Uses
   `ImageFont.load_default()` (no external fonts). Byte-for-byte deterministic.
+  Camera scales greater than one apply a centered content crop/resize before
+  drawing the fixed waveform band, section and caption overlays.
 - `MssScreenCapture` — real pixel capture (extra `capture`, via `mss`).
 - `render_frame(state, size=(1920,1080))` — convenience wrapper for the default.
 - `render_demo_thumbnail(demo, size=(1280,720))` — renders the first scene's
@@ -31,18 +33,40 @@ and raise `BackendUnavailableError` when their dependency is missing.
 - `record_commands(commands, *, prompt="$ ")` — deterministic input+output
   events at increasing timestamps.
 - `recording_to_frame_states(rec)` — terminal `FrameState`s for the renderer.
+- Headers require version 2 plus positive integer `width` and `height`. Parsing
+  rejects missing/nonobject headers, invalid geometry/versions, malformed event
+  triples, nonnumeric/nonfinite/negative times, and nonstring event channels/data
+  with `CaptureError` (including semantic errors).
 
 ### `browser.py` — website driving
-- `BrowserDriver` — abstract: `navigate`, `click`, `fill`, `screenshot`, `close`.
+- `BrowserDriver` — abstract: `navigate`, `click(selector)`,
+  `click_xy(x, y, *, button="left")`, `fill(selector, value)`,
+  `scroll(direction, amount)`, `screenshot`, `close`.
 - `NullBrowserDriver` — **default**. Records every call into `.manifest`;
   `screenshot()` renders a synthetic browser frame via `SyntheticRenderer`.
-- `PlaywrightBrowserDriver` — real automation (extra `browser`).
-- `drive_website_scene(scene, driver=None)` — maps a scene's
-  NAVIGATE/CLICK/SCROLL/FILL actions to driver calls; returns the manifest.
+- `PlaywrightBrowserDriver` — real automation (extra `browser`). Missing browser
+  executables raise `BackendUnavailableError` with `playwright install chromium`
+  guidance; failed launches release their started Playwright context.
+- `drive_website_scene(scene, driver=None)` consumes canonical action params:
+  NAVIGATE `url`; CLICK either `selector` or `xy` with optional `button`; FILL
+  `selector` and `value` (not `text`); SCROLL `direction` and optional `amount`
+  (default 100 pixels, not the removed `by` alias). All drivers receive scrolls;
+  up/down/left/right produce signed vertical/horizontal wheel movement. Invalid
+  directions or negative amounts fail explicitly. Null manifests retain canonical
+  `value`, `xy`/`button`, and `direction`/`amount` fields.
 
 ### `replay.py` — input record/replay (pure event model)
 - `InputEvent(t_ms, kind, payload)` and `EventLog(events)` with `to_json` /
-  `from_json` and `to_actions()` (move→MOVE_MOUSE, click→CLICK, key→TYPE_CODE).
+  `from_json` and `to_actions()`. Event timestamps are preserved and discrete
+  recorded inputs have zero duration, so a key is visible at its recorded instant.
+  Moves become
+  MOVE_MOUSE `{"xy": (x, y)}`; clicks become CLICK `{"xy": (x, y), "button": ...}`
+  with pynput's `Button.` prefix removed, never a fabricated selector. Printable
+  keys become TYPE_CODE `{"code": ...}` after unwrapping pynput's quoted
+  characters. `Key.space`, `Key.enter`, and `Key.tab` map to actual whitespace;
+  unsupported controls (including shift/backspace) are explicitly skipped, not
+  inserted as literal `Key.*` text. Live replay uses the same supported key mapping
+  and honors the recorded mouse button.
 - `record_session(...)` / `replay_session(...)` — real OS hooks (extra
   `replay`, via `pynput` / `pyautogui`).
 
@@ -60,8 +84,10 @@ these and produce identical output on every machine.
 
 ## Tests
 `tests/capture/test_screen.py`, `tests/capture/test_terminal.py`,
-`tests/capture/test_browser.py`, `tests/capture/test_replay.py` — 50 tests, no
-mocks, real temp files. Run:
+`tests/capture/test_browser.py`, `tests/capture/test_replay.py` use real temp files,
+schema validation, visible-state/render consumers, and deterministic backends,
+without mocked computation. Real-browser tests use a local HTML file when the
+optional package/binary is available; absence is skipped. Run:
 
 ```
 .venv/bin/python -m pytest tests/capture/test_*.py -q

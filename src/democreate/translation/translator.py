@@ -193,8 +193,12 @@ class OllamaTranslator(Translator):
                 f"ollama server at {self.host} (model {self.model!r}) — "
                 "start it with `ollama serve` and `ollama pull <model>`"
             ) from exc
-        out = _clean_llm_output(str(data.get("response", "")))
-        return out or text
+        if not isinstance(data, dict) or not isinstance(data.get("response"), str):
+            raise BackendUnavailableError("ollama returned no textual translation")
+        out = _clean_llm_output(data["response"])
+        if not out:
+            raise BackendUnavailableError("ollama returned an empty translation")
+        return out
 
 
 def get_translator(name: str = "auto", **kwargs: object) -> Translator:
@@ -296,6 +300,7 @@ def localized_captions(
         timing.iter_chunks(), subtitle_demo.iter_chunks(), strict=True
     ):
         sub_chunk.start_ms = time_chunk.start_ms
+        sub_chunk.duration_ms = time_chunk.duration_ms
     emitters = {"srt": captions_mod.to_srt, "vtt": captions_mod.to_vtt}
     if fmt not in emitters:
         raise ValueError(f"unknown caption format {fmt!r}; choose srt|vtt")

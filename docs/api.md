@@ -1,6 +1,6 @@
 # API reference
 
-> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.7.1`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
+> **Generated** by `scripts/generate_api_docs.py` from the live `democreate` package (version `0.8.0`). Do not edit by hand — regenerate with `.venv/bin/python scripts/generate_api_docs.py`.
 
 This reference lists the public classes and functions of each documented module with the one-line summary of their docstring. For prose and examples, see the topic docs linked from [README.md](README.md); for the full contracts, read the source and its tests.
 
@@ -53,8 +53,9 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
 - **`ActionType`** — Every primitive change a demo can express against the virtual environment.
 - **`BackendUnavailableError`** — A requested optional backend is not installed.
 - **`CaptureError`** — A screen, browser, or terminal capture step failed.
-- **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers (VSpeak model).
+- **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Estimate narration duration from word count at ``wpm`` words/minute.
+  - `playback_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Return measured narration duration, or its pre-synthesis estimate.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
 - **`Demo`** *(dataclass)* — The top-level declarative artifact for a complete walkthrough.
@@ -88,6 +89,7 @@ DemoCreate — declarative, deterministic audio-visual demo generation.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
 - **`Workspace`** *(dataclass)* — Resolved output locations for one demo build.
   - `clean(self) -> 'None'` — Remove the entire workspace root if it exists (idempotent).
+  - `ensure_safe(self) -> 'None'` — Refuse existing links in generated namespaces before local writes.
 
 ### Functions
 
@@ -105,8 +107,9 @@ Declarative demo schema — the deterministic spine of DemoCreate.
 - **`Action`** *(dataclass)* — One typed event mutating the virtual environment.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a plain JSON-ready dict (omitting unset optional fields).
 - **`ActionType`** — Every primitive change a demo can express against the virtual environment.
-- **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers (VSpeak model).
+- **`Chunk`** *(dataclass)* — A narration unit and the actions it triggers.
   - `estimated_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Estimate narration duration from word count at ``wpm`` words/minute.
+  - `playback_duration_ms(self, wpm: 'int' = 150) -> 'int'` — Return measured narration duration, or its pre-synthesis estimate.
   - `to_dict(self) -> 'dict[str, Any]'` — _(no docstring)_
   - `word_count(self) -> 'int'` — Number of whitespace-delimited words in the narration.
 - **`Demo`** *(dataclass)* — The top-level declarative artifact for a complete walkthrough.
@@ -137,7 +140,7 @@ Configuration and theming for DemoCreate renders.
 ### Classes
 
 - **`AudioConfig`** *(dataclass)* — Voice and audio-assembly settings.
-- **`MetadataConfig`** *(dataclass)* — Provenance/metadata shown on screen, written to the container, and hidden.
+- **`MetadataConfig`** *(dataclass)* — Metadata labels and unsigned content association settings.
 - **`RenderConfig`** *(dataclass)* — Top-level render configuration: theme + audio + video + metadata.
   - `set_aspect(self, name: 'str') -> 'RenderConfig'` — Set ``video.width``/``video.height`` from a named aspect preset.
   - `set_resolution(self, name: 'str') -> 'RenderConfig'` — Set 16:9 ``video.width``/``video.height`` from a resolution tier.
@@ -202,11 +205,13 @@ Path resolution for DemoCreate runs.
 
 - **`Workspace`** *(dataclass)* — Resolved output locations for one demo build.
   - `clean(self) -> 'None'` — Remove the entire workspace root if it exists (idempotent).
+  - `ensure_safe(self) -> 'None'` — Refuse existing links in generated namespaces before local writes.
 
 ### Functions
 
 - **`default_output_root() -> 'Path'`** — Return the conventional output root (``./output`` under the cwd).
 - **`relativize_under_root(obj: 'Any', root: 'Path | str') -> 'Any'`** — Rewrite absolute-path strings under ``root`` to ``root``-relative POSIX form.
+- **`stage_demo_assets(demo: 'Demo', workspace: 'Workspace', asset_root: 'Path') -> 'None'`** — Confine required backgrounds to an explicit root and stage portable copies.
 
 ## `democreate.errors` {#democreateerrors}
 
@@ -228,13 +233,13 @@ The ``democreate`` command-line interface.
 ### Functions
 
 - **`backends() -> 'None'`** — List subsystem backends and whether their optional extras are installed.
-- **`build(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'auto', strict: 'bool' = True) -> 'None'`** — Run the full pipeline: TTS, sync, frames, captions, and HTML player.
+- **`build(demo: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'auto', strict: 'bool' = True, asset_root: 'Path | None' = None) -> 'None'`** — Run the full pipeline: TTS, sync, frames, captions, and HTML player.
 - **`captions(demo: 'Path', fmt: 'str' = 'srt') -> 'None'`** — Emit subtitles for a demo to stdout.
 - **`config(out: 'Path' = PosixPath('democreate.yaml'), theme: 'str' = 'noir') -> 'None'`** — Write a fully-commented render-config YAML you can edit and pass to --config.
 - **`fetch_voice() -> 'None'`** — Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
 - **`inspect(demo: 'Path', json_out: 'bool' = False) -> 'None'`** — Validate a demo and print a structural summary.
-- **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
+- **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False, asset_root: 'Path | None' = None) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
 - **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
@@ -276,8 +281,8 @@ Render a demo with audio in one language and subtitles in another.
 
 ### Functions
 
-- **`localize_batch(demo: 'Demo', workspace, *, pairs: 'list[tuple[str, str]]', source: 'str' = 'en', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None) -> 'list[LocalizedResult]'`** — Render one localized video per ``(audio_lang, subtitle_lang)`` pair.
-- **`localize_render(demo: 'Demo', workspace, *, languages: 'LanguageConfig', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None) -> 'LocalizedResult'`** — Render one audio/subtitle language pair; return a :class:`LocalizedResult`.
+- **`localize_batch(demo: 'Demo', workspace, *, pairs: 'list[tuple[str, str]]', source: 'str' = 'en', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None, asset_root: 'Path | None' = None) -> 'list[LocalizedResult]'`** — Render one localized video per ``(audio_lang, subtitle_lang)`` pair.
+- **`localize_render(demo: 'Demo', workspace, *, languages: 'LanguageConfig', translator: 'Translator | None' = None, config=None, tts: 'str' = 'system', voice: 'str' = '', burn: 'bool' = False, verify: 'bool' = True, name: 'str | None' = None, asset_root: 'Path | None' = None) -> 'LocalizedResult'`** — Render one audio/subtitle language pair; return a :class:`LocalizedResult`.
 
 ## `democreate.narration.script` {#democreatenarrationscript}
 
@@ -316,13 +321,13 @@ Text-to-speech backends for DemoCreate narration.
 
 ### Classes
 
-- **`ChatterboxTTSBackend`** — Chatterbox TTS backend (optional, requires the ``tts`` extra).
+- **`ChatterboxTTSBackend`** — Unwired Chatterbox slot; no published extra enables this adapter.
   - `is_available(self) -> 'bool'` — Return whether the ``chatterbox`` package is installed.
-  - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Chatterbox (only runs when installed).
-- **`ElevenLabsTTSBackend`** — ElevenLabs cloud TTS backend — highest-fidelity hosted voice synthesis.
+  - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Refuse unavailable or unwired Chatterbox synthesis explicitly.
+- **`ElevenLabsTTSBackend`** — Hosted ElevenLabs speech synthesis with a configured API account.
   - `is_available(self) -> 'bool'` — Return whether the ``elevenlabs`` package AND an API key are present.
   - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` via ElevenLabs and write a canonical WAV.
-- **`KokoroTTSBackend`** — Kokoro neural TTS backend — a high-quality, fully-local voice.
+- **`KokoroTTSBackend`** — Local Kokoro neural TTS backed by an optional ONNX Runtime model.
   - `is_available(self) -> 'bool'` — Return whether ``kokoro-onnx`` AND its model files are present.
   - `synthesize(self, text: 'str', out_path: 'Path', *, voice: 'str | None' = None) -> 'AudioClip'` — Synthesize ``text`` with Kokoro to a canonical WAV; measure its duration.
 - **`SilentTTSBackend`** — Deterministic default backend that writes real WAV files of silence.
@@ -345,7 +350,7 @@ Text-to-speech backends for DemoCreate narration.
 
 ## `democreate.narration.sync` {#democreatenarrationsync}
 
-TTS->STT synchronization: anchoring actions to real spoken word timestamps.
+Measure clip windows and estimate word/action times from supplied narration.
 
 ### Classes
 
@@ -353,8 +358,8 @@ TTS->STT synchronization: anchoring actions to real spoken word timestamps.
   - `transcribe(self, audio_path: 'Path', text: 'str | None' = None) -> 'list[WordTimestamp]'` — Distribute the words of ``text`` across the audio's real duration.
 - **`Transcriber`** — Abstract base for turning audio + known text into word timestamps.
   - `transcribe(self, audio_path: 'Path', text: 'str | None' = None) -> 'list[WordTimestamp]'` — Return per-word timestamps for ``audio_path``.
-- **`WhisperTranscriber`** — Whisper STT transcriber (optional, requires the ``whisper`` extra).
-  - `transcribe(self, audio_path: 'Path', text: 'str | None' = None) -> 'list[WordTimestamp]'` — Transcribe with Whisper (only runs when ``whisper`` is installed).
+- **`WhisperTranscriber`** — Unwired Whisper adapter slot; installing its dependency is insufficient.
+  - `transcribe(self, audio_path: 'Path', text: 'str | None' = None) -> 'list[WordTimestamp]'` — Refuse unavailable or unwired Whisper transcription explicitly.
 
 ### Functions
 
@@ -386,12 +391,14 @@ Timed-frame animation: turn one-frame-per-chunk into smooth, dynamic video.
 ### Classes
 
 - **`AnimationConfig`** *(dataclass)* — Settings for timed-frame animation.
+  - `validate(self) -> 'None'` — Reject timing values that cannot match a fixed-cadence audio render.
 
 ### Functions
 
 - **`active_index_at(windows: 'list[tuple[int, int]]', t_ms: 'int') -> 'int'`** — Return the index of the chunk active at ``t_ms`` (gap- and end-aware).
 - **`chunk_timing(clips: 'list[AudioClip]', *, lead_ms: 'int' = 0, gap_ms: 'int' = 0, trail_ms: 'int' = 0) -> 'tuple[list[tuple[int, int]], int]'`** — Return per-chunk spoken ``(start_ms, end_ms)`` windows and the total duration.
-- **`render_animation_frames(frame_paths: 'list[Path]', clips: 'list[AudioClip]', voiceover_wav: 'Path', out_dir: 'Path', *, size: 'tuple[int, int]', config: 'AnimationConfig | None' = None, scene_ids: 'list[str] | None' = None, kenburns_flags: 'list[bool] | None' = None, frame_states: 'list | None' = None, typing_flags: 'list[bool] | None' = None, theme=None, overlay_meta=None, demo_title: 'str' = '') -> 'tuple[list[Path], int]'`** — Render uniform-cadence animated frames with motion: typing, cursor, waveform.
+- **`frame_hold_durations(clips: 'list[AudioClip]', *, lead_ms: 'int' = 0, gap_ms: 'int' = 0, trail_ms: 'int' = 0) -> 'list[int]'`** — Return static frame holds aligned to measured speech and padded audio.
+- **`render_animation_frames(frame_paths: 'list[Path]', clips: 'list[AudioClip]', voiceover_wav: 'Path', out_dir: 'Path', *, size: 'tuple[int, int]', config: 'AnimationConfig | None' = None, scene_ids: 'list[str] | None' = None, kenburns_flags: 'list[bool] | None' = None, frame_states: 'list | None' = None, timeline_entries: 'list[TimelineEntry] | None' = None, typing_flags: 'list[bool] | None' = None, theme=None, overlay_meta=None, demo_title: 'str' = '', draw_captions: 'bool' = True, rerender_states: 'bool' = True) -> 'tuple[list[Path], int]'`** — Render uniform-cadence animated frames with motion: typing, cursor, waveform.
 
 ## `democreate.assembly.audio` {#democreateassemblyaudio}
 
@@ -429,16 +436,17 @@ Timeline construction and compositor backends.
   - `compose(self, timeline: 'Timeline', workspace: 'Workspace') -> 'Path'` — Write the render manifest and per-entry frames.
 - **`MoviePyCompositor`** — Guarded legacy MoviePy compositor slot (extra: ``video``).
   - `compose(self, timeline: 'Timeline', workspace: 'Workspace') -> 'Path'` — Detect the legacy MoviePy compositor dependency.
-- **`Timeline`** *(dataclass)* — A fully-resolved, gap-free render timeline.
+- **`Timeline`** *(dataclass)* — A fully-resolved, non-overlapping render timeline.
   - `entry_at_ms(self, t: 'int') -> 'TimelineEntry | None'` — Return the entry whose window contains ``t``.
   - `frame_count(self) -> 'int'` — Total number of frames at this timeline's fps.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize the whole timeline to a JSON-ready dict.
-- **`TimelineEntry`** *(dataclass)* — One contiguous slice of the timeline.
+- **`TimelineEntry`** *(dataclass)* — One narration window, with a final still and scheduled scene playback.
+  - `state_at_ms(self, t_ms: 'int', *, typing: 'bool' = True) -> 'FrameState'` — Return an independent scene snapshot at absolute ``t_ms``.
   - `to_dict(self) -> 'dict[str, Any]'` — Serialize to a JSON-ready dict.
 
 ### Functions
 
-- **`build_timeline(demo: 'Demo', *, fps: 'int | None' = None, wpm: 'int' = 150) -> 'Timeline'`** — Build a gap-free render timeline from a demo (pure, deterministic).
+- **`build_timeline(demo: 'Demo', *, fps: 'int | None' = None, wpm: 'int' = 150, trail_ms: 'int' = 0) -> 'Timeline'`** — Build measured narration windows and an event-sourced scene timeline.
 
 ## `democreate.capture.screen` {#democreatecapturescreen}
 
@@ -484,7 +492,7 @@ Architecture / overview diagram renderer for demo frames.
 
 ## `democreate.animation.fonts` {#democreateanimationfonts}
 
-Scalable font resolution for crisp, large frame text.
+Scalable, host-independent fonts from Pillow's bundled default face.
 
 ### Functions
 
@@ -571,9 +579,9 @@ Video and GIF export.
 
 - **`assemble_video(frame_paths: 'list[Path]', durations_ms: 'list[int]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 30, size: 'tuple[int, int] | None' = None, subtitles: 'Path | None' = None, crf: 'int' = 18, preset: 'str' = 'medium') -> 'Path'`** — Encode an audio-synced MP4 holding each frame for its measured duration.
 - **`build_concat_demuxer_file(frames_with_durations: 'list[tuple[Path, float]]', *, repeat_last: 'bool' = True) -> 'str'`** — Build an ffmpeg concat-demuxer script holding each frame for its duration.
-- **`build_ffmpeg_command(frames_glob: 'str', audio_path: 'str | None', out_path: 'Path', *, fps: 'int' = 30, start_number: 'int | None' = None) -> 'list[str]'`** — Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
+- **`build_ffmpeg_command(frames_glob: 'str', audio_path: 'str | None', out_path: 'Path', *, fps: 'int' = 30, start_number: 'int | None' = None, frame_count: 'int | None' = None) -> 'list[str]'`** — Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
 - **`concat_wavs(wav_paths: 'list[Path]', out_path: 'Path') -> 'Path'`** — Concatenate canonical WAV clips gap-free into one track (pure stdlib).
-- **`encode_frame_sequence(frame_paths: 'list[Path]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 15, crf: 'int' = 18, preset: 'str' = 'medium') -> 'Path'`** — Encode uniformly-timed frames (+ audio) into an MP4 via the image2 demuxer.
+- **`encode_frame_sequence(frame_paths: 'list[Path]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 15, captions: 'Path | None' = None, crf: 'int' = 18, preset: 'str' = 'medium') -> 'Path'`** — Encode uniformly-timed frames (+ audio) into an MP4 via the image2 demuxer.
 - **`export_video(frame_paths: 'list[Path]', audio_path: 'Path | None', out_path: 'Path', *, fps: 'int' = 30) -> 'Path'`** — Encode frames (+ optional audio) into an MP4.
 - **`ffmpeg_available() -> 'bool'`** — Return ``True`` if the ``ffmpeg`` binary is on ``PATH``.
 - **`frames_to_gif(frame_paths: 'list[Path]', out_path: 'Path', *, fps: 'int' = 10) -> 'Path'`** — Assemble an animated GIF from still frames using Pillow.
@@ -615,12 +623,12 @@ Poster/thumbnail frame and GIF preview export.
 
 ## `democreate.export.interactive` {#democreateexportinteractive}
 
-Interactive, self-contained HTML player export.
+Export a caption/chapter HTML preview with optional local frame images.
 
 ### Functions
 
 - **`build_timeline(demo: 'Demo') -> 'dict'`** — Build a deterministic caption/chapter timeline from a demo.
-- **`export_html_player(demo: 'Demo', timeline: 'dict | None', out_path: 'Path', *, frames_dir: 'str | None' = None) -> 'Path'`** — Render a self-contained HTML player for ``demo``.
+- **`export_html_player(demo: 'Demo', timeline: 'dict | None', out_path: 'Path', *, frames_dir: 'str | None' = None) -> 'Path'`** — Render a caption/chapter preview referencing sibling frame assets.
 
 ## `democreate.export.formats` {#democreateexportformats}
 

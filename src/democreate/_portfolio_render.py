@@ -10,6 +10,7 @@ import html
 import json
 import shutil
 from pathlib import Path
+from urllib.parse import quote
 
 from ._logging import get_logger
 from ._portfolio_facts import (
@@ -197,11 +198,8 @@ def _write_index_html(output_root: Path, report: PortfolioReport) -> Path:
     for r in sorted(report.results, key=lambda x: x.name):
         name = html.escape(r.name)
         if r.ok and r.video_path is not None:
-            try:
-                rel = r.video_path.relative_to(output_root).as_posix()
-            except ValueError:
-                rel = r.video_path.as_posix()
-            link = f'<a href="{html.escape(rel)}">▶ {name}</a>'
+            rel = r.video_path.resolve().relative_to(output_root.resolve()).as_posix()
+            link = f'<a href="./{html.escape(quote(rel, safe="/"))}">▶ {name}</a>'
             meta = f"{r.duration_s:.0f}s · {r.scenes} scenes"
             status = "ok"
         else:

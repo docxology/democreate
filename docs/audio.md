@@ -57,7 +57,7 @@ post-processed:
 
 1. **`normalize_audio()`** — ffmpeg `loudnorm` filter, targeting integrated
    loudness `I = −16 LUFS`, true-peak `TP = −1.5 dBTP`, loudness range
-   `LRA = 11 LU`. This is why a verified render lands near −16 dB mean volume.
+   `LRA = 11 LU`. Integrated LUFS and `volumedetect` mean dB are distinct metrics; mean dB does not verify the LUFS target.
 2. **`apply_fade()`** — a fade-in and fade-out of `fade_ms` (default 180 ms)
    each, via ffmpeg `afade`. The fade-out start is computed from the true clip
    duration.

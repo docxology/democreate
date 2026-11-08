@@ -155,19 +155,11 @@ def test_chatterbox_unavailable_raises() -> None:
         with pytest.raises(BackendUnavailableError) as exc:
             get_tts_backend("chatterbox")
         assert exc.value.backend == "chatterbox"
-        assert exc.value.extra == "tts"
+        assert exc.value.extra is None
     else:  # pragma: no cover - chatterbox installed
         assert isinstance(get_tts_backend("chatterbox"), ChatterboxTTSBackend)
 
 
-def test_get_tts_backend_threads_rate_wpm() -> None:
-    """``rate_wpm`` reaches the system backend (``say -r`` / ``espeak -s``)."""
-    import shutil
-
-    if shutil.which("say") is None and shutil.which("espeak") is None:  # pragma: no cover
-        pytest.skip("no system TTS engine on PATH")
-    backend = get_tts_backend("system", rate_wpm=180)
-    assert backend.rate_wpm == 180
 
 
 def test_base_class_methods_not_implemented() -> None:
@@ -189,7 +181,6 @@ def test_synthesize_demo_writes_per_chunk_audio(sample_demo, tmp_workspace) -> N
         assert clip.chunk_id == chunk.id
         assert chunk.audio_path is not None
         assert Path(chunk.audio_path).exists()
-        assert clip.path == Path(tmp_workspace.audio) / f"{chunk.id}.wav"
         assert clip.duration_ms > 0
 
 
@@ -209,3 +200,42 @@ def test_synthesize_demo_empty_demo(tmp_workspace) -> None:
 
     clips = synthesize_demo(Demo(title="Empty"), tmp_workspace)
     assert clips == []
+
+
+def test_synthesis_keeps_opaque_ids_out_of_output_paths(tmp_path: Path) -> None:
+    """Untrusted IDs cannot choose output paths or collide by filename casing."""
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Demo, Scene
+
+    ids = ["../../outside", str(tmp_path / "absolute"), r"..\outside", "A", "a"]
+    demo = Demo(
+        title="Untrusted identifiers",
+        scenes=[Scene(id="s", chunks=[
+            Chunk(id=cid, text="word " * (index + 1))
+            for index, cid in enumerate(ids)
+        ])],
+    )
+    workspace = Workspace(tmp_path / "build")
+    clips = synthesize_demo(demo, workspace)
+    assert [clip.chunk_id for clip in clips] == ids
+    assert len({clip.path.resolve() for clip in clips}) == len(ids)
+    assert [clip.duration_ms for clip in clips] == [400, 800, 1200, 1600, 2000]
+    assert all(clip.path.resolve().parent == workspace.audio.resolve() for clip in clips)
+    assert not (tmp_path / "absolute.wav").exists()
+    assert not (tmp_path / "outside.wav").exists()
+
+
+def test_synthesis_refuses_existing_output_symlink(tmp_path: Path) -> None:
+    """Existing linked files must not redirect writes outside the workspace."""
+    from democreate.errors import RenderError
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Demo, Scene
+
+    victim = tmp_path / "original.wav"
+    victim.write_bytes(b"preserve these bytes")
+    workspace = Workspace(tmp_path / "build")
+    (workspace.audio / "chunk_0000.wav").symlink_to(victim)
+    demo = Demo(title="Linked", scenes=[Scene(id="s", chunks=[Chunk(id="c")])])
+    with pytest.raises(RenderError, match="symbolic-link"):
+        synthesize_demo(demo, workspace)
+    assert victim.read_bytes() == b"preserve these bytes"

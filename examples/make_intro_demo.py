@@ -4,18 +4,18 @@
 Running this writes ``examples/democreate_intro.json`` — a declarative
 :class:`~democreate.schema.Demo` that gives a big, legible, narrated tour of the
 package: a title card, a real **architecture diagram**, the declarative spine,
-backends-behind-interfaces, the audio-as-ground-truth sync, a real **HTML
-dashboard** screenshot, the CLI, and the animated-waveform render itself.
+backends-behind-interfaces, duration-based sync, an illustrative player image,
+the CLI and animated-waveform rendering.
 
 It references two image assets under ``examples/assets/`` (regenerate with
 ``examples/make_assets.py``):
 
 * ``architecture.png`` — the generated architecture diagram.
-* ``dashboard.png``    — a real browser screenshot of the HTML player.
+* ``dashboard.png`` — an illustrative HTML-player image.
 
 Render it to an animated HD MP4 with a real voiceover + moving waveform via::
 
-    democreate render examples/democreate_intro.json -o output --voice Samantha
+    democreate render examples/democreate_intro.json -o output --tts kokoro --voice af_heart
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from pathlib import Path
 
 from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
 
-_ASSETS = Path(__file__).resolve().parent / "assets"
+_ASSETS = Path("assets")
 
 
 def _slide(id_: str, section: str, narration: str, *, title="", subtitle="", bg=None,
@@ -39,7 +39,7 @@ def _slide(id_: str, section: str, narration: str, *, title="", subtitle="", bg=
     scene.context["section"] = section
     scene.context["subtitle"] = subtitle
     if bg is not None:
-        scene.context["background_image"] = str(bg)
+        scene.context["background_image"] = bg.as_posix()
     scene.chunks.append(chunk)
     return scene
 
@@ -63,9 +63,9 @@ def build() -> Demo:
     scenes.append(
         _slide(
             "arch", "Architecture",
-            "The whole system is four stages. A declarative spine flows into "
-            "narration, then rendering, then export — every stage a pure function "
-            "of the one demo artifact.",
+            "A declarative spine flows through narration, rendering and export. "
+            "Outputs also depend on configuration, assets and the selected "
+            "runtime environment.",
             title="Architecture", bg=_ASSETS / "architecture.png", trigger="stages",
         )
     )
@@ -95,13 +95,13 @@ def build() -> Demo:
     backends.chunks.append(
         Chunk(
             id="backends-c",
-            text="Every heavy capability hides behind an interface with a pure "
-            "Python default — so it runs with no heavy dependencies, and upgrades "
-            "in fidelity when you install an extra.",
+            text="Core defaults run without heavy optional packages. Installed "
+            "adapters can add capabilities; some declared adapters remain "
+            "unwired, and voiced output needs a working speech backend.",
             actions=[
                 Action(ActionType.CREATE_FILE, {
                     "path": "src/democreate/narration/tts.py",
-                    "code": "class TTSBackend(ABC): ...\nclass SilentTTSBackend:   # zero deps\nclass SystemTTSBackend:   # real OS voice\nclass KokoroTTSBackend:   # neural, optional",
+                    "code": "class TTSBackend(ABC): ...\nclass SilentTTSBackend:   # no heavy deps\nclass SystemTTSBackend:   # needs usable OS speech\nclass KokoroTTSBackend:   # needs optional model",
                 }, trigger_word="interface"),
                 Action(ActionType.HIGHLIGHT_LINES, {"lines": [2, 3]}, trigger_word="default"),
             ],
@@ -115,13 +115,12 @@ def build() -> Demo:
     sync.chunks.append(
         Chunk(
             id="sync-c",
-            text="Timing is measured, not guessed. We synthesize the narration, "
-            "measure its real duration, and lock every frame and the waveform to "
-            "the spoken audio.",
+            text="Clip durations are measured. Known words are interpolated by length, "
+            "not detected acoustically. Frames and waveform use the clip timeline.",
             actions=[
                 Action(ActionType.CREATE_FILE, {
                     "path": "src/democreate/narration/sync.py",
-                    "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)   # TTS -> STT\n# each frame held for its measured clip",
+                    "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)   # measured clips, heuristic words\n# video times are quantized to output frames",
                 }, trigger_word="measured"),
             ],
         )
@@ -132,8 +131,8 @@ def build() -> Demo:
     scenes.append(
         _slide(
             "dashboard", "Dashboard",
-            "The same demo also exports a self contained HTML player — a real "
-            "dashboard with chapters, captions, and frame by frame navigation.",
+            "The same demo exports an HTML caption and chapter preview with "
+            "per-chunk frame navigation. The HTML preview has no audio track.",
             title="Interactive Player", bg=_ASSETS / "dashboard.png", trigger="player",
         )
     )
@@ -160,12 +159,12 @@ def build() -> Demo:
     render_scene.chunks.append(
         Chunk(
             id="render-c",
-            text="And one command renders a high definition video with a real "
-            "voiceover, then proves it is genuine — real streams, not silent, not "
-            "black.",
+            text="Voiced rendering needs an explicitly selected speech backend. "
+            "Basic verification checks streams, audio energy and picture variance, "
+            "not intelligibility or acoustic word alignment.",
             actions=[Action(ActionType.RUN_COMMAND, {
-                "command": "democreate render demo.json --voice Samantha",
-                "output": "✓ verified: real video + non-silent audio",
+                "command": "democreate render demo.json --tts kokoro --voice af_heart",
+                "output": "Illustrative output — not executed by DemoCreate: verification summary",
             }, trigger_word="renders")],
         )
     )
@@ -175,21 +174,21 @@ def build() -> Demo:
     scenes.append(
         _slide(
             "outro", "Dogfooded",
-            "Declarative, deterministic, and dogfooded. This very video — big text, "
-            "moving waveform, real screenshots — was generated by DemoCreate. Edit "
-            "the file, re render, never record again.",
+            "This authored demonstration uses the same rendering pipeline. Edit "
+            "the artifact and rebuild; inspect outputs and record their source "
+            "and runtime identity before treating them as evidence.",
             title="DemoCreate", subtitle="github.com/docxology/democreate",
             trigger="dogfooded",
         )
     )
 
     return Demo(
-        title="DemoCreate — Declarative Audio-Visual Demos",
+        title="DemoCreate: Declarative Audio-Visual Demos",
         scenes=scenes,
         width=1920,
         height=1080,
         fps=30,
-        voice="Samantha",
+        voice="af_heart",
         metadata={"author": "Daniel Ari Friedman", "self_referential": True},
     )
 

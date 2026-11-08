@@ -1,32 +1,33 @@
 # Claim ledger for DemoCreate.
 # Every numeric or falsifiable claim made in the manuscript, README, or docs is
 # registered here with its value, the gate/experiment that backs it, and a
-# status. Claims are NOT facts until their backing check passes — keep status
-# honest (asserted / verified / estimate). The publish pipeline cross-checks
-# this ledger against domain_profile.yaml validation_gates and
-# experiment_plan.yaml metrics.
+# status. Assertions and planned hypotheses are not measured facts. Historical
+# entries retain earlier reports without asserting current media identity or
+# independent verification. Tests validate structure and referenced declarations;
+# they do not execute every claimed experiment or authenticate artifacts.
 
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.7.1"
+version: "0.8.0"
 
 claims:
   - id: C0
-    claim: "Pure-Python core line coverage is at or above 90%."
+    claim: "Historical core coverage report (2026-07-20); the current gate requires a fresh run."
     value: 90.19
     unit: percent
     direction: ">="
     backed_by: "domain_profile.yaml:validation_gates#coverage_core"
     source: "pyproject.toml [tool.coverage.report] fail_under = 90; measured 90.19% on 2026-07-20"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C1
-    claim: "Median action/narration synchronization error with default backends is within budget."
+    claim: "The default timing heuristic on eligible voiced animated demos meets the proposed acoustic budget; silent audio is ineligible."
     value: 120
     unit: milliseconds
     direction: "<="
-    backed_by: "experiment_plan.yaml:primary_metric#sync_error_ms (condition=default)"
-    source: "tests/narration/test_sync.py synthetic ground-truth alignment"
-    status: estimate
+    backed_by: "experiment_plan.yaml:primary_metric#sync_error_ms (condition=voiced_heuristic)"
+    source: "PLANNED; annotated corpus and empirical results are not available."
+    status: planned
 
   - id: C2
     claim: "Adapter-backed media paths do not increase median sync error relative to default."
@@ -34,11 +35,11 @@ claims:
     unit: milliseconds_delta
     direction: "<="
     backed_by: "experiment_plan.yaml:hypotheses#H2"
-    source: "Corpus benchmark, condition=adapter_media vs default"
-    status: estimate
+    source: "PLANNED; annotated corpus and empirical results are not available."
+    status: planned
 
   - id: C3
-    claim: "Default pipeline output is byte-reproducible across runs with a fixed seed."
+    claim: "Silent-default output is byte-reproducible with fixed inputs, assets, configuration and pinned runtime."
     value: 0
     unit: bytes
     direction: "=="
@@ -52,8 +53,8 @@ claims:
     unit: ms_per_output_s
     direction: "<="
     backed_by: "experiment_plan.yaml:secondary_metrics#render_ms_per_output_s (condition=default)"
-    source: "pipeline_latency_breakdown figure, default condition"
-    status: estimate
+    source: "PLANNED; annotated corpus and empirical results are not available."
+    status: planned
 
   - id: C5
     claim: "Default narration speaking rate."
@@ -79,17 +80,17 @@ claims:
     unit: fraction
     direction: ">="
     backed_by: "experiment_plan.yaml:secondary_metrics#coverage_completeness"
-    source: "schema validation + render pass over corpus"
-    status: estimate
+    source: "PLANNED; annotated corpus and empirical results are not available."
+    status: planned
 
   - id: C8
-    claim: "Demo corpus size used for benchmarking."
+    claim: "Planned minimum demo corpus size; not a measured dataset."
     value: 30
     unit: demos
     direction: ">="
     backed_by: "experiment_plan.yaml:corpus#size"
-    source: "Corpus: codebase_tour, website_walkthrough, terminal_cli_demo (>=10 each)"
-    status: asserted
+    source: "PLANNED; annotated corpus and empirical results are not available."
+    status: planned
 
   # --- v0.6.2: real 4K video render, measured on the self-referential showcase demo ---
   - id: C9
@@ -99,35 +100,39 @@ claims:
     direction: "=="
     backed_by: "examples/democreate_showcase.json via `uv run democreate render --resolution 2160p`"
     source: "ffprobe streams on output/video/demo.mp4: codec_name=h264, width=3840, height=2160, duration 155.6s, 2334 frames at 15fps"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C10
-    claim: "Rendered voiceover is real speech, not digital silence."
+    claim: "Historical audio-energy report exceeds the silence floor; this does not prove speech."
     value: -16.4
     unit: dB_mean_volume
     direction: ">"
     backed_by: "export/verify.py SILENCE_FLOOR_DB (-60 dB) gate"
     source: "democreate verify output/video/demo.mp4: mean_volume_db = -16.4 dB (floor -60), non-silent"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C11
     claim: "Audio and video share one timebase (audio covers the video duration)."
-    value: 0.99998
+    value: 0.9998714653
     unit: audio_to_video_ratio
     direction: ">="
     backed_by: "export/verify.py parse_ffprobe min_audio_ratio"
     source: "ffprobe on output/video/demo.mp4: audio duration 155.58s covers the 155.6s video within the >=0.9 verifier ratio"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C12
     claim: "Sampled frames across the timeline are not black (real picture)."
-    value: 930.1
+    value: 924.0
     unit: grayscale_pixel_variance
     direction: ">"
     backed_by: "export/verify.py BLACK_VARIANCE_FLOOR (5.0)"
     source: "democreate verify output/video/demo.mp4: frame_variance = 924.0, above the 5.0 floor"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C13
     claim: "The animated render produces uniform-cadence frames with a moving waveform."
     value: 15
@@ -135,9 +140,10 @@ claims:
     direction: "=="
     backed_by: "assembly/animator.py render_animation_frames"
     source: "showcase render: uniform-cadence frames with the waveform playhead locked to progress"
-    status: verified
+    status: historical
 
   # --- v0.6.2: research-paper demos + configurability ---
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C14
     claim: "A research paper (PDF + codebase) renders to a verified HD video."
     value: "1920x1080"
@@ -145,17 +151,19 @@ claims:
     direction: "=="
     backed_by: "paper/ subsystem via `democreate paper`"
     source: "actinf 'Policy Entanglement' (170pp PDF, 145 modules) → output/paper_demo/video/demo.mp4 188.0s H.264, verifier ok, -15.5 dB audio"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C15
     claim: "PDF and codebase ingestion needs no pip PDF dependency (poppler CLI default)."
     value: 0
     unit: pip_pdf_dependencies
     direction: "=="
-    backed_by: "paper/pdf.py (pdfinfo/pdftotext/pdftoppm); pdf extra (pymupdf) optional"
+    backed_by: "paper/pdf.py (pdfinfo/pdftotext/pdftoppm); no pdf pip extra exists"
     source: "core paper workflow runs on poppler binaries alone"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C16
     claim: "Render look is configurable via named themes / a RenderConfig YAML."
     value: 5
@@ -163,9 +171,10 @@ claims:
     direction: ">="
     backed_by: "config.py THEMES (noir/dark/light/midnight/paper); --theme / --config"
     source: "RenderConfig.preset + from_yaml round-trip; threaded through renderer/animator/audio"
-    status: verified
+    status: historical
 
   # --- v0.6.2: typing animation, deeper paper extraction, chapter export ---
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C17
     claim: "Code chunks type in character-by-character with live syntax highlighting."
     value: 0.7
@@ -173,8 +182,9 @@ claims:
     direction: "=="
     backed_by: "assembly/animator.py typed_base + VideoConfig.typing_fraction; pipeline _typing_flags"
     source: "showcase code scene mid-type (cursor inside source); test_typing_render_reveals_progressively"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C18
     claim: "Paper extraction recovers the real abstract (not the TOC) plus real figure captions and section structure, NFKC-folded and multi-line-aware."
     value: 6
@@ -182,8 +192,9 @@ claims:
     direction: ">="
     backed_by: "paper/structure.py extract_abstract/figure_captions/sections (_fold_text NFKC + multi-line caption regex)"
     source: "actinf paper: ~1200-char real abstract (demo narration 1220 chars), real 6-part section structure, 6 captioned figures narrated; structure-narrated 12-scene/188.0s verified render (output/paper_demo/video/demo.mp4)"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C19
     claim: "Rendered MP4s carry embedded chapter markers (one per scene)."
     value: 1
@@ -191,9 +202,10 @@ claims:
     direction: "=="
     backed_by: "export/chapters.py to_ffmetadata + embed_chapters; pipeline _embed_chapters"
     source: "ffprobe -show_chapters: 15 chapters on the showcase render (15 scenes), 12 on the paper render (12 scenes); YouTube chapter file written"
-    status: verified
+    status: historical
 
   # --- v0.6.2: resolution/quality, on-screen metadata, steganographic provenance ---
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C20
     claim: "Renders support resolution tiers up to 4K with everything scaling to frame height."
     value: 2160
@@ -201,17 +213,19 @@ claims:
     direction: ">="
     backed_by: "config.py RESOLUTIONS + set_resolution; --resolution"
     source: "democreate render --resolution 1440p → ffprobe 2560x1440; 2160p/4k → 3840x2160; fonts/layout scale"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C21
-    claim: "Default H.264 quality is near-visually-lossless (low CRF)."
+    claim: "Historical configured H.264 CRF, not a measured visual-quality score."
     value: 18
     unit: x264_crf
     direction: "<="
     backed_by: "config.py VideoConfig.crf default; encode_frame_sequence/assemble_video pass -crf"
     source: "ffmpeg -crf 18 -preset medium on every encode (was x264 default ~23)"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C22
     claim: "Rendered MP4s carry container metadata tags readable by ffprobe/players."
     value: 3
@@ -219,18 +233,20 @@ claims:
     direction: ">="
     backed_by: "export/metadata.py build_tags + embed_tags; pipeline _embed_provenance"
     source: "ffprobe format_tags on a metadata render: title, artist, comment present"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C23
-    claim: "A signed provenance payload is steganographically embedded and verifies, tamper-evident."
+    claim: "Unsigned poster JSON supports a Demo-digest consistency check, not authentication or pixel/video identity."
     value: 1
     unit: boolean
     direction: "=="
     backed_by: "export/stego.py embed/extract/verify_provenance (LSB in lossless poster PNG); content digest excludes render state"
     source: "verify_provenance True vs original demo, False vs retitled demo; democreate stego CLI"
-    status: verified
+    status: historical
 
   # --- v0.6.2: no-crop information-dense layout ---
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C24
     claim: "No on-screen information is cropped: backgrounds fit-contain, code autosizes, Ken Burns off."
     value: 1
@@ -238,9 +254,10 @@ claims:
     direction: "=="
     backed_by: "capture/screen.py _draw_background (min-scale contain) + _autosize_code/_wrap_code_rows; VideoConfig.ken_burns=False"
     source: "test_nocrop_layout: wide-figure edge stripes survive; long code line not clipped; re-rendered architecture diagram + paper colorbar fully visible"
-    status: verified
+    status: historical
 
   # --- v0.7.0: project-summary generator, portfolio batch, wired neural voice ---
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C25
     claim: "The project-summary generator is byte-deterministic: identical facts produce an identical demo."
     value: 0
@@ -248,8 +265,9 @@ claims:
     direction: "=="
     backed_by: "narration/project_summary.py generate_project_summary_demo (pure, no clock/RNG/network)"
     source: "tests/narration/test_project_summary.py::test_determinism_byte_identical"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C26
     claim: "`democreate portfolio` renders one content-verified summary video per project under a directory."
     value: 1.0
@@ -257,8 +275,9 @@ claims:
     direction: "=="
     backed_by: "portfolio.py render_portfolio + export/verify.py; the portfolio index ok_count"
     source: "real run over a directory of repositories: every produced MP4 passes verify_video (real/non-silent/non-black) and is listed in output/portfolio_index.json; one project's failure is isolated, not fatal"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C27
     claim: "Kokoro neural TTS renders a content-verified MP4 fully locally (no cloud, no API key)."
     value: 1
@@ -266,8 +285,9 @@ claims:
     direction: "=="
     backed_by: "narration/tts.py KokoroTTSBackend (kokoro-onnx) → render_video verify"
     source: "democreate render --tts kokoro --voice af_heart: verifier ok=True, non-silent audio; model resolved from local cache via `democreate fetch-voice`"
-    status: verified
+    status: historical
 
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
   - id: C28
     claim: "`democreate tour REPO --render` produces a content-verified MP4 from a repository in one command."
     value: 1
@@ -275,4 +295,52 @@ claims:
     direction: "=="
     backed_by: "cli.py tour --render → Pipeline + render_video verify"
     source: "democreate tour scripts --render --voice Samantha: 95.9s H.264+AAC, verifier ok"
+    status: historical
+    evidence_note: "Earlier report retained; original artifact identity is unrecorded and no current 0.8.0 verification is asserted. Reviewed 2026-11-07."
+
+  # Candidate engineering observations: not the planned acoustic study.
+  - id: C29
+    claim: "An identified Kokoro af_heart candidate MP4 passes structural/content-presence checks; no intelligibility or acoustic-onset claim."
+    value: "3840x2160"
+    unit: pixels
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#canonical_media"
+    source: "2026-11-08 bounded offline render; source, model, MP4 and decoded-frame identities retained."
     status: verified
+    receipt: "data/release-0.8.0.json#canonical"
+  - id: C30
+    claim: "Observed median of five consecutive synthetic silent-starter builds in one recorded environment; not cold-process startup."
+    value: 19.2
+    unit: ms
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#source_bound_starter_benchmark"
+    source: "2026-11-08 Python 3.15.2 macOS arm64; raw first timed build included; no historical improvement comparison."
+    status: verified
+    receipt: "data/benchmarks-0.8.0.json#build"
+  - id: C31
+    claim: "Observed whole-render wall-clock throughput for one synthetic silent starter, normalized by probed encoded-video duration."
+    value: 233.9
+    unit: ms_per_encoded_output_second
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#source_bound_starter_benchmark"
+    source: "2026-11-08 1080p/15fps; ffprobe duration outside timer, verify=False; not isolated compositing or a voiced-corpus result."
+    status: verified
+    receipt: "data/benchmarks-0.8.0.json#render"
+  - id: C32
+    claim: "The configured pure-core line/branch coverage gate passed on the identified candidate source; designated heavy paths remain excluded."
+    value: 90.47
+    unit: percent
+    direction: ">="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "917 passed and 12 skipped; current run source binding and exclusions retained in data/release-0.8.0.json."
+    status: verified
+    receipt: "data/release-0.8.0.json#core_validation"
+  - id: C33
+    claim: "Two same-input builds in the same core-only environment produced identical bytes in every generated core file."
+    value: 0
+    unit: bytes_delta
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#byte_reproducible"
+    source: "Actual frame/audio/caption/HTML/transcript/Demo/manifest file inventories compared; not cross-host or neural-model determinism."
+    status: verified
+    receipt: "data/release-0.8.0.json#core_reproducibility"

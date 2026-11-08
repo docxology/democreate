@@ -19,7 +19,7 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
   `importlib.util.find_spec(...)` or `shutil.which(...)`.
 - Two paths are genuinely heavy and carry `# pragma: no cover`:
   - `video.export_video` → needs the `ffmpeg` binary
-    (`BackendUnavailableError("ffmpeg", extra="video")`).
+    (`BackendUnavailableError("ffmpeg")`; install the native system binary).
   - `formats.export_pdf` → needs a Markdown→PDF engine
     (`BackendUnavailableError("pdf", extra="docs")`).
   Their backend-detection helpers (`ffmpeg_available`, `_has_pdf_engine`) stay pure

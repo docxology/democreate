@@ -17,15 +17,26 @@ simple ``image2`` demuxer, and — since the per-chunk durations come from the
 
 from __future__ import annotations
 
+import math
+from collections import OrderedDict
+from copy import copy
 from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
+
+from PIL import Image
 
 from .._logging import get_logger, log_stage
 from ..animation.waveform import compute_envelope, draw_waveform
 from ..capture.screen import waveform_band_box
-from ..media import AudioClip
+from ..media import AudioClip, FrameState
+from ..schema import ActionType
+from .compositor import TimelineEntry
 
-__all__ = ["AnimationConfig", "chunk_timing", "active_index_at", "render_animation_frames"]
+__all__ = [
+    "AnimationConfig", "chunk_timing", "frame_hold_durations", "active_index_at",
+    "render_animation_frames",
+]
 
 logger = get_logger(__name__)
 
@@ -49,6 +60,8 @@ class AnimationConfig:
         transition_ms: Crossfade duration in milliseconds.
         ken_burns: Slow zoom on flagged (slide/background) frames.
         ken_burns_zoom: Peak Ken Burns zoom factor.
+        typing: Interpolate code characters; when false, scheduled code appears
+            complete at its action timestamp without changing other durations.
     """
 
     fps: int = 15
@@ -69,6 +82,23 @@ class AnimationConfig:
     typing_fraction: float = 0.7
     cursor: bool = True
 
+    def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Reject timing values that cannot match a fixed-cadence audio render."""
+        for name in ("fps", "bars"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        _validate_padding(self.lead_ms, self.gap_ms, self.trail_ms)
+        if not isinstance(self.transition_ms, int) or self.transition_ms < 0:
+            raise ValueError("transition_ms must be a nonnegative integer")
+        if not math.isfinite(self.typing_fraction) or not 0 < self.typing_fraction <= 1:
+            raise ValueError("typing_fraction must be finite and in (0, 1]")
+        if not math.isfinite(self.ken_burns_zoom) or self.ken_burns_zoom < 1:
+            raise ValueError("ken_burns_zoom must be finite and at least 1")
+
     @classmethod
     def from_video(cls, video, theme=None, audio=None) -> AnimationConfig:
         """Build animation settings from video (+ optional theme/audio) config."""
@@ -81,7 +111,6 @@ class AnimationConfig:
             "ken_burns": video.ken_burns,
             "ken_burns_zoom": video.ken_burns_zoom,
             "typing": getattr(video, "typing", True),
-            "typing_fraction": getattr(video, "typing_fraction", 0.7),
             "cursor": getattr(video, "cursor", True),
         }
         if theme is not None:
@@ -93,6 +122,13 @@ class AnimationConfig:
             kwargs["gap_ms"] = audio.gap_ms
             kwargs["trail_ms"] = audio.trail_silence_ms
         return cls(**kwargs)
+
+
+def _validate_padding(lead_ms: int, gap_ms: int, trail_ms: int) -> None:
+    """Enforce the same nonnegative integer silence contract in every consumer."""
+    for name, value in (("lead_ms", lead_ms), ("gap_ms", gap_ms), ("trail_ms", trail_ms)):
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(f"{name} must be a nonnegative integer")
 
 
 def chunk_timing(
@@ -118,6 +154,7 @@ def chunk_timing(
     Returns:
         ``(windows, total_ms)`` — ``total_ms`` includes lead/gaps/trail.
     """
+    _validate_padding(lead_ms, gap_ms, trail_ms)
     windows: list[tuple[int, int]] = []
     cursor = lead_ms
     for i, clip in enumerate(clips):
@@ -127,6 +164,30 @@ def chunk_timing(
         windows.append((cursor, end))
         cursor = end
     return windows, cursor + trail_ms
+
+
+def frame_hold_durations(
+    clips: list[AudioClip], *, lead_ms: int = 0, gap_ms: int = 0, trail_ms: int = 0
+) -> list[int]:
+    """Return static frame holds aligned to measured speech and padded audio.
+
+    Args:
+        clips: Measured narration clips, one per representative still.
+        lead_ms: Silence held on the first still before its speech.
+        gap_ms: Silence held on each still before the next spoken start.
+        trail_ms: Silence held on the last still after its speech.
+
+    Returns:
+        One hold per clip, summing to the complete padded audio duration. No
+        clips produce no holds. Padding validation is shared with chunk_timing.
+    """
+    windows, total_ms = chunk_timing(
+        clips, lead_ms=lead_ms, gap_ms=gap_ms, trail_ms=trail_ms
+    )
+    if not windows:
+        return []
+    boundaries = [0, *(start for start, _end in windows[1:]), total_ms]
+    return [end - start for start, end in pairwise(boundaries)]
 
 
 def active_index_at(windows: list[tuple[int, int]], t_ms: int) -> int:
@@ -199,6 +260,47 @@ def _draw_overlays(frame, meta, title: str, section: str, t_ms: int,
         draw_footer(frame, info, accent=accent)
 
 
+class _BaseFrames:
+    """Retain only the active and previous full-resolution input frames."""
+
+    def __init__(self, paths: list[Path]) -> None:
+        self.paths = paths
+        self.images: OrderedDict[int, Image.Image] = OrderedDict()
+
+    def get(self, index: int) -> Image.Image:
+        from PIL import Image
+
+        if index not in self.images:
+            with Image.open(self.paths[index]) as source:
+                self.images[index] = source.convert("RGB")
+            while len(self.images) > 2:
+                self.images.popitem(last=False)
+        self.images.move_to_end(index)
+        return self.images[index]
+
+
+class _StateFrames:
+    """Cache at most one scheduled render for each of two active chunks."""
+
+    def __init__(self, size: tuple[int, int], theme=None) -> None:
+        from ..capture.screen import SyntheticRenderer
+
+        self.renderer = SyntheticRenderer(theme)
+        self.size = size
+        self.images: OrderedDict[
+            int, tuple[FrameState, Image.Image]
+        ] = OrderedDict()
+
+    def get(self, index: int, state: FrameState) -> Image.Image:
+        cached = self.images.get(index)
+        if cached is None or cached[0] != state:
+            self.images[index] = (state, self.renderer.render(state, self.size))
+            while len(self.images) > 2:
+                self.images.popitem(last=False)
+        self.images.move_to_end(index)
+        return self.images[index][1]
+
+
 def render_animation_frames(
     frame_paths: list[Path],
     clips: list[AudioClip],
@@ -210,10 +312,13 @@ def render_animation_frames(
     scene_ids: list[str] | None = None,
     kenburns_flags: list[bool] | None = None,
     frame_states: list | None = None,
+    timeline_entries: list[TimelineEntry] | None = None,
     typing_flags: list[bool] | None = None,
     theme=None,
     overlay_meta=None,
     demo_title: str = "",
+    draw_captions: bool = True,
+    rerender_states: bool = True,
 ) -> tuple[list[Path], int]:
     """Render uniform-cadence animated frames with motion: typing, cursor, waveform.
 
@@ -236,8 +341,19 @@ def render_animation_frames(
         kenburns_flags: Per-chunk Ken Burns flag.
         frame_states: Per-chunk :class:`~democreate.media.FrameState`; required to
             re-render typing/cursor frames (falls back to the static base without it).
+        timeline_entries: Scheduled scene states from ``Timeline.entries``. When
+            present, action timestamps/durations replace chunk-wide typing;
+            ``config.typing=False`` reveals complete code at its trigger, leaving
+            other action durations unchanged. The ``state`` stills remain
+            representative snapshots only.
         typing_flags: Per-chunk flag; ``True`` types that chunk's code in.
         theme: Theme used when re-rendering typing frames.
+        draw_captions: Draw captions from re-rendered states. The pipeline disables
+            this so only its explicitly selected SRT is burned. This cannot erase
+            text already present in caller-provided raster input frames.
+        rerender_states: When false, preserve supplied raster content instead of
+            replacing it with the synthetic state renderer. State metadata can
+            still drive cursor/caption overlays.
 
     Returns:
         ``(animated_frame_paths, total_ms)``.
@@ -248,12 +364,15 @@ def render_animation_frames(
     from PIL import Image, ImageDraw
 
     cfg = config or AnimationConfig()
+    cfg.validate()
     if not frame_paths or not clips:
         raise ValueError("render_animation_frames needs frames and clips")
     if len(frame_paths) != len(clips):
         raise ValueError(
             f"frames ({len(frame_paths)}) and clips ({len(clips)}) must match"
         )
+    if timeline_entries is not None and len(timeline_entries) != len(clips):
+        raise ValueError("timeline_entries and clips must match")
 
     width, height = size
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -265,71 +384,62 @@ def render_animation_frames(
     kb = kenburns_flags or [False] * n
     typing = typing_flags or [False] * n
 
-    envelope = compute_envelope(voiceover_wav, cfg.bars) if voiceover_wav.exists() else []
+    envelope = (
+        compute_envelope(voiceover_wav, cfg.bars)
+        if cfg.waveform and voiceover_wav.exists() else []
+    )
     band = waveform_band_box(width, height)
     # Progress bar lives at the absolute top edge — the one zone no chrome,
     # content, or background image occupies — so it can never overlap them.
     bar_h = max(3, int(height * 0.006))
     bar_y = 0
 
-    bases = [Image.open(p).convert("RGB") for p in frame_paths]
+    bases = _BaseFrames(frame_paths)
+    rendered = _StateFrames(size, theme) if rerender_states else None
 
-    # Lazily build a renderer for typing re-renders; cache rendered states.
-    renderer = None
-    typing_cache: dict[tuple[int, int], object] = {}
+    def playback_state(idx: int, t_ms: int) -> FrameState | None:
+        if timeline_entries is not None:
+            state = timeline_entries[idx].state_at_ms(t_ms, typing=cfg.typing)
+        elif frame_states is not None and idx < len(frame_states):
+            state = copy(frame_states[idx])
+            if cfg.typing and idx < len(typing) and typing[idx]:
+                start, end = windows[idx]
+                total = sum(len(line) for line in state.code_lines)
+                fraction = max(0.0, (t_ms - start) / max(1, end - start))
+                state.cursor_typed = int(
+                    total * min(1.0, fraction / cfg.typing_fraction)
+                )
+        else:
+            return None
+        if not draw_captions:
+            state.caption = ""
+        return state
 
-    def total_chars(idx: int) -> int:
-        if frame_states is None or idx >= len(frame_states):
-            return 0
-        return sum(len(line) for line in getattr(frame_states[idx], "code_lines", []))
-
-    def typed_base(idx: int, t_ms: int):
-        """Re-render chunk ``idx`` with code typed to the current progress."""
-        nonlocal renderer
-        assert frame_states is not None  # total_chars() returning >0 guarantees frame_states.
-        start, end = windows[idx]
-        total = total_chars(idx)
-        if total == 0:
-            return bases[idx]
-        win = max(1, end - start)
-        frac = max(0.0, (t_ms - start) / win) / max(0.01, cfg.typing_fraction)
-        typed = int(total * min(1.0, frac))
-        key = (idx, typed)
-        cached = typing_cache.get(key)
-        if cached is None:
-            if renderer is None:
-                from ..capture.screen import SyntheticRenderer
-
-                renderer = SyntheticRenderer(theme)
-            import copy as _copy
-
-            state = _copy.copy(frame_states[idx])
-            state.cursor_typed = typed
-            cached = renderer.render(state, size)
-            typing_cache[key] = cached
-        return cached
+    def content_base(idx: int, t_ms: int):
+        if rendered is None:
+            return bases.get(idx)
+        state = playback_state(idx, t_ms)
+        scheduled = timeline_entries is not None
+        reveal = cfg.typing and idx < len(typing) and typing[idx]
+        if state is None or not (scheduled or reveal):
+            return bases.get(idx)
+        return rendered.get(idx, state)
 
     def composed_base(idx: int, t_ms: int):
-        """Base frame for chunk ``idx`` at ``t_ms`` with typing/Ken Burns/crossfade."""
+        """Build a bounded blend from scheduled content, not a final snapshot."""
         start, end = windows[idx]
-        if cfg.typing and idx < len(typing) and typing[idx] and frame_states is not None:
-            return typed_base(idx, t_ms).copy()
-        cur = bases[idx]
+        cur = content_base(idx, t_ms)
         if cfg.ken_burns and idx < len(kb) and kb[idx]:
             cur = _ken_burns(cur, t_ms - start, end - start, cfg.ken_burns_zoom)
         if (
-            cfg.transitions and scene_ids is not None and idx > 0
+            cfg.transitions and cfg.transition_ms > 0
+            and scene_ids is not None and idx > 0
             and scene_ids[idx] != scene_ids[idx - 1]
             and t_ms - start < cfg.transition_ms
         ):
-            alpha = (t_ms - start) / max(1, cfg.transition_ms)
-            cur = Image.blend(bases[idx - 1], cur, alpha)
+            alpha = max(0.0, min(1.0, (t_ms - start) / cfg.transition_ms))
+            cur = Image.blend(content_base(idx - 1, t_ms), cur, alpha)
         return cur.copy()
-
-    def cursor_xy_for(idx: int):
-        if frame_states is None or idx >= len(frame_states):
-            return None
-        return getattr(frame_states[idx], "cursor_xy", None)
 
     total_frames = max(1, int(round(total_ms / 1000 * cfg.fps)))
     written: list[Path] = []
@@ -351,16 +461,26 @@ def render_animation_frames(
                     bar_color=cfg.bar_color, played_color=cfg.played_color,
                 )
             if cfg.cursor:
-                xy = cursor_xy_for(idx)
+                state = playback_state(idx, t_ms)
+                xy = state.cursor_xy if state is not None else None
                 if xy is not None:
-                    start, end = windows[idx]
-                    rip = max(0.0, 1.0 - (t_ms - start) / 600) if t_ms - start < 600 else 0.0
+                    trigger = windows[idx][0]
+                    if timeline_entries is not None:
+                        clicks = [
+                            action.timestamp_ms for action in timeline_entries[idx].actions
+                            if action.type == ActionType.CLICK
+                            and action.timestamp_ms is not None
+                            and action.timestamp_ms <= t_ms
+                        ]
+                        trigger = max(clicks) if clicks else t_ms - 600
+                    elapsed = t_ms - trigger
+                    rip = 1.0 - elapsed / 600 if 0 <= elapsed < 600 else 0.0
                     _draw_cursor(draw, xy, height / 1080, ripple=rip,
                                  accent=cfg.accent_color)
             if overlay_meta is not None and (overlay_meta.header or overlay_meta.footer):
+                state = playback_state(idx, t_ms)
                 _draw_overlays(frame, overlay_meta, demo_title,
-                               getattr(frame_states[idx], "section", "")
-                               if frame_states else "",
+                               state.section if state is not None else "",
                                t_ms, total_ms, cfg.accent_color)
             out = out_dir / f"anim_{k:05d}.png"
             frame.save(out, format="PNG")

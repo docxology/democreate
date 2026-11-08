@@ -35,11 +35,10 @@ Pure math plus one Pillow op.
 | `build_code_scene_spec(code, *, title="", language="python")` | `dict` | **Pure**, JSON-serializable line-by-line reveal description (title, code, language, ordered `steps` with `start_ms`/`duration_ms`, `total_duration_ms`). No manim required. |
 | `render_manim_scene(spec, out_path)` | `Path` | **Guarded** real render. Raises `BackendUnavailableError("manim", extra="animation")` when manim is absent. Marked `# pragma: no cover`. |
 
-### `fonts.py` — scaled TrueType font resolution
-Pure font loading/scaling on Pillow (a core dep). Resolves a usable TrueType face
-and scales it to the frame height so type stays crisp at any resolution
-(`load_font` / `scaled_font` / font-path resolution helpers), falling back to
-`ImageFont.load_default()` when no system face is found.
+### `fonts.py` — scaled, bundled TrueType font
+`load_font` / `scaled_font` use `ImageFont.load_default(size=...)` exclusively.
+The scalable face ships with Pillow; installed OS fonts cannot alter default
+rendering. Byte comparisons require the same Pillow/FreeType build.
 
 ### `waveform.py` — speech-waveform scrubber
 Pure envelope computation + drawing for the moving speech waveform overlaid on

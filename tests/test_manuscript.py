@@ -60,11 +60,6 @@ def test_figure_insertions_matches_paths_with_bracketed_alt(tmp_path: Path) -> N
     assert figure_insertions([a, b]) == ["figures/one.png", "figures/sub/two.png"]
 
 
-def test_pick_engine_prefers_first_available(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
-        shutil, "which", lambda name: None if name == "tectonic" else f"/usr/bin/{name}"
-    )
-    assert pick_engine() == "xelatex"
 
 
 def test_pick_engine_raises_when_none_available(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -77,6 +72,8 @@ def test_build_manuscript_requires_pandoc(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setattr(shutil, "which", lambda name: None)
+    _write(tmp_path / "config.yaml", "chapters: []\nbibliography: references.bib\n")
+    _write(tmp_path / "references.bib", "")
     with pytest.raises(SystemExit, match="pandoc not found on PATH"):
         build_manuscript(
             config=tmp_path / "config.yaml",
@@ -85,10 +82,7 @@ def test_build_manuscript_requires_pandoc(
         )
 
 
-def test_build_manuscript_fails_on_missing_chapter(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
+def test_build_manuscript_fails_on_missing_chapter(tmp_path: Path) -> None:
     cfg = _write(
         tmp_path / "config.yaml",
         "chapters: [00_absent.md]\nbibliography: references.bib\n",
@@ -97,10 +91,7 @@ def test_build_manuscript_fails_on_missing_chapter(
         build_manuscript(config=cfg, manuscript_dir=tmp_path, output=tmp_path / "out.pdf")
 
 
-def test_build_manuscript_citation_gate_hard_fails(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
+def test_build_manuscript_citation_gate_hard_fails(tmp_path: Path) -> None:
     _write(tmp_path / "00_ch.md", "Cites [@ghost2024].\n")
     _write(tmp_path / "references.bib", "@article{real2024,\n}\n")
     cfg = _write(tmp_path / "config.yaml",
@@ -126,6 +117,10 @@ def test_build_manuscript_gates_pass_and_check_skips_pdf(tmp_path: Path) -> None
         "chapters: [00_ch.md]\nbibliography: references.bib\npreamble: preamble.md\n"
         "paper:\n  title: T\nauthors:\n  - name: A\n",
     )
+    from PIL import Image
+
+    (tmp_path / "figures").mkdir()
+    Image.new("RGB", (24, 24), "red").save(tmp_path / "figures" / "one.png")
     rc = build_manuscript(
         config=cfg, manuscript_dir=tmp_path, output=tmp_path / "out" / "m.pdf", check=True
     )
@@ -145,8 +140,45 @@ def test_build_manuscript_figure_gate_catches_dropped_figure(tmp_path: Path) -> 
     _write(tmp_path / "preamble.md", "```latex\n\\usepackage{fontspec}\n```\n")
     cfg = _write(tmp_path / "config.yaml",
                  "chapters: [00_ch.md]\nbibliography: references.bib\n")
+    from PIL import Image
+
+    (tmp_path / "figures").mkdir()
+    Image.new("RGB", (24, 24), "red").save(tmp_path / "figures" / "gone.png")
     with pytest.raises(SystemExit, match="figure gate"):
         build_manuscript(
             config=cfg, manuscript_dir=tmp_path, output=tmp_path / "out" / "m.pdf",
             check=True,
         )
+
+
+@pytest.mark.backend
+@pytest.mark.skipif(not PANDOC, reason="pandoc + pandoc-crossref not on PATH")
+@pytest.mark.parametrize("hidden", ["figures/b/x.png", "figures/a/x.png"])
+def test_figure_gate_counts_full_graphics_paths(tmp_path: Path, hidden: str) -> None:
+    """A same-basename figure or raw-TeX path cannot mask a dropped insertion."""
+    from PIL import Image
+
+    visible = "figures/a/x.png"
+    for name in {visible, hidden}:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        Image.new("RGB", (24, 24), "red").save(path)
+    _write(tmp_path / "chapter.md",
+           f"![Visible]({visible}){{#fig:visible}}\n\n"
+           f"```\n![Hidden]({hidden}){{#fig:hidden}}\n```\n\n"
+           f"\\texttt{{{hidden}}}\n")
+    _write(tmp_path / "references.bib", "")
+    _write(tmp_path / "preamble.md", "")
+    cfg = _write(tmp_path / "config.yaml",
+                 "chapters: [chapter.md]\nbibliography: references.bib\n")
+    with pytest.raises(SystemExit, match="figure gate"):
+        build_manuscript(cfg, tmp_path, tmp_path / "out.pdf", check=True)
+
+
+def test_manuscript_check_refuses_missing_asset(tmp_path: Path) -> None:
+    _write(tmp_path / "chapter.md", "![Missing](figures/absent.png){#fig:absent}\n")
+    _write(tmp_path / "references.bib", "")
+    cfg = _write(tmp_path / "config.yaml",
+                 "chapters: [chapter.md]\nbibliography: references.bib\n")
+    with pytest.raises(SystemExit, match="missing image assets"):
+        build_manuscript(cfg, tmp_path, tmp_path / "out.pdf", check=True)

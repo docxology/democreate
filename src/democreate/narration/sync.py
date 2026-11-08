@@ -1,20 +1,9 @@
-"""TTS->STT synchronization: anchoring actions to real spoken word timestamps.
+"""Measure clip windows and estimate word/action times from supplied narration.
 
-This module closes the loop opened by :mod:`democreate.narration.tts`. Given the
-real audio that TTS produced, a :class:`Transcriber` derives per-word
-:class:`~democreate.schema.WordTimestamp` objects, and :func:`sync_demo` uses
-them to assign every action an absolute millisecond timestamp anchored to its
-``trigger_word``.
-
-The default :class:`HeuristicTranscriber` is deterministic and stdlib-only: it
-reads each WAV's *true* duration via :mod:`wave` and distributes word timings
-across that duration proportional to word length. The optional
-:class:`WhisperTranscriber` is a guarded adapter slot for a future real speech
-recognition integration behind the ``whisper`` extra.
-
-Because the silent default backend writes audio whose duration encodes the
-estimated narration length, the heuristic transcriber yields stable, sensible
-timings end-to-end with zero heavy dependencies.
+The default HeuristicTranscriber reads WAV duration and distributes known words
+by character length. It does not detect acoustic word onsets. sync_demo mutates
+its supplied working Demo; Pipeline passes an isolated copy of authored input.
+WhisperTranscriber is an unwired optional slot, not enabled recognition.
 """
 
 from __future__ import annotations
@@ -27,7 +16,7 @@ from pathlib import Path
 from .._logging import get_logger
 from ..errors import BackendUnavailableError, SyncError
 from ..media import AudioClip
-from ..schema import Demo, WordTimestamp
+from ..schema import ActionType, Demo, WordTimestamp
 
 __all__ = [
     "Transcriber",
@@ -150,7 +139,7 @@ class HeuristicTranscriber(Transcriber):
 
 
 class WhisperTranscriber(Transcriber):
-    """Whisper STT transcriber (optional, requires the ``whisper`` extra).
+    """Unwired Whisper adapter slot; installing its dependency is insufficient.
 
     Args:
         model: Whisper model size identifier (e.g. ``"base"``).
@@ -169,7 +158,7 @@ class WhisperTranscriber(Transcriber):
     def transcribe(  # pragma: no cover - requires whisper
         self, audio_path: Path, text: str | None = None
     ) -> list[WordTimestamp]:
-        """Transcribe with Whisper (only runs when ``whisper`` is installed)."""
+        """Refuse unavailable or unwired Whisper transcription explicitly."""
         if not _dep_available("whisper"):
             raise BackendUnavailableError("whisper", extra="whisper")
         raise NotImplementedError("WhisperTranscriber real transcription not yet wired")
@@ -280,16 +269,28 @@ def sync_demo(
             duration_ms = _wav_duration_ms(Path(chunk.audio_path))
         else:
             duration_ms = _FALLBACK_DURATION_MS
+        chunk.duration_ms = duration_ms
 
+        sequence_ms = chunk.start_ms
         for action in chunk.actions:
-            offset_ms = 0
-            if action.trigger_word:
-                match = _match_word(action.trigger_word, words)
-                if match is not None:
-                    offset_ms = match.start_ms
-            action.timestamp_ms = chunk.start_ms + offset_ms
             if action.duration_ms is None:
                 action.duration_ms = _DEFAULT_ACTION_DURATION_MS
+            authored = (
+                action.timestamp_ms is not None
+                and action.timestamp_source == "authored"
+                and not action.trigger_word
+            )
+            if not authored:
+                timestamp = sequence_ms
+                if action.trigger_word:
+                    match = _match_word(action.trigger_word, words)
+                    timestamp = chunk.start_ms + (match.start_ms if match else 0)
+                action.timestamp_ms = timestamp
+                action.timestamp_source = "sync"
+            if action.type == ActionType.WAIT:
+                sequence_ms = max(
+                    sequence_ms, (action.timestamp_ms or 0) + action.duration_ms
+                )
 
         cumulative_ms += duration_ms
 

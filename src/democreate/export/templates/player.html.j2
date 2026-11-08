@@ -150,25 +150,24 @@ const frameEl = document.getElementById("frame");
 const chapterBtns = Array.from(document.querySelectorAll(".chapter"));
 
 function currentCueIndex(t) {
-  let idx = 0;
+  let idx = -1;
   for (let i = 0; i < CAPTIONS.length; i++) {
     if (CAPTIONS[i].start_ms <= t) idx = i;
   }
-  return CAPTIONS.length ? idx : -1;
+  return idx;
 }
 
 function render() {
   const idx = currentCueIndex(timeMs);
-  if (idx >= 0) {
-    const cue = CAPTIONS[idx];
-    captionEl.textContent = cue.text;
-    if (frameEl && FRAMES_DIR && cue.frame) {
-      frameEl.src = FRAMES_DIR + "/" + cue.frame;
-    }
-    chapterBtns.forEach((b) => b.classList.remove("active"));
-    const active = chapterBtns.filter((b) => Number(b.dataset.start) <= timeMs).pop();
-    if (active) active.classList.add("active");
+  const cue = idx >= 0 ? CAPTIONS[idx] : null;
+  captionEl.textContent = cue && timeMs < cue.end_ms ? cue.text : "";
+  const frameCue = cue || CAPTIONS[0];
+  if (frameCue && frameEl && FRAMES_DIR && frameCue.frame) {
+    frameEl.src = FRAMES_DIR + "/" + frameCue.frame;
   }
+  chapterBtns.forEach((b) => b.classList.remove("active"));
+  const active = chapterBtns.filter((b) => Number(b.dataset.start) <= timeMs).pop();
+  if (active) active.classList.add("active");
   clockEl.textContent = (timeMs / 1000).toFixed(1) + "s";
 }
 

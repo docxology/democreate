@@ -8,17 +8,60 @@ resolves to the latest archived release.
 
 ## [Unreleased]
 
+Candidate **0.8.0** — pending publication.
+
+The pre-existing blocking ≤120 ms acoustic-sync criterion remains pending/unmet;
+no annotated corpus/oracle or passing research receipt is available. Candidate
+release/manuscript readiness is not established.
+
+No release date or new version archive DOI is asserted. The concept DOI currently
+resolves to archived 0.6.2, not this candidate.
+
+### Compatibility
+
+- Schema 1.1 intentionally rejects schema 1.0 (no shim). Optional measured
+  chunk duration drives playback after sync; narration WAVs use numbered
+  `chunk_NNNN.wav` names rather than chunk-ID filenames.
+  Action timing origin is persisted: authored absolute times survive re-sync,
+  while derived times refresh after narration edits. WAIT and recorded discrete
+  inputs retain their timing through the complete pipeline.
+- Python floor is 3.11.5 and Pillow floor is 13. Host font discovery APIs are
+  removed; rendering uses Pillow’s bundled font. The unused `pdf` extra is
+  removed; PDF ingestion needs poppler OS binaries.
+  String enums now use Python 3.11 `StrEnum`; `str(member)` yields its on-disk
+  value rather than the former qualified enum name.
+- Example backgrounds are relative to the Demo file directory and staged into
+  the selected workspace; only the chosen asset root/generated assets may be read.
+  CLI `--asset-root` supports replaying a resolved bundle without widening
+  authority implicitly. Generated backgrounds are atomically staged.
+- `Pipeline.run` / `build_demo` now leave authored input unchanged; callers read
+  resolved audio/timing/assets from `PipelineResult.demo`. This permits reuse in
+  another workspace without leaking authority to the first workspace.
+- Explicit compositor rasters survive animation instead of being discarded.
+  Only default composition uses scheduled synthetic frame regeneration.
+- Config loaders reject unknown fields. Removed high-level
+  `video.typing_fraction`; author `Action.duration_ms` instead. The direct,
+  snapshot-only animator API retains its separate fraction control.
+- Unsupported acoustic-onset/authentication claims corrected. Corpus/120 ms
+  hypotheses remain planned; historical figures/results are not current receipts.
+- Figure generation uses committed local paper input and root-relative outputs.
+  Portfolio script now rejects invalid directories and zero-success batches;
+  benchmark output records raw wall-clock samples and source/input/runtime identity.
+- Prose/test-count/default-copy consistency tests removed in favor of structured
+  ledger/evidence-reference validation. No current suite count is embedded in
+  generated stat cards.
+
+
 ### Changed
 
 - **CI currency** — `actions/checkout@v7`, `actions/setup-python@v7`,
-  `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.10–3.14
-  (matching the declared classifiers).
+  `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.11–3.15.
 - Docs drift: the README subsystem table no longer claims a `pdf` extra for
   `paper/` (poppler on `PATH`, no pip extra — as `docs/backends.md` already
   said), the localized showcase cuts are described as rendered-on-demand rather
   than committed (`output/` is gitignored), `docs/translation.md` is linked from
   the docs hub again, and `docs/README.md` carries the re-verified collected-test
-  count (776, 2026-10-25).
+  gate description rather than a current collection count.
 
 ### Added
 - **`.humos/` sidecar contract** — DemoCreate now carries a HumOS sidecar
@@ -27,6 +70,35 @@ resolves to the latest archived release.
   integration.
 
 ### Fixed
+- Scheduled replay preserves scene/file state, partial typing and terminal
+  completion; animated typing toggles do not change unrelated event durations.
+  Captions clear in lead/gap/trail silence and use measured clip windows.
+- Output namespaces reject symlinks, chunk IDs cannot escape audio paths,
+  stale frame files are excluded, and repository excerpts cannot follow external links.
+- Exact frame sequences and real subtitle burning are enforced; provenance
+  binds additional authored content but remains unsigned and does not authenticate carriers.
+- Scholarly claims distinguish heuristic timing, historical results and actual
+  evidence. Unverified VSpeak attribution and unsupported peer-superiority
+  claims are removed; moved code-video-generator provenance is corrected.
+- Corrupt backgrounds now fail instead of silently producing a blank illustration.
+  Player/static base PNGs no longer bake narration text; the video caption flag
+  controls actual SRT burning. Removed the obsolete core-renderer placeholder path.
+- Interrupted model transfers cannot occupy the final cache name or replace a
+  concurrent publisher. Transport completion is not model authentication.
+- Native PDF tests now create controlled two-page files instead of depending on
+  an unavailable hardcoded private-machine paper.
+- Static subtitle evaluation now occurs at output-frame times, so short cues
+  inside held images appear and clear correctly. The paused HTML preview shows
+  its first frame during leading silence instead of a broken image.
+- Build metadata requires setuptools ≥84.2.1. The Python patch floor removes
+  legacy lock partitions carrying setuptools 81 / optional Torch 2.12 advisories;
+  no Demo/PDF input route to those advisory mechanisms was established.
+- Current engineering observations retain raw source-bound starter timings and
+  digest-checked decoded stills from the real Kokoro `af_heart` 2160p render.
+  Timing cards no longer compare incompatible units on a common bar scale;
+  throughput uses measured encoded-video duration rather than planned timeline.
+- Preflight reports dependency presence, not optional-backend readiness. Modern
+  SPDX license metadata removes deprecated build declarations without hiding warnings.
 
 - **`AudioConfig.rate_wpm` is now wired** — `get_tts_backend` gained a
   `rate_wpm` keyword, threaded from the render config in `render`, `tour`,
@@ -83,7 +155,7 @@ resolves to the latest archived release.
 - **`Demo.from_dict` refuses foreign `schema_version`** — loading an artifact
   stamped with any other version used to succeed silently while unknown future
   fields were dropped; it now raises `SchemaValidationError` naming both
-  versions. The current `SCHEMA_VERSION` (`"1.0"`) round-trips unchanged.
+  versions. The candidate schema is now 1.1; prior 1.0 inputs require migration.
 - **`AsciicastRecording.from_json` raises `CaptureError`** on empty,
   malformed-header, or malformed-event recordings (previously a raw
   `ValueError`/`JSONDecodeError`), wiring the exported-but-never-raised
@@ -96,8 +168,8 @@ resolves to the latest archived release.
 - **`docs/manuscript/figures/graphical_abstract.py` runs again** — the
   `manuscript/` → `docs/manuscript/` migration left its repo-root anchor one
   level short (it resolved `docs/docs/_videoframes`), so the cover was not
-  regenerable; the committed cover and the showcase stat-card still are
-  re-rendered at the current test count (753).
+  regenerable. Earlier re-render notes reported a suite-count refresh; those
+  images are now explicitly historical and not current run evidence.
 
 
 ### Changed

@@ -1,14 +1,11 @@
 # Animated video render
 
-`democreate render` (and `democreate paper`) turn a built demo into a real HD
-MP4 with a spoken voiceover. By default the render is **animated**, not a
-slideshow: the still per-chunk frames are re-sampled onto a fixed
-`animation_fps` and overlaid with motion — a character-by-character typing
-reveal, an animated cursor, a moving speech waveform, a top-edge progress line,
-and scene crossfades — that makes the video feel alive while staying perfectly
-locked to the audio. (Ken Burns is available but **off by default**: a slow zoom
-crops content off the frame edges, which the no-crop fit-contain layout exists to
-prevent — see [below](#ken-burns-off-by-default).)
+`democreate render` uses measured narration clip windows and a scheduled action
+stream. A spoken MP4 requires a usable real TTS plus ffmpeg/ffprobe; the default
+silent backend is not spoken narration. Animated export uses a fixed
+`animation_fps`, waveform/progress overlays and optional transitions. Word/action
+positions remain heuristic estimates, not detected acoustic onsets. Contain
+fitting does not prevent explicit camera zoom or overlays from hiding content.
 
 The default theme is **noir**: near-black surfaces, bright-white text, and a
 single refined red as the only chroma (the played waveform, the cursor, code
@@ -23,17 +20,16 @@ The pipeline stage is `render_video()` in `pipeline.py`; the animation itself is
 
 ## Why frames stay locked to audio
 
-The compositor emits exactly **one still frame per narration chunk** — correct
-but static. `render_video` enforces a one-to-one frame↔clip count (mismatch is a
-`RenderError`), then holds each frame for its clip's **measured** duration. The
-concatenated voiceover shares the same timebase by construction, so there is no
-drift. The animator re-samples this timeline onto `animation_fps`: every output
-frame is a `1/fps` slice, which encodes cleanly with ffmpeg's `image2` demuxer.
+The compositor emits one representative still per narration chunk.
+`render_video` requires a one-to-one frame/clip count. Default animated rendering
+replays action states on the measured clip timebase; explicitly selected custom
+compositors retain their supplied raster content rather than being replaced by
+the synthetic renderer. State metadata may still drive cursor overlays.
 
-`chunk_timing()` lays out per-chunk spoken `(start_ms, end_ms)` windows from the
-measured clip durations, reserving the same `lead_ms` / `gap_ms` / `trail_ms`
-silence that the voiceover uses (from [`AudioConfig`](audio.md)) — so the frame
-timeline and the audio timeline match millisecond-for-millisecond.
+Clip windows and voiceover use the same configured lead/gap/trailing silence.
+Encoded video is quantized to output frames; container/video/audio durations can
+differ by a frame or codec padding. A shared planned timebase is not a measured
+acoustic-alignment guarantee.
 
 ## What the animator draws on each frame
 
@@ -49,16 +45,9 @@ For each instant, on top of the active chunk's base content frame:
   up to the current time is lit (`wave_played`) and a playhead sweeps across.
   The envelope is computed once from the voiceover WAV
   (`animation/waveform.py::compute_envelope`).
-- **Progress bar** — a thin progress line pinned to the **absolute top edge** of
-  the frame (`y=0`, ~6 px) showing overall progress. It sits above all content so
-  it never overlaps the picture; it previously sat ~58 px down and clipped the top
-  of figures and diagrams. In the default **noir** theme it is drawn in the single
-  red accent.
-- **Ken Burns** (off by default) — when explicitly enabled, a slow center zoom on
-  *flagged* frames only: slide scenes and any scene with a full-frame
-  `background_image` (diagrams, screenshots, PDF pages). Code/terminal frames are
-  never zoomed, where a drift would clip text. Peak zoom is `ken_burns_zoom`
-  (default `1.06`). See [Ken Burns, off by default](#ken-burns-off-by-default).
+- **Progress bar** — a top-edge overlay (`y=0`), which can cover source pixels.
+- **Ken Burns** (off by default) — optional zoom on flagged slide/background
+  frames. Explicit camera actions are separate and can also crop editor content.
 - **Scene crossfade** — at a scene boundary (the chunk's `scene_id` differs from
   the previous chunk's), the new frame fades in from the previous scene's frame
   over `transition_ms` (default 450 ms).
@@ -69,23 +58,22 @@ flags, and `result.timeline` supplies the per-chunk `FrameState`s.
 
 ## Typing animation
 
-Instead of showing a code block all at once, the animator types it in
-character-by-character. A chunk is flagged for typing when its scene is an
-**editor** (`codebase`) view, it has **no full-frame background**, and it carries
-a `type_code` or `create_file` action (`pipeline._typing_flags()`). For a flagged
-chunk, `render_animation_frames()` re-renders that chunk's `FrameState` at a
-progressively larger `cursor_typed` — pygments highlights the code as each
-character appears — so the editor frame literally types the code in.
+Normal pipeline typing follows each `create_file` / `type_code` action's trigger
+and `duration_ms`, not a fraction of the narration chunk. With `video.typing:
+false`, complete code appears at its trigger while unrelated event durations
+remain unchanged. A trigger is estimated from known text, not recognized speech.
 
-The reveal is paced by `typing_fraction` (default `0.7`): the code finishes
-typing after the first ~70% of the chunk's spoken window, then holds for the
-rest. Re-rendered states are cached by `(chunk index, characters typed)`, so the
-same partially-typed frame is rendered once and reused. Typing requires the
-per-chunk `FrameState`s (passed as `frame_states`); without them the animator
-falls back to the static base frame.
+For example, put this action in a chunk whose narration includes “example”:
 
-Controlled by `VideoConfig.typing` / `typing_fraction` ([config.md](config.md));
-typing is independent of Ken Burns (editor frames are never zoomed).
+```json
+{"type": "type_code", "params": {"code": "print('hello')"},
+ "trigger_word": "example", "duration_ms": 1200}
+```
+
+The high-level `video.typing_fraction` setting has been removed; old YAML is
+rejected. The low-level `AnimationConfig.typing_fraction` remains applicable only
+to snapshot-based calls without scheduled timeline entries. Explicit compositor
+rasters are preserved and are not synthetically retyped.
 
 ## Animated cursor
 
@@ -109,17 +97,15 @@ waveform, the cursor, and crossfades. Enable Ken Burns explicitly (config
 
 ## No-crop layout and slide surfaces
 
-Two renderer invariants keep content intact at any resolution or aspect ratio
-(see [config.md](config.md#layout-no-crop-fit-contain-autosize-code)):
+Base fitting and bounded autosizing aid layout; neither guarantees intact content
+for arbitrary inputs (see [config.md](config.md#layout-no-crop-fit-contain-autosize-code)):
 
-- **Fit-contain backgrounds.** A full-frame `background_image` is scaled by
-  `min(bw/sw, bh/sh)` (the *contain* fit) so the whole image sits inside the
-  content band with a matte frame — never a cover-crop. The **top-edge** progress
-  line (`y=0`) and the matte band mean the picture is never clipped by chrome.
-- **Autosize code.** An editor frame picks the largest legible mono font that fits
-  the *whole* code block (longest line for width, line count for height; cap
-  `0.034 ×` frame height) — code never overflows or gets truncated at the right
-  edge.
+- **Fit-contain backgrounds.** Base images are scaled proportionally into the
+  content rectangle. Camera motion and overlays can still hide pixels.
+- **Autosize code.** Font size is reduced within implementation limits; very long
+  lines, dense code and unsupported glyphs can still overflow or lose detail.
+  Inspect representative encoded frames instead of assuming universal no-crop
+  or font-coverage guarantees.
 
 The animator also renders two packed slide surfaces carried on the
 [`FrameState`](schema.md#related-media-types-media.py): **bullet lists**
@@ -215,10 +201,11 @@ on `render`:
   `animation_fps`.
 - **Static (`--no-animate`).** `assemble_video()` holds each still frame for its
   measured clip duration via an ffmpeg concat demuxer — a slideshow synced to the
-  audio. `--captions` burns the SRT into the picture here (needs libass).
+  audio. In both paths `--captions` burns the SRT (requires libass); base images
+  do not pre-bake narration text, so silence windows stay free of subtitles.
 
 Both paths require **`ffmpeg` on `PATH`** (no pip install needed); absence raises
-`BackendUnavailableError(extra="video")`.
+`BackendUnavailableError` naming ffmpeg, with no fictitious pip extra.
 
 ## Verification
 

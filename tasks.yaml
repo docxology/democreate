@@ -108,11 +108,11 @@ tasks:
     `working/demo_create/` as self-versioned/ignored; no root vendoring was
     performed.'
 - id: dc-6
-  title: v0.7.0 release — translation, portfolio, wired neural TTS
-  status: done
+  title: Versioned repository release — candidate 0.8.0
+  status: blocked
   start: '2026-06-25'
   end: '2026-06-25'
-  progress: 100
+  progress: 0
   milestone: true
   deps:
   - dc-3
@@ -120,6 +120,16 @@ tasks:
   tags:
   - release
   notes: |-
+    Reopened 2026-11-08 UTC: live origin exposes only tag/release v0.6.2.
+    The earlier shipped-v0.7.0 assertion below is not confirmed by remote
+    publication state. Candidate 0.8.0 remains untagged/unpublished; its
+    independently annotated voiced-corpus accuracy gate remains unmet.
+    Engineering evidence 2026-11-08 UTC: 917 passed, 12 skipped, configured
+    coverage 90.47%; Ruff/mypy passed. Fresh core-only wheel/CLI, 25-page
+    manuscript and real Kokoro af_heart 2160p render exercised; see
+    data/release-0.8.0.json. Release remains blocked: no independent acoustic
+    corpus/evaluator result, and the operator's release write class is disabled.
+    Historical work-log assertion, not current evidence:
     Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
     90.19% coverage. ruff clean, mypy clean. New features: translation subsystem
     (localize command), portfolio batch rendering, wired Kokoro neural TTS,

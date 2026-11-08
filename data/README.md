@@ -1,52 +1,38 @@
-# DemoCreate — `data/`
+# Data and claim evidence — candidate 0.8.0
 
-This directory holds the reproducibility and benchmarking data contract for
-**DemoCreate** (import name `democreate`), the declarative, deterministic
-audio-visual demo generator for software (codebase tours, website walkthroughs,
-terminal/CLI demos).
+`claim_ledger.yaml` registers structured claims, values and evidence references.
+Statuses distinguish assertions, estimates, planned studies and historical
+reports; only a specific current passing run receipt can support `verified`.
+Structured tests validate required fields and gate/metric/condition references;
+they do not execute the studies or authenticate media.
 
-It is **inputs + registered claims**, not committed render output. Generated
-demos (HTML player, transcript, poster/GIF, optional MP4, captions, and audio)
-are written to `output/` and are reproducible from the declarative Demo specs
-and available backends — they are not stored here.
+`benchmarks.json` remains a historical aggregate record. Its original source,
+runtime, tool identity and raw samples are absent; it is not current performance
+evidence. Preserve it; the integration owner records fresh measurements separately:
 
-## Contents
-
-| File | Purpose |
-|------|---------|
-| `claim_ledger.yaml` | Every numeric/falsifiable claim (coverage gate, sync-error budget, latency, default wpm, corpus size) with its backing gate or experiment and an honest status. |
-| `benchmarks.json` | Measured build/render benchmark figures (the source the evaluation prose is bound to); regenerate with `scripts/benchmark.py`. |
-| `AGENTS.md` | Operating rules for agents editing or consuming files in this directory. |
-
-## How this directory fits the pipeline
-
-```
-schema.py (declarative Demo)  ──┐
-                                ├─▶ pipeline.py ──▶ media.py ──▶ output/{mp4,gif,html,...}
-backends (capture/narration/    │
-  animation/assembly/export) ───┘
-                                │
-domain_profile.yaml ───────────▶ validation_gates  ◀── referenced by claim_ledger.yaml
-experiment_plan.yaml ──────────▶ metrics (sync_error_ms ↓)  ◀── referenced by claim_ledger.yaml
+```bash
+.venv/bin/python scripts/benchmark.py --output output/wfz/benchmarks-0.8.0.json
 ```
 
-The primary metric is **`sync_error_ms`** (minimize): the time gap between an
-on-screen action and its anchored spoken trigger word after the TTS→STT
-alignment pass. Conditions compared in `experiment_plan.yaml` are `default`
-(pure-Python deterministic backends) vs `high_fidelity` (adapter-backed media
-paths, only where system binaries or guarded adapters are actually wired).
+The observed 2026-11-08 run is integrated as `benchmarks-0.8.0.json`, distinct
+from the historical aggregate. No direct comparison is implied. The default
+output remains `data/benchmarks.json`; pass `--output` explicitly to avoid
+changing tracked data during governed test runs.
 
-## Claim discipline
+The harness records raw build timing samples, source/input SHA-256 identities,
+geometry, runtime/package/tool identities, and accurate wall-clock boundaries.
+SHA-256 identifies recorded bytes for comparison, not an authenticated author.
+Build excludes starter construction and includes validation/TTS/sync/frames/exports.
+Render covers the full `render_video(..., verify=False)` call, not isolated
+compositing compute. Silent-audio timestamp sanity is not acoustic accuracy.
 
-A registered claim is **not** a fact. Each entry in `claim_ledger.yaml` carries
-a `status` (`asserted` / `verified` / `estimate`) and a `backed_by` pointer to
-the gate or experiment that can confirm it. Do not promote a claim to
-`verified` without a passing check, and do not cite a ledger value in the
-manuscript without referencing its claim id.
+The ≥30-demo independently annotated corpus, ≤120 ms median-error hypothesis,
+condition comparisons, baselines and ablations remain **PLANNED**, separate from
+engineering release checks in `domain_profile.yaml`.
 
-## Consistency
-
-Title, version (`0.7.1`), keywords, author, and license are kept identical
-across `CITATION.cff`, `codemeta.json`, and `.zenodo.json` at the project root.
-If you bump the version or retitle, update all three plus `claim_ledger.yaml`
-and `experiment_plan.yaml` together.
+`release-0.8.0.json` records exercised engineering gates, source bindings, the
+actual Kokoro candidate MP4 identity, decoded-frame hashes, toolchain, core-only
+byte comparison, coverage exclusions and explicit publication blockers. It is
+not an authenticated signature, a passing acoustic study or a release record.
+Decoded frame times are requested ffmpeg seek offsets, not independently
+annotated presentation/event onsets.

@@ -1,9 +1,8 @@
 {
   "title": "DemoCreate: Declarative Audio-Visual Demo Generation for Software",
-  "description": "<p>DemoCreate generates audio-visual demos of software &mdash; codebase tours, website walkthroughs, and terminal/CLI demos &mdash; from a single declarative, deterministic spine. A Demo is an ordered action stream plus narration chunks, merging CodeVideo's event-sourced virtual-IDE model with VSpeak's chunk/trigger model. Every heavy backend (TTS via Kokoro/Chatterbox, transcription via Whisper, capture via mss/Playwright, animation via Manim, assembly via MoviePy/ffmpeg) sits behind an abstract interface with a pure-Python deterministic default, so the package produces a real demo with only light dependencies and upgrades when extras are installed. On-screen actions are anchored to spoken trigger words via TTS&rarr;STT synchronization: narration audio is generated, transcribed back to word-level timestamps, and used to align the action stream with the narration.</p>",
+  "description": "<p>DemoCreate generates inspectable demo artifacts from declarative scenes, narration and actions. Kokoro and system TTS are implemented optional voices; ffmpeg is required for MP4. Default synchronization measures clip duration and interpolates known text, not acoustic word onsets. Whisper, Chatterbox and Manim remain unwired slots. Version 0.8.0 is a release candidate pending publication; no final version archive DOI or release date is asserted.</p>",
   "upload_type": "software",
-  "version": "0.7.1",
-  "publication_date": "2026-07-20",
+  "version": "0.8.0",
   "language": "eng",
   "license": "MIT",
   "access_right": "open",
@@ -26,7 +25,7 @@
     "playwright",
     "reproducible",
     "deterministic",
-    "tts-stt-synchronization",
+    "duration-based-narration-timing",
     "virtual-ide"
   ],
   "related_identifiers": [

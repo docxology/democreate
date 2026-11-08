@@ -175,7 +175,7 @@ def embed_tags(mp4_in: Path, mp4_out: Path, tags: dict[str, str]) -> Path:  # pr
         RenderError: If the ffmpeg subprocess exits non-zero.
     """
     if shutil.which("ffmpeg") is None:
-        raise BackendUnavailableError("ffmpeg", extra="video")
+        raise BackendUnavailableError("ffmpeg")
 
     mp4_out.parent.mkdir(parents=True, exist_ok=True)
     cmd: list[str] = ["ffmpeg", "-y", "-i", str(mp4_in)]

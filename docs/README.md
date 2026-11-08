@@ -30,7 +30,7 @@ and self-contained.
 | [audio.md](audio.md) | Voiceover assembly: the system voice, lead/gap/trail silence, `loudnorm` normalization, and fades. |
 | [paper.md](paper.md) | The research-paper workflow end-to-end: real abstract / figure captions / sections, PDF pages, figures, and a codebase become narrated scenes. |
 | [translation.md](translation.md) | The `localize` workflow: audio in one language, subtitles in another, via `IdentityTranslator` (deterministic no-op, the library default) or `OllamaTranslator` (a local `ollama` server), with sidecar `.srt`/`.vtt` output. |
-| [provenance.md](provenance.md) | The provenance/metadata story: on-screen top/bottom metadata bars, MP4 container tags (`ffprobe`), and the signed steganographic provenance in lossless PNG sidecars (`democreate stego` to verify). |
+| [provenance.md](provenance.md) | The provenance/metadata story: on-screen top/bottom metadata bars, MP4 container tags (`ffprobe`), and the unsigned steganographic provenance in lossless PNG sidecars (`democreate stego` to verify). |
 | [backends.md](backends.md) | Every subsystem mapped to its deterministic default, the optional extra (or zero-pip system binary) that upgrades it, plus optional LLM narration and the chapters / metadata / poster exports. |
 | [api.md](api.md) | **Generated** API reference (public classes + functions per module) — regenerate with [`scripts/generate_api_docs.py`](../scripts/generate_api_docs.py). |
 | [AGENTS.md](AGENTS.md) | Operating rules for agents in this repo: thin orchestrators, no-mock tests, ≥90% core coverage, deterministic defaults, no top-level heavy imports. |
@@ -48,33 +48,32 @@ and self-contained.
   docs here describe intent and contracts; the tests enforce them — ≥90% core coverage is a hard gate, and the
   collected test count is command-verifiable at any time:
   `.venv/bin/python -m pytest --collect-only -q | tail -1`
-  (776 collected, verified 2026-10-25).
+  (historical collection snapshot recorded 2026-10-25; not a current gate result).
 
 ## The three load-bearing ideas (one paragraph each)
 
 1. **Declarative spine.** All content is a single `Demo` artifact — scenes →
    chunks → actions (typed `Action`s plus narration `Chunk`s). Rendering is a
    pure function of the artifact, so you edit the `Demo` and re-render rather than
-   re-record. This merges CodeVideo's event-sourced virtual-IDE model with
-   VSpeak's chunk/trigger narration model.
+   re-record. It combines CodeVideo's event-sourced virtual IDE with narration
+   organized into chunks and word triggers.
 
-2. **Backends behind interfaces.** Every heavy capability — TTS, transcription,
-   screen capture, browser drive, animation, video assembly, PDF reading — sits
-   behind an abstract base class with a pure-Python deterministic default. The
-   default carries the whole pipeline to a real, inspectable result with no heavy
-   binaries required; the highest-value upgrades (real voice, real video, PDF)
-   are **zero-pip system binaries** (`say`/`espeak`, `ffmpeg`, poppler).
+2. **Backends behind interfaces.** The core writes silent WAVs, synthetic frames,
+   captions, manifests and an HTML player with light dependencies. Native speech,
+   MP4 and PDF ingestion separately require `say`/`espeak`, ffmpeg and poppler.
+   Optional model/browser/capture adapters have their own prerequisites; guarded
+   slots are not implementations.
 
-3. **TTS → STT synchronization.** Narration audio is generated, then transcribed
-   back to word-level timestamps; each on-screen `Action` anchors to a spoken
-   `trigger_word`, and each frame is held for its clip's *measured* duration.
-   Real audio is the single source of timing truth.
+3. **Duration-based synchronization.** Generated clip durations drive playback.
+   The default transcriber interpolates known text; it does not measure acoustic
+   word onsets. Whisper is unimplemented even when its dependency is installed.
+   The ≥30-demo corpus and ≤120 ms median-error hypothesis remain planned.
 
 ## Prior art
 
 DemoCreate stands on a line of demo-generation and recording tools:
-[CodeVideo](https://github.com/codevideo), VSpeak, asciinema, termtosvg,
-Recordly, [code-video-generator](https://github.com/sleuth-io/code-video-generator),
-Code2Video, and Paper2Video. See [architecture.md](architecture.md) for how the
-spine reconciles the event-sourced and chunk/trigger lineages, and
+[CodeVideo](https://docs.codevideo.io/overview/), asciinema, termtosvg,
+[code-video-generator](https://github.com/sleuth-io/code-video-generator),
+Code2Video and Paper2Video. See [architecture.md](architecture.md) for the
+spine and duration-based narration model, and
 [paper.md](paper.md) for the research-paper branch.

@@ -20,34 +20,33 @@ of modules at the package root:
 | `portfolio.py` | `render_portfolio` / `render_project` / `collect_project_facts` / `discover_projects` — a thin orchestration sibling of `pipeline.py` that turns a directory of repositories into one timestamped, content-verified summary video per project. Builds each demo via `narration.project_summary.generate_project_summary_demo` (a deterministic README + AST "describing" generator) and renders it through `pipeline`. |
 | `cli.py` | The `democreate` Typer app — a thin layer over `pipeline`, `portfolio`, and the subsystems. |
 
-### The declarative model, in two lineages
+### The declarative model
 
 - **CodeVideo's event-sourced virtual-IDE model.** A `Demo`'s content is an
   ordered stream of typed `Action`s mutating a virtual environment (editor,
   terminal, browser, camera). The same stream re-renders to any output format.
-- **VSpeak's chunk/trigger model.** Narration is grouped into `Chunk`s, and each
-  `Action` carries an optional `trigger_word` that anchors it to a spoken word so
-  the sync engine can assign a millisecond timestamp from *real* TTS audio rather
-  than guessing timing in advance.
+- **Chunk/trigger narration.** Narration is grouped into `Chunk`s. Each `Action`
+  may name a `trigger_word`; the default engine estimates its time from text and
+  measured clip duration. It does not detect spoken-word onsets.
 
-The merge of these two is what makes DemoCreate's spine distinctive: content is
-event-sourced (CodeVideo) *and* narration-anchored (VSpeak) in one artifact.
+Explicit authored absolute times survive sync. Derived times carry
+`timestamp_source="sync"` and refresh when narration changes.
 
 ## The subsystems
 
-Each subsystem directory carries its own `README.md` and `AGENTS.md`. Every heavy
-capability has a pure-Python **deterministic default**; optional extras (or
-zero-pip system binaries) upgrade it (see [backends.md](backends.md)).
+Each subsystem directory carries its own `README.md` and `AGENTS.md`. The core
+defaults need no model/browser/media binaries. Native speech, MP4 and PDF
+ingestion have separate prerequisites (see [backends.md](backends.md)).
 
 | Subsystem | Owns | Default backend(s) | Upgrade |
 |-----------|------|--------------------|---------|
 | `capture/` | Frame rendering and recording terminal/browser/input sessions. | `SyntheticRenderer` (scaled TrueType fonts + pygments highlighting + themes), `NullBrowserDriver`, pure event model. | `capture`, `browser`, `replay` |
-| `narration/` | Script generation, TTS, and TTS→STT sync. | `TemplateScriptGenerator`, `SilentTTSBackend` (and zero-pip `SystemTTSBackend`), `HeuristicTranscriber`. | `say`/`espeak` (OS), `tts`, `whisper` |
+| `narration/` | Script generation, TTS, duration-based word estimates. | `TemplateScriptGenerator`, `SilentTTSBackend`, `HeuristicTranscriber`; optional native `SystemTTSBackend`. | `say`/`espeak` (OS), `tts`, `whisper` |
 | `animation/` | Scaled fonts, speech waveform, architecture diagrams, manim specs. | `fonts.py`, `waveform.py`, `diagram.py`, JSON manim spec. | `animation` |
 | `codebase/` | AST traversal, visualization, and import-dependency graphs. | stdlib `ast`. | `codebase` |
 | `assembly/` | Timeline build, compositing, captions, audio assembly, timed-frame animation. | `ManifestCompositor`, pure SRT/VTT/ASS, `audio.py` (stdlib `wave` concat), `animator.py`. | ffmpeg (audio/video), `video` |
 | `export/` | Turn the spine + frames + audio into deliverables, then verify. | Jinja2 HTML player, Markdown/JSON/chapters, ffmpeg-argv builder. | ffmpeg/ffprobe (`video`) |
-| `paper/` | Read a research-paper PDF and build a paper demo. | `pdf.py` (poppler CLI), `extract.py`, `script.py`. | poppler (`pdf`) |
+| `paper/` | PDF ingestion and paper demos. | poppler CLI (`pdfinfo`, `pdftotext`, `pdftoppm`). | OS binaries; no `pdf` pip extra |
 
 The look (`Theme`), sound (`AudioConfig`), and motion (`VideoConfig`) of a render
 are governed by a single `RenderConfig` (`config.py`), threaded through the
@@ -55,13 +54,15 @@ pipeline, renderer, and animator — see [config.md](config.md).
 
 ## Data flow
 
-A build threads the `Demo` through every stage. The `Demo` is mutated in place
-(audio paths, timestamps) and every artifact lands in the `Workspace`. The
-`build` command stops at the HTML player; `render` (and `paper`) continue through
-the animated render, encode, and content verification.
+A build enriches an isolated copy of the authored `Demo`; the caller's value
+remains reusable. Read measured timing and staged asset references from
+`PipelineResult.demo`. Artifacts land in the selected `Workspace`. Explicit
+compositors retain their raster content during animated export; default
+composition supports scheduled per-action re-rendering. `build` stops at the
+HTML preview; `render` continues through encoding and basic verification.
 
 ```
-script? -> validate -> TTS -> TTS->STT sync -> timeline
+script? -> validate -> stage assets -> TTS -> duration-based sync -> timeline
         -> compose (frames + manifest) -> captions -> player/transcript/json
 render: -> voiceover (gaps/normalize/fade) -> animate (waveform/transitions/kenburns)
         -> encode (ffmpeg) -> verify (real/non-silent/non-black)
@@ -107,16 +108,14 @@ The paper branch produces a normal `Demo`, so it flows through the very same
 TTS → sync → animate → encode → verify pipeline as a software demo — see
 [paper.md](paper.md).
 
-## Why TTS → STT, not timing-by-guess
+## Measured clip durations, heuristic word timing
 
-Synthesizing narration first and then transcribing it back to word-level
-timestamps means timing is derived from the *actual* audio that will play. An
-`Action` anchored to a `trigger_word` lands exactly when that word is spoken,
-across any TTS voice and pace. The deterministic default makes this loop run with
-no heavy deps: `SilentTTSBackend` emits silent clips of the estimated duration,
-and `HeuristicTranscriber` produces evenly-spaced word timestamps — so the whole
-synchronization mechanism is exercised and testable before any external neural
-TTS or STT adapter is used.
+`SilentTTSBackend` writes actual WAVs; speech backends measure their generated
+clips. `HeuristicTranscriber` interpolates known words by character length over
+that duration. This is not acoustic recognition, and trigger timing does not
+necessarily coincide with speech. Installing Whisper does not provide a working
+recognizer: its adapter remains unimplemented. The annotated ≥30-demo/≤120 ms
+study is planned, separate from structural timestamp tests.
 
 ## Determinism as a design constraint
 

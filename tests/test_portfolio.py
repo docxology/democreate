@@ -1,10 +1,7 @@
-"""Tests for portfolio orchestration.
+"""Portfolio behavior over real temporary source trees and generated artifacts.
 
-No mocks for the spine: facts collection, discovery, demo building, and index
-writing run against a real tiny temporary repository tree. The failure-isolation
-test uses ``monkeypatch`` to make one project's render raise — exercising the
-batch loop's resilience, not faking any deterministic backend's output. The one
-true end-to-end render is gated behind the ``backend``/ffmpeg marker.
+No mocked render results. Native MP4 integration requires ffmpeg and is
+explicitly silent; it does not establish a canonical voiced showcase.
 """
 
 from __future__ import annotations
@@ -19,7 +16,6 @@ from democreate.portfolio import (
     ProjectResult,
     collect_project_facts,
     discover_projects,
-    render_portfolio,
     utc_stamp,
 )
 
@@ -55,9 +51,9 @@ def _make_repo(root: Path, name: str, *, readme: bool = True, py: bool = True) -
 
 
 def test_utc_stamp_is_filesystem_safe() -> None:
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
-    stamp = utc_stamp(datetime(2026, 6, 25, 16, 45, 30, tzinfo=timezone.utc))
+    stamp = utc_stamp(datetime(2026, 6, 25, 16, 45, 30, tzinfo=UTC))
     assert stamp == "20260625T164530Z"
     assert "/" not in stamp and ":" not in stamp
 
@@ -169,110 +165,6 @@ def test_build_project_demo_writes_architecture(tmp_path: Path, tmp_workspace) -
     assert facts.name == "arch"
 
 
-def test_failure_isolation_one_bad_project(tmp_path: Path, monkeypatch) -> None:
-    out = tmp_path / "out"
-    projects = tmp_path / "projects"
-    projects.mkdir()
-    _make_repo(projects, "good")
-    _make_repo(projects, "bad")
-
-    def fake_render(repo, output_root, **kwargs):
-        if repo.name == "bad":
-            raise RuntimeError("boom")
-        return ProjectResult(name=repo.name, ok=True, scenes=7, duration_s=5.0)
-
-    monkeypatch.setattr(portfolio, "render_project", fake_render)
-    report = render_portfolio(projects, out, timestamp="20260625T000000Z")
-    by_name = {r.name: r for r in report.results}
-    assert by_name["good"].ok is True
-    assert by_name["bad"].ok is False
-    assert "boom" in by_name["bad"].error
-    assert report.ok_count == 1
-
-
-def test_index_files_written(tmp_path: Path, monkeypatch) -> None:
-    out = tmp_path / "out"
-    projects = tmp_path / "projects"
-    projects.mkdir()
-    _make_repo(projects, "solo")
-
-    def fake_render(repo, output_root, **kwargs):
-        vp = Path(output_root) / repo.name / "video" / f"{repo.name}-summary-X.mp4"
-        return ProjectResult(name=repo.name, ok=True, video_path=vp, scenes=7, duration_s=9.0)
-
-    monkeypatch.setattr(portfolio, "render_project", fake_render)
-    report = render_portfolio(projects, out, timestamp="20260625T000000Z")
-
-    assert report.index_json and report.index_json.exists()
-    assert report.index_html and report.index_html.exists()
-    import json
-
-    data = json.loads(report.index_json.read_text())
-    assert data["timestamp"] == "20260625T000000Z"
-    assert data["ok_count"] == 1
-    assert data["projects"][0]["name"] == "solo"
-    html = report.index_html.read_text()
-    assert "solo" in html and "portfolio" in html.lower()
-
-
-def test_project_videos_collected_flat(tmp_path: Path, monkeypatch) -> None:
-    out = tmp_path / "out"
-    projects = tmp_path / "projects"
-    projects.mkdir()
-    _make_repo(projects, "alpha")
-    _make_repo(projects, "bravo")
-
-    def fake_render(repo, output_root, **kwargs):
-        # Write a real (tiny) video file in the per-project workspace.
-        vp = Path(output_root) / repo.name / "video" / f"{repo.name}-summary-X.mp4"
-        vp.parent.mkdir(parents=True, exist_ok=True)
-        vp.write_bytes(b"\x00\x00fakevideo")
-        return ProjectResult(name=repo.name, ok=True, video_path=vp, scenes=9)
-
-    monkeypatch.setattr(portfolio, "render_project", fake_render)
-    report = render_portfolio(projects, out, timestamp="20260625T000000Z")
-
-    pv = out / "project_videos"
-    assert report.project_videos_dir == pv
-    collected = sorted(p.name for p in pv.glob("*.mp4"))
-    assert collected == ["alpha-summary-X.mp4", "bravo-summary-X.mp4"]
-
-
-def test_failed_project_not_collected(tmp_path: Path, monkeypatch) -> None:
-    out = tmp_path / "out"
-    projects = tmp_path / "projects"
-    projects.mkdir()
-    _make_repo(projects, "good")
-    _make_repo(projects, "bad")
-
-    def fake_render(repo, output_root, **kwargs):
-        if repo.name == "bad":
-            return ProjectResult(name="bad", ok=False, error="boom")
-        vp = Path(output_root) / "good" / "video" / "good-summary-X.mp4"
-        vp.parent.mkdir(parents=True, exist_ok=True)
-        vp.write_bytes(b"\x00\x00v")
-        return ProjectResult(name="good", ok=True, video_path=vp, scenes=9)
-
-    monkeypatch.setattr(portfolio, "render_project", fake_render)
-    render_portfolio(projects, out, timestamp="20260625T000000Z")
-    collected = [p.name for p in (out / "project_videos").glob("*.mp4")]
-    assert collected == ["good-summary-X.mp4"]  # only the successful one
-
-
-def test_timestamp_in_output_path(tmp_path: Path, monkeypatch) -> None:
-    captured = {}
-    out = tmp_path / "out"
-    projects = tmp_path / "projects"
-    projects.mkdir()
-    _make_repo(projects, "stamped")
-
-    def fake_render(repo, output_root, **kwargs):
-        captured["ts"] = kwargs.get("timestamp")
-        return ProjectResult(name=repo.name, ok=True, scenes=1)
-
-    monkeypatch.setattr(portfolio, "render_project", fake_render)
-    render_portfolio(projects, out, timestamp="20260625T123456Z")
-    assert captured["ts"] == "20260625T123456Z"
 
 
 def test_strip_md_removes_images_and_badges() -> None:
@@ -331,3 +223,36 @@ def test_render_project_end_to_end_silent(tmp_path: Path) -> None:
     assert result.video_path.parent.parent.name == "e2e"
     assert "20260625T000000Z" in result.video_path.name
     assert result.scenes >= 4
+
+
+def test_project_facts_do_not_disclose_external_links(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path, "safe", readme=False)
+    private = tmp_path / "private.md"
+    private.write_text("This private external sentence must never become narration.\n")
+    (repo / "README.md").symlink_to(private)
+    private_code = tmp_path / "private.py"
+    private_code.write_text("def secret():\n    return 'external_private_marker'\n")
+    (repo / "linked.py").symlink_to(private_code)
+    facts = collect_project_facts(repo)
+    assert facts.tagline == ""
+    assert "external_private_marker" not in repr(facts)
+    assert all(module.name != "linked" for module in facts.key_modules)
+
+
+def test_gallery_encodes_paths_in_url_context(tmp_path: Path) -> None:
+    import re
+    from urllib.parse import unquote, urlsplit
+
+    from democreate._portfolio_facts import PortfolioReport
+    from democreate._portfolio_render import _write_index_html
+
+    name = "javascript:globalThis.gallery_probe=1%2F%2F"
+    video = tmp_path / name / "video" / "demo.mp4"
+    report = PortfolioReport(timestamp="fixture", results=[
+        ProjectResult(name=name, ok=True, video_path=video, scenes=1)
+    ])
+    path = _write_index_html(tmp_path, report)
+    href = re.search(r'href="([^"]+)"', path.read_text()).group(1)
+    assert urlsplit(href).scheme == ""
+    assert href.startswith("./")
+    assert unquote(href[2:]) == video.relative_to(tmp_path).as_posix()

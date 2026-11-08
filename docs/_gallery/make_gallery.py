@@ -54,12 +54,12 @@ def typing_frame() -> None:
 
 
 def paper_figure_frame() -> None:
-    """A paper-figure background slide narrating a real figure caption (paper theme)."""
+    """A synthetic diagram/caption illustration of the paper-theme layout."""
     # Render a stand-in "figure" image, then use it as a full-frame background so
     # the frame looks exactly like a paper-demo figure scene.
     fig = render_architecture_diagram(
         HD,
-        title="Figure 3",
+        title="Synthetic illustration",
         columns=[
             ("Inputs", [DiagramNode(label="observations"), DiagramNode(label="priors")]),
             ("Model", [DiagramNode(label="generative model"), DiagramNode(label="free energy")]),
@@ -73,9 +73,9 @@ def paper_figure_frame() -> None:
     fig.save(fig_path)
     state = FrameState(
         scene_kind=SceneKind.SLIDE,
-        title="Figure 3",
-        section="Figure 3",
-        caption="Figure 3. The agent minimizes expected free energy over a planning horizon.",
+        title="Synthetic illustration",
+        section="Illustration",
+        caption="Synthetic illustration: authored diagram and caption, not PDF evidence.",
         background_image=str(fig_path),
     )
     render_frame(state, HD, theme=THEMES["paper"]).save(OUT / "paper_figure.png")

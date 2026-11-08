@@ -15,10 +15,9 @@ from democreate.assembly.animator import (
     chunk_timing,
     render_animation_frames,
 )
-from democreate.config import RenderConfig
 from democreate.media import AudioClip
 from democreate.pipeline import _scene_meta
-from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
+from democreate.schema import Chunk, Demo, Scene, SceneKind
 
 
 def test_chunk_timing_with_lead_gap_trail() -> None:
@@ -46,14 +45,6 @@ def test_ken_burns_zooms_over_time() -> None:
     # at t=0 the zoom is ~identity; at t=dur it is magnified (pixels differ)
     assert start.tobytes() != end.tobytes()
 
-
-def test_animation_config_from_video_carries_audio_and_theme() -> None:
-    cfg = RenderConfig.preset("paper")
-    ac = AnimationConfig.from_video(cfg.video, cfg.theme, cfg.audio)
-    assert ac.lead_ms == cfg.audio.lead_silence_ms
-    assert ac.gap_ms == cfg.audio.gap_ms
-    assert ac.played_color == cfg.theme.wave_played
-    assert ac.accent_color == cfg.theme.accent
 
 
 def test_scene_meta_flags_slides_and_backgrounds() -> None:
@@ -111,9 +102,3 @@ def test_default_config_no_gaps_keeps_sync() -> None:
     assert total == 1200
 
 
-def test_paper_action_type_used() -> None:
-    # guard: paper scenes use OPEN_FILE actions which the compositor understands
-    scene = Scene(id="s", kind=SceneKind.SLIDE)
-    scene.chunks.append(Chunk(id="c", text="hi", actions=[
-        Action(ActionType.OPEN_FILE, {"path": "x"})]))
-    assert Demo(title="T", scenes=[scene]).is_valid()

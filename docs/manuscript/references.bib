@@ -13,13 +13,6 @@
   note         = {Open-source TypeScript ecosystem modeling an IDE as a deterministic stream of typed actions ("IActions") replayed against a virtual editor, terminal, and file-explorer state machine}
 }
 
-@misc{vspeak2024,
-  author       = {{VSpeak}},
-  title        = {{VSpeak}: Chunk- and Trigger-Based Narration Synchronization for Generated Walkthroughs},
-  howpublished = {Software project documentation},
-  year         = {2024},
-  note         = {Groups narration into chunks and anchors on-screen events to spoken trigger words for audio-driven timing}
-}
 
 @misc{asciinema,
   author       = {Marcin Kulik and {asciinema contributors}},
@@ -37,20 +30,21 @@
   note         = {Python tool rendering terminal recordings to self-contained animated SVG, reusing asciinema's capture model}
 }
 
-@misc{recordly2024,
-  author       = {{Recordly}},
-  title        = {Recordly: Browser-Based Screen and Demo Recording},
-  howpublished = {Commercial screen-recording product},
-  year         = {2024},
-  note         = {Capture-first screencast tool; records real screen pixels rather than synthesizing from a declarative description}
+@misc{screenstudio2026,
+  author       = {Adam Pietrasiak},
+  title        = {{Screen Studio}: Screen Recorder for macOS},
+  howpublished = {\url{https://screen.studio/}},
+  year         = {2026},
+  urldate      = {2026-11-07},
+  note         = {Product documentation accessed 2026-11-07; screen recording with automatic zoom and editing, not a comparative benchmark}
 }
 
 @misc{codevideogenerator2023,
-  author       = {J. Wood and {code-video-generator contributors}},
+  author       = {{code-video-generator contributors}},
   title        = {code-video-generator: Create Code Walkthrough Videos with {Manim}},
-  howpublished = {\url{https://github.com/sleepylemur/code-video-generator}},
+  howpublished = {\url{https://github.com/sleuth-io/code-video-generator}},
   year         = {2023},
-  note         = {Python library generating animated code-walkthrough videos by scripting Manim scenes}
+  note         = {Documentation at https://code-video-generator.readthedocs.io/en/latest/, accessed 2026-11-07, describes animated code and diagrams with synchronized sound}
 }
 
 @article{code2video2025,
@@ -248,7 +242,7 @@
   pages        = {507--517},
   year         = {2019},
   doi          = {10.1109/MSR.2019.00077},
-  note         = {Found that only 24\% of 1.4 million GitHub notebooks could be re-executed and 36\% produced different results}
+  note         = {Studies execution and reproducibility of public Jupyter notebooks; this external study does not validate DemoCreate's reproducibility}
 }
 
 @article{johnson1998stego,
@@ -276,7 +270,7 @@
   title        = {pytest: Full-Featured {Python} Testing Framework},
   year         = {2024},
   url          = {https://docs.pytest.org/},
-  note         = {Version 8.x; de facto standard for Python test automation}
+  note         = {Python test automation framework; the candidate lock selects pytest 9.0.3}
 }
 
 @misc{astral2024uv,

@@ -1,4 +1,4 @@
-"""LSB steganography and signed provenance payloads for lossless frames.
+"""LSB steganography and unsigned content-association records for lossless frames.
 
 This module hides a provenance record inside the least-significant bits of an
 image's R, G, and B channels. The technique embeds one bit per channel per
@@ -16,10 +16,10 @@ expect a provenance payload to round-trip through a rendered ``.mp4``.
 
 The provenance record (see :func:`build_provenance`) carries a SHA-256 of the
 demo's *stable authored content* (via :func:`_content_digest`, excluding
-render-state fields). Because that hash is embedded in the image, the pairing
-is tamper-evident: mutating either the demo or the image breaks
-:func:`verify_provenance`. The payload is plain JSON — this is provenance, not
-encryption; anyone with this module can read it.
+render-state fields). Verification checks only this self-asserted content
+association. It authenticates neither the author nor the carrier image: anyone
+can replace the JSON or copy it into another image, and pixel changes preserving
+the hidden bits still verify. No secret, signature, or image digest is involved.
 """
 
 from __future__ import annotations
@@ -204,18 +204,16 @@ def extract(image: Image.Image) -> bytes:
     return total[_HEADER_BYTES:]
 
 
-def _content_digest(demo) -> str:
+def _content_digest(demo: Demo) -> str:
     """Return a sha256 over the demo's *stable content*, ignoring render state.
 
-    Render mutates the demo (audio paths, synced timestamps), so hashing the full
-    serialization would make a freshly-authored demo fail to verify against the
-    one embedded at render time. This digest covers only the authored content —
-    title, geometry, and the scene/chunk/action structure with narration text and
-    action params, excluding ``audio_path``/``start_ms``/``timestamp_ms``/
-    ``duration_ms`` — so verification is stable.
+    The resolved rendering copy carries audio paths and synced timestamps, so
+    hashing its full serialization would conflate authored content with transient
+    render state. This digest covers only selected authored content:
+    title, geometry, fps, voices, scene context, and the scene/chunk/action
+    structure with narration text and action params. Transient ``audio_path``,
+    ``start_ms``, ``timestamp_ms``, and ``duration_ms`` are excluded.
     """
-    import json as _json
-
     scenes = []
     for scene in demo.scenes:
         chunks = []
@@ -228,12 +226,20 @@ def _content_digest(demo) -> str:
                 }
                 for a in chunk.actions
             ]
-            chunks.append({"id": chunk.id, "text": chunk.text, "actions": actions})
+            chunks.append(
+                {
+                    "id": chunk.id,
+                    "text": chunk.text,
+                    "voice": chunk.voice,
+                    "actions": actions,
+                }
+            )
         scenes.append(
             {
                 "id": scene.id,
                 "title": scene.title,
                 "kind": getattr(scene.kind, "value", str(scene.kind)),
+                "context": scene.context,
                 "chunks": chunks,
             }
         )
@@ -241,9 +247,11 @@ def _content_digest(demo) -> str:
         "title": demo.title,
         "width": demo.width,
         "height": demo.height,
+        "fps": demo.fps,
+        "voice": demo.voice,
         "scenes": scenes,
     }
-    blob = _json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    blob = json.dumps(payload, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
@@ -257,12 +265,11 @@ def build_provenance(
     """Build a JSON-able provenance record for ``demo``.
 
     The record pins the demo to a SHA-256 of its *stable authored content* via
-    :func:`_content_digest` (title, geometry, and the scene/chunk/action structure
-    with narration text and action params) — deliberately EXCLUDING render-state
-    fields (``audio_path``, ``start_ms``, ``timestamp_ms``, ``duration_ms``) so the
-    seal verifies before and after a render. Any later pairing is tamper-evident.
-    No clock is read — any timestamp must be supplied via ``extra`` (e.g. ``date``), which
-    keeps the function pure and deterministic.
+    :func:`_content_digest` (including scene context, fps, and voices), excluding
+    transient audio paths and timing fields so the association is render-stable.
+    This unsigned, self-asserted record is not author or image authentication.
+    No clock is read — timestamps must be supplied via ``extra`` (e.g. ``date``),
+    keeping the function pure and deterministic.
 
     Args:
         demo: The demo to describe.
@@ -352,12 +359,14 @@ def extract_provenance(image: Image.Image) -> dict[str, Any]:
 
 
 def verify_provenance(image: Image.Image, demo: Demo) -> bool:
-    """Return ``True`` iff ``image``'s hidden record matches ``demo``.
+    """Return whether the unsigned hidden content hash matches ``demo``.
 
     The check recomputes :func:`_content_digest` (the stable-content SHA-256, not
     ``demo.to_json()``) and compares it against the ``content_sha256`` stored in
-    the image — so it holds across a render. A mismatch (mutated demo, swapped
-    image) yields ``False``; a missing or corrupt payload also yields ``False``.
+    the image — so it holds across a render. Authored-content mismatches or
+    missing/corrupt payloads yield ``False``. Copied payloads and pixel changes
+    that preserve the hidden bits can still match: neither the author nor the
+    image is authenticated.
 
     Args:
         image: The stego image to verify.

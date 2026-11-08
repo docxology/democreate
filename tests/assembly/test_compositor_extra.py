@@ -1,22 +1,17 @@
-"""Extra coverage for the compositor: every action->FrameState branch and the
-pure-Pillow fallback renderer. Complements tests/assembly/test_compositor.py.
-"""
+"""Action-to-visible-state behavior complementing test_compositor.py."""
 
 from __future__ import annotations
 
-from democreate.assembly.compositor import (
-    ManifestCompositor,
-    _state_for_chunk,
-    build_timeline,
-)
+from democreate.assembly.compositor import build_timeline
 from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
 
 
 def _state(actions, *, kind=SceneKind.CODEBASE, context=None):
     chunk = Chunk(id="c", text="narration here", actions=actions)
-    demo = Demo(title="T", scenes=[Scene(id="s", kind=kind, context=context or {})])
-    demo.scenes[0].chunks.append(chunk)
-    return _state_for_chunk(demo, kind, "Scene Title", context or {}, chunk)
+    demo = Demo(title="T", scenes=[Scene(
+        id="s", title="Scene Title", kind=kind, context=context or {}, chunks=[chunk]
+    )])
+    return build_timeline(demo).entries[0].state
 
 
 def test_base_url_context_sets_url() -> None:
@@ -42,6 +37,42 @@ def test_type_code_appends_lines_list_and_str() -> None:
     assert s.code_lines == ["x=1", "y=2", "z=3"]
     s2 = _state([Action(ActionType.TYPE_CODE, {"code": "single"})])
     assert s2.code_lines == ["single"]
+
+
+def test_recorded_string_fragments_continue_text_at_their_timestamps() -> None:
+    fragments = ["a", "b", "\n", "c", " ", "d", "\t", "e"]
+    actions = [Action(ActionType.CREATE_FILE, {"path": "typed.py"}, timestamp_ms=0)]
+    actions.extend(
+        Action(ActionType.TYPE_CODE, {"code": fragment}, timestamp_ms=(i + 1) * 100)
+        for i, fragment in enumerate(fragments)
+    )
+    demo = Demo(title="Keys", scenes=[Scene(id="s", chunks=[Chunk(
+        id="c", text="type some text", duration_ms=1000, actions=actions
+    )])])
+    entry = build_timeline(demo).entries[0]
+    assert entry.state_at_ms(99).code_lines == []
+    assert entry.state_at_ms(100).code_lines == ["a"]
+    assert entry.state_at_ms(200).code_lines == ["ab"]
+    assert entry.state_at_ms(300).code_lines == ["ab", ""]
+    assert entry.state_at_ms(500).code_lines == ["ab", "c "]
+    assert entry.state_at_ms(800).code_lines == ["ab", "c d\te"]
+    assert entry.state.code_lines == ["ab", "c d\te"]
+
+
+def test_string_typing_duration_reveals_only_new_text() -> None:
+    demo = Demo(title="Text", scenes=[Scene(id="s", chunks=[Chunk(
+        id="c", text="continue", duration_ms=1000, actions=[
+            Action(ActionType.CREATE_FILE, {"path": "a.py", "code": "x="},
+                   timestamp_ms=0),
+            Action(ActionType.TYPE_CODE, {"code": "12\n"},
+                   timestamp_ms=400, duration_ms=300),
+        ],
+    )])])
+    entry = build_timeline(demo).entries[0]
+    assert entry.state_at_ms(399).code_lines == ["x="]
+    assert entry.state_at_ms(500).code_lines == ["x=1"]
+    assert entry.state_at_ms(600).code_lines == ["x=12"]
+    assert entry.state_at_ms(700).code_lines == ["x=12", ""]
 
 
 def test_highlight_lines_list_and_int() -> None:
@@ -97,33 +128,3 @@ def test_build_timeline_guards_backwards_synced_start() -> None:
     assert timeline.entries[1].start_ms >= timeline.entries[0].end_ms
 
 
-def test_fallback_renderer_runs_when_capture_absent(tmp_workspace, monkeypatch) -> None:
-    # Force the core-only fallback path by pretending capture.screen is unavailable.
-    comp = ManifestCompositor(width=320, height=240)
-    monkeypatch.setattr(comp, "_resolve_render_frame", lambda: None)
-    demo = Demo(title="Fallback", scenes=[Scene(id="s", kind=SceneKind.TERMINAL)])
-    demo.scenes[0].chunks.append(
-        Chunk(
-            id="c",
-            text="run it",
-            actions=[Action(ActionType.RUN_COMMAND, {"command": "ls", "output": "a"})],
-        )
-    )
-    timeline = build_timeline(demo)
-    manifest = comp.compose(timeline, tmp_workspace)
-    assert manifest.exists()
-    frames = sorted(tmp_workspace.frames.glob("frame_*.png"))
-    assert frames and all(f.stat().st_size > 0 for f in frames)
-
-
-def test_fallback_renderer_website_and_slide(tmp_workspace, monkeypatch) -> None:
-    comp = ManifestCompositor(width=200, height=150)
-    monkeypatch.setattr(comp, "_resolve_render_frame", lambda: None)
-    for kind, action in (
-        (SceneKind.WEBSITE, Action(ActionType.NAVIGATE, {"url": "https://z.test"})),
-        (SceneKind.SLIDE, Action(ActionType.OPEN_FILE, {"path": "deck"})),
-    ):
-        demo = Demo(title="K", scenes=[Scene(id="s", kind=kind)])
-        demo.scenes[0].chunks.append(Chunk(id="c", text="caption", actions=[action]))
-        comp.compose(build_timeline(demo), tmp_workspace)
-    assert sorted(tmp_workspace.frames.glob("frame_*.png"))

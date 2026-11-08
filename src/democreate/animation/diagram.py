@@ -278,7 +278,7 @@ def democreate_architecture_image(
             "Narration",
             [
                 DiagramNode("TTS", ["silent / system / kokoro"]),
-                DiagramNode("Sync", ["TTS to STT"]),
+                DiagramNode("Sync", ["duration / word estimates"]),
             ],
         ),
         (
@@ -300,7 +300,7 @@ def democreate_architecture_image(
     ]
     return render_architecture_diagram(
         size,
-        title="DemoCreate — Architecture",
+        title="DemoCreate Architecture",
         columns=columns,
         bg=bg,
         accent=accent,

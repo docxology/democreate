@@ -322,8 +322,11 @@ def summarize_module(path: Path) -> ModuleSummary:
     """
     path = Path(path)
     try:
-        source = path.read_text(encoding="utf-8")
-    except OSError as exc:
+        import tokenize
+
+        with tokenize.open(path) as stream:
+            source = stream.read()
+    except (OSError, UnicodeError, SyntaxError) as exc:
         raise DemoCreateError(f"cannot read module {path}: {exc}") from exc
     return summarize_source(source, path=str(path), name=path.stem)
 
@@ -352,7 +355,11 @@ def walk_repository(
     exclude_set = set(exclude)
     summaries: list[ModuleSummary] = []
     for file_path in sorted(root.glob(pattern)):
-        if not file_path.is_file():
+        if (
+            not file_path.is_file()
+            or file_path.is_symlink()
+            or not file_path.resolve().is_relative_to(root.resolve())
+        ):
             continue
         if exclude_set.intersection(file_path.parts):
             continue

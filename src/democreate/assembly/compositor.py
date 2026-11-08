@@ -1,7 +1,7 @@
 """Timeline construction and compositor backends.
 
 The :class:`Timeline` is the pure, central data structure of the assembly
-subsystem: a fully-resolved, gap-free sequence of :class:`TimelineEntry` objects,
+subsystem: a fully-resolved, non-overlapping sequence of :class:`TimelineEntry` objects,
 each pairing an absolute time window with a renderable
 :class:`~democreate.media.FrameState`. :func:`build_timeline` walks a
 :class:`~democreate.schema.Demo` and produces this structure deterministically,
@@ -18,7 +18,8 @@ from __future__ import annotations
 import abc
 import importlib.util
 import json
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -26,7 +27,7 @@ from .._logging import get_logger, log_stage
 from ..errors import BackendUnavailableError, RenderError
 from ..media import FrameState
 from ..project_paths import relativize_under_root
-from ..schema import ActionType, Demo, SceneKind
+from ..schema import Action, ActionType, Demo, SceneKind
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from ..project_paths import Workspace
@@ -45,15 +46,12 @@ __all__ = [
 
 @dataclass
 class TimelineEntry:
-    """One contiguous slice of the timeline.
+    """One narration window, with a final still and scheduled scene playback.
 
-    Attributes:
-        index: Zero-based position of this entry in the timeline.
-        start_ms: Absolute start time (ms from demo start).
-        end_ms: Absolute end time (ms from demo start), exclusive.
-        state: The renderable :class:`~democreate.media.FrameState` for the slice.
-        audio_path: Path to the chunk's narration audio, if any.
-        chunk_id: Id of the source chunk, if this entry maps to one.
+    ``state`` is a representative final snapshot for per-chunk stills, not the
+    state shown throughout animated playback. ``initial_state`` is the scene's
+    opening state; ``actions`` is its shared, absolute-time event stream. Replay
+    starts from that opening state so actions spanning chunks remain in flight.
     """
 
     index: int
@@ -62,6 +60,23 @@ class TimelineEntry:
     state: FrameState
     audio_path: str | None = None
     chunk_id: str | None = None
+    initial_state: FrameState | None = None
+    actions: tuple[Action, ...] = field(default_factory=tuple)
+
+    def state_at_ms(self, t_ms: int, *, typing: bool = True) -> FrameState:
+        """Return an independent scene snapshot at absolute ``t_ms``.
+
+        Events are invisible before their trigger. With ``typing=True``, code
+        interpolates over its duration; otherwise complete code appears at its
+        trigger. Camera/pointer motion and command completion retain their
+        durations in either mode. Untimed entries constructed directly retain
+        their still.
+        """
+        if self.initial_state is None:
+            return deepcopy(self.state)
+        state = _replay(self.initial_state, self.actions, t_ms, typing=typing)
+        state.caption = self.state.caption
+        return state
 
     @property
     def duration_ms(self) -> int:
@@ -78,16 +93,20 @@ class TimelineEntry:
             "state": self.state.to_dict(),
             "audio_path": self.audio_path,
             "chunk_id": self.chunk_id,
+            "initial_state": (
+                self.initial_state.to_dict() if self.initial_state is not None else None
+            ),
+            "actions": [action.to_dict() for action in self.actions],
         }
 
 
 @dataclass
 class Timeline:
-    """A fully-resolved, gap-free render timeline.
+    """A fully-resolved, non-overlapping render timeline.
 
     Attributes:
         entries: Ordered, non-overlapping timeline entries.
-        total_ms: Total runtime (end of the last entry).
+        total_ms: Total runtime, including trailing silence after the last entry.
         fps: Frame rate the timeline will be rendered at.
     """
 
@@ -128,31 +147,11 @@ class Timeline:
         return None
 
 
-def _state_for_chunk(
-    demo: Demo,
-    scene_kind: SceneKind,
-    scene_title: str,
-    scene_context: dict[str, Any],
-    chunk: Any,
+def _scene_state(
+    scene_kind: SceneKind, scene_title: str, scene_context: dict[str, Any]
 ) -> FrameState:
-    """Build the :class:`FrameState` a single chunk renders to.
-
-    The chunk's actions mutate a fresh frame state appropriate to the scene kind:
-    file opens populate an editor frame, ``run_command`` populates a terminal
-    frame, ``navigate`` populates a browser frame, and so on. The chunk text is
-    always carried as the caption.
-
-    Args:
-        demo: The owning demo (unused today, reserved for global context).
-        scene_kind: The kind of the owning scene.
-        scene_title: The owning scene's title (used as a default frame title).
-        scene_context: The owning scene's free-form context dict.
-        chunk: The chunk whose actions shape the frame.
-
-    Returns:
-        A populated :class:`FrameState`.
-    """
-    state = FrameState(scene_kind=scene_kind, title=scene_title, caption=chunk.text)
+    """Construct the opening surface once per scene, without applying events."""
+    state = FrameState(scene_kind=scene_kind, title=scene_title)
 
     if scene_context:
         base_url = str(scene_context.get("base_url", ""))
@@ -175,116 +174,191 @@ def _state_for_chunk(
                 if isinstance(e, (list, tuple)) and len(e) == 2
             ]
 
-    for action in chunk.actions:
-        params = action.params or {}
-        atype = action.type
-        if atype in (ActionType.OPEN_FILE, ActionType.CREATE_FILE):
-            path = str(params.get("path", ""))
-            if path:
-                state.file_path = path
-                state.title = path
-            code = params.get("code")
-            if isinstance(code, str):
-                state.code_lines = code.splitlines() or [code]
-            elif isinstance(code, list):
-                state.code_lines = [str(line) for line in code]
-        elif atype == ActionType.TYPE_CODE:
-            code = params.get("code", "")
-            if isinstance(code, list):
-                new_lines = [str(line) for line in code]
-            else:
-                new_lines = str(code).splitlines() or [str(code)]
-            state.code_lines = state.code_lines + new_lines
-        elif atype == ActionType.HIGHLIGHT_LINES:
-            lines = params.get("lines", [])
-            if isinstance(lines, (list, tuple)):
-                state.highlight_lines = [int(n) for n in lines]
-            elif isinstance(lines, int):
-                state.highlight_lines = [lines]
-        elif atype in (ActionType.RUN_COMMAND, ActionType.PRINT_OUTPUT):
-            if state.scene_kind == SceneKind.CODEBASE:
-                state.scene_kind = SceneKind.TERMINAL
-            command = params.get("command")
-            output = params.get("output")
-            if command is not None:
-                state.terminal_lines = state.terminal_lines + [f"$ {command}"]
-            if output is not None:
-                extra = (
-                    [str(line) for line in output]
-                    if isinstance(output, (list, tuple))
-                    else str(output).splitlines()
-                )
-                state.terminal_lines = state.terminal_lines + extra
-        elif atype == ActionType.NAVIGATE:
-            if state.scene_kind == SceneKind.CODEBASE:
-                state.scene_kind = SceneKind.WEBSITE
-            url = params.get("url")
-            if url:
-                state.url = str(url)
-        elif atype == ActionType.MOVE_MOUSE:
-            xy = params.get("xy") or params.get("position")
-            if isinstance(xy, (list, tuple)) and len(xy) == 2:
-                state.cursor_xy = (int(xy[0]), int(xy[1]))
-        elif atype in (ActionType.ZOOM, ActionType.PAN):
-            scale = params.get("scale")
-            if scale is not None:
-                state.scale = float(scale)
+    return state
 
+
+def _code_lines(value: Any, progress: float) -> list[str]:
+    """Reveal a code payload without hiding previously displayed code."""
+    lines = [str(line) for line in value] if isinstance(value, list) else (
+        str(value).split("\n")
+    )
+    if progress >= 1:
+        return lines
+    text = "\n".join(lines)
+    visible = text[:int(len(text) * progress)]
+    return visible.split("\n") if visible else []
+
+
+def _apply_action(
+    state: FrameState, action: Action, progress: float, files: dict[str, list[str]]
+) -> None:
+    """Apply one triggered event to a private replay state."""
+    params = action.params or {}
+    atype = action.type
+    if atype in (ActionType.OPEN_FILE, ActionType.CREATE_FILE):
+        path = str(params.get("path", ""))
+        state.file_path = path
+        state.title = path
+        if state.scene_kind != SceneKind.SLIDE:
+            state.scene_kind = SceneKind.CODEBASE
+        state.highlight_lines = []
+        code = params.get("code")
+        if isinstance(code, (str, list)):
+            state.code_lines = _code_lines(code, progress)
+        elif atype == ActionType.CREATE_FILE:
+            state.code_lines = []
+        else:
+            state.code_lines = list(files.get(path, []))
+    elif atype == ActionType.TYPE_CODE:
+        if state.scene_kind != SceneKind.SLIDE:
+            state.scene_kind = SceneKind.CODEBASE
+        code = params.get("code", "")
+        if isinstance(code, list):
+            state.code_lines = state.code_lines + _code_lines(code, progress)
+        else:
+            text = str(code)
+            visible = text[:int(len(text) * progress)]
+            content = "\n".join(state.code_lines) + visible
+            state.code_lines = content.split("\n") if content else []
+    elif atype == ActionType.CLOSE_FILE:
+        if str(params.get("path", state.file_path)) == state.file_path:
+            state.file_path = ""
+            state.title = ""
+            state.code_lines = []
+            state.highlight_lines = []
+    elif atype == ActionType.HIGHLIGHT_LINES:
+        lines = params.get("lines", [])
+        if isinstance(lines, (list, tuple)):
+            state.highlight_lines = [int(n) for n in lines]
+        elif isinstance(lines, int):
+            state.highlight_lines = [lines]
+    elif atype in (ActionType.RUN_COMMAND, ActionType.PRINT_OUTPUT):
+        state.scene_kind = SceneKind.TERMINAL
+        command = params.get("command")
+        output = params.get("output")
+        if command is not None:
+            state.terminal_lines = state.terminal_lines + [f"$ {command}"]
+        if output is not None and progress >= 1:
+            extra = (
+                [str(line) for line in output]
+                if isinstance(output, (list, tuple)) else str(output).splitlines()
+            )
+            state.terminal_lines = state.terminal_lines + extra
+    elif atype == ActionType.NAVIGATE:
+        state.scene_kind = SceneKind.WEBSITE
+        if params.get("url"):
+            state.url = str(params["url"])
+    elif atype in (ActionType.MOVE_MOUSE, ActionType.CLICK):
+        xy = params.get("xy") or params.get("position")
+        if isinstance(xy, (list, tuple)) and len(xy) == 2:
+            origin = state.cursor_xy or (int(xy[0]), int(xy[1]))
+            state.cursor_xy = (
+                round(origin[0] + (int(xy[0]) - origin[0]) * progress),
+                round(origin[1] + (int(xy[1]) - origin[1]) * progress),
+            )
+    elif atype in (ActionType.ZOOM, ActionType.PAN):
+        scale = params.get("scale")
+        if scale is not None:
+            state.scale += (float(scale) - state.scale) * progress
+    if state.file_path:
+        files[state.file_path] = list(state.code_lines)
+
+
+def _replay(
+    initial: FrameState, actions: tuple[Action, ...], t_ms: int | None,
+    *, typing: bool = True,
+) -> FrameState:
+    """Replay scene events at a time, or to their final representative state."""
+    state = deepcopy(initial)
+    files: dict[str, list[str]] = {}
+    for action in actions:
+        start = action.timestamp_ms if action.timestamp_ms is not None else 0
+        if t_ms is not None and t_ms < start:
+            break
+        duration = max(0, action.duration_ms or 0)
+        progress = (
+            1.0 if t_ms is None or duration == 0
+            else min(1.0, (t_ms - start) / duration)
+        )
+        if not typing and action.type in (
+            ActionType.OPEN_FILE, ActionType.CREATE_FILE, ActionType.TYPE_CODE,
+        ):
+            progress = 1.0
+        _apply_action(state, action, progress, files)
     return state
 
 
 def build_timeline(
-    demo: Demo, *, fps: int | None = None, wpm: int = 150
+    demo: Demo, *, fps: int | None = None, wpm: int = 150, trail_ms: int = 0
 ) -> Timeline:
-    """Build a gap-free render timeline from a demo (pure, deterministic).
+    """Build measured narration windows and an event-sourced scene timeline.
 
-    Walks scenes then chunks in order. Each chunk becomes exactly one
-    :class:`TimelineEntry`. A chunk's start time is its synced ``start_ms`` when
-    present (post-sync), otherwise the running cumulative estimate. Each entry's
-    duration is the chunk's estimated narration duration. Entries are laid down
-    back-to-back with no gaps, so ``total_ms`` is the end of the last entry.
+    Synced starts retain lead/gap silence and are clamped only to prevent overlap.
+    Each final still includes prior scene events, while scheduled playback replays
+    absolute action timestamps and durations independently of chunk boundaries.
 
     Args:
         demo: The source demo.
         fps: Frame rate for the timeline; defaults to ``demo.fps``.
         wpm: Words-per-minute used to estimate chunk duration when no synced
             timing exists.
+        trail_ms: Silent tail included in total runtime, not subtitle windows.
 
     Returns:
         A resolved :class:`Timeline`.
     """
     use_fps = fps if fps is not None else demo.fps
+    if use_fps <= 0:
+        raise ValueError("fps must be positive")
+    if isinstance(trail_ms, bool) or not isinstance(trail_ms, int) or trail_ms < 0:
+        raise ValueError("trail_ms must be a nonnegative integer")
     entries: list[TimelineEntry] = []
     cursor_ms = 0
     index = 0
 
     with log_stage("build_timeline", logger):
         for scene in demo.scenes:
+            initial = _scene_state(scene.kind, scene.title, scene.context)
+            scene_entries: list[TimelineEntry] = []
+            scene_actions: list[Action] = []
             for chunk in scene.chunks:
-                duration = chunk.estimated_duration_ms(wpm)
-                start = chunk.start_ms if chunk.start_ms is not None else cursor_ms
-                # Guard against synced starts that would create a backwards gap;
-                # never emit overlapping/decreasing entries.
-                if start < cursor_ms:
-                    start = cursor_ms
+                duration = chunk.playback_duration_ms(wpm)
+                start = max(
+                    cursor_ms, chunk.start_ms if chunk.start_ms is not None else cursor_ms
+                )
                 end = start + duration
-                state = _state_for_chunk(
-                    demo, scene.kind, scene.title, scene.context, chunk
-                )
-                entries.append(
-                    TimelineEntry(
-                        index=index,
-                        start_ms=start,
-                        end_ms=end,
-                        state=state,
-                        audio_path=chunk.audio_path,
-                        chunk_id=chunk.id,
+                action_cursor = start
+                for authored in chunk.actions:
+                    action = deepcopy(authored)
+                    if action.timestamp_ms is None:
+                        action.timestamp_ms = action_cursor
+                    action_cursor = max(
+                        action_cursor, action.timestamp_ms + max(0, action.duration_ms or 0)
                     )
+                    scene_actions.append(action)
+                ordered = tuple(sorted(
+                    scene_actions, key=lambda action: action.timestamp_ms or 0
+                ))
+                state = _replay(initial, ordered, None)
+                state.caption = chunk.text
+                entry = TimelineEntry(
+                    index=index, start_ms=start, end_ms=end, state=state,
+                    audio_path=chunk.audio_path, chunk_id=chunk.id,
+                    initial_state=initial,
                 )
+                entries.append(entry)
+                scene_entries.append(entry)
                 cursor_ms = end
                 index += 1
+            # Share one immutable scene event sequence, never rendered images or
+            # mutable snapshots; delayed events can continue into later chunks.
+            actions = tuple(sorted(
+                scene_actions, key=lambda action: action.timestamp_ms or 0
+            ))
+            for entry in scene_entries:
+                entry.actions = actions
 
-    total_ms = entries[-1].end_ms if entries else 0
+    total_ms = entries[-1].end_ms + trail_ms if entries else 0
     return Timeline(entries=entries, total_ms=total_ms, fps=use_fps)
 
 
@@ -310,19 +384,17 @@ class ManifestCompositor(Compositor):
 
     Writes ``render_manifest.json`` (the full :meth:`Timeline.to_dict`) into
     ``workspace.manifests`` and one representative PNG per timeline entry into
-    ``workspace.frames``. Frame rendering is delegated to
-    ``democreate.capture.screen.render_frame`` when that module is importable;
-    otherwise a built-in Pillow fallback renders a simple labelled placeholder so
-    the default path always produces real images with only core dependencies.
+    ``workspace.frames``. The required core synthetic renderer writes captionless
+    base images; timed HTML cues or explicit SRT burning supply narration text.
+    Broken core imports and image errors propagate, never become placeholders.
     """
 
     def __init__(self, *, width: int = 1280, height: int = 720, theme=None) -> None:
         """Initialize the compositor.
 
         Args:
-            width: Fallback frame width in pixels (when the real renderer is
-                unavailable).
-            height: Fallback frame height in pixels.
+            width: Frame width in pixels.
+            height: Frame height in pixels.
             theme: Optional :class:`~democreate.config.Theme` for frame colors.
         """
         self.width = width
@@ -342,7 +414,7 @@ class ManifestCompositor(Compositor):
         Raises:
             RenderError: If the manifest or any frame could not be written.
         """
-        render_frame = self._resolve_render_frame()
+        from ..capture.screen import render_frame
         try:
             manifest_path = workspace.manifests / "render_manifest.json"
             # Relativize embedded audio paths against the workspace root so the
@@ -356,11 +428,9 @@ class ManifestCompositor(Compositor):
             size = (self.width, self.height)
             for entry in timeline.entries:
                 frame_path = frames_dir / f"frame_{entry.index:04d}.png"
-                if render_frame is not None:
-                    image = render_frame(entry.state, size, theme=self.theme)
-                    image.save(frame_path, format="PNG")
-                else:  # pragma: no cover - core-only fallback path
-                    self._render_fallback(entry.state, frame_path)
+                state = replace(entry.state, caption="")
+                image = render_frame(state, size, theme=self.theme)
+                image.save(frame_path, format="PNG")
         except OSError as exc:
             raise RenderError(f"failed to compose timeline: {exc}") from exc
 
@@ -371,53 +441,6 @@ class ManifestCompositor(Compositor):
         )
         return manifest_path
 
-    @staticmethod
-    def _resolve_render_frame() -> Any | None:
-        """Return ``capture.screen.render_frame`` if importable, else ``None``."""
-        if importlib.util.find_spec("democreate.capture.screen") is None:
-            return None
-        try:
-            from democreate.capture.screen import render_frame
-        except Exception:  # pragma: no cover - defensive, build-order dependent
-            return None
-        return render_frame
-
-    def _render_fallback(self, state: FrameState, path: Path) -> None:
-        """Render a deterministic placeholder PNG with only Pillow.
-
-        Args:
-            state: The frame state to depict.
-            path: Destination PNG path.
-        """
-        from PIL import Image, ImageDraw
-
-        backgrounds = {
-            SceneKind.CODEBASE: (30, 30, 46),
-            SceneKind.TERMINAL: (12, 12, 12),
-            SceneKind.WEBSITE: (245, 245, 245),
-            SceneKind.SLIDE: (20, 40, 70),
-        }
-        bg = backgrounds.get(state.scene_kind, (30, 30, 46))
-        fg = (20, 20, 20) if state.scene_kind == SceneKind.WEBSITE else (220, 220, 220)
-        img = Image.new("RGB", (self.width, self.height), bg)
-        draw = ImageDraw.Draw(img)
-
-        lines: list[str] = [f"[{state.scene_kind.value}] {state.title}".strip()]
-        if state.url:
-            lines.append(state.url)
-        if state.file_path:
-            lines.append(state.file_path)
-        lines.extend(state.code_lines[:20])
-        lines.extend(state.terminal_lines[:20])
-        if state.caption:
-            lines.append("")
-            lines.append(state.caption)
-
-        y = 20
-        for line in lines:
-            draw.text((24, y), line, fill=fg)
-            y += 18
-        img.save(path, format="PNG")
 
 
 class MoviePyCompositor(Compositor):

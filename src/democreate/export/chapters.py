@@ -230,7 +230,7 @@ def embed_chapters(
         RenderError: If ffmpeg exits with a non-zero status.
     """
     if which("ffmpeg") is None:
-        raise BackendUnavailableError("ffmpeg", extra="video")
+        raise BackendUnavailableError("ffmpeg")
 
     mp4_out = Path(mp4_out)
     mp4_out.parent.mkdir(parents=True, exist_ok=True)

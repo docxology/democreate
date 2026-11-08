@@ -87,7 +87,7 @@ print(RenderConfig.preset('midnight').to_yaml())" > my_theme.yaml
 ## 5. GIF preview + poster thumbnail
 
 `gif` builds the demo and exports an animated GIF preview (evenly sampled frames);
-`thumbnail` renders a designed poster/title still — both great for a README or a
+`thumbnail` renders a depayload-bearing poster/title still — both great for a README or a
 social card.
 
 ```bash
@@ -122,9 +122,10 @@ democreate init demo.json
 democreate render demo.json --tts system          # types the code in, animated cursor
 ```
 
-Tune or disable it via `--config` (`video.typing`, `video.typing_fraction`,
-`video.cursor`) — see [config.md](config.md#videoconfig-geometry-motion) and
-[video.md](video.md#typing-animation).
+Disable reveal with `video.typing: false`; tune pace using the action's
+`duration_ms`. The removed `video.typing_fraction` YAML field is rejected.
+See [the action-duration example](video.md#typing-animation) and
+[config.md](config.md#videoconfig-geometry-motion).
 
 ## 8. Optional LLM narration (env-gated, library-only)
 
@@ -160,12 +161,12 @@ real, non-silent, non-black video of the expected size:
 democreate verify output/video/demo.mp4 --width 1920 --height 1080 --min-duration 5
 ```
 
-## 10. Branded, signed 4K render
+## 10. Branded 4K render with unsigned provenance
 
 Render at a true **4K** tier (`--resolution 2160p` — everything scales to the
 frame height, so it's genuinely higher resolution), brand it with an on-screen
-**author** + **watermark** (footer bar + MP4 `artist` tag + signed provenance),
-then verify the steganographic payload against the source demo. The signed poster
+**author** + **watermark** (footer bar + MP4 `artist` tag + unsigned provenance),
+then verify the steganographic payload against the source demo. The payload-bearing poster
 lives in `output/provenance/` because LSB steganography survives only in lossless
 PNG, not the H.264 pixels — see [provenance.md](provenance.md).
 
@@ -180,7 +181,7 @@ democreate render demo.json \
 ffprobe -v error -show_entries format_tags=title,artist,comment \
   -of default=noprint_wrappers=1 output/video/demo.mp4
 
-# verify the signed provenance matches the resolved rendered demo (exit 0 = match)
+# verify the unsigned provenance matches the resolved rendered demo (exit 0 = match)
 democreate stego output/provenance/poster_signed.png --demo output/demos/demo.json
 ```
 
@@ -197,5 +198,9 @@ democreate render demo.json --config democreate.yaml --resolution 2160p
 - [cli.md](cli.md) — every command and flag.
 - [gallery.md](gallery.md) — real frames these commands produce.
 - [config.md](config.md) — themes, resolution tiers, aspect presets, typing/cursor settings.
-- [provenance.md](provenance.md) — on-screen bars, container tags, signed steganography.
+- [provenance.md](provenance.md) — on-screen bars, container tags, unsigned steganography.
 - [paper.md](paper.md) · [video.md](video.md) · [audio.md](audio.md) · [backends.md](backends.md)
+Unsigned digest records check consistency only: they do not authenticate authors,
+cover pixels, video bytes or external assets. The retained `poster_signed.png`
+filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
+there are no transmission-bookend sidecars. See [provenance.md](provenance.md).

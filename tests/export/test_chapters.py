@@ -134,4 +134,38 @@ def test_embed_chapters_raises_when_ffmpeg_absent(
         ch.embed_chapters(mp4_in, files["ffmetadata"], tmp_path / "out.mp4")
 
     assert excinfo.value.backend == "ffmpeg"
-    assert excinfo.value.extra == "video"
+    assert excinfo.value.extra is None
+
+
+def test_all_chapter_exports_follow_measured_chunk_windows() -> None:
+    from democreate.export.formats import to_chapters
+    from democreate.schema import Chunk, Scene
+
+    demo = Demo(
+        title="Measured",
+        scenes=[
+            Scene(
+                id="first",
+                chunks=[
+                    Chunk(id="a", text="short", start_ms=100, duration_ms=2100),
+                    Chunk(id="b", text="short", start_ms=3000, duration_ms=700),
+                ],
+            ),
+            Scene(id="second", chunks=[Chunk(id="c", text="short", duration_ms=1250)]),
+        ],
+    )
+    assert [chapter["start_ms"] for chapter in to_chapters(demo)] == [100, 3700]
+    metadata = ch.to_ffmetadata(demo)
+    starts = [
+        int(line.split("=", 1)[1])
+        for line in metadata.splitlines()
+        if line.startswith("START=")
+    ]
+    ends = [
+        int(line.split("=", 1)[1])
+        for line in metadata.splitlines()
+        if line.startswith("END=")
+    ]
+    assert starts == [100, 3700]
+    assert ends == [3700, 4950]
+    assert ch.to_youtube_chapters(demo).splitlines() == ["0:00 first", "0:03 second"]

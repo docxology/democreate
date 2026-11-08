@@ -17,11 +17,19 @@ All directories are created lazily on first access.
 
 from __future__ import annotations
 
+import hashlib
+import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-__all__ = ["Workspace", "default_output_root", "relativize_under_root"]
+from .errors import RenderError
+
+if TYPE_CHECKING:
+    from .schema import Demo
+
+__all__ = ["Workspace", "default_output_root", "relativize_under_root", "stage_demo_assets"]
 
 
 def default_output_root() -> Path:
@@ -95,10 +103,34 @@ class Workspace:
     root: Path
 
     def __init__(self, root: Path | str | None = None) -> None:
-        self.root = Path(root) if root is not None else default_output_root()
+        selected = Path(root) if root is not None else default_output_root()
+        if selected.is_symlink():
+            raise RenderError("workspace root must not be a symbolic link")
+        self.root = selected.resolve()
+        self.ensure_safe()
+
+    def ensure_safe(self) -> None:
+        """Refuse existing links in generated namespaces before local writes.
+
+        This guards cooperative builds, not malicious concurrent replacement by
+        another process with the same user's filesystem privileges.
+        """
+        for name in (
+            "demos", "audio", "frames", "video", "captions", "web", "manifests",
+            "provenance", "chapters", "assets", "pages",
+        ):
+            path = self.root / name
+            if path.is_symlink():
+                raise RenderError(f"symbolic link in workspace output: {path}")
+            if path.is_dir():
+                for child in path.rglob("*"):
+                    if child.is_symlink():
+                        raise RenderError(f"symbolic link in workspace output: {child}")
 
     def _sub(self, name: str) -> Path:
         path = self.root / name
+        if path.is_symlink():
+            raise RenderError(f"symbolic link in workspace output: {path}")
         path.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -143,3 +175,58 @@ class Workspace:
 
         if self.root.exists():
             shutil.rmtree(self.root)
+
+
+def stage_demo_assets(demo: Demo, workspace: Workspace, asset_root: Path) -> None:
+    """Confine required backgrounds to an explicit root and stage portable copies.
+
+    Args:
+        demo: Demo whose background paths are updated to staged assets.
+        workspace: Caller-owned generated output tree.
+        asset_root: Trusted input root, also the base of relative image paths.
+
+    Raises:
+        RenderError: If a required image is missing, malformed, outside the allowed
+            roots, or changes while it is being staged.
+    """
+    allowed = asset_root.resolve()
+    staged: dict[Path, Path] = {}
+    for scene in demo.scenes:
+        for key in ("background_image",):
+            raw = scene.context.get(key)
+            if not raw:
+                continue
+            source = Path(str(raw))
+            source = (source if source.is_absolute() else allowed / source).resolve()
+            if not (source.is_relative_to(allowed) or source.is_relative_to(workspace.root)):
+                raise RenderError(f"background image is outside the asset root: {raw}")
+            if not source.is_file():
+                raise RenderError(f"required background image is missing: {raw}")
+            if source not in staged:
+                from PIL import Image
+
+                try:
+                    with Image.open(source) as image:
+                        image.verify()
+                except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+                    raise RenderError(f"cannot decode background image: {raw}") from exc
+                with source.open("rb") as stream:
+                    digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                assets = workspace._sub("assets")
+                destination = assets / f"{digest}{source.suffix.lower()}"
+                if source != destination:
+                    temporary: Path | None = None
+                    try:
+                        with tempfile.NamedTemporaryFile(dir=assets, delete=False) as temp:
+                            temporary = Path(temp.name)
+                            with source.open("rb") as stream:
+                                shutil.copyfileobj(stream, temp)
+                        with temporary.open("rb") as check:
+                            if hashlib.file_digest(check, "sha256").hexdigest() != digest:
+                                raise RenderError("background image changed while staging")
+                        temporary.replace(destination)
+                    finally:
+                        if temporary is not None:
+                            temporary.unlink(missing_ok=True)
+                staged[source] = destination
+            scene.context[key] = str(staged[source])

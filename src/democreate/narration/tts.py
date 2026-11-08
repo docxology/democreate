@@ -37,7 +37,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .._logging import get_logger
-from ..errors import BackendUnavailableError  # noqa: F401 (re-export)
+from ..errors import BackendUnavailableError, RenderError  # noqa: F401 (re-export)
 from ..media import AudioClip
 from ..schema import Demo
 from ._tts_audio import (  # noqa: F401 (re-exports)
@@ -140,9 +140,10 @@ def synthesize_demo(
 ) -> list[AudioClip]:
     """Synthesize audio for every chunk of ``demo`` into the workspace.
 
-    Each chunk's narration is rendered to ``<workspace.audio>/<chunk.id>.wav``,
-    the chunk's ``audio_path`` is set to that file's string path, and the
-    returned clips carry their ``chunk_id``. Clips are returned in chunk order.
+    Narration files use chunk-order names (``chunk_0000.wav``, …), never IDs
+    supplied by the artifact. IDs remain opaque labels on clips; path separators,
+    absolute paths and case aliases cannot escape or overwrite another chunk.
+    The chunk's ``audio_path`` is updated and clips are returned in chunk order.
 
     Args:
         demo: The demo whose chunks to voice. Mutated in place (``audio_path``).
@@ -156,9 +157,13 @@ def synthesize_demo(
     engine = backend or SilentTTSBackend()
     clips: list[AudioClip] = []
     audio_dir = Path(workspace.audio)
-    for chunk in demo.iter_chunks():
-        out_path = audio_dir / f"{chunk.id}.wav"
-        clip = engine.synthesize(chunk.text, out_path, voice=chunk.voice or demo.voice)
+    chunks = demo.iter_chunks()
+    paths = [audio_dir / f"chunk_{index:04d}.wav" for index in range(len(chunks))]
+    if any(path.is_symlink() for path in paths):
+        raise RenderError("refusing to synthesize over a symbolic-link audio output")
+    for chunk, out_path in zip(chunks, paths, strict=True):
+        voice = chunk.voice or (demo.voice if demo.voice != "default" else None)
+        clip = engine.synthesize(chunk.text, out_path, voice=voice)
         clip.chunk_id = chunk.id
         chunk.audio_path = str(out_path)
         clips.append(clip)

@@ -100,9 +100,24 @@ resynced 753 → 776 (+23 tests: the new `tests/test_manuscript.py` /
 `tests/test_api_docs.py` and a `--help` smoke); module-count literals synced
 56 → 57; cover re-rendered at 776.
 
-- [ ] Re-render the showcase stat-card still
-      (`docs/_videoframes/showcase_stats.png`, and the video it is lifted
-      from) at the 776 count — deferred: it requires the full 4K noir
-      showcase re-render, out of proportion for the scripts refactor. The
-      PNG still shows 753 until then.
+- [x] Re-render canonical Kokoro `af_heart` 2160p showcase and extract
+      identity-bound stills. Fixed 2026-11-08: actual 3840×2160 H.264/AAC,
+      six decoded frames and signal inspection; source/model/frame/video hashes
+      in `data/release-0.8.0.json`. Not acoustic accuracy or release readiness.
+
+## 2026-11-07 publication evidence repair
+
+Earlier suite-count refresh notes above are historical work-log assertions, not
+current receipts. Collection-count/source-wording tests were removed rather than
+repinned. The original extraction dates and video identity of old stills are
+unrecorded; they are explicitly historical.
+
+- [x] Closed 2026-11-07: correct acoustic-onset/Whisper and unsigned-hash
+  authentication claims; distinguish mean dB from LUFS and planned empirical
+  study from engineering gates (`README.md`, `docs/`, `data/claim_ledger.yaml`).
+- [x] Closed 2026-11-07: repair repository-root figure inputs/outputs, remove
+  sibling-paper discovery, make example paths Demo-relative, and label synthetic
+  gallery content (`docs/manuscript/figures/`, `examples/`, `docs/_gallery/`).
+- [x] Closed 2026-11-07: align candidate metadata/runtime/schema contracts,
+  native portfolio failure policy and benchmark identity/raw samples.
 

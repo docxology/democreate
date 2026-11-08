@@ -88,7 +88,7 @@ def _transcode_audio_file(src: Path, dst: Path, sample_rate: int) -> None:
             capture_output=True,
         )
     else:
-        raise BackendUnavailableError("ffmpeg/afconvert (audio transcode)", extra="video")
+        raise BackendUnavailableError("ffmpeg/afconvert (install a system audio transcoder)")
 
 
 def _probe_system_tts(engine: str) -> bool:

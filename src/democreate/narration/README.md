@@ -15,17 +15,17 @@ subsystem is import-safe and fully testable with no heavy backends installed.
 | `script.py` | Build a `Demo` from context (templates, codebase summaries). |
 | `project_summary.py` | Build a *describing* project-summary `Demo` from collected repo facts (used by `democreate.portfolio`). |
 | `tts.py`    | Synthesize narration audio to real WAV files (silent default, wired Kokoro neural voice). |
-| `sync.py`   | Derive word timestamps from real audio and timestamp every action. |
+| `sync.py`   | Measure clip durations, interpolate known words and timestamp actions. |
 | `llm.py`    | Optional LLM-backed script generation (guarded; no network by default). |
 
 ## Pipeline
 
 ```
 context ──script.generate──▶ Demo
-Demo ──tts.synthesize_demo──▶ [AudioClip]   (writes <workspace>/audio/<chunk>.wav,
+Demo ──tts.synthesize_demo──▶ [AudioClip]   (writes <workspace>/audio/chunk_NNNN.wav,
                                               sets chunk.audio_path)
-Demo + clips ──sync.sync_demo──▶ Demo        (sets chunk.start_ms and
-                                              action.timestamp_ms / duration_ms)
+Demo + clips ──sync.sync_demo──▶ Demo        (sets chunk start/duration and
+                                              action time/duration/origin)
 Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for captions)
 ```
 
@@ -48,13 +48,15 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
   `elevenlabs` extra) and an `ELEVENLABS_API_KEY` API key; raises
   `BackendUnavailableError(..., extra="elevenlabs")` at synthesis time when
   either is missing.
-- `ChatterboxTTSBackend` — guarded adapter slot; constructor raises
-  `BackendUnavailableError(..., extra="tts")` until its engine API is wired.
+- `ChatterboxTTSBackend` — unwired slot. No published extra installs its engine
+  or enables synthesis; missing dependencies carry no misleading `tts` hint.
 - `get_tts_backend(name="auto") -> TTSBackend` — `"auto"`/`"silent"` → silent;
   `"system"`, `"kokoro"`, `"elevenlabs"`, `"chatterbox"` select the
   corresponding backend.
 - `synthesize_demo(demo, workspace, backend=None) -> list[AudioClip]` — voices
   every chunk in order, mutating `chunk.audio_path`.
+  IDs are opaque labels, not filenames: audio files are numbered in chunk order.
+  Existing symbolic-link audio outputs are refused rather than followed.
 - `fetch_kokoro_model(dest=None) -> tuple[Path, Path]` — explicit one-time download
   of the Kokoro model + voices into the cache dir (powers `democreate fetch-voice`).
 
@@ -65,9 +67,11 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
   → `[]`.
 - `WhisperTranscriber` — guarded adapter slot (`extra="whisper"`).
 - `get_transcriber(name="auto") -> Transcriber`.
-- `sync_demo(demo, clips, transcriber=None) -> Demo` — cumulative `chunk.start_ms`,
-  fuzzy `trigger_word` matching (`difflib`, case-insensitive), default action
-  duration 600 ms.
+- `sync_demo(demo, clips, transcriber=None) -> Demo` — cumulative measured chunk
+  windows and fuzzy, case-insensitive trigger matching. Explicit untriggered
+  authored times survive; derived `timestamp_source="sync"` times refresh on
+  re-synthesis. WAIT advances the fallback cursor. Unset action duration is
+  600 ms; captured discrete inputs explicitly use zero.
 - `absolute_word_timestamps(demo, clips, transcriber=None, *, lead_ms=0, gap_ms=0) -> list[WordTimestamp]`
   — flat absolute-ms word stream for captioning.
 
@@ -99,7 +103,7 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 | `SystemTTSBackend` | OS speech engine (`say` / `espeak`) | — (zero pip) |
 | `KokoroTTSBackend` | wired neural voice (kokoro-onnx) | `tts` + model files |
 | `ElevenLabsTTSBackend` | `elevenlabs` client + API key | `elevenlabs` |
-| `ChatterboxTTSBackend` | `chatterbox` adapter slot | `tts` |
+| `ChatterboxTTSBackend` | unwired `chatterbox` slot | none; not enabled by `tts` |
 | `WhisperTranscriber` | `whisper` adapter slot | `whisper` |
 | `LLMScriptGenerator` | provider SDK | — (no pip extra) |
 

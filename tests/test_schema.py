@@ -315,3 +315,19 @@ def test_validate_wait_action_never_requires_params() -> None:
     s = Scene(id="s")
     s.chunks.append(Chunk(id="c", actions=[Action(ActionType.WAIT, {})]))
     assert Demo(title="T", scenes=[s]).validate() == []
+
+
+def test_measured_chunk_duration_roundtrips_and_overrides_estimate() -> None:
+    chunk = Chunk(id="measured", text="one two three four", duration_ms=123)
+    restored = Chunk.from_dict(chunk.to_dict())
+    assert restored.playback_duration_ms(wpm=60) == 123
+    assert restored.estimated_duration_ms(wpm=60) == 4000
+    restored.duration_ms = None
+    assert restored.playback_duration_ms(wpm=60) == 4000
+
+
+def test_unassigned_derived_timing_origin_survives_serialization() -> None:
+    action = Action(ActionType.WAIT, timestamp_source="sync")
+    restored = Action.from_dict(action.to_dict())
+    assert restored.timestamp_ms is None
+    assert restored.timestamp_source == "sync"

@@ -12,6 +12,7 @@ snapshots — without ever launching a real shell.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 
 from ..errors import CaptureError
@@ -58,7 +59,20 @@ class AsciicastEvent:
         Returns:
             The parsed :class:`AsciicastEvent`.
         """
-        return cls(time=float(item[0]), kind=str(item[1]), data=str(item[2]))
+        if not isinstance(item, list) or len(item) != 3:
+            raise CaptureError("asciicast event must be a [time, kind, data] triple")
+        time, kind, data = item
+        if type(time) not in (int, float):
+            raise CaptureError("asciicast event time must be numeric")
+        try:
+            seconds = float(time)
+        except (ValueError, OverflowError) as exc:
+            raise CaptureError("asciicast event time must be finite") from exc
+        if not math.isfinite(seconds) or seconds < 0:
+            raise CaptureError("asciicast event time must be finite and nonnegative")
+        if not isinstance(kind, str) or not isinstance(data, str):
+            raise CaptureError("asciicast event kind and data must be strings")
+        return cls(time=seconds, kind=kind, data=data)
 
 
 @dataclass
@@ -121,20 +135,30 @@ class AsciicastRecording:
             raise CaptureError("asciicast recording is empty: no header line")
         try:
             header = json.loads(stripped[0])
-        except json.JSONDecodeError as exc:
+        except ValueError as exc:
             raise CaptureError(f"asciicast header is not valid JSON: {exc}") from exc
+        if not isinstance(header, dict):
+            raise CaptureError("asciicast header must be a JSON object")
+        geometry: dict[str, int] = {}
+        for name in ("version", "width", "height"):
+            value = header.get(name)
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                raise CaptureError(f"asciicast header {name} must be a positive integer")
+            geometry[name] = value
+        if geometry["version"] != 2:
+            raise CaptureError("asciicast header version must be 2")
         events: list[AsciicastEvent] = []
         for line in stripped[1:]:
             try:
                 events.append(AsciicastEvent.from_list(json.loads(line)))
-            except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+            except (ValueError, CaptureError) as exc:
                 raise CaptureError(
                     f"malformed asciicast event line {line[:40]!r}: {exc}"
                 ) from exc
         return cls(
-            version=int(header.get("version", 2)),
-            width=int(header.get("width", 80)),
-            height=int(header.get("height", 24)),
+            version=geometry["version"],
+            width=geometry["width"],
+            height=geometry["height"],
             events=events,
         )
 

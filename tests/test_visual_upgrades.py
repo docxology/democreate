@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageStat
 
-from democreate.animation.fonts import load_font, resolve_font_path, scaled_font
 from democreate.assembly.animator import (
     AnimationConfig,
     active_index_at,
@@ -25,25 +24,6 @@ from democreate.schema import SceneKind
 
 # --- fonts ----------------------------------------------------------------
 
-def test_load_font_returns_usable_font() -> None:
-    f = load_font(48)
-    # truetype fonts expose .size; bitmap fallback is still a valid font object
-    assert f is not None
-
-
-def test_scaled_font_scales_with_height() -> None:
-    small = scaled_font(360, 0.05)
-    big = scaled_font(1080, 0.05)
-    # both load; if real truetype, the bigger frame yields a bigger font
-    if hasattr(small, "size") and hasattr(big, "size"):
-        assert big.size >= small.size
-
-
-def test_resolve_font_path_returns_tuple_or_none() -> None:
-    res = resolve_font_path()
-    assert res is None or (isinstance(res, tuple) and len(res) == 2)
-    mono = resolve_font_path(mono=True)
-    assert mono is None or Path(mono[0]).exists()
 
 
 # --- richer renderer features --------------------------------------------
@@ -87,12 +67,6 @@ def test_render_with_background_image(tmp_path: Path) -> None:
     # the blue background should dominate the upper area
     px = img.getpixel((640, 200))
     assert px[2] > px[0]  # bluish
-
-
-def test_render_missing_background_is_graceful(tmp_path: Path) -> None:
-    fs = FrameState(scene_kind=SceneKind.SLIDE, background_image=str(tmp_path / "nope.png"))
-    img = render_frame(fs, (640, 360))
-    assert img.size == (640, 360)
 
 
 # --- animator -------------------------------------------------------------

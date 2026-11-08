@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.0",
-  "title": "DemoCreate — Declarative Audio-Visual Demos",
+  "schema_version": "1.1",
+  "title": "DemoCreate: Declarative Audio-Visual Demos",
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "voice": "Samantha",
+  "voice": "af_heart",
   "metadata": {
     "author": "Daniel Ari Friedman",
     "self_referential": true
@@ -33,14 +33,15 @@
       "chunks": [
         {
           "id": "arch-c",
-          "text": "The whole system is four stages. A declarative spine flows into narration, then rendering, then export — every stage a pure function of the one demo artifact.",
+          "text": "A declarative spine flows through narration, rendering and export. Outputs also depend on configuration, assets and the selected runtime environment.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "Architecture"
               },
-              "trigger_word": "stages"
+              "trigger_word": "stages",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -48,7 +49,7 @@
       "context": {
         "section": "Architecture",
         "subtitle": "",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/architecture.png"
+        "background_image": "assets/architecture.png"
       }
     },
     {
@@ -66,7 +67,8 @@
                 "path": "src/democreate/schema.py",
                 "code": "@dataclass\nclass Demo:\n    title: str\n    scenes: list[Scene]\n\n@dataclass\nclass Action:\n    type: ActionType\n    trigger_word: str | None"
               },
-              "trigger_word": "value"
+              "trigger_word": "value",
+              "timestamp_source": "authored"
             },
             {
               "type": "highlight_lines",
@@ -77,7 +79,8 @@
                   4
                 ]
               },
-              "trigger_word": "scenes"
+              "trigger_word": "scenes",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -93,15 +96,16 @@
       "chunks": [
         {
           "id": "backends-c",
-          "text": "Every heavy capability hides behind an interface with a pure Python default — so it runs with no heavy dependencies, and upgrades in fidelity when you install an extra.",
+          "text": "Core defaults run without heavy optional packages. Installed adapters can add capabilities; some declared adapters remain unwired, and voiced output needs a working speech backend.",
           "actions": [
             {
               "type": "create_file",
               "params": {
                 "path": "src/democreate/narration/tts.py",
-                "code": "class TTSBackend(ABC): ...\nclass SilentTTSBackend:   # zero deps\nclass SystemTTSBackend:   # real OS voice\nclass KokoroTTSBackend:   # neural, optional"
+                "code": "class TTSBackend(ABC): ...\nclass SilentTTSBackend:   # no heavy deps\nclass SystemTTSBackend:   # needs usable OS speech\nclass KokoroTTSBackend:   # needs optional model"
               },
-              "trigger_word": "interface"
+              "trigger_word": "interface",
+              "timestamp_source": "authored"
             },
             {
               "type": "highlight_lines",
@@ -111,7 +115,8 @@
                   3
                 ]
               },
-              "trigger_word": "default"
+              "trigger_word": "default",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -127,15 +132,16 @@
       "chunks": [
         {
           "id": "sync-c",
-          "text": "Timing is measured, not guessed. We synthesize the narration, measure its real duration, and lock every frame and the waveform to the spoken audio.",
+          "text": "Clip durations are measured. Known words are interpolated by length, not detected acoustically. Frames and waveform use the clip timeline.",
           "actions": [
             {
               "type": "create_file",
               "params": {
                 "path": "src/democreate/narration/sync.py",
-                "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)   # TTS -> STT\n# each frame held for its measured clip"
+                "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)   # measured clips, heuristic words\n# video times are quantized to output frames"
               },
-              "trigger_word": "measured"
+              "trigger_word": "measured",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -151,14 +157,15 @@
       "chunks": [
         {
           "id": "dashboard-c",
-          "text": "The same demo also exports a self contained HTML player — a real dashboard with chapters, captions, and frame by frame navigation.",
+          "text": "The same demo exports an HTML caption and chapter preview with per-chunk frame navigation. The HTML preview has no audio track.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "Interactive Player"
               },
-              "trigger_word": "player"
+              "trigger_word": "player",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -166,7 +173,7 @@
       "context": {
         "section": "Dashboard",
         "subtitle": "",
-        "background_image": "/Users/4d/Documents/GitHub/projects/working/demo_create/examples/assets/dashboard.png"
+        "background_image": "assets/dashboard.png"
       }
     },
     {
@@ -184,7 +191,8 @@
                 "command": "democreate build demo.json -o output",
                 "output": "✓ player: output/web/player.html"
               },
-              "trigger_word": "builds"
+              "trigger_word": "builds",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -200,15 +208,16 @@
       "chunks": [
         {
           "id": "render-c",
-          "text": "And one command renders a high definition video with a real voiceover, then proves it is genuine — real streams, not silent, not black.",
+          "text": "Voiced rendering needs an explicitly selected speech backend. Basic verification checks streams, audio energy and picture variance, not intelligibility or acoustic word alignment.",
           "actions": [
             {
               "type": "run_command",
               "params": {
-                "command": "democreate render demo.json --voice Samantha",
-                "output": "✓ verified: real video + non-silent audio"
+                "command": "democreate render demo.json --tts kokoro --voice af_heart",
+                "output": "Illustrative output — not executed by DemoCreate: verification summary"
               },
-              "trigger_word": "renders"
+              "trigger_word": "renders",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -224,7 +233,7 @@
       "chunks": [
         {
           "id": "outro-c",
-          "text": "Declarative, deterministic, and dogfooded. This very video — big text, moving waveform, real screenshots — was generated by DemoCreate. Edit the file, re render, never record again.",
+          "text": "This authored demonstration uses the same rendering pipeline. Edit the artifact and rebuild; inspect outputs and record their source and runtime identity before treating them as evidence.",
           "actions": []
         }
       ],

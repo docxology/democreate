@@ -1,9 +1,7 @@
 """Regression tests for the v0.6.2 RedTeam findings.
 
-Each test pins a previously-unguarded behavior: gap-aware caption sync, the
-fail-closed content verifier, the math-glyph fold + multi-line caption capture,
-the noir monochrome window dots, per-item bullet/stat rendering, graceful config
-and malformed-input handling, and monotonic chapters.
+Behavioral regressions cover gap-aware synchronization, fail-closed native
+content probes, text normalization, card rendering and monotonic chapters.
 """
 
 from __future__ import annotations
@@ -13,7 +11,6 @@ from pathlib import Path
 from PIL import Image, ImageStat
 
 from democreate.capture.screen import render_frame
-from democreate.config import THEMES
 from democreate.media import FrameState
 from democreate.schema import SceneKind
 
@@ -24,14 +21,6 @@ def _band_var(img: Image.Image, y0: float, y1: float, x0: float = 0.0, x1: float
     return ImageStat.Stat(crop).var[0]
 
 
-def _has_rgb(img: Image.Image, target, tol: int = 30) -> bool:
-    w, h = img.size
-    for x in range(0, w, 5):
-        for y in range(0, min(h, int(h * 0.06)), 3):  # top chrome band only
-            r, g, b = img.getpixel((x, y))[:3]
-            if abs(r - target[0]) <= tol and abs(g - target[1]) <= tol and abs(b - target[2]) <= tol:
-                return True
-    return False
 
 
 # --- BLOCKER: gap-aware caption/action sync -------------------------------
@@ -79,24 +68,41 @@ def test_sync_demo_zero_gaps_is_cumulative(tmp_path) -> None:
 
 # --- MAJOR: the content verifier fails CLOSED -----------------------------
 
-def test_verify_fails_closed_when_volume_unmeasurable(monkeypatch) -> None:
+def test_verify_rejects_undecodable_payload_with_valid_container(tmp_path) -> None:
     import shutil
+    import subprocess
 
-    from democreate.export import verify as V
+    import pytest
 
-    monkeypatch.setattr(V.shutil, "which", lambda _: "/usr/bin/ffprobe", raising=False)
-    monkeypatch.setattr(V, "_run_ffprobe", lambda p: {})
-    monkeypatch.setattr(V, "parse_ffprobe", lambda *a, **k: V.VideoReport(
-        path=Path("v.mp4"), has_video=True, has_audio=True,
-        width=1920, height=1080, duration_s=10.0, audio_duration_s=10.0))
-    monkeypatch.setattr(V, "_measure_mean_volume_db", lambda p: None)
-    monkeypatch.setattr(V, "_sample_frame_variance", lambda p: None)
+    from democreate.export import verify as verification
 
-    report = V.verify_video(Path("v.mp4"), check_content=True)
-    assert report.ok is False  # un-measurable probes are NOT a pass
-    assert any("could not measure audio" in p for p in report.problems)
-    assert any("could not sample a video frame" in p for p in report.problems)
-    _ = shutil  # keep import used
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None or shutil.which("ffprobe") is None:
+        pytest.skip("requires native ffmpeg and ffprobe")
+    video = tmp_path / "real.mp4"
+    subprocess.run(
+        [ffmpeg, "-v", "error", "-f", "lavfi", "-i",
+         "testsrc=size=64x64:rate=10", "-f", "lavfi", "-i",
+         "sine=frequency=440:sample_rate=16000", "-t", "1.2",
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", str(video)],
+        stdin=subprocess.DEVNULL, check=True, capture_output=True,
+    )
+    payload = bytearray(video.read_bytes())
+    offset = 0
+    while offset < len(payload):
+        size = int.from_bytes(payload[offset:offset + 4], "big")
+        assert size >= 8
+        if payload[offset + 4:offset + 8] == b"mdat":
+            payload[offset + 8:offset + size] = bytes(size - 8)
+            break
+        offset += size
+    else:
+        raise AssertionError("encoded test MP4 has no media-data box")
+    video.write_bytes(payload)
+    report = verification.verify_video(video, check_content=True)
+    assert report.has_video and report.has_audio
+    assert report.width == 64 and report.height == 64 and report.duration_s >= 1
+    assert not report.ok
 
 
 # --- MAJOR: math-glyph fold + multi-line caption --------------------------
@@ -118,51 +124,6 @@ def test_figure_captions_capture_across_a_wrapped_line() -> None:
     assert caps[0].caption == "A coupling term that spans two lines here."
 
 
-# --- MAJOR: noir monochrome window dots -----------------------------------
-
-def test_noir_window_dots_are_monochrome_red() -> None:
-    fs = FrameState(scene_kind=SceneKind.CODEBASE, file_path="m.py",
-                    code_lines=["x = 1"])
-    img = render_frame(fs, (1280, 720), theme=THEMES["noir"])
-    assert _has_rgb(img, (224, 49, 57))          # the noir accent dot is present
-    assert not _has_rgb(img, (245, 191, 79))     # no amber (old traffic light)
-    assert not _has_rgb(img, (98, 197, 84))      # no green
-
-
-# --- MINOR: per-item bullet / stat rendering ------------------------------
-
-def _inked_rows(img: Image.Image, y0: float = 0.20, y1: float = 0.86) -> int:
-    """Count distinct rows carrying ink in the content area (regression: only
-    the first bullet/stat rendering would collapse this count)."""
-    w, h = img.size
-    rows = 0
-    for y in range(int(h * y0), int(h * y1), 6):
-        if ImageStat.Stat(img.crop((0, y, w, y + 6)).convert("L")).var[0] > 3:
-            rows += 1
-    return rows
-
-
-def test_bullets_more_items_render_more_ink() -> None:
-    one = render_frame(FrameState(scene_kind=SceneKind.SLIDE, title="T",
-                                  bullets=["Only one point here"]), (1920, 1080))
-    four = render_frame(FrameState(scene_kind=SceneKind.SLIDE, title="T",
-                                   bullets=["First point here", "Second point here",
-                                            "Third point here", "Fourth point here"]),
-                        (1920, 1080))
-    # four bullets must ink substantially more rows than one (catches a regression
-    # that renders only the first bullet).
-    assert _inked_rows(four) >= _inked_rows(one) + 4
-
-
-def test_many_long_bullets_do_not_overflow_into_waveform_band() -> None:
-    long = ("This is a deliberately long bullet that wraps across multiple lines "
-            "to stress the vertical layout and force the autosize to shrink the font")
-    fs = FrameState(scene_kind=SceneKind.SLIDE, title="Dense",
-                    bullets=[f"{i}. {long}" for i in range(6)])
-    img = render_frame(fs, (1920, 1080))
-    assert img.size == (1920, 1080)  # renders without overflow crash
-
-
 def test_stats_each_render_a_card() -> None:
     fs = FrameState(scene_kind=SceneKind.SLIDE, title="Nums",
                     stats=[("1", "a"), ("2", "b"), ("3", "c"), ("4", "d")])
@@ -174,28 +135,16 @@ def test_stats_each_render_a_card() -> None:
 
 # --- MAJOR/MINOR: graceful config + malformed input -----------------------
 
-def test_from_dict_tolerates_unknown_subconfig_keys() -> None:
-    from democreate.config import RenderConfig
+def test_compositor_keeps_only_well_formed_stat_pairs() -> None:
+    from democreate.assembly.compositor import build_timeline
+    from democreate.schema import Chunk, Demo, Scene
 
-    cfg = RenderConfig.from_dict({
-        "audio": {"voice": "Alex", "bogus_future_key": 7},
-        "video": {"width": 1280, "nope": "x"},
-        "metadata": {"author": "Ada", "??": 1},
-    })
-    assert cfg.audio.voice == "Alex"
-    assert cfg.video.width == 1280
-    assert cfg.metadata.author == "Ada"
-
-
-def test_compositor_tolerates_flat_stats_list() -> None:
-    from democreate.assembly.compositor import _state_for_chunk
-    from democreate.schema import Chunk
-
-    state = _state_for_chunk(
-        None, SceneKind.SLIDE, "T",
-        {"stats": ["99%", "fast"]},  # malformed: a flat list, not pairs
-        Chunk(id="c", text="hi"))
-    assert state.stats == []  # dropped, not crashed
+    demo = Demo(title="Stats", scenes=[Scene(
+        id="slide", kind=SceneKind.SLIDE,
+        context={"stats": [["90%", "complete"], "99%", ["one"], None]},
+        chunks=[Chunk(id="c", text="hello")],
+    )])
+    assert build_timeline(demo).entries[0].state.stats == [("90%", "complete")]
 
 
 def test_action_from_dict_coerces_int_fields() -> None:

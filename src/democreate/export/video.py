@@ -43,6 +43,7 @@ def build_ffmpeg_command(
     *,
     fps: int = 30,
     start_number: int | None = None,
+    frame_count: int | None = None,
 ) -> list[str]:
     """Construct the ``ffmpeg`` argv list for an H.264 MP4 encode.
 
@@ -59,6 +60,8 @@ def build_ffmpeg_command(
         start_number: Value for ffmpeg's image2 ``-start_number`` input option
             (the number the first frame's pattern index maps to); ``None``
             omits the option and lets ffmpeg default it.
+        frame_count: Exact maximum number of output frames, or ``None`` to
+            consume the entire input pattern.
 
     Returns:
         The argv list, beginning with ``"ffmpeg"``, ready to hand to
@@ -69,6 +72,8 @@ def build_ffmpeg_command(
     """
     if fps <= 0:
         raise ValueError(f"fps must be positive, got {fps}")
+    if frame_count is not None and frame_count <= 0:
+        raise ValueError(f"frame_count must be positive, got {frame_count}")
 
     cmd: list[str] = [
         "ffmpeg",
@@ -77,7 +82,7 @@ def build_ffmpeg_command(
         str(fps),
     ]
     if start_number is not None:
-        cmd += ["-start_number", str(start_number)]
+        cmd += ["-start_number_range", "1", "-start_number", str(start_number)]
     cmd += [
         "-i",
         frames_glob,
@@ -92,6 +97,8 @@ def build_ffmpeg_command(
         "-r",
         str(fps),
     ]
+    if frame_count is not None:
+        cmd += ["-frames:v", str(frame_count)]
     if audio_path is not None:
         # Encode audio and stop at the shortest stream so a slightly-longer audio
         # track does not leave a frozen tail frame.
@@ -268,7 +275,7 @@ def assemble_video(
         out_path: Destination ``.mp4``.
         fps: Output frame rate.
         size: Optional ``(w, h)`` to scale to; dimensions are forced even regardless.
-        subtitles: Optional ``.srt`` to burn in (skipped if libass is unavailable).
+        subtitles: Optional ``.srt`` to burn in; requires the subtitles filter.
 
     Returns:
         ``out_path``.
@@ -288,7 +295,7 @@ def assemble_video(
             "must be the same length"
         )
     if not ffmpeg_available():
-        raise BackendUnavailableError("ffmpeg", extra="video")
+        raise BackendUnavailableError("ffmpeg")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # The concat demuxer resolves `file` entries relative to the concat script's
@@ -307,9 +314,11 @@ def assemble_video(
     if size is not None:
         vf_parts.append(f"scale={size[0]}:{size[1]}")
     vf_parts.append("scale=trunc(iw/2)*2:trunc(ih/2)*2")
-    if subtitles is not None and _libass_available():
-        esc = str(subtitles).replace("\\", "\\\\").replace(":", r"\:").replace("'", r"\'")
-        vf_parts.append(f"subtitles='{esc}'")
+    if subtitles is not None:
+        # Concat stills are sparse: duplicate them before evaluating cue windows,
+        # not only at the encoder's output-rate conversion.
+        vf_parts.append(f"fps={fps}")
+        vf_parts.append(_subtitle_filter(subtitles))
     vf_parts.append("format=yuv420p")
     vf = ",".join(vf_parts)
 
@@ -336,12 +345,40 @@ def assemble_video(
     return out_path
 
 
+def _frame_sequence_pattern(frame_paths: list[Path]) -> tuple[str, int]:
+    """Validate an exact contiguous, ascending image2 sequence."""
+    if not frame_paths:
+        raise ValueError("a frame sequence requires at least one frame")
+    first = frame_paths[0].resolve()
+    stem = first.stem
+    digits = len(stem) - len(stem.rstrip("0123456789"))
+    if not digits or "%" in str(first):
+        raise ValueError(
+            "frame paths need a numeric stem suffix and cannot contain '%'"
+        )
+    prefix = stem[:-digits]
+    start_number = int(stem[-digits:])
+    for index, path in enumerate(frame_paths):
+        expected = first.parent / (
+            f"{prefix}{start_number + index:0{digits}d}{first.suffix}"
+        )
+        if path.resolve() != expected:
+            raise ValueError(
+                "frame paths must be contiguous, ascending, and share one "
+                f"directory and naming pattern; expected {expected}, got {path}"
+            )
+        if not path.is_file():
+            raise RenderError(f"cannot open frame {path}: file does not exist")
+    return str(first.parent / f"{prefix}%0{digits}d{first.suffix}"), start_number
+
+
 def encode_frame_sequence(
     frame_paths: list[Path],
     audio_path: Path | None,
     out_path: Path,
     *,
     fps: int = 15,
+    captions: Path | None = None,
     crf: int = 18,
     preset: str = "medium",
 ) -> Path:  # pragma: no cover - requires the ffmpeg binary
@@ -349,45 +386,51 @@ def encode_frame_sequence(
 
     Used for animated renders where every frame is exactly ``1/fps`` long, so the
     fixed-rate ``image2`` input is correct (unlike the per-duration concat demuxer).
-    Frames must share one directory and a zero-padded numeric suffix.
+    Frames must be contiguous and ascending in one directory with a common
+    numeric suffix naming scheme. Only the supplied frame count is encoded.
 
     Args:
-        frame_paths: Ordered frame images in a single directory.
+        frame_paths: Contiguous, ascending numbered images in a single directory.
         audio_path: Audio track to mux, or ``None``.
         out_path: Destination ``.mp4``.
         fps: Frame rate of the sequence and the output.
+        captions: Optional subtitle file (such as SRT) to burn into every frame
+            at its encoded presentation time; ``None`` disables subtitle burn.
 
     Returns:
         ``out_path``.
 
     Raises:
         BackendUnavailableError: If ffmpeg is absent.
-        ValueError: If ``frame_paths`` is empty.
-        RenderError: If the encode exits non-zero.
+        ValueError: If frames are empty, sparse, reordered, or inconsistently named,
+            or ``fps`` is not positive.
+        RenderError: If a frame is missing, the subtitles filter is unavailable
+            for a caption request, or the encode exits non-zero.
     """
     import subprocess
 
     if not frame_paths:
         raise ValueError("encode_frame_sequence requires at least one frame")
+    if fps <= 0:
+        raise ValueError(f"fps must be positive, got {fps}")
+    pattern, start_number = _frame_sequence_pattern(frame_paths)
     if not ffmpeg_available():
-        raise BackendUnavailableError("ffmpeg", extra="video")
+        raise BackendUnavailableError("ffmpeg")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    first = frame_paths[0].resolve()
-    # derive the printf pattern from the first frame's digit-padded stem
-    stem = first.stem
-    digits = len(stem) - len(stem.rstrip("0123456789"))
-    prefix = stem[: len(stem) - digits]
-    pattern = str(first.parent / f"{prefix}%0{digits}d{first.suffix}")
+    vf_parts = ["scale=trunc(iw/2)*2:trunc(ih/2)*2"]
+    if captions is not None:
+        vf_parts.append(_subtitle_filter(captions))
+    vf_parts.append("format=yuv420p")
 
     cmd = [
-        "ffmpeg", "-y", "-framerate", str(fps), "-start_number",
-        str(int(stem[len(prefix):])), "-i", pattern,
+        "ffmpeg", "-y", "-framerate", str(fps), "-start_number_range", "1",
+        "-start_number", str(start_number), "-i", pattern,
     ]
     if audio_path is not None:
         cmd += ["-i", str(audio_path)]
     cmd += [
-        "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p",
+        "-vf", ",".join(vf_parts), "-frames:v", str(len(frame_paths)),
         "-c:v", "libx264", "-r", str(fps),
         "-crf", str(crf), "-preset", preset,
     ]
@@ -417,6 +460,29 @@ def _libass_available() -> bool:  # pragma: no cover - depends on ffmpeg build
         return False
 
 
+def _subtitle_filter(captions: Path) -> str:
+    """Build a subtitles filter, failing rather than ignoring an explicit request."""
+    if not _libass_available():
+        raise RenderError("caption burn requires ffmpeg's subtitles (libass) filter")
+    # argv bypasses the shell, but ffmpeg still parses an option value inside
+    # a filtergraph. Escape each of those two parser levels, in that order.
+    option_value = (
+        str(captions.resolve())
+        .replace("\\", r"\\")
+        .replace("'", r"\'")
+        .replace(":", r"\:")
+    )
+    filter_value = (
+        option_value.replace("\\", r"\\")
+        .replace("'", r"\'")
+        .replace("[", r"\[")
+        .replace("]", r"\]")
+        .replace(",", r"\,")
+        .replace(";", r"\;")
+    )
+    return f"subtitles=filename={filter_value}"
+
+
 def export_video(
     frame_paths: list[Path],
     audio_path: Path | None,
@@ -426,9 +492,10 @@ def export_video(
 ) -> Path:  # pragma: no cover - requires the ffmpeg binary
     """Encode frames (+ optional audio) into an MP4.
 
-    Requires the ``ffmpeg`` binary on ``PATH``. The frames must share a
-    zero-padded numeric naming scheme in a single directory so ffmpeg's
-    ``image2`` demuxer can sequence them.
+    Requires the ``ffmpeg`` binary on ``PATH``. Frames must be contiguous and
+    ascending, sharing one directory and numeric suffix naming scheme. Sparse,
+    reordered, or mixed-pattern inputs are rejected rather than substituted;
+    filesystem neighbors beyond the supplied list are never encoded.
 
     Args:
         frame_paths: Ordered frame image paths (must live in one directory and
@@ -442,37 +509,28 @@ def export_video(
 
     Raises:
         BackendUnavailableError: If ffmpeg is unavailable.
-        ValueError: If ``frame_paths`` is empty.
-        RenderError: If the encode subprocess exits non-zero.
+        ValueError: If frames are empty, sparse, reordered, or inconsistently named,
+            or ``fps`` is not positive.
+        RenderError: If a frame is missing or the encode subprocess exits non-zero.
     """
     if not frame_paths:
         raise ValueError("export_video requires at least one frame")
+    if fps <= 0:
+        raise ValueError(f"fps must be positive, got {fps}")
+    pattern, start_number = _frame_sequence_pattern(frame_paths)
     if not ffmpeg_available():
-        raise BackendUnavailableError("ffmpeg", extra="video")
+        raise BackendUnavailableError("ffmpeg")
 
     import subprocess
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # Derive the printf pattern + start number from the first frame's stem
-    # (e.g. frame_0000.png → frame_%04d.png starting at 0), matching
-    # :func:`encode_frame_sequence`. A hardcoded ``%05d`` matches nothing when
-    # the prefix differs and silently drops frames without ``-start_number``.
-    first = frame_paths[0].resolve()
-    stem = first.stem
-    digits = len(stem) - len(stem.rstrip("0123456789"))
-    if digits == 0:
-        raise ValueError(
-            f"frame name {first.name!r} has no zero-padded numeric suffix; "
-            "export_video needs a frame_%04d-style sequence"
-        )
-    prefix = stem[: len(stem) - digits]
-    pattern = str(first.parent / f"{prefix}%0{digits}d{first.suffix}")
     cmd = build_ffmpeg_command(
         pattern,
         str(audio_path) if audio_path else None,
         out_path,
         fps=fps,
-        start_number=int(stem[len(prefix) :]),
+        start_number=start_number,
+        frame_count=len(frame_paths),
     )
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:

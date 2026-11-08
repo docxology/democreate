@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Preflight check: confirm the package imports and report backend availability.
+"""Preflight check: import core modules and report optional dependency presence.
 
 Run from the project root::
 
@@ -45,19 +45,19 @@ CORE_MODULES = [
 ]
 
 OPTIONAL_BACKENDS = [
-    ("kokoro_onnx", "tts"),
-    ("whisper", "whisper"),
-    ("mss", "capture"),
-    ("playwright", "browser"),
-    ("manim", "animation"),
-    ("moviepy", "video"),
-    ("tree_sitter", "codebase"),
-    ("pynput", "replay"),
+    "kokoro_onnx",
+    "whisper",
+    "mss",
+    "playwright",
+    "manim",
+    "moviepy",
+    "tree_sitter",
+    "pynput",
 ]
 
 
 def main() -> int:
-    """Import core modules and print a backend availability report."""
+    """Import core modules and probe dependencies, not backend readiness."""
     ok = True
     for mod in CORE_MODULES:
         try:
@@ -67,11 +67,10 @@ def main() -> int:
             ok = False
             print(f"  FAIL {mod}: {exc}")
 
-    print("\nOptional backends:")
-    for module, extra in OPTIONAL_BACKENDS:
+    print("\nOptional dependencies (presence is not backend readiness):")
+    for module in OPTIONAL_BACKENDS:
         present = importlib.util.find_spec(module) is not None
-        state = "installed" if present else f"default (uv sync --extra {extra})"
-        print(f"  {module:14s} {state}")
+        print(f"  {module:14s} {'present' if present else 'absent'}")
 
     print("\ncore import:", "OK" if ok else "BROKEN")
     return 0 if ok else 1

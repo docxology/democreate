@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -50,7 +50,7 @@ def utc_stamp(now: datetime | None = None) -> str:
         now: Optional fixed time (for deterministic tests); defaults to the
             current UTC time.
     """
-    moment = now or datetime.now(timezone.utc)
+    moment = now or datetime.now(UTC)
     return moment.strftime("%Y%m%dT%H%M%SZ")
 
 
@@ -100,7 +100,11 @@ def _readme_summary(repo: Path) -> tuple[str, list[str]]:
     back to its leading sentences. Returns ``("", [])`` when no README exists.
     """
     readme = repo / "README.md"
-    if not readme.exists():
+    if (
+        not readme.is_file()
+        or readme.is_symlink()
+        or not readme.resolve().is_relative_to(repo.resolve())
+    ):
         return "", []
     try:
         raw = readme.read_text(encoding="utf-8", errors="replace")
@@ -169,7 +173,7 @@ def _strip_md(text: str) -> str:
     return " ".join(out.split())
 
 
-def _code_excerpt(summary: Any, *, max_lines: int = 18) -> str:
+def _code_excerpt(summary: Any, repo: Path, *, max_lines: int = 18) -> str:
     """Return a real, bounded source excerpt for a module summary.
 
     Picks the **most substantive** top-level symbol (the class or function whose
@@ -177,9 +181,15 @@ def _code_excerpt(summary: Any, *, max_lines: int = 18) -> str:
     just whatever happens to come first; falls back to the head of the file. Lines
     are length-bounded so the excerpt autosizes on a code frame without cropping.
     """
+    path = Path(summary.path)
+    if path.is_symlink() or not path.resolve().is_relative_to(repo.resolve()):
+        return ""
     try:
-        source = Path(summary.path).read_text(encoding="utf-8", errors="replace")
-    except OSError:
+        import tokenize
+
+        with tokenize.open(path) as stream:
+            source = stream.read()
+    except (OSError, UnicodeError, SyntaxError):
         return ""
     lines = source.splitlines()
 
@@ -257,12 +267,12 @@ def _collect_dependencies(summaries: list[Any], self_names: set[str]) -> list[st
 def _run_command(repo: Path) -> tuple[str, str]:
     """Choose a real, runnable command (and sample output) for the repo."""
     if (repo / "pyproject.toml").exists():
-        return "uv run pytest -q", "all tests pass"
+        return "uv run pytest -q", "Illustrative command — not executed by DemoCreate."
     if (repo / "package.json").exists():
-        return "npm install && npm test", "tests passed"
+        return "npm install && npm test", "Illustrative command — not executed by DemoCreate."
     if (repo / "Makefile").exists():
-        return "make", "build complete"
-    return "ls -R | head", f"{repo.name} contents"
+        return "make", "Illustrative command — not executed by DemoCreate."
+    return "ls -R", "Illustrative command — not executed by DemoCreate."
 
 
 def collect_project_facts(repo: Path, *, max_modules: int = 6) -> ProjectFacts:
@@ -321,7 +331,7 @@ def collect_project_facts(repo: Path, *, max_modules: int = 6) -> ProjectFacts:
     for s in ranked:
         if s.name in seen_names:  # dedupe by module name for variety
             continue
-        excerpt = _code_excerpt(s)
+        excerpt = _code_excerpt(s, repo)
         if not excerpt:
             continue
         seen_names.add(s.name)

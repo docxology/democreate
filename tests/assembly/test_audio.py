@@ -157,3 +157,20 @@ def test_apply_fade_raises_without_ffmpeg(tmp_path: Path) -> None:
     src = _write_wav(tmp_path / "a.wav", 200)
     with pytest.raises(BackendUnavailableError):
         apply_fade(src, tmp_path / "out.wav")
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is unavailable")
+@pytest.mark.parametrize("operation", ["normalize_audio", "apply_fade"])
+def test_real_ffmpeg_write_failure_is_render_error(tmp_path: Path, operation: str) -> None:
+    import subprocess
+
+    from democreate.assembly import audio
+    from democreate.errors import RenderError
+
+    source = _write_wav(tmp_path / "valid.wav", 250)
+    destination = tmp_path / "unwritable.wav"
+    destination.mkdir()
+    with pytest.raises(RenderError) as error:
+        getattr(audio, operation)(source, destination)
+    assert isinstance(error.value.__cause__, subprocess.CalledProcessError)
+    assert measure_duration_ms(source) == 250

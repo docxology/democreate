@@ -1,10 +1,7 @@
-"""Interactive, self-contained HTML player export.
+"""Export a caption/chapter HTML preview with optional local frame images.
 
-Renders a single dependency-free HTML file from a :class:`~democreate.schema.Demo`
-using Jinja2 (a core dependency). The page embeds the demo title, a clickable
-chapter list (one per scene), and a caption track (one cue per chunk) plus a small
-vanilla-JS player that advances captions/chapters along a timeline. No external
-network assets are referenced, so the file opens offline.
+JavaScript and CSS are inline; referenced PNGs must accompany the HTML file for
+offline viewing. This preview has no audio track or audible narration playback.
 """
 
 from __future__ import annotations
@@ -31,15 +28,16 @@ def build_timeline(demo: Demo) -> dict:
 
     Each chunk becomes a caption cue. A cue's ``start_ms`` is the chunk's own
     ``start_ms`` if the sync engine has filled it in, otherwise the running sum of
-    estimated chunk durations. Each scene becomes a chapter anchored to its first
-    chunk's start (or the running cursor when a scene has no chunks).
+    measured playback durations (falling back to estimates before synthesis).
+    Each scene becomes a chapter anchored to its first chunk's start (or the
+    running cursor when a scene has no chunks).
 
     Args:
         demo: The demo to lay out.
 
     Returns:
         A dict with ``"captions"`` (list of ``{chunk_id, scene_id, text,
-        start_ms, frame}``), ``"chapters"`` (list of ``{title, scene_id,
+        start_ms, end_ms, frame}``), ``"chapters"`` (list of ``{title, scene_id,
         start_ms}``), and ``"total_ms"`` (the timeline length).
     """
     captions: list[dict] = []
@@ -51,6 +49,7 @@ def build_timeline(demo: Demo) -> dict:
         first = True
         for chunk in scene.chunks:
             start = chunk.start_ms if chunk.start_ms is not None else cursor
+            end = start + chunk.playback_duration_ms()
             if first:
                 chapter_start = start
                 first = False
@@ -60,10 +59,11 @@ def build_timeline(demo: Demo) -> dict:
                     "scene_id": scene.id,
                     "text": chunk.text,
                     "start_ms": start,
+                    "end_ms": end,
                     "frame": f"frame_{frame_index:04d}.png",
                 }
             )
-            cursor = start + chunk.estimated_duration_ms()
+            cursor = end
             frame_index += 1
         chapters.append(
             {
@@ -117,7 +117,9 @@ def export_html_player(
     *,
     frames_dir: str | None = None,
 ) -> Path:
-    """Render a self-contained HTML player for ``demo``.
+    """Render a caption/chapter preview referencing sibling frame assets.
+
+    This preview has a logical timer, not synthesized-audio playback.
 
     Args:
         demo: The demo to present.
@@ -134,7 +136,9 @@ def export_html_player(
     tl = timeline if timeline is not None else build_timeline(demo)
     captions = tl.get("captions", [])
     chapters = tl.get("chapters", [])
-    total_ms = tl.get("total_ms", demo.estimated_duration_ms())
+    total_ms = (
+        tl["total_ms"] if "total_ms" in tl else build_timeline(demo)["total_ms"]
+    )
 
     env = _environment()
     template = env.get_template(_TEMPLATE_NAME)

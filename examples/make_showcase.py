@@ -1,18 +1,16 @@
 #!/usr/bin/env python
-"""Build the definitive "DemoCreate showcase" demo artifact (v0.7.1).
+"""Build the definitive "DemoCreate showcase" demo artifact (v0.8.0).
 
-This is the most comprehensive self-referential demo: a tightly-paced, narrated
-tour that exercises *every* renderable surface — a title card, a one-glance
-graphical abstract, **bullet slides**, **stat-card slides**, autosizing **code**
-scenes that type in, real **figure/diagram/screenshot** backgrounds (shown whole,
-never cropped), **terminal** scenes, and a closing card — all locked to a real
-spoken voiceover with a moving waveform.
+This self-referential tour includes slides, typed codebase views, illustrative
+terminal output and fitted figure backgrounds. Camera zoom or overlays can
+obscure content. The canonical recipe selects a real Kokoro voice; a silent
+render does not establish voiced narration or acoustic alignment.
 
 It reuses generated assets (regenerate with ``examples/make_assets.py`` and
 ``docs/manuscript/figures/make_figures.py``):
 
 * ``examples/assets/architecture.png`` — generated architecture diagram
-* ``examples/assets/dashboard.png``    — real browser screenshot of the player
+* ``examples/assets/dashboard.png`` — illustrative player image
 * ``docs/manuscript/figures/graphical_abstract.png`` — the one-glance cover
 * ``docs/manuscript/figures/themes.png``    — the five-theme strip
 * ``docs/manuscript/figures/paper_fig.png`` — a real research-paper figure
@@ -26,12 +24,13 @@ Render it to an animated 4K MP4 with a real voiceover via::
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
 
 _REPO = Path(__file__).resolve().parents[1]
-_ASSETS = _REPO / "examples" / "assets"
+_ASSETS = Path("assets")
 _FIGS = _REPO / "docs" / "manuscript" / "figures"
 
 
@@ -47,7 +46,7 @@ def _slide(id_, section, narration, *, title="", subtitle="", bg=None,
     if subtitle:
         scene.context["subtitle"] = subtitle
     if bg is not None:
-        scene.context["background_image"] = str(bg)
+        scene.context["background_image"] = bg.as_posix()
     if bullets:
         scene.context["bullets"] = bullets
     if stats:
@@ -91,10 +90,10 @@ def build() -> Demo:
 
         # 2 — The whole idea at a glance (graphical abstract)
         _slide("abstract", "At a glance",
-               "One declarative artifact — describing a codebase or a research "
-               "paper — compiles through a deterministic pipeline into a verified, "
-               "provenance-signed video. Here is the whole idea on one screen.",
-               title="The whole idea", bg=_FIGS / "graphical_abstract.png",
+               "One declarative artifact describes a codebase or research paper "
+               "and compiles into frames, captions and video. Its provenance "
+               "records are unsigned, not authentication.",
+               title="The whole idea", bg=_ASSETS / "graphical_abstract.png",
                trigger="glance"),
 
         # 3 — What it is (bullet slide)
@@ -103,19 +102,20 @@ def build() -> Demo:
                "ordered stream of typed actions. Three ideas carry the whole system.",
                title="A demo is a value, not a recording",
                bullets=[
-                   "Rendering is a pure function of the artifact — edit it and "
-                   "re-render, never re-record.",
-                   "Every heavy backend has a pure-Python or system-binary default, "
-                   "so a real demo needs zero heavy installs.",
-                   "Audio is the single source of timing truth: frames are locked "
-                   "to the measured voiceover.",
+                   "Core defaults reproduce bytes for the same artifact, assets, "
+                   "configuration and environment.",
+                   "Optional adapters load on demand; default narration is "
+                   "silent, not an automatically installed neural voice.",
+                   "Measured WAV durations set clip windows; word positions "
+                   "remain character-weighted estimates.",
                ],
                trigger="three"),
 
         # 4 — The declarative spine (code, types in)
         _code("spine", "The Spine",
-              "The spine is plain data. A demo is scenes; a scene is chunks; a "
-              "chunk is typed actions. Rendering never mutates it.",
+              "The spine is plain data: scenes contain narration chunks and typed "
+              "actions. Synthesis records audio paths and measured timing in the "
+              "resolved output artifact.",
               "src/democreate/schema.py",
               "@dataclass\n"
               "class Demo:\n"
@@ -133,28 +133,28 @@ def build() -> Demo:
 
         # 5 — Deterministic defaults (code, types in)
         _code("backends", "Backends",
-              "Every capability hides behind an interface with a deterministic "
-              "default. Silent gives you zero dependencies; the system voice is a "
-              "real OS binary; and a wired Kokoro neural voice — the very voice "
-              "narrating this video — is a fully-local upgrade.",
+              "Interfaces separate the core defaults from optional adapters. "
+              "Silent narration uses the standard library; a system voice needs "
+              "a usable speech binary. This canonical recipe selects locally "
+              "provisioned Kokoro.",
               "src/democreate/narration/tts.py",
               "class TTSBackend(ABC):\n"
               "    @abstractmethod\n"
-              "    def synth(self, text: str) -> AudioClip: ...\n"
+              "    def synthesize(self, text, out_path, *, voice=None): ...\n"
               "\n"
-              "class SilentTTSBackend(TTSBackend):   # zero deps\n"
+              "class SilentTTSBackend(TTSBackend):   # no heavy deps\n"
               "class SystemTTSBackend(TTSBackend):   # macOS say / espeak\n"
               "class KokoroTTSBackend(TTSBackend):   # neural, optional",
               highlight=[5, 6], trigger="interface"),
 
         # 6 — Audio is ground truth (code, types in)
         _code("sync", "Sync",
-              "Timing is measured, never guessed. We synthesize the narration, "
-              "measure its real duration, transcribe it back to word timestamps, "
-              "and anchor each action to the word it is spoken on.",
+              "Clip duration is measured. Word timing is estimated: the default "
+              "transcriber spreads known text across the clip by character length. "
+              "It does not detect spoken word onsets.",
               "src/democreate/narration/sync.py",
               "clips = synthesize_demo(demo, ws)\n"
-              "sync_demo(demo, clips)        # TTS -> STT\n"
+              "sync_demo(demo, clips)        # duration-based word estimates\n"
               "for action in chunk.actions:\n"
               "    action.timestamp_ms = word_time(action.trigger_word)\n"
               "# every frame is held for its measured clip",
@@ -166,83 +166,84 @@ def build() -> Demo:
                "you just saw typed itself in. Look at this frame.",
                title="What you are seeing, right now",
                bullets=[
-                   "The narration is a real neural voice — Kokoro, running fully "
-                   "local, no cloud and no API key.",
-                   "The waveform below sweeps in lockstep with the audio.",
-                   "Nothing is cropped: figures fit whole, code autosizes — the "
-                   "frame is a page, not a camera.",
+                   "The canonical recipe selects Kokoro with local model files; "
+                   "the default backend remains silent.",
+                   "The waveform samples assembled audio at output-frame times.",
+                   "Backgrounds start fitted to the viewport; camera zoom and "
+                   "overlays can crop or obscure content.",
                ],
                trigger="generated"),
 
         # 8 — Themes (themes strip background)
         _slide("themes", "Configurable",
-               "One commented YAML controls the whole look and sound — five built-in "
-               "themes, any aspect ratio, resolution up to four K, and "
-               "near-lossless quality.",
-               title="Fully configurable", bg=_FIGS / "themes.png", trigger="themes"),
+               "YAML configuration selects themes, layout, resolution presets "
+               "including four K, and encoding controls. Actual quality depends "
+               "on input detail and encoding settings.",
+               title="Fully configurable", bg=_ASSETS / "themes.png", trigger="themes"),
 
         # 9 — Research papers (real figure background)
         _slide("paper", "Research Papers",
-               "The same engine demos a research paper: it reads the PDF with no "
-               "Python dependency, recovers the real abstract, the real figure "
-               "captions, and the sections — and shows each figure whole.",
-               title="Papers, not just packages", bg=_FIGS / "paper_fig.png",
+               "PDF text extraction uses poppler system binaries. Abstract, "
+               "section and caption detection are heuristic. Figure backgrounds "
+               "need locally available images.",
+               title="Papers, not just packages", bg=_ASSETS / "paper_fig.png",
                trigger="paper"),
 
         # 9b — Describes ANY codebase (the 0.7.0 portfolio capability)
-        _slide("portfolio", "Describe any codebase",
-               "And it does not only describe itself. Point it at a folder of "
-               "repositories and it renders one narrated, content-verified video per "
-               "project — each read from that project's own README and docstrings.",
+        _slide("portfolio", "Describe repositories",
+               "A portfolio pass describes repository folders from README files "
+               "and Python definitions. It attempts one video per selected project "
+               "and reports failures, rather than inventing unsupported details.",
                title="One video per project, automatically",
                bullets=[
-                   "democreate portfolio reads each repo's real README, "
-                   "architecture, stats, and load-bearing modules.",
-                   "Selection and extraction — not a model — so the default is "
-                   "deterministic and needs no network.",
-                   "This very video is the self-describing case of that same engine.",
+                   "Portfolio reads available README text, Python definitions "
+                   "and bounded repository statistics.",
+                   "Selection and extraction do not use a language model; "
+                   "voiced video still needs working TTS and ffmpeg.",
+                   "This showcase is hand authored; portfolio shares its "
+                   "rendering and export pipeline.",
                ],
                trigger="repositories"),
 
         # 10 — Architecture (diagram background)
         _slide("arch", "Architecture",
-               "Under the hood, eight subsystems compose: the spine flows into "
-               "narration, then rendering, then export — every stage a pure "
-               "function of the one artifact.",
+               "Eight subsystems share a declarative spine. Narration, rendering "
+               "and export also depend on configuration, assets and the selected "
+               "runtime environment.",
                title="Eight subsystems, one spine",
                bg=_ASSETS / "architecture.png", trigger="subsystems"),
 
         # 11 — By the numbers (stat slide)
         _slide("numbers", "By the numbers",
-               "And it is real. Seven hundred fifty three collected tests, eight "
-               "subsystems, five themes, four K output — and zero binary "
-               "dependencies for the core path.",
+               "Engineering gates check the core with real files and a coverage "
+               "threshold. Eight subsystems, five themes, four K presets, and "
+               "no external media executables for the core build.",
                title="DemoCreate by the numbers",
-               stats=[("776", "collected tests"), ("8", "subsystems"),
-                      ("5", "built-in themes"), ("4K", "max resolution"),
-                      ("0", "binary deps")],
+               stats=[(">=90%", "core coverage gate"), ("8", "subsystems"),
+                      ("5", "built-in themes"), ("4K", "resolution preset"),
+                      ("0", "required media tools")],
                trigger="real"),
 
         # 12 — Provenance (bullet slide)
         _slide("provenance", "Provenance",
-               "Every render carries its own provenance, three ways — so a video "
-               "can prove where it came from, and resist tampering.",
-               title="Signed, tamper-evident provenance",
+               "Renders carry attribution three ways. These records are unsigned: "
+               "they associate content, but do not authenticate an author or video.",
+               title="Unsigned provenance and consistency",
                bullets=[
                    "On-screen metadata bars — author, source, a running clock.",
                    "Container tags in the MP4, readable by any player or ffprobe.",
-                   "A steganographic signed poster whose hash verifies against the "
-                   "demo and fails on any edit.",
+                   "An unsigned poster payload checks a Demo digest; it does not "
+                   "authenticate cover pixels, video bytes or authorship.",
                ],
                trigger="three"),
 
         # 13 — Build + render (terminal)
         _terminal("render", "Render",
-                  "Then one command renders a high-definition video with a real "
-                  "neural voiceover, and proves it is genuine — real streams, not "
-                  "silent, not black.",
+                  "Rendering and basic verification check stream shape, audio "
+                  "energy and sampled picture variance. These checks do not "
+                  "establish intelligibility or acoustic word alignment.",
                   "democreate render demo.json --tts kokoro --voice af_heart",
-                  "✓ verified: real video + non-silent audio",
+                  "Illustrative output — not executed by DemoCreate: verification summary",
                   trigger="renders"),
 
         # 14 — Outro
@@ -256,19 +257,24 @@ def build() -> Demo:
     ]
 
     return Demo(
-        title="DemoCreate — The Showcase",
+        title="DemoCreate: The Showcase",
         scenes=scenes,
         width=1920,
         height=1080,
         fps=30,
         voice="af_heart",
         metadata={"author": "Daniel Ari Friedman", "self_referential": True,
-                  "version": "0.7.1"},
+                  "version": "0.8.0"},
     )
 
 
 def main() -> None:
     """Write the showcase demo artifact next to this script."""
+    for name in ("graphical_abstract.png", "themes.png", "paper_fig.png"):
+        source = _FIGS / name
+        target = Path(__file__).resolve().parent / "assets" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
     demo = build()
     problems = demo.validate()
     if problems:

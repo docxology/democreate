@@ -210,7 +210,7 @@ a `type_code`/`create_file` action — see [video.md](video.md#typing-animation)
 `--resolution` picks a named 16:9 tier (`720p`/`1080p`/`1440p`/`2160p`/`4k`) and
 `--aspect` reshapes the output to a named aspect-ratio preset before rendering.
 `--author`/`--watermark` add on-screen provenance (footer bar + container tag +
-signed payload — see [provenance.md](provenance.md)), and `--header` turns on the
+unsigned payload — see [provenance.md](provenance.md)), and `--header` turns on the
 top metadata bar (title · section), which is off by default.
 
 ```bash
@@ -246,7 +246,7 @@ Requires a usable system TTS (`say` on macOS, `espeak` on Linux) and `ffmpeg` on
 `PATH`. Exits non-zero if verification fails. With `--tts silent` you get a real
 video with a (correctly-flagged) silent track. Every render also writes YouTube
 chapters and embeds chapter markers into the MP4, **container metadata tags**,
-and a **signed steganographic poster** (see [provenance.md](provenance.md) and
+and a **unsigned steganographic poster** (see [provenance.md](provenance.md) and
 the chapters note below).
 
 ## `verify`
@@ -283,7 +283,7 @@ figure scene), and the section list (which adds a **structure** scene mapping th
 paper's parts). This is best-effort and degrades gracefully if poppler is absent.
 
 By default the video is attributed to the **PDF's own author** (the container
-`artist` tag and the signed provenance) and its `source` is set to the paper
+`artist` tag and the unsigned provenance) and its `source` is set to the paper
 title; pass `--author` to override. `--aspect`/`--resolution` reshape/resize the
 render exactly as on `render`, and `--max-figures` caps how many figures are
 featured.
@@ -378,7 +378,7 @@ democreate render demo.json --config democreate.yaml
 ## `stego`
 
 Extract — and optionally **verify** — the steganographic provenance hidden in a
-signed PNG (e.g. `output/provenance/poster_signed.png`, written by every
+payload-bearing PNG (e.g. `output/provenance/poster_signed.png`, written by every
 `render`/`paper`). Prints the embedded JSON record; with `--demo` it recomputes the
 content digest and reports whether the payload matches that demo, exiting non-zero
 on a mismatch. See [provenance.md](provenance.md).
@@ -390,7 +390,7 @@ democreate stego output/provenance/poster_signed.png --demo demo.json   # verify
 
 | Option | Default | Meaning |
 |--------|---------|---------|
-| `IMAGE` (arg) | required | A signed PNG carrying an LSB provenance payload. |
+| `IMAGE` (arg) | required | A payload-bearing PNG carrying an LSB provenance payload. |
 | `--demo` | `None` | A demo to verify the payload against (`✓`/`✗`, exits non-zero on mismatch). |
 
 Remember the honesty note: the payload lives in the **lossless PNG sidecars**, not
@@ -427,3 +427,26 @@ at the interactive HTML player (player, transcript, demo JSON, captions); `rende
 and `paper` continue through the animated render, encode, and content
 verification — see [video.md](video.md), [audio.md](audio.md),
 [architecture.md](architecture.md), and [backends.md](backends.md).
+Unsigned digest records check consistency only: they do not authenticate authors,
+cover pixels, video bytes or external assets. The retained `poster_signed.png`
+filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
+there are no transmission-bookend sidecars. See [provenance.md](provenance.md).
+
+## Image authority and resolved bundles
+
+`build`, `render`, `gif`, and `localize` accept `--asset-root DIR`. It is both
+the base for relative backgrounds and the allowed input root; by default it is
+the input Demo's directory. Generated `demos/demo.json` paths remain relative to
+the original workspace. Rebuild that bundle with its explicit asset root:
+
+```bash
+democreate build output/demos/demo.json --asset-root output -o output/rerender
+```
+
+Outside-root or missing backgrounds fail before rendering. This does not make
+direct low-level Pillow/capture APIs a sandbox.
+
+The HTML surface is a timed caption/frame preview, not synthesized-audio
+playback. Its narration cues are separate from the PNGs. For audible playback
+render an MP4 with an implemented voice backend; `--captions` explicitly burns
+the SRT in animated and static video.

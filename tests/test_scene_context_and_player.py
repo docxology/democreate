@@ -1,49 +1,32 @@
-"""Regression tests for scene-context → FrameState mapping and player timeline."""
-
+"""Cross-artifact frame identity across scene boundaries."""
 from __future__ import annotations
 
 from pathlib import Path
 
-from democreate.assembly.compositor import _state_for_chunk
-from democreate.export.interactive import build_timeline, export_html_player
-from democreate.schema import Chunk, Demo, Scene, SceneKind
 
+def test_player_cues_resolve_the_correct_rendered_scene(tmp_path: Path) -> None:
+    """A scene boundary must not reset frame names onto an earlier scene's image."""
+    from PIL import Image
 
-def test_scene_context_maps_to_frame_state() -> None:
-    chunk = Chunk(id="c", text="hi")
-    demo = Demo(title="T", scenes=[Scene(id="s", kind=SceneKind.SLIDE)])
-    demo.scenes[0].chunks.append(chunk)
-    context = {
-        "section": "Architecture",
-        "subtitle": "the overview",
-        "background_image": "/tmp/bg.png",
-    }
-    state = _state_for_chunk(demo, SceneKind.SLIDE, "Title", context, chunk)
-    assert state.section == "Architecture"
-    assert state.subtitle == "the overview"
-    assert state.background_image == "/tmp/bg.png"
+    from democreate.export.interactive import build_timeline
+    from democreate.pipeline import Pipeline
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Demo, Scene, SceneKind
 
-
-def test_build_timeline_frames_use_global_index() -> None:
-    s1 = Scene(id="s1", title="One")
-    s1.chunks.extend([Chunk(id="a", text="x"), Chunk(id="b", text="y")])
-    s2 = Scene(id="s2", title="Two")
-    s2.chunks.append(Chunk(id="c", text="z"))
-    demo = Demo(title="T", scenes=[s1, s2])
-    tl = build_timeline(demo)
-    frames = [cue["frame"] for cue in tl["captions"]]
-    # frame names are global, zero-padded, and match the compositor's frame_NNNN
-    assert frames == ["frame_0000.png", "frame_0001.png", "frame_0002.png"]
-    assert len(tl["chapters"]) == 2
-
-
-def test_player_lists_chapters_and_references_frames(tmp_path: Path) -> None:
-    s = Scene(id="s", title="Scene One")
-    s.chunks.append(Chunk(id="c", text="hello there"))
-    demo = Demo(title="My Demo", scenes=[s])
-    out = export_html_player(demo, None, tmp_path / "player.html", frames_dir="../frames")
-    html = out.read_text(encoding="utf-8")
-    assert "My Demo" in html
-    assert "Scene One" in html  # chapter rendered
-    assert "frame_0000.png" in html  # caption cue references the real frame name
-    assert "../frames" in html
+    blue, red = (20, 80, 160), (180, 30, 40)
+    for name, color in (("blue", blue), ("red", red)):
+        Image.new("RGB", (64, 32), color).save(tmp_path / f"{name}.png")
+    demo = Demo(title="Scenes", width=320, height=180, scenes=[
+        Scene(id="one", kind=SceneKind.SLIDE,
+              context={"background_image": "blue.png"},
+              chunks=[Chunk(id="a", text="first"), Chunk(id="b", text="second")]),
+        Scene(id="two", kind=SceneKind.SLIDE,
+              context={"background_image": "red.png"},
+              chunks=[Chunk(id="c", text="third")]),
+    ])
+    result = Pipeline(asset_root=tmp_path).run(demo, Workspace(tmp_path / "run"))
+    visible_colors = []
+    for cue in build_timeline(result.demo)["captions"]:
+        with Image.open(result.workspace.frames / cue["frame"]) as frame:
+            visible_colors.append(frame.convert("RGB").getpixel((160, 90)))
+    assert visible_colors == [blue, blue, red]

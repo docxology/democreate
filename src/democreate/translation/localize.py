@@ -94,6 +94,7 @@ def localize_render(
     burn: bool = False,
     verify: bool = True,
     name: str | None = None,
+    asset_root: Path | None = None,
 ) -> LocalizedResult:
     """Render one audio/subtitle language pair; return a :class:`LocalizedResult`.
 
@@ -127,7 +128,7 @@ def localize_render(
     klang, default_voice = KOKORO_AUDIO_LANGS.get(languages.audio, ("en-us", "af_heart"))
     use_voice = (voice or default_voice) if tts != "silent" else None
     backend = get_tts_backend(tts, voice=use_voice, lang=klang, rate_wpm=cfg.audio.rate_wpm)
-    result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(
+    result = Pipeline(tts_backend=backend, strict=False, config=cfg, asset_root=asset_root).run(
         audio_demo, workspace
     )
 
@@ -185,6 +186,7 @@ def localize_batch(
     burn: bool = False,
     verify: bool = True,
     name: str | None = None,
+    asset_root: Path | None = None,
 ) -> list[LocalizedResult]:
     """Render one localized video per ``(audio_lang, subtitle_lang)`` pair.
 
@@ -199,7 +201,7 @@ def localize_batch(
                 localize_render(
                     demo, workspace, languages=languages, translator=translator,
                     config=config, tts=tts, voice=voice, burn=burn, verify=verify,
-                    name=name,
+                    name=name, asset_root=asset_root,
                 )
             )
         except Exception as exc:  # noqa: BLE001 - one pair must not abort the batch

@@ -76,8 +76,8 @@ green and honest:
 
 ```python
 @pytest.mark.backend
-def test_real_whisper_transcribes(...):
-    ...                                          # skipped unless whisper installed
+def test_available_voice_backend(...):
+    ...  # Requires an implemented backend, dependencies and model/binary inputs
 
 def test_missing_extra_raises_with_hint():
     with pytest.raises(BackendUnavailableError) as exc:
@@ -102,8 +102,7 @@ src/democreate/<spine>.py      ↔   tests/test_<spine>.py   (schema, media, con
 So `src/democreate/narration/tts.py` is tested by `tests/narration/test_tts.py`,
 and `src/democreate/portfolio.py` by `tests/test_portfolio.py`. Cross-cutting
 integration tests (e.g. `test_render_integration.py`, `test_motion_and_export.py`)
-and repo-level meta tests (`test_claim_ledger.py`, `test_manuscript_consistency.py`,
-`test_output_public_allowlist.py`) live at the `tests/` root. The shared
+and repo-level meta tests (`test_claim_ledger.py`, `test_output_public_allowlist.py`) live at the `tests/` root. The shared
 `tests/conftest.py` fixtures apply to every subdirectory. Pytest uses
 `--import-mode=importlib` (set in `pyproject.toml`) so the subdirectories need no
 `__init__.py` and duplicate basenames across subsystems (e.g.
@@ -122,3 +121,7 @@ ruff check . && mypy src                          # lint + types
 Use `.venv/bin/python` explicitly — a bare `python` may be a shim that runs a
 different interpreter and silently fakes a green suite. Scope subsystem runs
 without `--cov` when working in parallel to avoid `.coverage` file races.
+Source-wording, collection-count and copied-default tests are intentionally not
+used to bind incidental prose. Structured ledger/metadata/evidence-reference
+validation remains. Whisper is unwired; dependency availability does not imply a
+working acoustic recognizer. Acoustic accuracy needs independent annotation.

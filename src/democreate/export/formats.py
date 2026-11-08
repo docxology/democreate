@@ -23,6 +23,7 @@ from .._logging import get_logger
 from ..errors import BackendUnavailableError
 from ..project_paths import relativize_under_root
 from ..schema import Action, Demo
+from .interactive import build_timeline
 
 __all__ = ["to_markdown", "to_json", "to_chapters", "export_pdf"]
 
@@ -136,9 +137,8 @@ def to_json(
 def to_chapters(demo: Demo) -> list[dict]:
     """Build a chapter list for players and YouTube descriptions.
 
-    One chapter per scene, anchored to the running estimated start time of the
-    scene (sum of prior scenes' estimated durations). A scene's own
-    first-chunk ``start_ms`` is preferred when the sync engine has filled it in.
+    Uses the same measured chunk durations and explicit starts as the HTML player,
+    falling back to duration estimates only before audio has been synthesized.
 
     Args:
         demo: The demo to map.
@@ -146,21 +146,7 @@ def to_chapters(demo: Demo) -> list[dict]:
     Returns:
         A list of ``{"title", "scene_id", "start_ms"}`` dicts, scene-ordered.
     """
-    chapters: list[dict] = []
-    cursor = 0
-    for scene in demo.scenes:
-        start = cursor
-        if scene.chunks and scene.chunks[0].start_ms is not None:
-            start = scene.chunks[0].start_ms
-        chapters.append(
-            {
-                "title": scene.title or scene.id,
-                "scene_id": scene.id,
-                "start_ms": start,
-            }
-        )
-        cursor = start + scene.estimated_duration_ms()
-    return chapters
+    return build_timeline(demo)["chapters"]
 
 
 def _has_pdf_engine() -> bool:

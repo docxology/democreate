@@ -150,6 +150,7 @@ def build(
     output: Path = typer.Option(Path("output"), "--output", "-o", help="Output directory"),
     tts: str = typer.Option("auto", "--tts", help="TTS backend: auto|silent|kokoro|elevenlabs|chatterbox"),
     strict: bool = typer.Option(True, "--strict/--no-strict", help="Fail on invalid demo"),
+    asset_root: Path | None = typer.Option(None, "--asset-root", help="Allowed image root/base (default: demo file directory)"),
 ) -> None:
     """Run the full pipeline: TTS, sync, frames, captions, and HTML player."""
     from .narration.tts import get_tts_backend
@@ -157,7 +158,10 @@ def build(
 
     d = _load_demo(demo)
     backend = get_tts_backend(tts)
-    result = build_demo(d, Workspace(output), tts_backend=backend, strict=strict)
+    result = build_demo(
+        d, Workspace(output), tts_backend=backend, strict=strict,
+        asset_root=asset_root or demo.resolve().parent,
+    )
     console.print_json(json.dumps(result.summary()))
     console.print(f"[green]✓[/] player: {result.player_path}")
 
@@ -309,6 +313,8 @@ def paper(
     theme = _validate_theme(theme)
     aspect = _validate_aspect(aspect)
     resolution = _validate_resolution(resolution)
+    if figures is not None:
+        figures = figures.resolve()
     ws = Workspace(output)
     console.print(f"[cyan]reading paper[/] {pdf}")
     summary = summarize_paper(pdf, figures_dir=figures)
@@ -383,7 +389,10 @@ def paper(
     from .narration.tts import get_tts_backend
 
     backend = get_tts_backend(cfg.audio.backend, voice=cfg.audio.voice)
-    result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(demo, ws)
+    result = Pipeline(
+        tts_backend=backend, strict=False, config=cfg,
+        asset_root=figures.resolve() if figures is not None else pdf.resolve().parent,
+    ).run(demo, ws)
     out, report = render_video(result, verify=True, config=cfg)
     console.print(f"[green]✓[/] video: {out}")
     if report is not None:
@@ -409,6 +418,7 @@ def localize(
     theme: str = typer.Option("noir", "--theme"),
     resolution: str = typer.Option("1080p", "--resolution"),
     burn: bool = typer.Option(False, "--burn/--no-burn", help="Burn subtitles into the picture"),
+    asset_root: Path | None = typer.Option(None, "--asset-root", help="Allowed image root/base (default: demo file directory)"),
 ) -> None:
     """Render localized videos — audio in one language, subtitles in another.
 
@@ -447,6 +457,7 @@ def localize(
     results = localize_batch(
         d, Workspace(output), pairs=parsed, source=source_lang, translator=tr,
         config=cfg, tts=cfg.audio.backend, voice=cfg.audio.voice, burn=burn,
+        asset_root=asset_root or demo.resolve().parent,
     )
     for r in results:
         mark = "[green]✓[/]" if r.ok else "[red]✗[/]"
@@ -513,12 +524,12 @@ def backends() -> None:
 
     rows = [
         ("TTS (kokoro)", "kokoro_onnx", "tts"),
-        ("TTS (chatterbox)", "chatterbox", "tts"),
+        ("TTS slot (chatterbox; unwired)", "chatterbox", None),
         ("TTS (elevenlabs)", "elevenlabs", "elevenlabs"),
-        ("Transcribe (whisper)", "whisper", "whisper"),
+        ("Transcription slot (whisper; unwired)", "whisper", "whisper"),
         ("Capture (mss)", "mss", "capture"),
         ("Browser (playwright)", "playwright", "browser"),
-        ("Animation (manim)", "manim", "animation"),
+        ("Animation slot (manim; unwired)", "manim", "animation"),
         ("Replay (pynput)", "pynput", "replay"),
         ("Legacy compositor slot (moviepy)", "moviepy", "video"),
         ("Codebase (tree-sitter)", "tree_sitter", "codebase"),
@@ -542,14 +553,15 @@ def backends() -> None:
         ),
     ]
     for label, present, install in system_rows:
-        status = "[green]available[/]" if present else "[yellow]absent[/]"
+        status = "[green]found[/]" if present else "[yellow]absent[/]"
         table.add_row(label, status, install)
     for label, module, extra in rows:
         available = importlib.util.find_spec(module) is not None
-        status = "[green]installed[/]" if available else "[yellow]default[/]"
-        table.add_row(label, status, f"uv sync --extra {extra}")
+        status = "[green]module installed[/]" if available else "[yellow]module absent[/]"
+        install = f"uv sync --extra {extra}" if extra is not None else "unwired; no extra"
+        table.add_row(label, status, install)
     console.print(table)
-    console.print("All capabilities have a working deterministic default backend.")
+    console.print("Core builds use silent synthesis and synthetic frames. Dependency presence is not adapter/model/host readiness.")
 
 
 def main() -> None:  # pragma: no cover - console-script entry

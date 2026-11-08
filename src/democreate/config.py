@@ -78,10 +78,11 @@ class Theme:
     def from_dict(cls, data: dict[str, Any]) -> Theme:
         """Build a theme from a dict, coercing color lists to tuples."""
         known = {f.name for f in fields(cls)}
+        unknown = set(data) - known
+        if unknown:
+            raise ValueError(f"unknown theme fields: {', '.join(sorted(unknown))}")
         kwargs: dict[str, Any] = {}
         for key, value in data.items():
-            if key not in known:
-                continue
             kwargs[key] = tuple(value) if isinstance(value, list) else value
         return cls(**kwargs)
 
@@ -222,6 +223,13 @@ class AudioConfig:
     normalize: bool = True
     fade_ms: int = 180
 
+    def __post_init__(self) -> None:
+        for name in ("lead_silence_ms", "trail_silence_ms", "gap_ms", "fade_ms"):
+            if getattr(self, name) < 0:
+                raise ValueError(f"audio {name} must be nonnegative")
+        if self.rate_wpm is not None and self.rate_wpm <= 0:
+            raise ValueError("audio rate_wpm must be positive")
+
 
 @dataclass
 class VideoConfig:
@@ -255,12 +263,18 @@ class VideoConfig:
     ken_burns: bool = False
     ken_burns_zoom: float = 1.06
     typing: bool = True
-    typing_fraction: float = 0.7  # fraction of a chunk spent typing before it holds
     cursor: bool = True
-    # H.264 encode quality: lower CRF = higher quality/bitrate (18 ≈ visually
-    # lossless, 23 = x264 default). `preset` trades encode speed for compression.
+    # CRF controls the encoder's rate/quality tradeoff, not a perceptual guarantee.
+    # `preset` trades encoding speed for compression efficiency.
     crf: int = 18
     preset: str = "medium"
+
+    def __post_init__(self) -> None:
+        for name in ("width", "height", "fps", "animation_fps"):
+            if getattr(self, name) <= 0:
+                raise ValueError(f"video {name} must be positive")
+        if self.transition_ms < 0:
+            raise ValueError("video transition_ms must be nonnegative")
 
 
 # Named aspect-ratio presets → (width, height) at 1080-class resolution.
@@ -285,11 +299,11 @@ RESOLUTIONS: dict[str, tuple[int, int]] = {
 
 @dataclass
 class MetadataConfig:
-    """Provenance/metadata shown on screen, written to the container, and hidden.
+    """Metadata labels and unsigned content association settings.
 
-    The same fields drive three carriers: visible top/bottom overlay bars, MP4
-    container tags (read by players/``ffprobe``), and a steganographic payload
-    embedded in lossless poster/bookend PNGs.
+    Some labels are reused in visible bars, MP4 container tags and a lossless
+    poster PNG payload. These are different representations, not identical
+    authenticated carriers; no transmission bookends are emitted.
 
     Attributes:
         author: Creator name (footer + container ``artist``).
@@ -302,7 +316,7 @@ class MetadataConfig:
         footer: Draw a bottom metadata bar (author · source · url · clock).
         show_clock: Show a running time readout in the footer.
         container_tags: Write MP4 metadata tags via ffmpeg.
-        steganography: Embed a signed provenance payload in lossless PNG sidecars.
+        steganography: Embed an unsigned content-association payload in poster PNGs.
     """
 
     author: str = ""
@@ -372,6 +386,9 @@ class RenderConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> RenderConfig:
         """Build a config from a (possibly partial) dict."""
+        unknown = set(data) - {"theme", "audio", "video", "metadata"}
+        if unknown:
+            raise ValueError(f"unknown render fields: {', '.join(sorted(unknown))}")
         theme_data = data.get("theme", {})
         if isinstance(theme_data, str):
             theme = replace(THEMES.get(theme_data, _NOIR))
@@ -379,11 +396,12 @@ class RenderConfig:
             base = THEMES.get(theme_data.get("name", "noir"), _NOIR)
             merged = {**asdict(base), **theme_data}
             theme = Theme.from_dict(merged)
-        # Filter unknown keys (like Theme.from_dict) so a config carrying a future
-        # or mistyped field degrades gracefully instead of raising TypeError.
         def _sub(klass, key):
             known = {f.name for f in fields(klass)}
-            given = {k: v for k, v in (data.get(key) or {}).items() if k in known}
+            given = data.get(key) or {}
+            unknown = set(given) - known
+            if unknown:
+                raise ValueError(f"unknown {key} fields: {', '.join(sorted(unknown))}")
             return klass(**{**asdict(klass()), **given})
 
         audio = _sub(AudioConfig, "audio")
@@ -412,7 +430,7 @@ class RenderConfig:
             "  # resolution tiers (16:9): 720p 1280x720 · 1080p 1920x1080 · 1440p 2560x1440 · 2160p/4k 3840x2160",
             f"  fps: {cfg.video.fps}                  # demo frame rate",
             f"  animation_fps: {cfg.video.animation_fps}        # animated render frame rate (motion smoothness)",
-            f"  crf: {cfg.video.crf}                  # H.264 quality: 18 ~ visually lossless, 23 = default, lower = crisper",
+            f"  crf: {cfg.video.crf}                  # H.264 rate/quality tradeoff; inspect encoded output",
             f"  preset: {cfg.video.preset}           # x264 speed/size tradeoff: ultrafast..veryslow",
             f"  waveform: {str(cfg.video.waveform).lower()}          # draw the speech waveform band",
             f"  progress_bar: {str(cfg.video.progress_bar).lower()}      # draw the top progress bar",
@@ -437,7 +455,7 @@ class RenderConfig:
             f"  header: {str(cfg.metadata.header).lower()}          # top metadata bar (title · section)",
             f"  footer: {str(cfg.metadata.footer).lower()}           # bottom metadata bar (author · source · clock)",
             f"  container_tags: {str(cfg.metadata.container_tags).lower()}   # embed MP4 metadata tags",
-            f"  steganography: {str(cfg.metadata.steganography).lower()}    # hide signed provenance in poster/bookend PNGs",
+            f"  steganography: {str(cfg.metadata.steganography).lower()}    # unsigned content association in poster PNGs",
             "",
         ]
         return "\n".join(lines)

@@ -134,3 +134,19 @@ def test_ollama_passthrough_same_language() -> None:
     # No request is made when source == target, so an unreachable host is fine.
     tr = OllamaTranslator(host="http://127.0.0.1:1", timeout=1)
     assert tr.translate("Hello.", source="en", target="en") == "Hello."
+
+
+def test_expanded_subtitles_preserve_measured_audio_windows() -> None:
+    class ExpandingTranslator(Translator):
+        def translate(self, text: str, *, source: str, target: str) -> str:
+            return "translated " * 20
+
+    source = Demo(title="Translation", scenes=[Scene(id="s", chunks=[
+        Chunk(id="a", text="one", start_ms=300, duration_ms=400),
+        Chunk(id="b", text="two", start_ms=920, duration_ms=400),
+    ])])
+    srt = localized_captions(
+        source, ExpandingTranslator(), source="en", target="es", timing_demo=source
+    )
+    assert "00:00:00,300 --> 00:00:00,700" in srt
+    assert "00:00:00,920 --> 00:00:01,320" in srt

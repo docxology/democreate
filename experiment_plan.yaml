@@ -1,136 +1,153 @@
-# Experiment plan for DemoCreate.
-# Defines the primary evaluation: does the deterministic default pipeline trade
-# off predictably against adapter-backed media paths on the core promise of the
-# package — action/narration synchronization — while
-# preserving reproducibility and acceptable latency.
-
+# Prospective protocol, not an executed experiment or release receipt.
 title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-version: "0.7.1"
+version: "0.8.0"
 domain: software_tooling
+status: planned
+schema_version: "1.1"
+evidence_status: "No >=30-demo independently annotated voiced corpus or measured <=120 ms result is available."
 
 goal: >-
-  Quantify the synchronization accuracy, reproducibility, and latency of the
-  pure-Python deterministic default backends versus the adapter-backed media
-  condition (system TTS/ffmpeg plus wired Kokoro neural TTS, Whisper, capture,
-  animation, and legacy MoviePy slots where wired), and show that the
-  deterministic spine produces faithful demo artifacts with light dependencies
-  alone.
+  Evaluate visible-event/acoustic-word alignment of the default timing heuristic
+  on voiced renders, separately from silent-default reproducibility and latency.
+  Silent audio has no spoken-word onset; its acoustic error is undefined, never zero.
 
 hypotheses:
   - id: H1
     statement: >-
-      The deterministic default pipeline achieves median sync_error_ms within
-      the validation budget (<=120 ms) on the demo corpus.
+      The default character-weighted timing heuristic, applied to eligible voiced
+      animated renders, achieves both pooled event median and median of demo-level
+      sync_error_ms medians <=120 across the independently annotated corpus.
+      This is not a claim about acoustic onsets in the literal silent default.
   - id: H2
     statement: >-
-      Adapter-backed media paths reduce median sync_error_ms relative to the
-      default pipeline, at the cost of higher render latency, when those
-      adapters are available and implemented.
+      An implemented acoustic-alignment adapter reduces median sync_error_ms
+      relative to the heuristic on the identical voiced WAVs. This comparison
+      cannot run with the current unwired Whisper slot.
   - id: H3
     statement: >-
-      The default pipeline is byte-reproducible across runs with a fixed seed;
-      adapter-backed media paths are reproducible up to tolerance when available.
+      Silent-default builds are byte-reproducible with identical authored input,
+      assets, configuration and pinned runtime. Neural/native voice synthesis
+      is not assumed byte-identical across versions or machines.
 
-# Conditions ---------------------------------------------------------------
 conditions:
   - id: default
-    label: "Deterministic default backends (light deps)"
+    label: "Silent-default engineering control"
+    acoustic_metric_eligible: false
     description: >-
-      Pure-Python deterministic TTS stub, deterministic word-timestamp STT,
-      synthetic frame capture, lightweight assembler. Produces mp4/gif/html.
+      Silent WAVs, measured-duration word interpolation and synthetic frames.
+      Tests deterministic output and engineering structure, not acoustic accuracy.
     backends:
-      tts: deterministic
-      stt: deterministic
+      tts: silent
+      stt: heuristic
       capture: synthetic
       animation: deterministic
       assembly: deterministic
-  - id: high_fidelity
-    label: "Adapter-backed media paths (extras/system binaries)"
+  - id: voiced_heuristic
+    label: "Voiced audio with the default timing heuristic"
+    acoustic_metric_eligible: true
     description: >-
-      System TTS and ffmpeg where available, plus Kokoro (wired), Whisper,
-      mss/Playwright, Manim, and MoviePy adapter slots where they are wired.
+      Fix and report a system or implemented Kokoro voice, synthesize once, seal
+      the WAVs and annotate actual word onsets independently. Render with
+      animate=True and report frame cadence. Do not pool different engines or
+      voices without separate strata. Static representative stills are ineligible
+      for a within-chunk visible-event onset claim.
     backends:
-      tts: system_or_wired_kokoro
-      stt: heuristic_or_guarded_whisper
-      capture: playwright
-      animation: manim
-      assembly: ffmpeg_or_guarded_moviepy
+      tts: pinned_system_or_kokoro
+      stt: heuristic
+      capture: synthetic
+      animation: scheduled
+      assembly: ffmpeg
+  - id: high_fidelity
+    label: "Future acoustic alignment on the same voiced audio"
+    acoustic_metric_eligible: true
+    runnable: false
+    prerequisite: "A real implemented alignment adapter; installing Whisper alone is insufficient."
+    description: >-
+      Reuse the voiced_heuristic WAVs, transcript, actions and render settings;
+      change only word alignment. Current guarded slots cannot produce results.
 
-# Metrics ------------------------------------------------------------------
 primary_metric:
   id: sync_error_ms
   description: >-
-    Absolute time difference between each on-screen action and its anchored
-    spoken trigger word, after TTS->STT alignment. Aggregated as median over
-    the demo corpus.
+    Absolute difference in milliseconds between independently annotated acoustic
+    trigger-word onset and the first visible effect of its intended action in the
+    encoded video. Include configured lead/gaps in the shared timebase. Report
+    per-event errors, each demo's median, then the median of demo medians so that
+    long demos do not dominate. Missing speech, absent visible events, unmatched
+    triggers and unavailable adapters are explicit failures/unavailable data,
+    never zero-error samples or silently excluded successes.
+  aggregation_guard: "Both pooled event median and median of demo medians must be <=120 ms; neither weighting may conceal failure."
   unit: milliseconds
   direction: minimize
+  threshold: "pooled event median AND median of demo medians <=120"
+  annotation_protocol: >-
+    Annotators must not derive ground truth from HeuristicTranscriber or authored
+    action timestamps. Identify events by scene/chunk ID and action index; retain
+    audio/video SHA-256 identities, onset annotations, disagreement/adjudication
+    records and frame cadence. Report annotation uncertainty and frame quantization.
 
 secondary_metrics:
   - id: render_ms_per_output_s
-    description: "Wall-clock render time per second of output demo."
+    description: "Wall-clock render_video time per output second, with exact timed stages and raw samples."
     unit: ms_per_s
     direction: minimize
   - id: reproducibility_byte_diff
-    description: "Byte difference between two runs of the same Demo with fixed seed."
+    description: "Byte differences between identified silent-default outputs under the same environment."
     unit: bytes
     direction: minimize
   - id: coverage_completeness
-    description: "Fraction of declared action-stream steps rendered into output."
+    description: "Fraction of declared intended visual events actually observed in encoded output; absent events remain failures."
     unit: fraction
     direction: maximize
 
 corpus:
-  description: "Demo corpus spanning the three target modes."
-  items:
-    - codebase_tour   # action stream over a sample repository
-    - website_walkthrough
-    - terminal_cli_demo
+  status: planned
+  description: "Independent voiced demos and annotations; no dataset is supplied by this plan."
+  items: [codebase_tour, website_walkthrough, terminal_cli_demo]
   size: ">=30 demos (>=10 per mode)"
+  controls: >-
+    Predeclare texts, intended trigger occurrences, actions, assets, voices and
+    versions before scoring. Include repeated words, short/long chunks, silence
+    gaps and file/scene transitions. Website synthetic-state and real-browser
+    recordings are separate strata, not interchangeable evidence.
 
 expected_figures:
-  - sync_error_distribution        # default vs adapter-backed media, per mode
-  - pipeline_latency_breakdown     # per-subsystem latency, both conditions
-  - action_narration_timeline      # exemplar aligned timeline
-  - backend_fidelity_matrix        # quality/cost across backend combos
-
+  - sync_error_distribution
+  - pipeline_latency_breakdown
+  - action_narration_timeline
+  - backend_fidelity_matrix
 expected_tables:
   - id: T1
-    caption: "Median and p90 sync_error_ms by condition and demo mode."
+    caption: "Median and p90 error by eligible condition, voice and demo mode; report missing/failed events."
   - id: T2
-    caption: "Render latency (ms per output second) by condition and subsystem."
+    caption: "Wall-clock latency with stage boundaries, raw samples and runtime/source identities."
   - id: T3
-    caption: "Reproducibility: byte-diff and coverage_completeness by condition."
+    caption: "Silent-default byte differences and observed-event completeness."
 
 baselines:
   - id: B0
-    name: "Naive fixed-offset anchoring"
-    description: >-
-      Anchor each action to its narration chunk start using a fixed estimated
-      offset, with no TTS->STT word-timestamp alignment. Establishes the
-      sync_error_ms floor that the synchronization mechanism must beat.
+    name: "Chunk-start anchoring"
+    description: "Reuse sealed voiced audio; place visual actions at their chunk start rather than interpolated word offsets."
   - id: B1
-    name: "asciinema/termtosvg capture-only"
-    description: >-
-      Terminal-only recording with no synthesized narration synchronization,
-      as a prior-art reference point for terminal demos.
-
+    name: "Capture-only architectural reference"
+    description: "asciinema/termtosvg are not acoustic-error baselines without equivalent narrated stimuli; no unsupported numeric comparison."
 ablations:
   - id: A1
-    name: "No STT pass"
-    description: "Skip transcription; anchor on TTS-predicted timestamps only. Isolates STT contribution to sync accuracy."
+    name: "Uniform instead of character-weighted word interpolation"
+    description: "Proposed timing-only variant on identical WAVs; no claim that a no-STT ablation differs from the current heuristic."
   - id: A2
-    name: "No chunking"
-    description: "Treat narration as one block (drop VSpeak-style chunk/trigger model). Isolates the chunk model's effect on anchoring."
+    name: "No chunk boundaries"
+    description: "Proposed timing variant on the same concatenated voiced audio; do not resynthesize text and confound alignment with changed speech."
   - id: A3
-    name: "Default assembler vs guarded MoviePy slot"
-    description: "Swap only the assembly backend to isolate its latency and fidelity contribution."
+    name: "Static versus scheduled animated rendering"
+    description: "Hold audio/configuration fixed; static stills are a visual-timing negative control, not proof of within-chunk alignment."
   - id: A4
-    name: "Synthetic vs real capture"
-    description: "Swap only the capture backend (synthetic vs mss/Playwright) holding TTS/STT fixed."
+    name: "Synthetic versus real capture"
+    description: "Future workflow-specific comparison; requires identified captured inputs and implemented integration, not merely an installed driver."
 
 success_criteria:
-  - "H1 confirmed: default median sync_error_ms <= 120 across all modes."
-  - "H2 directionally confirmed: high_fidelity median sync_error_ms <= default."
-  - "H3 confirmed: default reproducibility_byte_diff == 0."
-  - "Coverage gate (>=90% core) holds for the analyzed build."
+  - "H1: pooled event median AND median of demo-level voiced sync_error_ms medians <=120 on >=30 independently annotated demos."
+  - "H2: implemented acoustic alignment improves or matches heuristic timing on identical audio; currently unavailable."
+  - "H3: identified silent-default outputs have zero byte differences under pinned inputs/runtime."
+  - "Configured >=90% core coverage passes for the analyzed source."
+  - "No corpus, acoustic result or release-readiness claim from synthetic timestamp structure alone."

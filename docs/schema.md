@@ -2,7 +2,7 @@
 
 The schema is the deterministic spine. It is pure Python (no I/O, no heavy deps),
 defined in `src/democreate/schema.py`, and round-trips losslessly through
-`dict` / JSON / YAML. `SCHEMA_VERSION` is currently `"1.0"`; the enum *string
+`dict` / JSON / YAML. `SCHEMA_VERSION` is currently `"1.1"` (1.0 is intentionally rejected); the enum *string
 values* are the on-disk representation and must not be renamed without a
 schema-version bump.
 
@@ -24,7 +24,7 @@ function of it — edit and re-render rather than re-record.
 | `fps` | `int` | `30` | Output frame rate, must be positive. |
 | `voice` | `str` | `"default"` | Default narration voice id. |
 | `metadata` | `dict` | `{}` | Free-form (author, source repo, license, …). |
-| `schema_version` | `str` | `"1.0"` | On-disk schema version. |
+| `schema_version` | `str` | `"1.1"` | On-disk schema version. |
 
 Key methods: `validate() -> list[str]` (empty == valid; checks non-empty title,
 positive geometry/fps, unique scene/chunk ids, valid action types), `is_valid()`,
@@ -48,7 +48,7 @@ A logical chapter with a single capture strategy.
 
 ## `Chunk`
 
-A narration unit and the actions it triggers (the VSpeak model).
+A narration unit and the actions it triggers.
 
 | Field | Type | Default | Notes |
 |-------|------|---------|-------|
@@ -58,9 +58,10 @@ A narration unit and the actions it triggers (the VSpeak model).
 | `voice` | `str \| None` | `None` | Per-chunk voice override. |
 | `audio_path` | `str \| None` | `None` | Filled by the TTS backend. |
 | `start_ms` | `int \| None` | `None` | Absolute audio start, filled by sync. |
+| `duration_ms` | `int \| None` | `None` | Measured clip duration after sync; playback estimates only when absent. |
 
 Methods: `word_count()`, `estimated_duration_ms(wpm=150)` (a wordless chunk still
-reserves a 300 ms beat).
+reserves a 300 ms beat), and `playback_duration_ms(wpm=150)` (measurement first).
 
 ## `Action`
 
@@ -73,8 +74,12 @@ One typed event mutating the virtual environment (the CodeVideo model).
 | `trigger_word` | `str \| None` | `None` | A word in the parent chunk's `text` the sync engine anchors this action to. |
 | `timestamp_ms` | `int \| None` | `None` | Absolute fire time (ms from demo start); `None` until sync fills it. |
 | `duration_ms` | `int \| None` | `None` | How long the action plays out (typing, a zoom). |
+| `timestamp_source` | `str` | `"authored"` | `"authored"` preserves explicit absolute times; `"sync"` refreshes derived times after narration edits. |
 
 `to_dict()` omits unset optional fields.
+`timestamp_source` is persisted, including before a time is assigned. Triggered
+actions are always re-anchored; an untriggered WAIT advances the fallback
+sequence cursor. Captured discrete inputs use zero duration.
 
 ## `ActionType`
 
@@ -120,7 +125,7 @@ A complete, valid two-scene demo (the artifact `democreate init` produces):
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "title": "Starter Demo",
   "width": 1920,
   "height": 1080,

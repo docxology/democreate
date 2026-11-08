@@ -38,6 +38,7 @@ def render(
     watermark: str = typer.Option("", "--watermark", help="Persistent watermark text"),
     header: bool = typer.Option(False, "--header/--no-header", help="Show the top metadata bar"),
     config: Path = typer.Option(None, "--config", help="RenderConfig YAML (overrides --theme/--voice)"),
+    asset_root: Path | None = typer.Option(None, "--asset-root", help="Allowed image root/base (default: demo file directory)"),
 ) -> None:
     """Render a demo to an HD MP4 with real voiceover, then verify its content."""
     from .narration.tts import get_tts_backend
@@ -66,7 +67,9 @@ def render(
         f"[cyan]rendering[/] {d.title!r} at {d.width}x{d.height} "
         f"via '{cfg.audio.backend}' voice, '{cfg.theme.name}' theme…"
     )
-    result = Pipeline(tts_backend=backend, strict=False, config=cfg).run(d, Workspace(output))
+    result = Pipeline(
+        tts_backend=backend, strict=False, config=cfg, asset_root=asset_root or demo.resolve().parent
+    ).run(d, Workspace(output))
     out, report = render_video(
         result,
         fps=fps or None,
@@ -135,6 +138,7 @@ def gif(
     out: Path = typer.Option(Path("demo.gif"), "--gif"),
     fps: int = typer.Option(8, "--fps"),
     theme: str = typer.Option("noir", "--theme"),
+    asset_root: Path | None = typer.Option(None, "--asset-root", help="Allowed image root/base (default: demo file directory)"),
 ) -> None:
     """Build a demo and export an animated GIF preview of its frames."""
     from .config import RenderConfig
@@ -145,7 +149,9 @@ def gif(
     theme = _validate_theme(theme)
     d = _load_demo(demo)
     cfg = RenderConfig.preset(theme)
-    result = Pipeline(strict=False, config=cfg).run(d, Workspace(output))
+    result = Pipeline(
+        strict=False, config=cfg, asset_root=asset_root or demo.resolve().parent
+    ).run(d, Workspace(output))
     demo_to_gif(result.frame_paths, out, fps=fps)
     console.print(f"[green]✓[/] gif: {out}")
 

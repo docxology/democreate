@@ -255,7 +255,9 @@ class SystemTTSBackend(TTSBackend):
     ) -> None:
         engine = _system_tts_command()
         if engine is None:
-            raise BackendUnavailableError("system-tts (say/espeak)", extra="tts")
+            raise BackendUnavailableError(
+                "system speech engine (install a usable say/espeak voice and ffmpeg)"
+            )
         self._engine = engine
         self.voice = voice
         self.sample_rate = sample_rate
@@ -322,12 +324,10 @@ class SystemTTSBackend(TTSBackend):
 
 
 class KokoroTTSBackend(TTSBackend):
-    """Kokoro neural TTS backend — a high-quality, fully-local voice.
+    """Local Kokoro neural TTS backed by an optional ONNX Runtime model.
 
-    Kokoro is an 82M-parameter open-weight neural TTS that runs offline via ONNX
-    Runtime (`kokoro-onnx`), producing far more natural narration than the system
-    ``say``/``espeak`` voices. It is heavier and slower (a few seconds per chunk on
-    CPU) but needs no cloud and no API key.
+    Runtime and perceived voice quality depend on the input, model and hardware;
+    no comparative quality or latency measurement is implied by this adapter.
 
     Two things must be present: the ``kokoro-onnx`` package (the ``tts`` extra) and
     the model files (``kokoro-v1.0.onnx`` + ``voices-v1.0.bin``, ~340 MB), which are
@@ -443,7 +443,7 @@ class KokoroTTSBackend(TTSBackend):
 
 
 class ElevenLabsTTSBackend(TTSBackend):
-    """ElevenLabs cloud TTS backend — highest-fidelity hosted voice synthesis.
+    """Hosted ElevenLabs speech synthesis with a configured API account.
 
     Calls the ElevenLabs cloud API to synthesize narration in a chosen stock or
     cloned voice, then transcodes the result to the pipeline's canonical 16-bit
@@ -594,7 +594,7 @@ class ElevenLabsTTSBackend(TTSBackend):
 
 
 class ChatterboxTTSBackend(TTSBackend):
-    """Chatterbox TTS backend (optional, requires the ``tts`` extra).
+    """Unwired Chatterbox slot; no published extra enables this adapter.
 
     Args:
         voice: Default Chatterbox voice identifier.
@@ -607,7 +607,7 @@ class ChatterboxTTSBackend(TTSBackend):
 
     def __init__(self, *, voice: str | None = None) -> None:
         if not _dep_available("chatterbox"):
-            raise BackendUnavailableError("chatterbox", extra="tts")
+            raise BackendUnavailableError("chatterbox")
         self.voice = voice  # pragma: no cover - requires chatterbox
 
     def is_available(self) -> bool:
@@ -617,7 +617,7 @@ class ChatterboxTTSBackend(TTSBackend):
     def synthesize(  # pragma: no cover - requires chatterbox
         self, text: str, out_path: Path, *, voice: str | None = None
     ) -> AudioClip:
-        """Synthesize ``text`` with Chatterbox (only runs when installed)."""
+        """Refuse unavailable or unwired Chatterbox synthesis explicitly."""
         if not _dep_available("chatterbox"):
-            raise BackendUnavailableError("chatterbox", extra="tts")
+            raise BackendUnavailableError("chatterbox")
         raise NotImplementedError("ChatterboxTTSBackend real synthesis not yet wired")

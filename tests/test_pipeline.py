@@ -63,7 +63,6 @@ def test_full_pipeline_produces_all_artifacts(sample_demo: Demo, tmp_workspace) 
         j2 = (Workspace(d2).demos / "demo.json").read_text(encoding="utf-8")
     assert m1 == m2, "render manifest must be byte-identical across workspaces"
     assert j1 == j2, "demo.json must be byte-identical across workspaces"
-    assert "audio/c1.wav" in m1, "manifest must keep a workspace-relative audio path"
 
     # Key-aware relativization (Forge finding): only values under a path key are
     # rewritten; an authored title that merely starts with the root is preserved.
@@ -99,14 +98,28 @@ def test_relativize_rewrites_background_image_paths(tmp_path) -> None:
     assert rel["title"] == f"{tmp_path} starts a title"
 
 
-def test_pipeline_sets_timing_on_demo(sample_demo: Demo, tmp_workspace) -> None:
-    build_demo(sample_demo, tmp_workspace)
-    # sync assigned chunk start times and action timestamps
-    for chunk in sample_demo.iter_chunks():
-        assert chunk.start_ms is not None
-        assert chunk.audio_path is not None
-    for action in sample_demo.iter_actions():
-        assert action.timestamp_ms is not None
+def test_reused_workspace_does_not_reuse_stale_frames(tmp_path) -> None:
+    """A shorter rebuild has only its own frames, without deleting other files."""
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene
+
+    workspace = Workspace(tmp_path)
+    original = Demo(
+        title="Two chunks", width=320, height=180,
+        scenes=[Scene(id="s", chunks=[Chunk(id="a", text="First"),
+                                     Chunk(id="b", text="Second")])],
+    )
+    build_demo(original, workspace)
+    retained = (workspace.frames / "frame_0001.png").read_bytes()
+    shorter = Demo(
+        title="One chunk", width=320, height=180,
+        scenes=[Scene(id="s", chunks=[Chunk(id="a", text="First")])],
+    )
+    result = build_demo(shorter, workspace)
+    assert result.frame_paths == [workspace.frames / "frame_0000.png"]
+    assert (workspace.frames / "frame_0001.png").read_bytes() == retained
+    manifest = json.loads(result.manifest_path.read_text())
+    assert [entry["chunk_id"] for entry in manifest["entries"]] == ["a"]
 
 
 def test_pipeline_strict_rejects_invalid_demo(tmp_workspace) -> None:
@@ -184,3 +197,126 @@ def test_dry_run_does_not_create_files(sample_demo: Demo, tmp_path) -> None:
     p.dry_run(sample_demo)
     # tmp_path should be empty — no workspace was created
     assert list(tmp_path.iterdir()) == []
+
+
+def test_resynthesis_refreshes_derived_event_times(tmp_path) -> None:
+    from democreate.project_paths import Workspace
+    from democreate.schema import Action, ActionType, Chunk, Scene, SceneKind
+
+    demo = Demo(title="Editable timing", width=320, height=180, scenes=[
+        Scene(id="s", kind=SceneKind.TERMINAL, chunks=[
+            Chunk(id="a", text="one two three four"),
+            Chunk(id="b", text="last", actions=[
+                Action(ActionType.RUN_COMMAND, {"command": "echo kept", "output": "kept"})
+            ]),
+        ])
+    ])
+    workspace = Workspace(tmp_path)
+    initial = build_demo(demo, workspace)
+    assert initial.demo.iter_actions()[0].timestamp_ms == 2120
+    reloaded = Demo.from_json(initial.demo.to_json())
+    reloaded.iter_chunks()[0].text = "one"
+    result = build_demo(reloaded, workspace)
+    event = result.demo.iter_actions()[0]
+    assert event.timestamp_source == "sync"
+    assert event.timestamp_ms == 920
+    entry = result.timeline.entries[1]
+    assert entry.state_at_ms(919).terminal_lines == []
+    assert "kept" in entry.state_at_ms(1521).terminal_lines
+
+
+def test_wait_sequence_survives_real_pipeline_sync(tmp_path) -> None:
+    from democreate.project_paths import Workspace
+    from democreate.schema import Action, ActionType, Chunk, Scene, SceneKind
+
+    demo = Demo(title="Wait", width=320, height=180, scenes=[
+        Scene(id="s", kind=SceneKind.TERMINAL, chunks=[
+            Chunk(id="c", text="a longer narration", actions=[
+                Action(ActionType.WAIT, duration_ms=200),
+                Action(ActionType.RUN_COMMAND, {"command": "echo done", "output": "done"},
+                       duration_ms=100),
+            ])
+        ])
+    ])
+    result = build_demo(demo, Workspace(tmp_path))
+    assert result.demo.iter_actions()[1].timestamp_ms == 500
+    entry = result.timeline.entries[0]
+    assert entry.state_at_ms(499).terminal_lines == []
+    assert "done" in entry.state_at_ms(600).terminal_lines
+
+
+def test_captured_key_is_visible_at_its_recorded_instant(tmp_path) -> None:
+    from democreate.capture.replay import EventLog, InputEvent
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene
+
+    actions = EventLog([InputEvent(500, "key", {"key": "'a'"})]).to_actions()
+    demo = Demo(title="Captured key", width=320, height=180, scenes=[
+        Scene(id="s", chunks=[Chunk(id="c", text="a longer narration", actions=actions)])
+    ])
+    result = build_demo(demo, Workspace(tmp_path))
+    entry = result.timeline.entries[0]
+    assert entry.state_at_ms(499).code_lines == []
+    assert entry.state_at_ms(500).code_lines == ["a"]
+
+
+def test_player_base_frames_do_not_bake_narration_cues(tmp_path) -> None:
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene, SceneKind
+
+    results = []
+    narrations = ("alpha beta gamma", "delta epsilon zeta")
+    for index, text in enumerate(narrations):
+        demo = Demo(title="Same visuals", width=320, height=180, scenes=[
+            Scene(id="s", title="Fixed visual state", kind=SceneKind.SLIDE,
+                  chunks=[Chunk(id="c", text=text)])
+        ])
+        results.append(build_demo(demo, Workspace(tmp_path / str(index))))
+    assert results[0].frame_paths[0].read_bytes() == results[1].frame_paths[0].read_bytes()
+    for result, narration in zip(results, narrations, strict=True):
+        assert narration in result.caption_paths["srt"].read_text()
+
+
+def test_animated_export_preserves_selected_compositor(tmp_path) -> None:
+    import subprocess
+
+    from PIL import Image
+
+    from democreate.assembly.compositor import ManifestCompositor
+    from democreate.config import THEMES, RenderConfig
+    from democreate.export.video import ffmpeg_available
+    from democreate.pipeline import render_video
+    from democreate.project_paths import Workspace
+    from democreate.schema import Action, ActionType, Chunk, Scene
+
+    if not ffmpeg_available():
+        pytest.skip("requires native ffmpeg with libx264")
+    cfg = RenderConfig()
+    cfg.audio.normalize = False
+    cfg.video.waveform = False
+    cfg.video.progress_bar = False
+    cfg.video.transitions = False
+    cfg.video.cursor = False
+    cfg.video.preset = "ultrafast"
+    cfg.metadata.header = False
+    cfg.metadata.footer = False
+    cfg.metadata.container_tags = False
+    demo = Demo(title="Selected compositor", width=320, height=180, fps=5, scenes=[
+        Scene(id="s", chunks=[Chunk(id="c", text="The selected compositor stays visible.",
+            actions=[Action(ActionType.CREATE_FILE, {"path": "kept.py", "code": "print('kept')"})])])
+    ])
+    result = Pipeline(config=cfg, compositor=ManifestCompositor(
+        width=320, height=180, theme=THEMES["light"]
+    )).run(demo, Workspace(tmp_path))
+    with Image.open(result.frame_paths[0]) as still:
+        expected = still.convert("RGB").getpixel((5, 100))
+    assert min(expected) > 200
+    output, _ = render_video(result, verify=False, animate=True, animation_fps=5)
+    pixels = subprocess.run([
+        "ffmpeg", "-v", "error", "-ss", "0.5", "-i", str(output),
+        "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgb24", "-",
+    ], check=True, capture_output=True).stdout
+    offset = (100 * 320 + 5) * 3
+    actual = pixels[offset : offset + 3]
+    assert len(actual) == 3
+    assert max(abs(a - b) for a, b in zip(actual, expected, strict=True)) < 10

@@ -20,7 +20,7 @@ import wave
 from pathlib import Path
 
 from .._logging import get_logger
-from ..errors import BackendUnavailableError
+from ..errors import BackendUnavailableError, RenderError
 
 logger = get_logger(__name__)
 
@@ -225,6 +225,7 @@ def normalize_audio(
 
     Raises:
         BackendUnavailableError: If the ``ffmpeg`` binary is not installed.
+        RenderError: If ffmpeg exits unsuccessfully; the source WAV is unchanged.
     """
     if not ffmpeg_audio_available():
         raise BackendUnavailableError("ffmpeg", extra="video")
@@ -242,7 +243,10 @@ def normalize_audio(
         str(out_path),
     ]
     logger.info("normalizing audio: %s -> %s", in_path, out_path)
-    subprocess.run(cmd, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError as exc:
+        raise RenderError("ffmpeg audio normalization failed") from exc
     return out_path
 
 
@@ -267,6 +271,7 @@ def apply_fade(
 
     Raises:
         BackendUnavailableError: If the ``ffmpeg`` binary is not installed.
+        RenderError: If ffmpeg exits unsuccessfully; the source WAV is unchanged.
     """
     if not ffmpeg_audio_available():
         raise BackendUnavailableError("ffmpeg", extra="video")
@@ -289,5 +294,8 @@ def apply_fade(
         str(out_path),
     ]
     logger.info("applying fade (%d ms) to %s -> %s", fade_ms, in_path, out_path)
-    subprocess.run(cmd, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError as exc:
+        raise RenderError("ffmpeg audio fade failed") from exc
     return out_path

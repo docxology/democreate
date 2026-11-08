@@ -4,10 +4,9 @@ A single `RenderConfig` controls the **look** (theme colors + font scale), the
 **sound** (voice, pacing, normalization, fades), the **motion** (fps, resolution,
 quality, waveform, transitions, Ken Burns, typing animation, animated cursor), and
 the **provenance** (on-screen metadata bars, container tags, steganography) of a
-render. It is plain data — serializable
-to and from YAML — so a render can be reproduced from one file. Everything has a
-sensible default that matches the package's out-of-the-box look, so config is
-purely additive: omit it and nothing changes.
+render. It is plain data, serialized to YAML. Reproduction also requires the
+authored Demo, assets and fixed runtime/backend versions. Unknown fields are
+rejected, not silently ignored. Omitted fields use their declared defaults.
 
 `RenderConfig` lives in `src/democreate/config.py` and is threaded through the
 pipeline, the synthetic renderer, and the animator: `Theme` colors the frames
@@ -47,7 +46,7 @@ default. Selected fields:
 | font ratios | `title_ratio` (0.094), `subtitle_ratio` (0.040), `code_ratio` (0.030), `terminal_ratio` (0.032), `caption_ratio` (0.038), `section_ratio` (0.026) — larger for legibility on video |
 
 `Theme.from_dict()` coerces color *lists* (as they appear in YAML) back to
-tuples and ignores unknown keys.
+tuples and rejects unknown fields.
 
 #### Theme presets
 
@@ -85,21 +84,20 @@ See [audio.md](audio.md) for how these shape the assembled voiceover.
 | `animation_fps` | `15` | Frame rate of the animated render. |
 | `animate` | `True` | Render the moving waveform + progress (vs a slideshow). |
 | `waveform` | `True` | Draw the speech-waveform band. |
-| `progress_bar` | `True` | Draw the progress line. It now sits at the **absolute top edge** (`y=0`, ~6 px) so it never overlaps content or background images — it previously sat ~58 px down and clipped the top of figures and diagrams. |
+| `progress_bar` | `True` | Draw a top-edge progress line (`y=0`); this is an overlay, not a guarantee against obscuring image content. |
 | `transitions` | `True` | Crossfade between scenes. |
 | `transition_ms` | `450` | Crossfade duration. |
-| `ken_burns` | `False` | Slow zoom on background-image scenes. **Off by default**: zooming crops content off the frame edges, losing information — the no-crop fit-contain layout keeps figures and diagrams whole. Enable only if you accept the edge crop. |
+| `ken_burns` | `False` | Optional slow zoom on flagged image scenes. Contain fitting happens before motion; zoom, explicit camera actions and overlays can hide edges. |
 | `ken_burns_zoom` | `1.06` | Peak Ken Burns zoom factor (applies only when `ken_burns` is enabled). |
 | `typing` | `True` | Type editor code in character-by-character (vs showing it all at once). |
-| `typing_fraction` | `0.7` | Fraction of a chunk's window spent typing before the code holds. |
 | `cursor` | `True` | Draw the animated cursor (with a click ripple) where a chunk supplies a position. |
-| `crf` | `18` | H.264 quality: lower = crisper/larger. `18` ≈ visually lossless; `23` is the x264 default. |
+| `crf` | `18` | H.264 rate/quality control. Lower values generally trade larger files for less compression; no perceptual-losslessness guarantee. |
 | `preset` | `"medium"` | x264 speed/size tradeoff (`ultrafast` … `veryslow`); passed straight to ffmpeg. |
 
 `crf` and `preset` are passed to ffmpeg by `encode_frame_sequence` /
 `assemble_video`, so they apply to both the animated and the static render paths.
-The default `crf: 18` is **near-visually-lossless** — noticeably crisper than the
-x264 default of `23`. See [video.md](video.md) for how these drive the animator —
+Inspect the encoded result: a CRF value alone does not establish visual quality.
+See [video.md](video.md) for the animator and action-duration controls,
 including the [typing animation](video.md#typing-animation),
 [cursor](video.md#animated-cursor), and
 [resolution & quality](video.md#resolution-quality).
@@ -139,7 +137,7 @@ scene's free-form `context` dict and threaded onto the per-chunk
   "id": "numbers", "title": "By the numbers", "kind": "slide",
   "context": {
     "bullets": ["Declarative spine", "Deterministic defaults", "Audio-anchored sync"],
-    "stats": [["776", "tests"], ["7", "subsystems"], ["5", "themes"], ["4K", "max"]]
+    "stats": [["≥90%", "core coverage gate"], ["8", "subsystems"], ["5", "themes"], ["4K", "max"]]
   },
   "chunks": [{ "id": "n1", "text": "DemoCreate, by the numbers." }]
 }
@@ -152,7 +150,7 @@ bullet and stat-card scenes (see [videos.md](videos.md)).
 ### `MetadataConfig` — on-screen / container / hidden provenance
 
 The same fields drive three carriers: visible top/bottom overlay bars, MP4
-container tags, and a steganographic payload in lossless poster/bookend PNGs. It
+container tags, and a steganographic payload in lossless poster PNGs. It
 is now part of `RenderConfig` (`cfg.metadata`). The full provenance story is in
 [provenance.md](provenance.md).
 
@@ -168,7 +166,7 @@ is now part of `RenderConfig` (`cfg.metadata`). The full provenance story is in
 | `footer` | `True` | Draw the bottom metadata bar (author · source · url · clock). |
 | `show_clock` | `True` | Show a running `M:SS / M:SS` clock in the footer. |
 | `container_tags` | `True` | Write MP4 metadata tags via ffmpeg (`build_tags` → `embed_tags`). |
-| `steganography` | `True` | Embed a signed provenance payload in lossless PNG sidecars. |
+| `steganography` | `True` | Embed a unsigned provenance payload in lossless PNG sidecars. |
 
 `--author` and `--watermark` on `render` set those fields without a config file.
 
@@ -310,7 +308,6 @@ video:
   ken_burns: false
   ken_burns_zoom: 1.06
   typing: true
-  typing_fraction: 0.7
   cursor: true
   crf: 18
   preset: medium
@@ -346,3 +343,7 @@ text = cfg.to_yaml()                        # serialize back out
 - [audio.md](audio.md) — the voiceover assembly driven by `AudioConfig`.
 - [provenance.md](provenance.md) — the full `MetadataConfig` story (bars, tags, steganography).
 - [architecture.md](architecture.md) — where config threads through the pipeline.
+Unsigned digest records check consistency only: they do not authenticate authors,
+cover pixels, video bytes or external assets. The retained `poster_signed.png`
+filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
+there are no transmission-bookend sidecars. See [provenance.md](provenance.md).

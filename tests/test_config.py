@@ -113,15 +113,11 @@ def test_from_dict_theme_bare_string_unknown_falls_back() -> None:
     assert config.theme.name == "noir"
 
 
-def test_theme_from_dict_ignores_unknown_keys() -> None:
-    """Theme.from_dict drops keys that are not real Theme fields."""
-    theme = Theme.from_dict(
-        {"name": "custom", "accent": [10, 20, 30], "bogus_key": "ignored"}
-    )
+def test_theme_from_dict_rejects_unknown_fields() -> None:
+    import pytest
 
-    assert theme.name == "custom"
-    assert theme.accent == (10, 20, 30)
-    assert not hasattr(theme, "bogus_key")
+    with pytest.raises(ValueError, match="bogus_key"):
+        Theme.from_dict({"name": "custom", "accent": [10, 20, 30], "bogus_key": 1})
 
 
 def test_themes_contains_the_named_presets() -> None:
@@ -188,3 +184,26 @@ def test_from_yaml_empty_text_uses_defaults() -> None:
     assert config.theme.name == "noir"
     assert config.audio.voice == ""
     assert config.video.width == 1920
+
+
+def test_invalid_timing_configuration_is_rejected() -> None:
+    import pytest
+
+    for field in ("lead_silence_ms", "gap_ms", "trail_silence_ms", "fade_ms"):
+        with pytest.raises(ValueError, match="nonnegative"):
+            RenderConfig.from_dict({"audio": {field: -1}})
+    for field in ("fps", "animation_fps", "width", "height"):
+        with pytest.raises(ValueError, match="positive"):
+            RenderConfig.from_dict({"video": {field: 0}})
+
+
+def test_render_config_rejects_ignored_or_removed_fields() -> None:
+    import pytest
+
+    for payload in (
+        {"video": {"typing_fraction": 0.5}},
+        {"metadata": {"steganograhpy": False}},
+        {"typo": {}},
+    ):
+        with pytest.raises(ValueError):
+            RenderConfig.from_dict(payload)

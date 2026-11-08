@@ -38,6 +38,17 @@ jobs:
       - name: Install package (core + dev)
         run: uv pip install --system -e ".[dev]"
 
+      - name: Core-only import preflight
+        run: python scripts/00_preflight.py
+
+      - name: Build and exercise installed wheel
+        run: |
+          uv build --python ${{ matrix.python-version }} --out-dir output/dist
+          uv venv --python ${{ matrix.python-version }} output/package-smoke
+          uv pip install --python output/package-smoke/bin/python output/dist/*.whl
+          cd output/package-smoke
+          bin/python -c "from importlib.resources import files; from democreate import Demo, Scene, Chunk, Workspace, build_demo; assert files('democreate').joinpath('export/templates/player.html.j2').is_file(); result = build_demo(Demo(title='Installed wheel', scenes=[Scene(id='s', chunks=[Chunk(id='c', text='Installed package rendering works.')])], width=320, height=180), Workspace('smoke-output')); assert result.player_path.is_file()"
+
       - name: Lint (ruff)
         run: ruff check .
 

@@ -10,6 +10,7 @@ deterministic pipeline like any other demo content.
 
 from __future__ import annotations
 
+import ast
 import importlib.util
 import json
 from dataclasses import dataclass, field
@@ -33,6 +34,21 @@ logger = get_logger(__name__)
 def _have(dep: str) -> bool:
     """Return ``True`` if an optional dependency is importable."""
     return importlib.util.find_spec(dep) is not None
+
+
+def _key_text(key: str) -> str | None:
+    """Decode recorded printable keys and supported whitespace controls."""
+    controls = {"Key.space": " ", "Key.enter": "\n", "Key.tab": "\t"}
+    if key in controls:
+        return controls[key]
+    if len(key) > 1 and key[0] in ("'", '"'):
+        try:
+            key = ast.literal_eval(key)
+        except (ValueError, SyntaxError):
+            return None
+    if isinstance(key, str) and len(key) == 1 and key.isprintable():
+        return key
+    return None
 
 
 @dataclass
@@ -97,29 +113,43 @@ class EventLog:
         * ``click`` -> :attr:`~democreate.schema.ActionType.CLICK`
         * ``key``   -> :attr:`~democreate.schema.ActionType.TYPE_CODE`
 
-        Each action carries the event's ``t_ms`` as its ``timestamp_ms`` and the
-        original payload as its ``params``. Unknown kinds are skipped.
+        Each action preserves the event's ``t_ms`` as ``timestamp_ms``. Mouse
+        coordinates become ``xy`` pairs; click buttons lose pynput's ``Button.``
+        prefix. Keys become ``code`` text, with quoted printable keys decoded
+        and space/enter/tab mapped to whitespace. Unsupported controls and unknown
+        event kinds are explicitly skipped.
 
         Returns:
             The mapped, time-stamped actions in order.
         """
-        mapping = {
-            "move": ActionType.MOVE_MOUSE,
-            "click": ActionType.CLICK,
-            "key": ActionType.TYPE_CODE,
-        }
         actions: list[Action] = []
         for event in self.events:
-            action_type = mapping.get(event.kind)
-            if action_type is None:
+            if event.kind == "move":
+                action_type = ActionType.MOVE_MOUSE
+                params: dict[str, Any] = {
+                    "xy": (event.payload["x"], event.payload["y"])
+                }
+            elif event.kind == "click":
+                action_type = ActionType.CLICK
+                params = {
+                    "xy": (event.payload["x"], event.payload["y"]),
+                    "button": str(event.payload.get("button", "left")).removeprefix(
+                        "Button."
+                    ),
+                }
+            elif event.kind == "key":
+                code = _key_text(str(event.payload.get("key", "")))
+                if code is None:
+                    logger.debug("skipping unsupported input key: %s", event.payload)
+                    continue
+                action_type = ActionType.TYPE_CODE
+                params = {"code": code}
+            else:
                 logger.debug("skipping unknown input event kind: %s", event.kind)
                 continue
             actions.append(
-                Action(
-                    type=action_type,
-                    params=dict(event.payload),
-                    timestamp_ms=event.t_ms,
-                )
+                Action(type=action_type, params=params, timestamp_ms=event.t_ms,
+                       duration_ms=0)
             )
         return actions
 
@@ -210,8 +240,14 @@ def _replay_session_impl(log: EventLog, speed: float) -> None:  # pragma: no cov
         if event.kind == "move":
             pyautogui.moveTo(event.payload.get("x", 0), event.payload.get("y", 0))
         elif event.kind == "click":
-            pyautogui.click(event.payload.get("x", 0), event.payload.get("y", 0))
+            button = str(event.payload.get("button", "left")).removeprefix("Button.")
+            pyautogui.click(
+                event.payload.get("x", 0), event.payload.get("y", 0), button=button
+            )
         elif event.kind == "key":
-            key = str(event.payload.get("key", "")).strip("'")
-            if key:
+            text = _key_text(str(event.payload.get("key", "")))
+            if text is not None:
+                key = {" ": "space", "\n": "enter", "\t": "tab"}.get(text, text)
                 pyautogui.press(key)
+            else:
+                logger.debug("skipping unsupported input key: %s", event.payload)

@@ -2,4 +2,4 @@
 
 | File | Purpose |
 |------|---------|
-| `ci.yml` | CI on push/PR to `main`: pytest matrix over Python 3.10–3.14 (fail-fast off), with ffmpeg/poppler system binaries installed so render/paper backend tests run for real; Kokoro tests skip because the `tts` extra is not installed in CI. |
+| `ci.yml` | Main push/PR: Python 3.11–3.15, core import preflight, built-wheel installation/build smoke, ruff, mypy and ≥90% coverage. Real ffmpeg/poppler binaries are installed. Optional model/browser and external-paper fixtures may skip; this is not acoustic-corpus or manuscript-publication evidence. |

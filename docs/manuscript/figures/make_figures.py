@@ -1,53 +1,23 @@
 #!/usr/bin/env python3
-"""Generate the manuscript figures for the DemoCreate v0.6.2 write-up.
+"""Generate candidate manuscript illustrations from committed repository inputs.
 
-Every figure is produced by calling the *real* ``democreate`` public APIs — the
-same renderers, themes, fonts, waveform, and diagram code the package ships — so
-the figures are faithful, deterministic depictions of what the tool actually
-draws. The one data-driven figure (``latency.png``) reads its numbers from the
-real measured benchmarks file, never from invented constants.
+Run from the repository root with::
 
-All eleven figures share one visual language: the **noir** near-black background,
-white text, and the single refined red accent — matching the v0.6.2 noir videos —
-with a consistent title + accent rule, generous margins, and — critically —
-nothing clipped. Any pasted bitmap (paper figure, video still, sub-frame) is
-fit-CONTAINed (the whole image is always visible, never cropped or stretched).
-
-Run from the project root with the project venv::
-
-    cd /Users/4d/Documents/GitHub/projects/working/demo_create
     .venv/bin/python docs/manuscript/figures/make_figures.py
 
-Outputs (into this directory). Every figure is 1600x900 except the waveform
-strip, which is 1600x300:
-
-* ``architecture.png``      (1600x900) — the canonical pipeline diagram.
-* ``frame_code.png``        (1600x900) — a CODEBASE editor frame (pygments + fonts).
-* ``frame_title.png``       (1600x900) — a SLIDE title card.
-* ``frame_paper.png``       (1600x900) — a SLIDE with a real paper figure background.
-* ``waveform.png``          (1600x300) — a speech-waveform scrubber strip.
-* ``themes.png``            (1600x900) — the same code frame under five themes.
-* ``paper_fig.png``         (copied)   — a real paper figure copied in for the background.
-* ``typing_filmstrip.png``  (1600x900) — one editor frame at 25/55/100% typed.
-* ``latency.png``           (1600x900) — measured latency bars from benchmarks.json.
-* ``paper_flow.png``        (1600x900) — the paper-pipeline flow diagram.
-* ``provenance.png``        (1600x900) — the three provenance carriers from one
-  ``MetadataConfig``: on-screen overlay bars, MP4 container tags, signed PNG poster.
-* ``video_stills.png``      (1600x900) — a 2x2 montage of FOUR real stills
-  extracted from the two produced demo videos (the package *showcase* +
-  research-paper demo), proving the renders are real, content-verified
-  deliverables. The package row prefers the v0.6.1 showcase stills (the bullet
-  slide, the stat-card slide) when present in ``docs/_videoframes/``, falling back
-  to the older intro stills otherwise.
-
-The script is import-safe and deterministic. If any step cannot complete it
-raises rather than silently producing a degraded figure.
+Outputs stay in docs/manuscript/figures and root output/figures. paper_fig.png
+is the committed local paper-background input, never discovered in a sibling
+project. Current timing and decoded-frame figures consume committed, source-bound
+engineering records. These observations do not establish acoustic accuracy,
+intelligibility, authentication or publication readiness.
 """
 
 from __future__ import annotations
 
+import hashlib
+import inspect
 import json
-import shutil
+import textwrap
 import wave
 from pathlib import Path
 
@@ -60,14 +30,14 @@ from democreate.animation.diagram import (
 )
 from democreate.animation.fonts import scaled_font
 from democreate.animation.waveform import compute_envelope, draw_waveform
+from democreate.assembly.compositor import Timeline
 from democreate.capture.screen import render_frame
 from democreate.config import THEMES, MetadataConfig
 from democreate.media import FrameState
-from democreate.schema import SceneKind
+from democreate.schema import Action, SceneKind
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
-PROJECTS_ROOT = HERE.parents[3]
+REPO = HERE.parents[2]
 
 # --- shared visual language ------------------------------------------------
 # Every figure shares this canvas size, NOIR palette, and the single red accent so
@@ -83,58 +53,24 @@ FG: tuple[int, int, int] = (242, 242, 244)     # primary text (near-white)
 DIM: tuple[int, int, int] = (146, 146, 152)    # secondary text
 ACCENT: tuple[int, int, int] = (224, 49, 57)   # noir accent (THEMES["noir"].accent)
 
-# A real research-paper figure used to show the paper-as-background composition.
-# It may live in the simplified sidecar lifecycle (working/archive) or in the
-# legacy published lifecycle in older checkouts. Copied into this directory so
-# the manuscript is self-contained.
-PAPER_FIG_SOURCE_CANDIDATES = [
-    PROJECTS_ROOT / lifecycle / "actinf_policy_entanglement_lean"
-    / "output" / "figures" / "coupling_graph.png"
-    for lifecycle in ("working", "archive", "published")
-]
+# Committed standalone input; external paper refreshes must be explicit.
+PAPER_FIG = HERE / "paper_fig.png"
 
-# The real, measured benchmark numbers that drive the latency figure. These are
-# read at render time so the figure can never drift from the recorded data.
-BENCHMARKS = REPO / "data" / "benchmarks.json"
+# Separate records preserve historical measurements without relabelling them.
+BENCHMARKS = REPO / "data" / "benchmarks-0.8.0.json"
+EVIDENCE = REPO / "data" / "release-0.8.0.json"
 
-# Real stills extracted from the two *produced* demo videos. These are genuine
-# frames lifted out of the encoded MP4s (not re-rendered), so the montage is
-# evidence the videos were actually produced and play, not file-existence stubs.
-VIDEOFRAMES = REPO / "docs" / "_videoframes"
+# Current public timing source, obtained from the installed checkout rather than
+# a hand-maintained copy of a removed implementation.
+TYPING_CODE_LINES = textwrap.dedent(
+    inspect.getsource(Timeline.entry_at_ms)
+).splitlines()
 
-# A longer snippet of real democreate source — the typing-reveal driver from
-# assembly/animator.py — shown being typed in character-by-character so the
-# filmstrip's three columns differ visibly.
-TYPING_CODE_LINES = [
-    "def typed_base(idx: int, t_ms: int):",
-    '    """Re-render chunk ``idx`` with code typed to current progress."""',
-    "    start, end = windows[idx]",
-    "    total = total_chars(idx)",
-    "    if total == 0:",
-    "        return bases[idx]",
-    "    win = max(1, end - start)",
-    "    frac = (t_ms - start) / win / cfg.typing_fraction",
-    "    typed = int(total * min(1.0, frac))",
-    "    state = copy.copy(frame_states[idx])",
-    "    state.cursor_typed = typed",
-    "    return renderer.render(state, size)",
-]
+# Current serialization source, also obtained verbatim from the live symbol.
+CODE_LINES = textwrap.dedent(inspect.getsource(Action.to_dict)).splitlines()
 
-# A short, real snippet of democreate source — the heart of the declarative
-# spine (schema.py) — shown verbatim in the editor frame.
-CODE_LINES = [
-    "@dataclass",
-    "class Action:",
-    '    """One typed event mutating the virtual environment."""',
-    "    type: ActionType",
-    "    params: dict[str, Any] = field(default_factory=dict)",
-    "    trigger_word: str | None = None",
-    "    timestamp_ms: int | None = None",
-    "    duration_ms: int | None = None",
-]
-
-# A compact snippet for the small theme-grid cells so code never clips the cell
-# edge (the full CODE_LINES is too wide for a ~470px tile).
+# Schematic (not verbatim source) for small theme-grid cells; the full source
+# excerpt is too wide for a ~470px tile.
 THEME_CODE = [
     "@dataclass",
     "class Action:",
@@ -158,7 +94,7 @@ def _save(img: Image.Image, name: str) -> Path:
     img.save(out, format="PNG")
     if not out.is_file() or out.stat().st_size == 0:
         raise RuntimeError(f"figure {name} was not written")
-    mirror = HERE.parent.parent / "output" / "figures" / name
+    mirror = REPO / "output" / "figures" / name
     mirror.parent.mkdir(parents=True, exist_ok=True)
     img.save(mirror, format="PNG")
     return out
@@ -266,7 +202,7 @@ def make_frame_code() -> Path:
         code_lines=CODE_LINES,
         highlight_lines=[4],
         section="The Spine",
-        caption="Each Action carries a trigger_word anchoring it to a spoken word.",
+        caption="Current source: democreate.schema.Action.to_dict.",
     )
     img = render_frame(state, CANVAS, theme=THEMES["noir"])
     return _save(img, "frame_code.png")
@@ -286,12 +222,9 @@ def make_frame_title() -> Path:
 
 def make_frame_paper() -> Path:
     """A SLIDE composed over a real research-paper figure, in the paper theme."""
-    source = next((path for path in PAPER_FIG_SOURCE_CANDIDATES if path.is_file()), None)
-    if source is None:
-        searched = "\n".join(f"- {path}" for path in PAPER_FIG_SOURCE_CANDIDATES)
-        raise FileNotFoundError(f"paper figure source missing; searched:\n{searched}")
-    paper_fig = HERE / "paper_fig.png"
-    shutil.copyfile(source, paper_fig)
+    paper_fig = PAPER_FIG
+    if not paper_fig.is_file():
+        raise FileNotFoundError(f"committed paper figure missing: {paper_fig}")
 
     state = FrameState(
         scene_kind=SceneKind.SLIDE,
@@ -350,12 +283,12 @@ def make_themes() -> Path:
         code_lines=THEME_CODE,
         highlight_lines=[4],
         section="Themes",
-        caption="One frame, five themes — colors and font ratios are configurable.",
+        caption="One frame, five themes - colors and font ratios are configurable.",
     )
     img, draw, content_top = _canvas(
         "Five themes, one frame",
         "the same CODEBASE frame rendered under each preset theme (noir is the "
-        "default) — every color and font ratio is configurable",
+        "default); every color and font ratio is configurable",
     )
     width, height = CANVAS
     margin = int(width * 0.04)
@@ -382,16 +315,14 @@ def make_themes() -> Path:
 def make_typing_filmstrip() -> Path:
     """Three columns of the SAME editor frame typed to 25%, 55%, and 100%.
 
-    Demonstrates the character-by-character typing reveal: a single
-    :class:`FrameState` re-rendered at progressive ``cursor_typed`` counts — the
-    exact mechanism the animator uses per output frame — with pygments coloring
-    the code as it appears. The three panels sit under a shared title with a
-    per-panel label, fit-CONTAINed so nothing is cropped.
+    Illustrates character-count reveal with a current public timing excerpt.
+    These are synthetic renderer states, not captures of scheduled playback.
+    The three panels share a title and per-panel label and are fit-CONTAINed.
     """
     img, draw, content_top = _canvas(
-        "Typing reveal — one FrameState, growing cursor_typed",
-        "a single editor frame re-rendered at progressive character counts; "
-        "pygments colors the code as it appears",
+        "Typing reveal: one FrameState, growing cursor_typed",
+        "current source: democreate.assembly.compositor.Timeline.entry_at_ms; "
+        "synthetic character-count illustration",
     )
     width, height = CANVAS
     margin = int(width * 0.04)
@@ -409,7 +340,7 @@ def make_typing_filmstrip() -> Path:
         typed = int(total * frac)
         state = FrameState(
             scene_kind=SceneKind.CODEBASE,
-            file_path="assembly/animator.py",
+            file_path="assembly/compositor.py",
             code_lines=TYPING_CODE_LINES,
             highlight_lines=[11],
             cursor_typed=typed,
@@ -425,78 +356,73 @@ def make_typing_filmstrip() -> Path:
     return _save(img, "typing_filmstrip.png")
 
 
-def _load_latency_metrics() -> list[tuple[str, float, str]]:
-    """Read measured latency metrics from ``benchmarks.json``.
-
-    Returns ``(label, milliseconds, value_text)`` triples for the bars, taken
-    verbatim from the real benchmark file — never invented.
-    """
-    if not BENCHMARKS.is_file():
-        raise FileNotFoundError(f"benchmarks file missing: {BENCHMARKS}")
+def make_latency() -> Path:
+    """Show observed timing in separate cards without a mixed-unit bar axis."""
     data = json.loads(BENCHMARKS.read_text(encoding="utf-8"))
-    build_ms = float(data["build"]["median_ms"])
-    render_ms = float(data["render"]["ms_per_output_second"])
-    fps = int(data["render"]["animation_fps"])
-    return [
-        ("Build pipeline (median)", build_ms, f"{build_ms:g} ms"),
+    build, render = data["build"], data["render"]
+    if render is None:
+        raise ValueError("current timing figure requires an observed encoded render")
+    img, draw, content_top = _canvas(
+        "Measured starter workload - 0.8.0 candidate",
+        "one host / one synthetic silent input / wall clock; not the voiced corpus",
+    )
+    width, height = CANVAS
+    margin, gap = int(width * 0.04), int(width * 0.025)
+    panel_w = (width - 2 * margin - gap) // 2
+    top, bottom = content_top + 30, int(height * 0.76)
+    cards = [
         (
-            f"Animated render (compute per output second @ {fps}fps)",
-            render_ms,
-            f"{render_ms:g} ms",
+            "Build wall clock",
+            f"{build['median_ms']:g}",
+            f"ms, median of {build['runs']} consecutive builds",
+            [
+                "Validation, TTS, sync, frames and exports.",
+                "Input construction and process imports are not timed.",
+                f"First timed build: {build['samples_ms'][0]:.1f} ms.",
+                "All raw samples retained; no warm-up sample excluded.",
+            ],
+        ),
+        (
+            "Whole render wall clock",
+            f"{render['ms_per_output_second']:g}",
+            "ms per encoded output second",
+            [
+                "Audio processing, animation, encode and sidecars.",
+                f"Video: {render['output_seconds']:.6f} s at "
+                f"{render['animation_fps']} fps.",
+                f"Planned timeline: {render['timeline_seconds']:.3f} s.",
+                "ffprobe duration is measured outside the timer.",
+                "Content verification is disabled for this timing.",
+            ],
         ),
     ]
-
-
-def make_latency() -> Path:
-    """A pure-Pillow horizontal bar chart of the measured latency numbers.
-
-    Bars are scaled to the largest measured value and labelled with the exact
-    millisecond figures read from ``benchmarks.json``. No matplotlib; the chart
-    is drawn directly, matching the manuscript's zero-extra-dependency stance.
-    Axis labels and value labels are kept fully inside the canvas with generous
-    margins so nothing is clipped.
-    """
-    width, height = CANVAS
-    metrics = _load_latency_metrics()
-    img, draw, content_top = _canvas(
-        "Measured latency (lower is better)",
-        "read at render time from data/benchmarks.json — never hardcoded",
-    )
-
-    margin = int(width * 0.04)
-    label_font = scaled_font(height, 0.030)
-    value_font = scaled_font(height, 0.034, mono=True)
-
-    # Reserve a fixed right gutter wide enough for the longest value label so the
-    # value text always lands inside the canvas.
-    value_gutter = int(max(draw.textlength(v, font=value_font)
-                           for _, _, v in metrics)) + int(width * 0.03)
-    bar_left = margin
-    bar_max_w = width - margin - value_gutter - bar_left
-
-    n = len(metrics)
-    region_top = content_top + int(height * 0.04)
-    region_bottom = height - int(height * 0.08)
-    slot_h = (region_bottom - region_top) // n
-    bar_h = int(slot_h * 0.42)
-    label_gap = int(height * 0.012)
-    max_ms = max(ms for _, ms, _ in metrics)
-
-    for i, (label, ms, value_text) in enumerate(metrics):
-        slot_top = region_top + i * slot_h
-        draw.text((bar_left, slot_top), label, fill=DIM, font=label_font)
-        y = slot_top + label_font.size + label_gap
-        # Track (full width) then filled bar, both rounded.
-        radius = int(bar_h * 0.18)
-        draw.rounded_rectangle([bar_left, y, bar_left + bar_max_w, y + bar_h],
-                               radius=radius, fill=_mix(BG, FG, 0.08))
-        w = max(6, int(bar_max_w * (ms / max_ms)))
-        draw.rounded_rectangle([bar_left, y, bar_left + w, y + bar_h],
-                               radius=radius, fill=ACCENT)
-        # Value label in the reserved right gutter, vertically centered on the bar.
-        vx = bar_left + bar_max_w + int(width * 0.02)
-        vy = y + (bar_h - value_font.size) // 2
-        draw.text((vx, vy), value_text, fill=FG, font=value_font)
+    for index, (heading, value, unit, notes) in enumerate(cards):
+        x = margin + index * (panel_w + gap)
+        draw.rounded_rectangle(
+            (x, top, x + panel_w, bottom), radius=14, fill=PANEL,
+            outline=ACCENT, width=2,
+        )
+        draw.text((x + 24, top + 24), heading, font=scaled_font(height, 0.030), fill=FG)
+        draw.text((x + 24, top + 80), value, font=scaled_font(height, 0.075), fill=ACCENT)
+        draw.text((x + 24, top + 170), unit, font=scaled_font(height, 0.025), fill=FG)
+        y = top + 230
+        font = scaled_font(height, 0.023)
+        for note in notes:
+            for line in _wrap(draw, note, font, panel_w - 48):
+                draw.text((x + 24, y), line, font=font, fill=DIM)
+                y += int(font.size * 1.5)
+    font = scaled_font(height, 0.021)
+    footer = [
+        "Source: data/benchmarks-0.8.0.json; measured "
+        + data["identity"]["recorded_at_utc"],
+        "Different denominators, no shared scale. No compatible historical "
+        "comparison or performance-improvement claim.",
+    ]
+    y = bottom + 30
+    for text in footer:
+        for line in _wrap(draw, text, font, width - 2 * margin):
+            draw.text((margin, y), line, font=font, fill=DIM)
+            y += int(font.size * 1.5)
     return _save(img, "latency.png")
 
 
@@ -532,7 +458,7 @@ def make_paper_flow() -> Path:
     ]
     img = render_architecture_diagram(
         CANVAS,
-        title="Paper Pipeline — PDF to Narrated Video",
+        title="Paper Pipeline: PDF to Narrated Video",
         columns=columns,
         bg=paper.bg_slide,
         accent=paper.accent,
@@ -546,8 +472,8 @@ def make_provenance() -> Path:
 
     Draws, in pure Pillow, the three ways a single :class:`MetadataConfig` stamps
     provenance onto a render: (a) on-screen top/bottom overlay bars, (b) MP4
-    container metadata tags, and (c) a signed steganographic payload hidden in
-    lossless poster/bookend PNGs. Every label is read from a *real*
+    container metadata tags, and (c) an unsigned steganographic payload hidden in
+    lossless poster PNGs. Every label is read from a *real*
     ``MetadataConfig`` instance, so the figure cannot drift from the package's
     own field names and defaults.
     """
@@ -569,7 +495,7 @@ def make_provenance() -> Path:
 
     width, height = CANVAS
     img, draw, content_top = _canvas(
-        "One MetadataConfig — three provenance carriers",
+        "One MetadataConfig: three provenance carriers",
         "the same author / source / url / title fields are stamped on screen, "
         "into the container, and hidden in lossless PNGs",
     )
@@ -623,15 +549,15 @@ def make_provenance() -> Path:
         ),
         (
             c_stego,
-            "(c) Steganographic signed PNG",
+            "(c) Unsigned steganographic PNG",
             "export/stego.py · embed_provenance (LSB)",
             [
-                "signed payload → poster_signed.png",
-                "+ transmission-bookend PNG sidecars",
+                "unsigned payload -> poster_signed.png",
+                "+ provenance.json sidecar",
                 "tool / version / author / scenes / chunks",
-                "content_sha256 (excludes render state)",
+                "content_sha256 (consistency, not identity)",
             ],
-            "lossless PNG only — NOT the H.264 video",
+            "lossless PNG only - NOT the H.264 video",
         ),
     ]
 
@@ -690,77 +616,45 @@ def make_provenance() -> Path:
     return _save(img, "provenance.png")
 
 
-def _package_still_cells() -> list[tuple[str, str]]:
-    """Pick the two package-row stills, preferring the v0.6.1 showcase frames.
-
-    The canonical package demo is now the *showcase* (``democreate_showcase.json``),
-    which exercises the new bullet- and stat-card surfaces. When its refreshed
-    stills are present in ``docs/_videoframes/`` we use them so the montage shows
-    the definitive demo; otherwise we fall back to the older intro stills. Returns
-    ``(filename, label)`` pairs for the two top-row cells.
-    """
-    # Preferred showcase still: the stat-card slide (a new v0.6.1 surface). The
-    # second package cell is a code-typing scene, reused under either lineage.
-    if (VIDEOFRAMES / "showcase_stats.png").is_file():
-        first = ("showcase_stats.png", "Showcase: by the numbers")
-    elif (VIDEOFRAMES / "package_title.png").is_file():
-        first = ("package_title.png", "Package: bullets")
-    else:
-        raise FileNotFoundError(
-            f"no package-row still found in {VIDEOFRAMES} "
-            "(expected showcase_stats.png or package_title.png)"
-        )
-    return [first, ("package_typing.png", "Package: typing")]
-
-
 def make_video_stills() -> Path:
-    """A 2x2 montage of FOUR real stills from the two produced demo videos.
-
-    The frames are extracted from the actual encoded MP4s — the canonical package
-    *showcase* (``output/video/demo.mp4``) and the research-paper demo
-    (``output/paper_demo/video/demo.mp4``) — so the montage is direct evidence
-    that the renders are real, playable, content-verified deliverables. The
-    package row prefers the v0.6.1 showcase stills (the stat-card slide, a code
-    scene) when present, falling back to the older intro stills. Each source still
-    is fit-CONTAINed into its cell (no crop, no stretch) under a titled header
-    with a per-cell label. If any source still is missing the build raises rather
-    than producing a degraded figure.
-    """
+    """Compose digest-checked decoded frames from the recorded candidate MP4."""
+    canonical = json.loads(EVIDENCE.read_text(encoding="utf-8"))["canonical"]
+    frames = canonical["decoded_frames"]
+    if len(frames) != 6:
+        raise ValueError("the current montage requires six recorded decoded frames")
     img, draw, content_top = _canvas(
-        "Real stills from the two produced demos",
-        "frames lifted directly out of the encoded MP4s — the package showcase "
-        "and the research-paper demo",
+        "Canonical package showcase - 0.8.0 candidate",
+        "Kokoro af_heart / 3840x2160 / 15 fps; representative decoded frames, "
+        "not acoustic accuracy",
     )
     width, height = CANVAS
-    margin = int(width * 0.04)
-    label_h = int(height * 0.045)
-    gap = int(width * 0.02)
-    bottom = height - margin
-    cols, rows = 2, 2
-    cell_w = (width - 2 * margin - gap) // cols
+    margin, gap = int(width * 0.04), int(width * 0.02)
+    label_h = int(height * 0.035)
+    cols, rows = 3, 2
+    cell_w = (width - 2 * margin - gap * (cols - 1)) // cols
+    bottom = height - margin - 30
     cell_h = (bottom - content_top - label_h * rows - gap) // rows
-    label_font = scaled_font(height, 0.028)
-
-    # (filename, label, (col, row)) — order reads package row then paper row. The
-    # package row prefers the v0.6.1 showcase stills when present.
-    (pkg0, pkg1) = _package_still_cells()
-    cells = [
-        (pkg0[0], pkg0[1], (0, 0)),
-        (pkg1[0], pkg1[1], (1, 0)),
-        ("paper_abstract.png", "Paper: abstract", (0, 1)),
-        ("paper_figure.png", "Paper: figure", (1, 1)),
-    ]
-
-    for name, label, (col, row) in cells:
-        src = VIDEOFRAMES / name
-        if not src.is_file():
-            raise FileNotFoundError(f"video still source missing: {src}")
-        still = Image.open(src).convert("RGB")
-        cx = margin + col * (cell_w + gap)
-        cy = content_top + row * (cell_h + label_h + gap)
-        draw.text((cx, cy), label, fill=ACCENT, font=label_font)
-        _fit_contain(img, still, (cx, cy + label_h, cx + cell_w, cy + label_h + cell_h))
-
+    for index, frame in enumerate(frames):
+        source = (REPO / frame["path"]).resolve(strict=True)
+        if not source.is_relative_to(REPO.resolve()):
+            raise ValueError("recorded still escapes the repository")
+        with source.open("rb") as stream:
+            if hashlib.file_digest(stream, "sha256").hexdigest() != frame["sha256"]:
+                raise ValueError(f"recorded still digest mismatch: {frame['path']}")
+            stream.seek(0)
+            with Image.open(stream) as decoded:
+                still = decoded.convert("RGB")
+        x = margin + (index % cols) * (cell_w + gap)
+        y = content_top + (index // cols) * (cell_h + label_h + gap)
+        draw.text(
+            (x, y), f"cue {frame['cue']}, seek {frame['seek_seconds']:.3f} s",
+            font=scaled_font(height, 0.021), fill=ACCENT,
+        )
+        _fit_contain(img, still, (x, y + label_h, x + cell_w, y + label_h + cell_h))
+    draw.text(
+        (margin, height - margin), "MP4 SHA-256: " + canonical["video_sha256"],
+        font=scaled_font(height, 0.018), fill=DIM,
+    )
     return _save(img, "video_stills.png")
 
 

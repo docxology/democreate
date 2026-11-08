@@ -211,7 +211,7 @@ def render_page(pdf: Path, page: int, out_path: Path, *, dpi: int = 150) -> Path
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # pdftoppm -singlefile appends ".png"; strip a supplied extension for the stem.
     stem = out_path.with_suffix("")
-    png_path = stem.with_suffix(".png")
+    png_path = Path(f"{stem}.png")
     cmd = [
         binary,
         "-png",

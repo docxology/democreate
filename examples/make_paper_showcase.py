@@ -23,19 +23,61 @@ Render it with::
 
 from __future__ import annotations
 
+import argparse
+import shutil
 from pathlib import Path
 
 from democreate.schema import Action, ActionType, Chunk, Demo, Scene, SceneKind
 
-# The real, published paper this showcase narrates (its figures + front page).
-_PAPER_ROOT = Path(
-    "/Users/4d/Documents/GitHub/projects/published/actinf_policy_entanglement_lean"
-)
-_PDF = _PAPER_ROOT / "output" / "pdf" / "actinf_policy_entanglement_lean_combined.pdf"
-_FIGS = _PAPER_ROOT / "output" / "figures"
-_SRC = _PAPER_ROOT / "src"
+# Source inputs are supplied explicitly; output stays beside the Demo JSON.
 _REPO = Path(__file__).resolve().parents[1]
-_ASSETS = _REPO / "examples" / "assets" / "paper"
+_EXAMPLES = _REPO / "examples"
+_ASSETS = _EXAMPLES / "assets" / "paper"
+_PAPER_ROOT: Path | None = None
+_PDF_INPUT = "output/pdf/actinf_policy_entanglement_lean_combined.pdf"
+_FIGURE_INPUTS = (
+    "pymdp_joint_lambda_0.00.png",
+    "pymdp_joint_lambda_2.00.png",
+    "pymdp_joint_lambda_4.00.png",
+    "joint_heatmap_lambda2.png",
+    "ising_mi_curve.png",
+    "optimal_lambda.png",
+    "coupling_tax_quadratic.png",
+    "log_weight_flow.png",
+    "archetype_dendrogram.png",
+    "multi_k_tt_rank_profile.png",
+    "phase_diagram.png",
+    "pymdp_coupled_rollout.png",
+)
+
+
+def _source(relative: str) -> Path:
+    """Resolve an input, rejecting any escape from the caller's paper root."""
+    if _PAPER_ROOT is None:
+        raise ValueError("Optional curated showcase requires explicit --paper-root")
+    root = _PAPER_ROOT.resolve()
+    path = (root / relative).resolve()
+    if not path.is_relative_to(root):
+        raise ValueError(f"External paper input escapes selected --paper-root: {relative}")
+    if not path.exists():
+        raise FileNotFoundError(f"Required external paper input missing: {path}")
+    if path.is_dir():
+        # Validate descendants before the walker can read through a linked parent.
+        for child in path.rglob("*"):
+            if not child.resolve().is_relative_to(root):
+                raise ValueError(
+                    f"External paper input escapes selected --paper-root: {child}"
+                )
+    return path
+
+
+def _stage(source: Path) -> Path:
+    _ASSETS.mkdir(parents=True, exist_ok=True)
+    target = _ASSETS / source.name
+    if source.resolve() != target.resolve():
+        shutil.copyfile(source, target)
+    return target
+
 
 _NOIR_BG = (12, 12, 14)
 _NOIR_RED = (224, 49, 57)
@@ -49,7 +91,7 @@ def _slide(id_, section, narration, *, title="", subtitle="", bg=None,
     if subtitle:
         scene.context["subtitle"] = subtitle
     if bg is not None:
-        scene.context["background_image"] = str(bg)
+        scene.context["background_image"] = bg.relative_to(_EXAMPLES).as_posix()
     if bullets:
         scene.context["bullets"] = bullets
     if stats:
@@ -62,13 +104,11 @@ def _slide(id_, section, narration, *, title="", subtitle="", bg=None,
 def _figure(id_, section, fig_file, narration) -> Scene:
     """A figure scene: the paper's real figure, shown whole, with tight
     interpretive narration (the mechanism, not the caption)."""
-    fig = _FIGS / fig_file
-    if not fig.is_file():
-        raise FileNotFoundError(f"figure not found: {fig}")
+    fig = _stage(_source(f"output/figures/{fig_file}"))
     return _slide(id_, section, narration, title=section, bg=fig)
 
 
-def _lambda_sweep() -> Path | None:
+def _lambda_sweep() -> Path:
     """Montage the joint posterior at λ = 0, 2, 4 into one frame — *show* the knob.
 
     Three of the paper's own ``pymdp`` joint-posterior figures laid side by side
@@ -80,67 +120,66 @@ def _lambda_sweep() -> Path | None:
         ("pymdp_joint_lambda_2.00.png", "λ = 2"),
         ("pymdp_joint_lambda_4.00.png", "λ = 4"),
     ]
-    try:
-        from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw
 
-        from democreate.animation.fonts import scaled_font
+    from democreate.animation.fonts import scaled_font
 
-        imgs = []
-        for fname, label in panels:
-            f = _FIGS / fname
-            if not f.is_file():
-                return None
-            imgs.append((Image.open(f).convert("RGB"), label))
-        height = 760
-        resized = [(im.resize((max(1, int(im.width * height / im.height)), height)), lab)
-                   for im, lab in imgs]
-        gap, label_h, pad = 44, 78, 34
-        total_w = sum(im.width for im, _ in resized) + gap * 2 + pad * 2
-        canvas = Image.new("RGB", (total_w, height + label_h + pad * 2), _NOIR_BG)
-        draw = ImageDraw.Draw(canvas)
-        font = scaled_font(canvas.height, 0.072)
-        x = pad
-        for im, label in resized:
-            lw = draw.textlength(label, font=font)
-            draw.text((x + (im.width - lw) / 2, pad), label, fill=_NOIR_RED, font=font)
-            canvas.paste(im, (x, pad + label_h))
-            x += im.width + gap
-        _ASSETS.mkdir(parents=True, exist_ok=True)
-        out = _ASSETS / "lambda_sweep.png"
-        canvas.save(out)
-        return out
-    except Exception as exc:  # noqa: BLE001 - the sweep is a bonus visual
-        print(f"  (lambda sweep skipped: {exc})")
-        return None
+    imgs = []
+    for fname, label in panels:
+        f = _source(f"output/figures/{fname}")
+        imgs.append((Image.open(f).convert("RGB"), label))
+    height = 760
+    resized = [(im.resize((max(1, int(im.width * height / im.height)), height)), lab)
+               for im, lab in imgs]
+    gap, label_h, pad = 44, 78, 34
+    total_w = sum(im.width for im, _ in resized) + gap * 2 + pad * 2
+    canvas = Image.new("RGB", (total_w, height + label_h + pad * 2), _NOIR_BG)
+    draw = ImageDraw.Draw(canvas)
+    font = scaled_font(canvas.height, 0.072)
+    x = pad
+    for im, label in resized:
+        lw = draw.textlength(label, font=font)
+        draw.text((x + (im.width - lw) / 2, pad), label, fill=_NOIR_RED, font=font)
+        canvas.paste(im, (x, pad + label_h))
+        x += im.width + gap
+    _ASSETS.mkdir(parents=True, exist_ok=True)
+    out = _ASSETS / "lambda_sweep.png"
+    canvas.save(out)
+    return out
 
 
-def _architecture() -> Path | None:
-    """Render a diagram of the paper's codebase (best-effort)."""
-    try:
-        from democreate.animation.diagram import (
-            DiagramNode,
-            render_architecture_diagram,
-        )
-        from democreate.codebase.walker import walk_repository
-        from democreate.paper.script import _group_modules
+def _architecture() -> Path:
+    """Render a diagram of the paper's codebase from required source inputs."""
+    from democreate.animation.diagram import (
+        DiagramNode,
+        render_architecture_diagram,
+    )
+    from democreate.codebase.walker import walk_repository
+    from democreate.paper.script import _group_modules
 
-        mods = walk_repository(_SRC)
-        columns = [(name, [DiagramNode(label=m) for m in items])
-                   for name, items in _group_modules(mods)]
-        if not columns:
-            return None
-        _ASSETS.mkdir(parents=True, exist_ok=True)
-        out = _ASSETS / "architecture.png"
-        render_architecture_diagram(
-            (1920, 1080), title="The Paper's Codebase", columns=columns).save(out)
-        return out
-    except Exception as exc:  # noqa: BLE001 - the codebase scene is optional
-        print(f"  (architecture skipped: {exc})")
-        return None
+    mods = walk_repository(_source("src"))
+    columns = [(name, [DiagramNode(label=m) for m in items])
+               for name, items in _group_modules(mods)]
+    if not columns:
+        raise ValueError("Required paper source contains no modules")
+    _ASSETS.mkdir(parents=True, exist_ok=True)
+    out = _ASSETS / "architecture.png"
+    render_architecture_diagram(
+        (1920, 1080), title="The Paper's Codebase", columns=columns).save(out)
+    return out
 
 
-def build() -> Demo:
+def build(paper_root: Path) -> Demo:
     """Construct the curated paper showcase (1080p) — concise, show-don't-tell."""
+    global _PAPER_ROOT
+    _PAPER_ROOT = paper_root.resolve()
+    # Admit all external inputs before staging even the first PDF or image.
+    for relative in (
+        _PDF_INPUT, "src",
+        *(f"output/figures/{name}" for name in _FIGURE_INPUTS),
+    ):
+        _source(relative)
+    pdf = _stage(_source(_PDF_INPUT))
     sweep = _lambda_sweep()
     arch = _architecture()
 
@@ -257,12 +296,17 @@ def build() -> Demo:
         height=1080,
         fps=30,
         voice="Daniel",
-        metadata={"kind": "paper", "curated": True, "pdf": str(_PDF)},
+        metadata={"kind": "paper", "curated": True,
+                  "pdf": pdf.relative_to(_EXAMPLES).as_posix(), "version": "0.8.0"},
     )
 
 
 def main() -> None:
-    demo = build()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--paper-root", type=Path, required=True,
+                        help="Optional curated paper project; read-only input")
+    args = parser.parse_args()
+    demo = build(args.paper_root)
     problems = demo.validate()
     if problems:
         raise SystemExit(f"demo invalid: {problems}")

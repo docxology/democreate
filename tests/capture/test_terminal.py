@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
+
+import pytest
 
 from democreate.capture.terminal import (
     AsciicastEvent,
@@ -130,3 +133,83 @@ def test_frame_states_accumulate() -> None:
     # later states should have at least as many lines as earlier ones
     counts = [len(s.terminal_lines) for s in states]
     assert counts == sorted(counts)
+
+
+@pytest.mark.parametrize(
+    "header",
+    [
+        None,
+        [],
+        {},
+        "header",
+        2,
+        {"version": "two"},
+        {"version": 1},
+        {"width": "wide"},
+        {"width": "80"},
+        {"width": 80.5},
+        {"width": True},
+        {"width": 0},
+        {"width": -1},
+        {"width": float("inf")},
+        {"height": None},
+        {"height": []},
+        {"height": -24},
+        {"height": float("nan")},
+    ],
+)
+def test_semantic_header_errors_stay_typed(tmp_path: Path, header: object) -> None:
+    if isinstance(header, dict) and header:
+        header = {"version": 2, "width": 80, "height": 24} | header
+    path = tmp_path / "bad-header.cast"
+    path.write_text(json.dumps(header) + "\n", encoding="utf-8")
+    with pytest.raises(CaptureError, match="header"):
+        AsciicastRecording.from_json(path.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize(
+    "event",
+    [
+        None,
+        {},
+        "abc",
+        [0, "o"],
+        [0, "o", "text", "extra"],
+        ["bad", "o", "text"],
+        ["1.0", "o", "text"],
+        [None, "o", "text"],
+        [True, "o", "text"],
+        [-0.1, "o", "text"],
+        [float("inf"), "o", "text"],
+        [float("-inf"), "o", "text"],
+        [float("nan"), "o", "text"],
+        [10**400, "o", "text"],
+        [0, None, "text"],
+        [0, "o", {}],
+    ],
+)
+def test_semantic_event_errors_stay_typed(tmp_path: Path, event: object) -> None:
+    path = tmp_path / "bad-event.cast"
+    path.write_text(
+        json.dumps({"version": 2, "width": 80, "height": 24})
+        + "\n"
+        + json.dumps(event),
+        encoding="utf-8",
+    )
+    with pytest.raises(CaptureError, match="event line"):
+        AsciicastRecording.from_json(path.read_text(encoding="utf-8"))
+
+
+def test_real_cast_file_reaches_terminal_renderer(tmp_path: Path) -> None:
+    from democreate.capture.screen import render_frame
+
+    path = tmp_path / "session.cast"
+    original = record_commands([("printf hello", "hello")])
+    path.write_text(original.to_json(), encoding="utf-8")
+    loaded = AsciicastRecording.from_json(path.read_text(encoding="utf-8"))
+    states = recording_to_frame_states(loaded)
+    assert states[-1].terminal_lines == ["$ printf hello", "hello"]
+    image = render_frame(states[-1], (640, 360))
+    out = tmp_path / "terminal.png"
+    image.save(out)
+    assert out.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")

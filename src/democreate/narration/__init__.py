@@ -42,6 +42,7 @@ from .sync import (
 from .tts import (
     ChatterboxTTSBackend,
     ElevenLabsTTSBackend,
+    KokoroTTSBackend,
     SilentTTSBackend,
     SystemTTSBackend,
     TTSBackend,

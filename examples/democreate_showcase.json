@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0",
-  "title": "DemoCreate — The Showcase",
+  "schema_version": "1.1",
+  "title": "DemoCreate: The Showcase",
   "width": 1920,
   "height": 1080,
   "fps": 30,
@@ -8,7 +8,7 @@
   "metadata": {
     "author": "Daniel Ari Friedman",
     "self_referential": true,
-    "version": "0.7.1"
+    "version": "0.8.0"
   },
   "scenes": [
     {
@@ -34,21 +34,22 @@
       "chunks": [
         {
           "id": "abstract-c",
-          "text": "One declarative artifact — describing a codebase or a research paper — compiles through a deterministic pipeline into a verified, provenance-signed video. Here is the whole idea on one screen.",
+          "text": "One declarative artifact describes a codebase or research paper and compiles into frames, captions and video. Its provenance records are unsigned, not authentication.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "The whole idea"
               },
-              "trigger_word": "glance"
+              "trigger_word": "glance",
+              "timestamp_source": "authored"
             }
           ]
         }
       ],
       "context": {
         "section": "At a glance",
-        "background_image": "/Volumes/external_drive/Git/projects/ongoing/docxology/democreate/docs/manuscript/figures/graphical_abstract.png"
+        "background_image": "assets/graphical_abstract.png"
       }
     },
     {
@@ -65,9 +66,9 @@
       "context": {
         "section": "What it is",
         "bullets": [
-          "Rendering is a pure function of the artifact — edit it and re-render, never re-record.",
-          "Every heavy backend has a pure-Python or system-binary default, so a real demo needs zero heavy installs.",
-          "Audio is the single source of timing truth: frames are locked to the measured voiceover."
+          "Core defaults reproduce bytes for the same artifact, assets, configuration and environment.",
+          "Optional adapters load on demand; default narration is silent, not an automatically installed neural voice.",
+          "Measured WAV durations set clip windows; word positions remain character-weighted estimates."
         ]
       }
     },
@@ -78,7 +79,7 @@
       "chunks": [
         {
           "id": "spine-c",
-          "text": "The spine is plain data. A demo is scenes; a scene is chunks; a chunk is typed actions. Rendering never mutates it.",
+          "text": "The spine is plain data: scenes contain narration chunks and typed actions. Synthesis records audio paths and measured timing in the resolved output artifact.",
           "actions": [
             {
               "type": "create_file",
@@ -86,7 +87,8 @@
                 "path": "src/democreate/schema.py",
                 "code": "@dataclass\nclass Demo:\n    title: str\n    scenes: list[Scene]\n    width: int = 1920\n    height: int = 1080\n\n@dataclass\nclass Action:\n    type: ActionType\n    params: dict\n    trigger_word: str | None = None"
               },
-              "trigger_word": "data"
+              "trigger_word": "data",
+              "timestamp_source": "authored"
             },
             {
               "type": "highlight_lines",
@@ -97,7 +99,8 @@
                   4
                 ]
               },
-              "trigger_word": "data"
+              "trigger_word": "data",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -113,15 +116,16 @@
       "chunks": [
         {
           "id": "backends-c",
-          "text": "Every capability hides behind an interface with a deterministic default. Silent gives you zero dependencies; the system voice is a real OS binary; and a wired Kokoro neural voice — the very voice narrating this video — is a fully-local upgrade.",
+          "text": "Interfaces separate the core defaults from optional adapters. Silent narration uses the standard library; a system voice needs a usable speech binary. This canonical recipe selects locally provisioned Kokoro.",
           "actions": [
             {
               "type": "create_file",
               "params": {
                 "path": "src/democreate/narration/tts.py",
-                "code": "class TTSBackend(ABC):\n    @abstractmethod\n    def synth(self, text: str) -> AudioClip: ...\n\nclass SilentTTSBackend(TTSBackend):   # zero deps\nclass SystemTTSBackend(TTSBackend):   # macOS say / espeak\nclass KokoroTTSBackend(TTSBackend):   # neural, optional"
+                "code": "class TTSBackend(ABC):\n    @abstractmethod\n    def synthesize(self, text, out_path, *, voice=None): ...\n\nclass SilentTTSBackend(TTSBackend):   # no heavy deps\nclass SystemTTSBackend(TTSBackend):   # macOS say / espeak\nclass KokoroTTSBackend(TTSBackend):   # neural, optional"
               },
-              "trigger_word": "interface"
+              "trigger_word": "interface",
+              "timestamp_source": "authored"
             },
             {
               "type": "highlight_lines",
@@ -131,7 +135,8 @@
                   6
                 ]
               },
-              "trigger_word": "interface"
+              "trigger_word": "interface",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -147,15 +152,16 @@
       "chunks": [
         {
           "id": "sync-c",
-          "text": "Timing is measured, never guessed. We synthesize the narration, measure its real duration, transcribe it back to word timestamps, and anchor each action to the word it is spoken on.",
+          "text": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
           "actions": [
             {
               "type": "create_file",
               "params": {
                 "path": "src/democreate/narration/sync.py",
-                "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)        # TTS -> STT\nfor action in chunk.actions:\n    action.timestamp_ms = word_time(action.trigger_word)\n# every frame is held for its measured clip"
+                "code": "clips = synthesize_demo(demo, ws)\nsync_demo(demo, clips)        # duration-based word estimates\nfor action in chunk.actions:\n    action.timestamp_ms = word_time(action.trigger_word)\n# every frame is held for its measured clip"
               },
-              "trigger_word": "measured"
+              "trigger_word": "measured",
+              "timestamp_source": "authored"
             },
             {
               "type": "highlight_lines",
@@ -165,7 +171,8 @@
                   4
                 ]
               },
-              "trigger_word": "measured"
+              "trigger_word": "measured",
+              "timestamp_source": "authored"
             }
           ]
         }
@@ -188,9 +195,9 @@
       "context": {
         "section": "The Craft",
         "bullets": [
-          "The narration is a real neural voice — Kokoro, running fully local, no cloud and no API key.",
-          "The waveform below sweeps in lockstep with the audio.",
-          "Nothing is cropped: figures fit whole, code autosizes — the frame is a page, not a camera."
+          "The canonical recipe selects Kokoro with local model files; the default backend remains silent.",
+          "The waveform samples assembled audio at output-frame times.",
+          "Backgrounds start fitted to the viewport; camera zoom and overlays can crop or obscure content."
         ]
       }
     },
@@ -201,21 +208,22 @@
       "chunks": [
         {
           "id": "themes-c",
-          "text": "One commented YAML controls the whole look and sound — five built-in themes, any aspect ratio, resolution up to four K, and near-lossless quality.",
+          "text": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "Fully configurable"
               },
-              "trigger_word": "themes"
+              "trigger_word": "themes",
+              "timestamp_source": "authored"
             }
           ]
         }
       ],
       "context": {
         "section": "Configurable",
-        "background_image": "/Volumes/external_drive/Git/projects/ongoing/docxology/democreate/docs/manuscript/figures/themes.png"
+        "background_image": "assets/themes.png"
       }
     },
     {
@@ -225,21 +233,22 @@
       "chunks": [
         {
           "id": "paper-c",
-          "text": "The same engine demos a research paper: it reads the PDF with no Python dependency, recovers the real abstract, the real figure captions, and the sections — and shows each figure whole.",
+          "text": "PDF text extraction uses poppler system binaries. Abstract, section and caption detection are heuristic. Figure backgrounds need locally available images.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "Papers, not just packages"
               },
-              "trigger_word": "paper"
+              "trigger_word": "paper",
+              "timestamp_source": "authored"
             }
           ]
         }
       ],
       "context": {
         "section": "Research Papers",
-        "background_image": "/Volumes/external_drive/Git/projects/ongoing/docxology/democreate/docs/manuscript/figures/paper_fig.png"
+        "background_image": "assets/paper_fig.png"
       }
     },
     {
@@ -249,16 +258,16 @@
       "chunks": [
         {
           "id": "portfolio-c",
-          "text": "And it does not only describe itself. Point it at a folder of repositories and it renders one narrated, content-verified video per project — each read from that project's own README and docstrings.",
+          "text": "A portfolio pass describes repository folders from README files and Python definitions. It attempts one video per selected project and reports failures, rather than inventing unsupported details.",
           "actions": []
         }
       ],
       "context": {
-        "section": "Describe any codebase",
+        "section": "Describe repositories",
         "bullets": [
-          "democreate portfolio reads each repo's real README, architecture, stats, and load-bearing modules.",
-          "Selection and extraction — not a model — so the default is deterministic and needs no network.",
-          "This very video is the self-describing case of that same engine."
+          "Portfolio reads available README text, Python definitions and bounded repository statistics.",
+          "Selection and extraction do not use a language model; voiced video still needs working TTS and ffmpeg.",
+          "This showcase is hand authored; portfolio shares its rendering and export pipeline."
         ]
       }
     },
@@ -269,21 +278,22 @@
       "chunks": [
         {
           "id": "arch-c",
-          "text": "Under the hood, eight subsystems compose: the spine flows into narration, then rendering, then export — every stage a pure function of the one artifact.",
+          "text": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
           "actions": [
             {
               "type": "open_file",
               "params": {
                 "path": "Eight subsystems, one spine"
               },
-              "trigger_word": "subsystems"
+              "trigger_word": "subsystems",
+              "timestamp_source": "authored"
             }
           ]
         }
       ],
       "context": {
         "section": "Architecture",
-        "background_image": "/Volumes/external_drive/Git/projects/ongoing/docxology/democreate/examples/assets/architecture.png"
+        "background_image": "assets/architecture.png"
       }
     },
     {
@@ -293,7 +303,7 @@
       "chunks": [
         {
           "id": "numbers-c",
-          "text": "And it is real. Seven hundred fifty three collected tests, eight subsystems, five themes, four K output — and zero binary dependencies for the core path.",
+          "text": "Engineering gates check the core with real files and a coverage threshold. Eight subsystems, five themes, four K presets, and no external media executables for the core build.",
           "actions": []
         }
       ],
@@ -301,8 +311,8 @@
         "section": "By the numbers",
         "stats": [
           [
-            "776",
-            "collected tests"
+            ">=90%",
+            "core coverage gate"
           ],
           [
             "8",
@@ -314,23 +324,23 @@
           ],
           [
             "4K",
-            "max resolution"
+            "resolution preset"
           ],
           [
             "0",
-            "binary deps"
+            "required media tools"
           ]
         ]
       }
     },
     {
       "id": "provenance",
-      "title": "Signed, tamper-evident provenance",
+      "title": "Unsigned provenance and consistency",
       "kind": "slide",
       "chunks": [
         {
           "id": "provenance-c",
-          "text": "Every render carries its own provenance, three ways — so a video can prove where it came from, and resist tampering.",
+          "text": "Renders carry attribution three ways. These records are unsigned: they associate content, but do not authenticate an author or video.",
           "actions": []
         }
       ],
@@ -339,7 +349,7 @@
         "bullets": [
           "On-screen metadata bars — author, source, a running clock.",
           "Container tags in the MP4, readable by any player or ffprobe.",
-          "A steganographic signed poster whose hash verifies against the demo and fails on any edit."
+          "An unsigned poster payload checks a Demo digest; it does not authenticate cover pixels, video bytes or authorship."
         ]
       }
     },
@@ -350,15 +360,16 @@
       "chunks": [
         {
           "id": "render-c",
-          "text": "Then one command renders a high-definition video with a real neural voiceover, and proves it is genuine — real streams, not silent, not black.",
+          "text": "Rendering and basic verification check stream shape, audio energy and sampled picture variance. These checks do not establish intelligibility or acoustic word alignment.",
           "actions": [
             {
               "type": "run_command",
               "params": {
                 "command": "democreate render demo.json --tts kokoro --voice af_heart",
-                "output": "✓ verified: real video + non-silent audio"
+                "output": "Illustrative output — not executed by DemoCreate: verification summary"
               },
-              "trigger_word": "renders"
+              "trigger_word": "renders",
+              "timestamp_source": "authored"
             }
           ]
         }

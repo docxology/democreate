@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from democreate.pipeline import build_demo
+from democreate.pipeline import Pipeline
 from democreate.project_paths import Workspace
 from democreate.schema import Demo
 
@@ -34,7 +34,9 @@ def main() -> None:
     args = parser.parse_args()
 
     demo = load_demo(args.demo)
-    result = build_demo(demo, Workspace(args.output), strict=not args.no_strict)
+    result = Pipeline(
+        strict=not args.no_strict, asset_root=args.demo.resolve().parent
+    ).run(demo, Workspace(args.output))
     print(result.summary())
 
 

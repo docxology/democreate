@@ -23,7 +23,7 @@ _log = get_logger(__name__)
 
 _FIGURE_SUFFIXES = (".png", ".jpg", ".jpeg")
 _ABSTRACT_RE = re.compile(r"\babstract\b", re.IGNORECASE)
-_INTRO_RE = re.compile(r"\bintroduction\b", re.IGNORECASE)
+_INTRO_RE = re.compile(r"^\s*(?:\d+(?:\.\d+)*\.?\s+)?introduction\s*$", re.IGNORECASE)
 _DOT_LEADER_RE = re.compile(r"(?:\.{3,}|(?:\.\s*){3,})")
 _TRAILING_PAGE_RE = re.compile(r"\b\d+\s*$")
 _WS_RE = re.compile(r"\s+")

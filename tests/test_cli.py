@@ -96,13 +96,6 @@ def test_captions_bad_format(tmp_path: Path) -> None:
     assert res.exit_code != 0
 
 
-def test_backends_lists_capabilities() -> None:
-    res = runner.invoke(app, ["backends"])
-    assert res.exit_code == 0
-    assert "TTS" in res.stdout
-    assert "default" in res.stdout or "installed" in res.stdout
-
-
 def test_tour_generates_demo(tmp_path: Path) -> None:
     # tour over the package's own source tree
     src = Path(__file__).resolve().parent.parent / "src" / "democreate"

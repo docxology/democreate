@@ -183,3 +183,16 @@ def test_walk_repository_skips_unparsable(tmp_path: Path) -> None:
     names = {s.name for s in summaries}
     assert "ok" in names
     assert "bad" not in names
+
+
+def test_walk_refuses_external_symlinks_and_respects_source_encoding(tmp_path: Path) -> None:
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    private = tmp_path / "private.py"
+    private.write_text("def private_token():\n    return 'do not disclose'\n")
+    (repository / "external.py").symlink_to(private)
+    (repository / "latin.py").write_bytes(b"# coding: latin-1\nname = '\xe9'\n")
+    (repository / "broken.py").write_bytes(b"\xff\xfe")
+    summaries = walk_repository(repository)
+    assert [summary.name for summary in summaries] == ["latin"]
+    assert summaries[0].loc == 2

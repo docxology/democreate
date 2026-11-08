@@ -3,9 +3,9 @@
   "@type": "SoftwareSourceCode",
   "identifier": "https://doi.org/10.5281/zenodo.20693216",
   "name": "DemoCreate: Declarative Audio-Visual Demo Generation for Software",
-  "description": "DemoCreate generates audio-visual demos of software — codebase tours, website walkthroughs, and terminal/CLI demos — from a single declarative, deterministic spine. A Demo is an ordered action stream plus narration chunks, merging CodeVideo's event-sourced virtual-IDE model with VSpeak's chunk/trigger model. The core package produces real, inspectable demo artifacts with light dependencies; system binaries such as ffmpeg upgrade video assembly, while neural TTS, Whisper, Manim, and legacy MoviePy surfaces are guarded adapter slots rather than unconditional turnkey backends. On-screen actions are anchored to spoken trigger words via TTS-to-STT synchronization when measured transcription is available, with deterministic timing fallbacks for the core path.",
-  "version": "0.7.1",
-  "dateModified": "2026-07-20",
+  "description": "DemoCreate compiles declarative scenes, narration chunks and actions into inspectable frames, captions and HTML. Optional system or Kokoro TTS and ffmpeg produce voiced video. Clip durations are measured; default word timings are length-weighted interpolation, not acoustic recognition. Whisper, Chatterbox and Manim are unwired slots. Version 0.8.0 is a candidate pending publication.",
+  "version": "0.8.0",
+  "dateModified": "2026-11-07",
   "dateCreated": "2026-06-04",
   "datePublished": "2026-06-04",
   "license": "https://spdx.org/licenses/MIT",
@@ -13,7 +13,7 @@
   "url": "https://github.com/docxology/democreate",
   "issueTracker": "https://github.com/docxology/democreate/issues",
   "programmingLanguage": "Python",
-  "runtimePlatform": "Python 3.10+",
+  "runtimePlatform": "Python 3.11.5+",
   "operatingSystem": ["Linux", "macOS", "Windows"],
   "developmentStatus": "active",
   "applicationCategory": "Multimedia",
@@ -29,7 +29,7 @@
     "playwright",
     "reproducible",
     "deterministic",
-    "tts-stt-synchronization",
+    "duration-based-narration-timing",
     "virtual-ide"
   ],
   "author": [
@@ -51,15 +51,15 @@
     "@id": "https://orcid.org/0000-0001-6232-9096"
   },
   "softwareRequirements": [
-    "Python >= 3.10",
+    "Python >= 3.11.5",
     "pyyaml >= 6.0",
     "typer >= 0.12.0",
     "rich >= 13.0.0",
     "jinja2 >= 3.1.0",
-    "pillow >= 10.0.0"
+    "pillow >= 13.0.0"
   ],
   "softwareSuggestions": [
-    "kokoro-onnx >= 0.3.0 (TTS backend adapter slot)",
+    "kokoro-onnx >= 0.3.0 (implemented local TTS backend)",
     "soundfile >= 0.12.0 (TTS backend audio I/O)",
     "numpy >= 1.24.0 (TTS/capture backend arrays)",
     "openai-whisper >= 20231117 (guarded STT adapter slot)",

@@ -158,3 +158,20 @@ def test_mss_backend_unavailable_when_dep_missing() -> None:
         MssScreenCapture()
     assert exc.value.backend == "mss"
     assert exc.value.extra == "capture"
+
+
+def test_camera_scale_changes_visible_content_without_changing_canvas(tmp_path: Path) -> None:
+    from PIL import Image, ImageDraw
+
+    background = tmp_path / "background.png"
+    image = Image.new("RGB", (160, 90), "blue")
+    ImageDraw.Draw(image).rectangle((40, 22, 120, 68), fill="red")
+    image.save(background)
+    state = FrameState(scene_kind=SceneKind.SLIDE, background_image=str(background))
+    renderer = SyntheticRenderer()
+    before = renderer.render(state, (160, 90))
+    state.scale = 2
+    after = renderer.render(state, (160, 90))
+    assert before.size == after.size == (160, 90)
+    assert before.getpixel((20, 30)) == (0, 0, 255)
+    assert after.getpixel((20, 30)) == (255, 0, 0)

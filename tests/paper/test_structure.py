@@ -3,7 +3,7 @@
 The pure extractors are exercised with hand-built text fixtures (an abstract
 block, a table-of-contents block that must be rejected, figure-caption lines,
 and numbered + named headings). The guarded :func:`summarize_structure` wrapper
-is exercised against the real published PDF only when poppler is installed.
+is exercised against a synthetic real-file PDF only when poppler is installed.
 """
 
 from __future__ import annotations
@@ -20,12 +20,6 @@ from democreate.paper.structure import (
     extract_figure_captions,
     extract_sections,
     summarize_structure,
-)
-
-_REAL_PDF = Path(
-    "/Users/4d/Documents/GitHub/projects/published/"
-    "actinf_policy_entanglement_lean/output/pdf/"
-    "actinf_policy_entanglement_lean_combined.pdf"
 )
 
 _TOC_BLOCK = """\
@@ -236,41 +230,39 @@ def test_abstract_max_chars() -> None:
 
 
 # --------------------------------------------------------------------------- #
-# summarize_structure (guarded — real PDF)
+# summarize_structure (guarded — synthetic real-file PDF)
 # --------------------------------------------------------------------------- #
 
 
-def test_summarize_structure_requires_poppler(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_summarize_structure_requires_poppler(
+    monkeypatch: pytest.MonkeyPatch, sample_paper: Path
+) -> None:
     """summarize_structure raises BackendUnavailableError without poppler."""
     from democreate.errors import BackendUnavailableError
 
     monkeypatch.setattr(_pdf.shutil, "which", lambda _binary: None)
     with pytest.raises(BackendUnavailableError):
-        summarize_structure(_REAL_PDF)
+        summarize_structure(sample_paper)
 
 
-@pytest.mark.skipif(
-    not (_pdf.poppler_available() and _REAL_PDF.is_file()),
-    reason="poppler not installed or real test PDF absent",
-)
-def test_summarize_structure_real_pdf() -> None:
-    """Against the real PDF: real abstract, figures, and an Introduction."""
-    result = summarize_structure(_REAL_PDF)
+@pytest.mark.skipif(not _pdf.poppler_available(), reason="poppler not installed")
+def test_summarize_structure_real_pdf(
+    sample_paper: Path, sample_abstract: str
+) -> None:
+    """Extract exact abstract, section, and caption semantics from a real PDF."""
+    result = summarize_structure(sample_paper)
     abstract = result["abstract"]
     assert isinstance(abstract, str)
-    assert len(abstract) >= 200
-    # The abstract must NOT be just the title block.
-    assert "Policy Entanglement in Active Inference" not in abstract[:80]
-    assert "active inference" in abstract.lower()
-    # The leading "Abstract" label must be stripped, not leak into the prose.
-    assert not abstract.lower().startswith("abstract")
-
-    captions = result["figure_captions"]
-    assert captions
-    assert all(isinstance(c, FigureCaption) for c in captions)
-    assert all(c.number > 0 and c.caption for c in captions)
-
-    sections = result["sections"]
-    assert sections
-    titles = {s.title.lower() for s in sections}
-    assert any("introduction" in t for t in titles)
+    assert " ".join(abstract.split()) == " ".join(sample_abstract.split())
+    assert [
+        (caption.number, " ".join(caption.caption.split()))
+        for caption in result["figure_captions"]
+    ] == [(1, "Controlled diagram.")]
+    assert [
+        (section.number, " ".join(section.title.split()))
+        for section in result["sections"]
+    ] == [
+        ("", "Abstract"),
+        ("1", "Introduction"),
+        ("2", "Methods"),
+    ]

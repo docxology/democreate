@@ -20,9 +20,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .._logging import get_logger
 from ..animation.fonts import load_font, scaled_font
 from ..config import Theme
+from ..errors import RenderError
 from ..media import FrameState
 from ..schema import SceneKind
 
@@ -53,7 +53,6 @@ def waveform_band_box(width: int, height: int) -> tuple[int, int, int, int]:
     band_h = max(1, int(round(height * WAVEFORM_BAND_FRAC)))
     return (0, height - band_h, width, height)
 
-logger = get_logger(__name__)
 
 class FrameSource:
     """Abstract source of rendered frames.
@@ -124,6 +123,11 @@ class SyntheticRenderer(FrameSource):
                 self._draw_slide(draw, state, width, height)
             else:
                 self._draw_editor(draw, state, width, height)
+        if state.scale > 1:
+            from ..animation.zoom import ZoomKeyframe, apply_zoom
+
+            img = apply_zoom(img, ZoomKeyframe(0, width / 2, height / 2, state.scale))
+            draw = ImageDraw.Draw(img)
 
         bx0, by0, bx1, by1 = waveform_band_box(width, height)
         draw.rectangle([bx0, by0, bx1, by1], fill=t.band_bg)
@@ -166,13 +170,13 @@ class SyntheticRenderer(FrameSource):
         it on the theme background (a matte), and frames it with a thin border.
         The caption sits below it (never over it).
         """
-        from PIL import Image, ImageDraw, UnidentifiedImageError
+        from PIL import Image, ImageDraw
 
         try:
-            src = Image.open(path).convert("RGB")
-        except (FileNotFoundError, UnidentifiedImageError, OSError):  # pragma: no cover
-            logger.warning("background image unavailable: %s", path)
-            return
+            with Image.open(path) as source:
+                src = source.convert("RGB")
+        except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+            raise RenderError(f"cannot decode background image: {path}") from exc
         tw, th = img.size
         bx0, by0 = int(tw * 0.025), int(th * 0.022)
         bx1, by1 = int(tw * 0.975), int(content_bottom - th * 0.01)

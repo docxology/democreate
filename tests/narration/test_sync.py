@@ -296,3 +296,21 @@ def test_absolute_word_timestamps_lead_and_gap(sample_demo, tmp_workspace) -> No
     assert first_chunk.start_ms == lead_ms
     # The first word's absolute start equals lead_ms + its in-chunk start.
     assert words[0].start_ms == lead_ms + 0  # first word starts at chunk start
+
+
+def test_sync_preserves_authored_times_and_records_measured_duration(tmp_workspace) -> None:
+    from democreate.narration.tts import SilentTTSBackend, synthesize_demo
+    from democreate.schema import Action, ActionType, Chunk, Demo, Scene
+
+    authored = Action(ActionType.RUN_COMMAND, {"command": "echo hello"},
+                      timestamp_ms=850, duration_ms=50)
+    triggered = Action(ActionType.RUN_COMMAND, {"command": "echo first"},
+                       trigger_word="first", timestamp_ms=850)
+    demo = Demo(title="Timed", scenes=[Scene(id="s", chunks=[
+        Chunk(id="c", text="first second third fourth", actions=[authored, triggered])
+    ])])
+    clips = synthesize_demo(demo, tmp_workspace, SilentTTSBackend(wpm=600))
+    sync_demo(demo, clips, lead_ms=300)
+    assert authored.timestamp_ms == 850
+    assert triggered.timestamp_ms == 300
+    assert demo.iter_chunks()[0].duration_ms == 400

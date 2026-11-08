@@ -1,7 +1,7 @@
 """Browser driving for WEBSITE scenes — deterministic by default.
 
 A :class:`BrowserDriver` is the small surface the demo pipeline uses to drive a
-web page: navigate, click, fill, and screenshot. The default
+web page: navigate, selector/coordinate click, fill, scroll, and screenshot. The default
 :class:`NullBrowserDriver` performs no real automation — it records every call
 into a manifest and renders synthetic browser frames — so a website demo can be
 built and tested with zero browser binaries. The real
@@ -14,7 +14,6 @@ import importlib.util
 from pathlib import Path
 from typing import Any
 
-from .._logging import get_logger
 from ..errors import BackendUnavailableError
 from ..media import FrameState
 from ..schema import ActionType, Scene, SceneKind
@@ -26,12 +25,21 @@ __all__ = [
     "drive_website_scene",
 ]
 
-logger = get_logger(__name__)
-
 
 def _have(dep: str) -> bool:
     """Return ``True`` if an optional dependency is importable."""
     return importlib.util.find_spec(dep) is not None
+
+
+def _scroll_delta(direction: str, amount: int) -> tuple[int, int]:
+    """Resolve a nonnegative pixel amount into horizontal/vertical wheel deltas."""
+    axes = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+    if direction not in axes:
+        raise ValueError(f"unsupported scroll direction: {direction!r}")
+    if amount < 0:
+        raise ValueError("scroll amount must be nonnegative")
+    x, y = axes[direction]
+    return x * amount, y * amount
 
 
 class BrowserDriver:
@@ -49,8 +57,16 @@ class BrowserDriver:
         """Click the first element matching ``selector``."""
         raise NotImplementedError
 
-    def fill(self, selector: str, text: str) -> None:
-        """Type ``text`` into the field matching ``selector``."""
+    def click_xy(self, x: int, y: int, *, button: str = "left") -> None:
+        """Click viewport coordinates using the requested mouse button."""
+        raise NotImplementedError
+
+    def fill(self, selector: str, value: str) -> None:
+        """Fill the field matching ``selector`` with ``value``."""
+        raise NotImplementedError
+
+    def scroll(self, direction: str, amount: int) -> None:
+        """Scroll ``amount`` pixels up, down, left, or right."""
         raise NotImplementedError
 
     def screenshot(self, path: Path | str) -> Path:
@@ -105,22 +121,20 @@ class NullBrowserDriver(BrowserDriver):
         """
         self.manifest.append({"op": "click", "selector": selector})
 
-    def fill(self, selector: str, text: str) -> None:
-        """Record filling ``selector`` with ``text``.
+    def click_xy(self, x: int, y: int, *, button: str = "left") -> None:
+        """Record a coordinate click without inventing an element selector."""
+        self.manifest.append({"op": "click", "xy": [x, y], "button": button})
 
-        Args:
-            selector: The field selector.
-            text: The text entered.
-        """
-        self.manifest.append({"op": "fill", "selector": selector, "text": text})
+    def fill(self, selector: str, value: str) -> None:
+        """Record filling ``selector`` with the canonical ``value``."""
+        self.manifest.append({"op": "fill", "selector": selector, "value": value})
 
-    def scroll(self, amount: int) -> None:
-        """Record a scroll by ``amount`` pixels.
-
-        Args:
-            amount: Vertical scroll delta in pixels.
-        """
-        self.manifest.append({"op": "scroll", "amount": amount})
+    def scroll(self, direction: str, amount: int) -> None:
+        """Record a directional scroll after validating its pixel delta."""
+        _scroll_delta(direction, amount)
+        self.manifest.append(
+            {"op": "scroll", "direction": direction, "amount": amount}
+        )
 
     def screenshot(self, path: Path | str) -> Path:
         """Render a synthetic browser frame to ``path``.
@@ -163,20 +177,36 @@ class PlaywrightBrowserDriver(BrowserDriver):
             headless: Whether to run without a visible window.
 
         Raises:
-            BackendUnavailableError: If ``playwright`` is not installed.
+            BackendUnavailableError: If Playwright or its browser binary is absent.
         """
         if not _have("playwright"):
             raise BackendUnavailableError("playwright", extra="browser")
         self._launch(headless)  # pragma: no cover - requires browser binary
 
     def _launch(self, headless: bool) -> None:  # pragma: no cover - requires browser binary
-        from playwright.sync_api import (
-            sync_playwright,
-        )
+        from playwright.sync_api import Error, sync_playwright
 
         self._pw = sync_playwright().start()
-        self._browser = self._pw.chromium.launch(headless=headless)
-        self._page = self._browser.new_page()
+        browser = None
+        try:
+            browser = self._pw.chromium.launch(headless=headless)
+            self._page = browser.new_page()
+        except Exception as exc:
+            try:
+                if browser is not None:
+                    browser.close()
+            finally:
+                self._pw.stop()
+            message = str(exc).lower()
+            if isinstance(exc, Error) and (
+                "executable doesn't exist" in message or "playwright install" in message
+            ):
+                raise BackendUnavailableError(
+                    "playwright Chromium (run `playwright install chromium`)",
+                    extra="browser",
+                ) from exc
+            raise
+        self._browser = browser
 
     def navigate(self, url: str) -> None:  # pragma: no cover - requires browser binary
         """Load ``url`` in the real page."""
@@ -186,9 +216,20 @@ class PlaywrightBrowserDriver(BrowserDriver):
         """Click the element matching ``selector``."""
         self._page.click(selector)
 
-    def fill(self, selector: str, text: str) -> None:  # pragma: no cover - requires browser binary
-        """Fill the field matching ``selector`` with ``text``."""
-        self._page.fill(selector, text)
+    def click_xy(  # pragma: no cover - requires browser binary
+        self, x: int, y: int, *, button: str = "left"
+    ) -> None:
+        """Click actual viewport coordinates with the requested mouse button."""
+        self._page.mouse.click(x, y, button=button)
+
+    def fill(self, selector: str, value: str) -> None:  # pragma: no cover - requires browser binary
+        """Fill the field matching ``selector`` with ``value``."""
+        self._page.fill(selector, value)
+
+    def scroll(self, direction: str, amount: int) -> None:  # pragma: no cover - requires browser binary
+        """Apply directional pixel scrolling to the real page."""
+        x, y = _scroll_delta(direction, amount)
+        self._page.mouse.wheel(x, y)
 
     def screenshot(self, path: Path | str) -> Path:  # pragma: no cover - requires browser binary
         """Capture the real page to ``path`` and return it."""
@@ -199,8 +240,10 @@ class PlaywrightBrowserDriver(BrowserDriver):
 
     def close(self) -> None:  # pragma: no cover - requires browser binary
         """Close the page, browser, and Playwright context."""
-        self._browser.close()
-        self._pw.stop()
+        try:
+            self._browser.close()
+        finally:
+            self._pw.stop()
 
 
 def drive_website_scene(
@@ -234,14 +277,14 @@ def drive_website_scene(
             if action.type == ActionType.NAVIGATE:
                 drv.navigate(str(params.get("url", "")))
             elif action.type == ActionType.CLICK:
-                drv.click(str(params.get("selector", "")))
+                if "xy" in params:
+                    x, y = params["xy"]
+                    drv.click_xy(x, y, button=str(params.get("button", "left")))
+                else:
+                    drv.click(str(params["selector"]))
             elif action.type == ActionType.FILL:
-                drv.fill(str(params.get("selector", "")), str(params.get("text", "")))
+                drv.fill(str(params["selector"]), str(params["value"]))
             elif action.type == ActionType.SCROLL:
-                amount = int(params.get("amount", params.get("by", 0)) or 0)
-                if isinstance(drv, NullBrowserDriver):
-                    drv.scroll(amount)
-                else:  # pragma: no cover - exercised only with a real driver
-                    logger.debug("scroll not supported by %s", type(drv).__name__)
+                drv.scroll(str(params["direction"]), int(params.get("amount", 100)))
 
     return getattr(drv, "manifest", [])

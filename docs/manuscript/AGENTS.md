@@ -1,4 +1,4 @@
-# Manuscript — DemoCreate v0.7.1
+# Manuscript — DemoCreate v0.8.0
 
 ## Overview
 
@@ -53,9 +53,10 @@ cd ..  # project root
 | `figures/frame_title.png` | `#fig:frame_title` | `render_frame` (SLIDE) | `05_composition_and_configurability.md` |
 | `figures/frame_paper.png` | `#fig:frame_paper` | `render_frame` (SLIDE + `background_image`, paper theme) | `06_research_paper_demos.md` |
 | `figures/typing_filmstrip.png` | `#fig:typing_filmstrip` | `render_frame` (CODEBASE) ×3 at `cursor_typed` 25/55/100% | `05_composition_and_configurability.md` |
-| `figures/latency.png` | `#fig:latency` | pure-Pillow bar chart of `data/benchmarks.json` | `07_evaluation.md` |
+| `figures/latency.png` | `#fig:latency` | independent-unit cards from `data/benchmarks-0.8.0.json` | `07_evaluation.md` |
 | `figures/paper_flow.png` | `#fig:paper_flow` | `animation.diagram.render_architecture_diagram` (paper theme) | `06_research_paper_demos.md` |
 | `figures/provenance.png` | `#fig:provenance` | pure-Pillow diagram driven by a real `config.MetadataConfig` | `10_provenance_and_distribution.md` |
+| `figures/video_stills.png` | `#fig:video_stills` | digest-checked decoded frames in `data/release-0.8.0.json` | `07_evaluation.md` |
 | `figures/paper_fig.png` | — | real published paper figure (copied background source) | — |
 
 ## Invariants for agents
@@ -68,14 +69,12 @@ cd ..  # project root
 - **Cross-reference with `[@sec:...]` and figures with `[@fig:...]`**, never
   hard-coded numbers. Insert figures as
   `![Caption.](figures/x.png){#fig:x}` and reference them as `[@fig:x]`.
-- **Ground every claim in `src/democreate`.** The chapters describe a real
-  package — 57 source modules across eight subsystems (`capture/`, `narration/`,
-  `animation/`, `codebase/`, `assembly/`, `export/`, `paper/`, `translation/`) plus `schema.py`,
-  `config.py`, `media.py`, `pipeline.py`, `cli.py`. Authoritative v0.7.1 numbers:
-  776 collected tests, ≥90% coverage gate, five themes (default
-  **noir**), package demo 155.6 s at 3840×2160 (15 scenes/chapters), paper demo 188.0 s
-  (12 scenes/chapters, 6-part section structure), both re-rendered in noir.
-  If the code changes, update the prose and regenerate the figures.
+- **Ground claims in source and dated receipts.** Candidate 0.8.0 requires
+  Python ≥3.11, Pillow ≥13 and schema 1.1. Keep suite counts out of prose/pixels;
+  the ≥90% core coverage threshold is a gate, not a current result. Label old
+  images historical (reviewed 2026-11-07; extraction date unrecorded). Clip
+  duration measurement is not acoustic onset recognition. Kokoro is implemented;
+  Whisper/Chatterbox/Manim are unwired. Poster hashes are unsigned associations.
 - Inline code spans for all module/class/function/command names.
 
 ## Build

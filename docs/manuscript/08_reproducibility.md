@@ -1,73 +1,76 @@
 # Reproducibility and Use {#sec:reproducibility}
 
-This section records the concrete steps to install DemoCreate, run its test gate, and produce a demo — of either software or a research paper — so that the claims of [@sec:evaluation] are independently checkable.
+This section provides illustrative installation, gate and rendering commands. They are instructions for obtaining evidence, not commands executed for this chapter or current passing receipts. Independent reproduction requires fixed source, inputs/assets, configuration and runtime versions. The planned voiced acoustic study remains blocking: at least 30 independently annotated voiced demos, pooled event median and median of demo-level errors at most 120 ms are required by `experiment_plan.yaml`; silent-default output is ineligible. No such corpus or measured result is supplied here ([@sec:evaluation]).
 
 ## Environment and Installation
 
-The package targets Python 3.10 and later and is managed with uv [@astral2024uv] for reproducible, lockfile-driven environments. The core dependencies are deliberately light — `pyyaml`, `typer`, `rich`, `jinja2`, and `pillow` — so an editable install pulls no heavy binaries:
+Candidate 0.8.0 requires Python ≥3.11.5 and Pillow ≥13; the build backend requires setuptools ≥84.2.1. The patch floor excludes legacy locked dependency partitions with known advisories. The checkout's core development pin remains Python 3.15; that support statement does not establish that every optional dependency has a compatible wheel. uv [@astral2024uv] and the lockfile can record an environment, but an editable pip install by itself does not enforce it. Core dependencies are `pyyaml`, `typer`, `rich`, `jinja2` and `pillow`; Pillow includes native components although a silent core build needs no external media executable.
 
 ```bash
-uv venv
-uv pip install -e ".[dev]"
+uv sync --locked
 ```
 
 Optional heavy backends are installed only as needed, each named for the subsystem it upgrades:
 
 ```bash
-uv pip install -e ".[tts]"        # Kokoro / Chatterbox neural TTS
-uv pip install -e ".[whisper]"    # Whisper word-level transcription
-uv pip install -e ".[capture]"    # mss real-pixel screen capture
-uv pip install -e ".[browser]"    # Playwright website driving
-uv pip install -e ".[animation]"  # Manim animation
-uv pip install -e ".[video]"      # video helper packages; ffmpeg binary still required
-uv pip install -e ".[all]"        # everything
+uv sync --locked --extra tts        # implemented Kokoro; needs compatible runtime/model files
+uv sync --locked --extra whisper    # dependency only; transcription adapter unwired
+uv sync --locked --extra capture    # mss; needs a usable display/session
+uv sync --locked --extra browser    # also needs installed Playwright browser binaries
+uv sync --locked --extra animation  # Manim dependency only; render adapter unwired
+uv sync --locked --extra video      # helper packages; ffmpeg binary still required
 ```
 
-Several upgrade paths need no pip extra at all, only usable system binaries: real spoken narration via the operating system's `say`/`espeak` after a synthesis/transcode smoke test (the `SystemTTSBackend`, [@sec:architecture]), and research-paper ingestion via the poppler utilities [@poppler2024] ([@sec:paper]). The final video encode and the EBU R128 loudness pass ([@sec:composition]) use `ffmpeg`. The `democreate backends` command reports, at runtime, which extras and binaries are present and which capabilities are running on their deterministic default — confirming that every capability has a working default backend.
+Kokoro additionally needs model/voice files (`democreate fetch-voice` downloads them), phonemization prerequisites and a compatible ONNX runtime. The locked ONNX distribution has no CPython 3.15 wheel. The identified 2026-11-08 candidate run therefore used a repository-local Python 3.14.10 voice environment without changing the 3.15 core pin; its source/model identities and limitations are recorded in `data/release-0.8.0.json`. Model hashes were checked before/after but are not supplier authentication or kernel-enforced immutability of the large runtime asset. Installing `[all]`, or selecting a backend name, is not evidence of usable speech.
+
+System narration needs a usable `say` or `espeak` voice and the required transcode path. Paper ingestion needs poppler [@poppler2024]; encoding, loudness processing and media inspection need usable ffmpeg/ffprobe binaries. The backend table is an availability aid, not a capability test: dependency presence does not wire the Whisper, Chatterbox, Manim or legacy MoviePy slots. Core defaults produce silent audio and synthetic visuals, not real speech, browser activity or optional-adapter evidence.
 
 ## The Test Gate
 
-The test gate is the primary reproducibility check. It runs the full 776-test suite against real artifacts and enforces the ≥90% coverage threshold configured in `pyproject.toml`, which the current suite clears at 93.05%:
+The engineering gate runs the real-filesystem suite and enforces the ≥90% configured core coverage floor. Results and counts require a fresh receipt, not a current percentage copied into prose:
 
 ```bash
-uv run pytest --cov=src/democreate --cov-report=term-missing
+uv run --locked python -m pytest --cov=src/democreate --cov-report=term-missing
 ```
 
-Because the suite is pure-Python and uses no mocks, it requires only the core and `dev` dependencies; it does not need any heavy backend installed. Tests that would exercise an optional heavy backend skip cleanly when the extra is absent. Static checks — `ruff` for linting and import ordering, `mypy` for typing against the shipped `py.typed` marker — complete the gate.
+The core suite is designed around real temporary files and deterministic backends rather than a mocking framework; optional integration surfaces have separate prerequisites and may skip when unavailable. Core coverage excludes designated heavy adapters, so even a passing ≥90% core floor would not establish optional-backend correctness. Static lint/type gates use ruff and mypy against the shipped `py.typed` package. Fresh results must identify their source revision and environment; no current test count, coverage percentage or passing gate is asserted here.
 
 ## Producing a Software Demo
 
-The CLI is a thin orchestration layer over the library; every command resolves to a few calls into the pipeline and subsystems. Its commands are `init`, `inspect`, `build`, `tour`, `captions`, `render`, `verify`, `paper`, `backends`, and `version`. The quickest path from nothing to an inspectable artifact is:
+The CLI delegates to the library's pipeline and subsystems. It includes authoring/inspection, build/render, tours/portfolios, paper ingestion, captions, configuration, localization, metadata/media exports and backend discovery. An illustrative starter workflow is:
 
 ```bash
 democreate init demo.json          # write an editable starter demo
 democreate inspect demo.json       # validate and summarize it
-democreate build demo.json -o out  # run the full pipeline
+democreate build demo.json -o out --asset-root .  # silent core build
 ```
 
-`build` runs validation, TTS, TTS→STT synchronization, timeline resolution, compositing, caption emission, and export, writing audio, frames, a render manifest, SRT/VTT captions, a Markdown transcript, the serialized demo JSON, and a self-contained interactive HTML player under `out/`. To produce and *content-verify* an HD MP4 with a real voiceover and a chosen theme:
+`build` validates, stages allowed image inputs, synthesizes silent WAVs by default, measures clip durations, interpolates known-text word timing, resolves the timeline, composites representative stills, and emits captions/transcript/JSON/HTML. It does not perform STT. `out/web/player.html` embeds interface code and caption/chapter data but references sibling `out/frames` media; keep the bundle together. Animated MP4 playback is a separate render path. For an optional system-voice MP4, first supply an actually available voice and the binary prerequisites; the following macOS voice name is an example, not a portable guarantee:
 
 ```bash
-democreate render demo.json -o out --tts system --voice Samantha --theme midnight
-democreate verify out/<video>.mp4 --width 1920 --height 1080
+democreate render demo.json -o out --asset-root . --tts system --voice Samantha --theme midnight
+democreate verify out/video/demo.mp4 --width 1920 --height 1080
 ```
+
+The content verifier checks geometry/duration, sampled image variation and audio energy; it does not prove intelligible narration, acoustic trigger accuracy, authorship or publication readiness. Silent output cannot pass as voiced evidence merely because its clip durations are known. Voiced/encoded output is not guaranteed byte-identical across hosts.
 
 A complete codebase tour can be generated and rendered directly from a repository:
 
 ```bash
-democreate tour /path/to/repo -o out --title "My Project Tour"
+democreate tour /path/to/repo -o out --title "My Project Tour" --render
 ```
 
-This walks the repository's Python sources with the stdlib `ast`-based summarizer, generates a declarative `Demo` via `generate_codebase_demo`, writes it to `out/demos/tour.json`, and renders it.
+This walks Python sources using the stdlib `ast` summarizer, generates a `Demo` via `generate_codebase_demo`, writes `out/demos/tour.json` and requests rendering. A voiced render still needs its backend and binaries. Repository-summary/portfolio commands shown in a synthetic terminal are illustrative strings, never executed by DemoCreate; their sample output and discovered test-function counts are not successful execution or test receipts.
 
 ## Producing a Research-Paper Demo
 
-The paper path ([@sec:paper]) is a single command from a PDF (and optionally its figures and codebase) to a verified video:
+The paper path ([@sec:paper]) needs a real readable PDF, poppler, and any requested source/figure inputs. For explicit control of external image inputs, generate the authored Demo first, then render with an image allow-root:
 
 ```bash
-democreate paper paper.pdf --repo ./code --figures ./figures --theme paper
+democreate paper ./inputs/paper.pdf --repo ./code --figures ./inputs/figures -o out/paper --no-render
+democreate render out/paper/demos/paper.json -o out/paper --asset-root ./inputs --tts system --theme paper
 ```
 
-This reads the PDF through poppler, extracts the title, authors, the real abstract, figure captions, and sections, collects the figure images, walks the codebase for an architecture diagram, composes a `Demo`, renders it, and runs `verify_video`. The *Policy Entanglement* worked example of [@sec:evaluation] is reproduced by exactly this invocation.
+The first command reads PDF metadata/text and requested pages, heuristically extracts abstract/captions/headings, collects supplied figure images and optionally summarizes code. Review those outputs: extraction is best-effort, not semantic verification. The `paper` command's direct render path derives its asset root from the figure directory or PDF directory rather than exposing `--asset-root`; the separate `render` command above makes the external image boundary explicit. The pipeline stages accepted images and writes a resolved `out/paper/demos/demo.json` with workspace-relative paths. Use that emitted artifact with the corresponding workspace when checking the poster digest, not an assumption that pre-render geometry/paths are unchanged. The historical *Policy Entanglement* example requires its unshipped PDF, figures and source; a generic paper command is not an identity-matched reproduction.
 
-Subtitles for any demo can be emitted to standard output in SRT, VTT, or ASS form via `democreate captions demo.json --format vtt`. Worked examples accompany the package under `examples/`, and because a demo is a plain JSON or YAML value, every example — and every figure in this manuscript — is itself a reproducible input that re-renders identically ([@sec:evaluation]).
+Subtitles for any demo can be emitted to standard output in SRT, VTT, or ASS form via `democreate captions demo.json --format vtt`. Worked examples accompany the package under `examples/`, and because a demo is a plain JSON or YAML value, default examples can be rebuilt with fixed inputs and environment. Optional curated paper assets and voiced media need their stated external prerequisites; historical images are not current render receipts.

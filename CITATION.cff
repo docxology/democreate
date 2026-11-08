@@ -9,18 +9,15 @@ abstract: >-
   chunk/trigger model. Every heavy backend (TTS, transcription, screen/browser
   capture, animation, assembly) sits behind an abstract interface with a
   pure-Python deterministic default, so the package produces a real demo with
-  only light dependencies and upgrades transparently when extras are installed.
-  On-screen actions are anchored to spoken trigger words via TTS→STT
-  synchronization: narration audio is generated, transcribed back to word-level
-  timestamps, and used to align the action stream with the narration.
+  only light dependencies; optional implementations require their prerequisites.
+  Clip durations are measured from generated audio. Default word timestamps
+  interpolate known text by character length; they are not acoustic word onsets.
+  Kokoro is implemented; Whisper, Chatterbox and Manim remain unwired slots.
+  Version 0.8.0 is a release candidate, not a published archive.
 type: software
-version: "0.7.1"
-date-released: "2026-06-25"
+version: "0.8.0"
 doi: 10.5281/zenodo.20693216
 identifiers:
-  - type: doi
-    value: 10.5281/zenodo.20693216
-    description: "Concept DOI — resolves to the latest release"
   - type: doi
     value: 10.5281/zenodo.20693216
     description: "Concept DOI (all versions)"
@@ -44,12 +41,12 @@ keywords:
   - playwright
   - reproducible
   - deterministic
-  - tts-stt-synchronization
+  - duration-based-narration-timing
   - virtual-ide
 preferred-citation:
   type: software
   title: "DemoCreate: Declarative Audio-Visual Demo Generation for Software"
-  version: "0.7.1"
+  version: "0.8.0"
   doi: 10.5281/zenodo.20693216
   license: MIT
   url: "https://github.com/docxology/democreate"

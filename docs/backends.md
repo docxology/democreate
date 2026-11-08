@@ -1,26 +1,24 @@
 # Backends and extras
 
-Every heavy capability in DemoCreate sits behind an abstract interface with a
-**pure-Python deterministic default**. The package produces a real, inspectable
-demo end-to-end with only the light core dependencies installed. Optional extras
-and system binaries upgrade individual subsystems without changing the pipeline
-or the schema. **Kokoro neural TTS is fully wired** (a high-quality, fully-local
-voice); Whisper, Chatterbox, and Manim remain guarded adapter slots rather than
-fully wired render paths.
+Core dependencies support silent WAVs, synthetic frames, captions and an HTML
+preview. Real speech, capture and encoding have separate prerequisites.
+Kokoro is implemented; Whisper, Chatterbox and Manim remain unwired slots.
+Installing a dependency does not establish adapter, model, binary or host
+readiness. No published extra enables Chatterbox synthesis.
 
 ## Core dependencies (always installed)
 
 `pyyaml`, `typer`, `rich`, `jinja2`, `pillow`. These are enough for the entire
-default path: silent-but-correctly-timed narration, synthetic frames, a render
-manifest, captions, and the interactive HTML player.
+default build: silent WAVs with measured duration, synthetic frames, a render
+manifest, captions and the HTML preview. Silent output has no acoustic onsets.
 
 ## Subsystem → default → upgrade
 
 | Subsystem | Capability | Deterministic default | Real backend | Extra | Dependency | Install |
 |-----------|-----------|-----------------------|--------------|-------|------------|---------|
-| `narration/` | Text-to-speech | `SilentTTSBackend` (silent clips sized to narration) | **`SystemTTSBackend`** (smoke-tested OS voice, zero pip); **`KokoroTTSBackend`** (wired neural voice, fully local); `ChatterboxTTSBackend` is a guarded slot | `tts` | usable `say`/`espeak` plus `ffmpeg`/`afconvert` (OS, no pip); `kokoro-onnx`, `soundfile`, `numpy` + the model files | usable OS voice, or `uv pip install -e ".[tts]"` then `democreate fetch-voice` |
+| `narration/` | Text-to-speech | `SilentTTSBackend` | Implemented system/Kokoro adapters, requiring usable engines/models | `tts` (Kokoro only) | usable OS speech; or `kokoro-onnx`, `soundfile`, `numpy` and local models | provision the stated runtime/model prerequisites; not proof of quality or readiness |
 | `narration/` | Cloud text-to-speech | — (local/OS defaults cover it) | **`ElevenLabsTTSBackend`** (cloud voice, needs `ELEVENLABS_API_KEY`) | `elevenlabs` | `elevenlabs` | `uv pip install -e ".[elevenlabs]"` |
-| `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (even word spacing) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
+| `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (length-weighted interpolation over measured duration) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
 | `narration/` | Narration text | **template generator** (deterministic, default) | `LLMNarrator` (OpenAI-compatible, **stdlib `urllib`, zero pip**) | — | OpenAI-compatible API + `OPENAI_API_KEY` | env var only (no install) |
 | `capture/` | Screen pixels | `SyntheticRenderer` (scaled TrueType fonts + pygments + themes) | `MssScreenCapture` | `capture` | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
 | `capture/` | Website driving | `NullBrowserDriver` (records calls, synthetic screenshots) | `PlaywrightBrowserDriver` | `browser` | `playwright` | `uv pip install -e ".[browser]"` |
@@ -174,8 +172,8 @@ ffmpeg only, no extras):
 - **On-screen overlay bars** (`export/overlay.py`) and **steganography**
   (`export/stego.py`) are **pure Pillow** — no ffmpeg, no extras. The overlay
   draws the header/footer provenance bars per frame (burned into the pixels, so
-  they survive the encode); the stego module LSB-embeds a signed provenance
-  payload into lossless poster/bookend PNGs (which an H.264 re-encode would
+  they survive the encode); the stego module LSB-embeds a unsigned provenance
+  payload into lossless poster PNGs (which an H.264 re-encode would
   destroy — hence PNG, not the video pixels). See [provenance.md](provenance.md).
 - **Poster + GIF** (`export/poster.py`). `render_poster()` paints a designed
   title still (`democreate thumbnail`); `demo_to_gif()` evenly down-samples a
@@ -192,3 +190,7 @@ ffmpeg only, no extras):
 - **`whisper`** pulls in `torch` transitively and is the heaviest extra; the
   `HeuristicTranscriber` default keeps the sync mechanism fully exercised without
   it.
+Unsigned digest records check consistency only: they do not authenticate authors,
+cover pixels, video bytes or external assets. The retained `poster_signed.png`
+filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
+there are no transmission-bookend sidecars. See [provenance.md](provenance.md).

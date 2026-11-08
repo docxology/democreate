@@ -7,6 +7,7 @@ public surface remains importable from :mod:`democreate.narration.tts`.
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
 
 from .._logging import get_logger
@@ -27,13 +28,30 @@ _KOKORO_RELEASE = (
 _KOKORO_MODEL_URL = f"{_KOKORO_RELEASE}/kokoro-v1.0.onnx"
 _KOKORO_VOICES_URL = f"{_KOKORO_RELEASE}/voices-v1.0.bin"
 
+
+def _download_kokoro_asset(url: str, destination: Path) -> None:
+    """Publish a completed transfer without caching failures or replacing a peer."""
+    import urllib.request
+
+    with tempfile.NamedTemporaryFile(
+        dir=destination.parent, prefix=".kokoro-", suffix=".part", delete=False
+    ) as stream:
+        temporary = Path(stream.name)
+    try:
+        urllib.request.urlretrieve(url, temporary)
+        # A same-directory link publishes atomically and refuses an existing name.
+        os.link(temporary, destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
     dest: Path | None = None,
 ) -> tuple[Path, Path]:
     """Download the Kokoro model + voices into the cache dir if absent.
 
     This is an explicit, opt-in network operation (never run on the default path).
-    Existing files are not re-downloaded.
+    Existing files are preserved. Failed transfers never occupy the cache name;
+    complete transport is not a model-integrity or authenticity check.
 
     Args:
         dest: Target directory; defaults to :func:`_kokoro_cache_dir`.
@@ -41,7 +59,6 @@ def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
     Returns:
         ``(model_path, voices_path)``.
     """
-    import urllib.request
 
     dest = Path(dest) if dest is not None else _kokoro_cache_dir()
     dest.mkdir(parents=True, exist_ok=True)
@@ -49,20 +66,19 @@ def fetch_kokoro_model(  # pragma: no cover - network + large (~340 MB) download
     voices = dest / "voices-v1.0.bin"
     if not voices.exists():
         logger.info("downloading Kokoro voices → %s", voices)
-        urllib.request.urlretrieve(_KOKORO_VOICES_URL, voices)
+        _download_kokoro_asset(_KOKORO_VOICES_URL, voices)
     if not model.exists():
         logger.info("downloading Kokoro model (~310 MB) → %s", model)
-        urllib.request.urlretrieve(_KOKORO_MODEL_URL, model)
+        _download_kokoro_asset(_KOKORO_MODEL_URL, model)
     return model, voices
 
 
 def _kokoro_synth_segment(engine, text, *, voice, speed, lang):  # pragma: no cover - model
-    """Synthesize one segment, recovering from Kokoro's ~510-phoneme overflow.
+    """Synthesize a segment, retrying multiword failures at smaller word bounds.
 
-    Char-based splitting cannot bound *phonemes* (numbers, arrows, and symbols
-    expand into many), so a short-looking segment can still exceed the limit. On
-    any failure we split the segment in half on word boundaries and recurse, then
-    concatenate — guaranteeing success for arbitrary, phoneme-dense narration.
+    Character splitting is a heuristic, not a phoneme-token bound. Backend
+    failures on a single word propagate; arbitrary text is not guaranteed to
+    be pronounceable or supported by the model.
     """
     import numpy as np
 
@@ -83,13 +99,10 @@ def _kokoro_synth_segment(engine, text, *, voice, speed, lang):  # pragma: no co
 
 
 def _split_for_tts(text: str, *, max_chars: int = 250) -> list[str]:
-    """Split ``text`` into segments under ``max_chars``, at sentence/word bounds.
+    """Split text on sentence/word bounds using a soft character target.
 
-    Kokoro's ONNX model has a per-call token limit (~510 phoneme tokens); a long
-    narration chunk overflows it (``index 510 out of bounds``). Splitting at
-    sentence boundaries — falling back to word boundaries for a single overlong
-    sentence — keeps each synthesis call safely within the limit. Pure and
-    deterministic, so it is unit-tested without the model installed.
+    Individual words may exceed ``max_chars``. Character counts do not bound
+    phoneme expansion, so this is not a model-token-limit guarantee.
     """
     clean = " ".join(text.split())
     if len(clean) <= max_chars:

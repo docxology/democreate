@@ -4,9 +4,9 @@
 
 paper:
   title: "DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers"
-  version: "0.7.1"
-  subtitle: "A Virtual-Environment Action Stream with TTS->STT Synchronization, Configurable Composition, Pluggable Backends, and Three-Carrier Provenance"
-  date: "2026-07-20"
+  version: "0.8.0"
+  subtitle: "A Virtual-Environment Action Stream with Duration-Based Timing, Configurable Composition, Pluggable Backends, and Unsigned Content Associations"
+  date: "Draft — publication pending"
 
 authors:
   - name: "Daniel Ari Friedman"
@@ -28,7 +28,7 @@ keywords:
   - "event sourcing"
   - "declarative pipeline"
   - "text-to-speech"
-  - "speech-to-text synchronization"
+  - "duration-based narration timing"
   - "deterministic rendering"
   - "code walkthrough"
   - "reproducible media"

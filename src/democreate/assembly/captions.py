@@ -59,7 +59,7 @@ def _cue_windows(demo: Demo, wpm: int = 150) -> list[tuple[Chunk, int, int]]:
     windows: list[tuple[Chunk, int, int]] = []
     cursor = 0
     for chunk in demo.iter_chunks():
-        duration = chunk.estimated_duration_ms(wpm)
+        duration = chunk.playback_duration_ms(wpm)
         start = chunk.start_ms if chunk.start_ms is not None else cursor
         if start < cursor:
             start = cursor

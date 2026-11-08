@@ -192,11 +192,14 @@ def verify_video(
         A :class:`VideoReport`. Inspect ``report.ok``.
 
     Raises:
-        BackendUnavailableError: If ``ffprobe`` is not installed.
+        BackendUnavailableError: If ``ffprobe`` is absent, or content checks
+            require an unavailable ``ffmpeg`` binary.
         RenderError: If probing fails.
     """
     if shutil.which("ffprobe") is None:
-        raise BackendUnavailableError("ffprobe", extra="video")
+        raise BackendUnavailableError("ffprobe")
+    if check_content and shutil.which("ffmpeg") is None:
+        raise BackendUnavailableError("ffmpeg")
 
     probe = _run_ffprobe(path)
     report = parse_ffprobe(

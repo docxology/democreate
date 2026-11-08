@@ -24,6 +24,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -125,11 +126,6 @@ def build_manuscript(
         SystemExit: On a missing Pandoc toolchain, missing chapter files, an
             unresolved citation key, or a figure dropped from the LaTeX.
     """
-    if not shutil.which("pandoc"):
-        raise SystemExit("pandoc not found on PATH")
-    if not shutil.which("pandoc-crossref"):
-        raise SystemExit("pandoc-crossref not found on PATH (needed for @fig/@sec refs)")
-
     cfg = load_config(config)
     chapters = [manuscript_dir / c for c in cfg["chapters"]]
     missing_files = [c for c in chapters if not c.is_file()]
@@ -144,6 +140,14 @@ def build_manuscript(
     if unresolved and cfg.get("fail_on_missing", True):
         raise SystemExit(f"unresolved citation keys (not in {bib.name}): {unresolved}")
     print(f"citations: {len(used)} used, {len(defined)} defined, {len(unresolved)} unresolved")
+    inserted = figure_insertions(chapters)
+    missing_assets = [p for p in inserted if not (manuscript_dir / p).is_file()]
+    if missing_assets:
+        raise SystemExit(f"figure gate: missing image assets: {missing_assets}")
+    if not shutil.which("pandoc"):
+        raise SystemExit("pandoc not found on PATH")
+    if not shutil.which("pandoc-crossref"):
+        raise SystemExit("pandoc-crossref not found on PATH (needed for @fig/@sec refs)")
 
     # --- Build the LaTeX once so the figure gate inspects the real output --
     paper = cfg.get("paper", {})
@@ -166,15 +170,16 @@ def build_manuscript(
         "-M", "link-citations=true",
     ]
 
-    inserted = figure_insertions(chapters)
     proc = subprocess.run([*common, "-t", "latex"], cwd=manuscript_dir,
-                          capture_output=True, text=True, check=True)
+                          capture_output=True, text=True, check=True,
+                          stdin=subprocess.DEVNULL)
     tex = proc.stdout or ""
-    # Pandoc emits \includegraphics[keepaspectratio,alt={<caption>}]{figures/x.png};
-    # match the brace-wrapped figure path, not the alt-text caption.
-    emitted = re.findall(r"\{(figures/[^{}]+\.\w+)\}", tex)
-    emitted_names = {Path(p).name for p in emitted}
-    dropped = [p for p in inserted if Path(p).name not in emitted_names]
+    emitted = re.findall(
+        r"\\includegraphics(?:\[[\s\S]*?\])?\s*\{(figures/[^{}\n]+\.\w+)\}", tex
+    )
+    expected = Counter((manuscript_dir / p).resolve() for p in inserted)
+    rendered = Counter((manuscript_dir / p).resolve() for p in emitted)
+    dropped = list((expected - rendered).elements())
     if dropped:
         raise SystemExit(
             f"figure gate: {len(dropped)} inserted figure(s) dropped from the LaTeX "
@@ -191,7 +196,7 @@ def build_manuscript(
     subprocess.run(
         [*common, "-H", str(preamble), f"--pdf-engine={engine}", "--toc", "-N",
          "-o", str(output)],
-        cwd=manuscript_dir, check=True)
+        cwd=manuscript_dir, check=True, stdin=subprocess.DEVNULL)
     size_kb = output.stat().st_size // 1024
     print(f"✓ wrote {output} ({size_kb} KB)")
     return 0

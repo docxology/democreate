@@ -103,3 +103,21 @@ def test_srt_timecode_hours_minutes() -> None:
     words = [WordTimestamp("late", ms, ms + 100)]
     srt = word_timestamps_to_srt(words)
     assert "01:02:03,456 --> 01:02:03,556" in srt
+
+
+def test_measured_fast_audio_subtitle_windows() -> None:
+    demo = Demo(title="Fast", scenes=[Scene(id="s", chunks=[
+        Chunk(id="a", text="one two three four", start_ms=300, duration_ms=400),
+        Chunk(id="b", text="five six seven eight", start_ms=920, duration_ms=400),
+    ])])
+    assert _SRT_TS.findall(to_srt(demo)) == [
+        "00:00:00,300 --> 00:00:00,700",
+        "00:00:00,920 --> 00:00:01,320",
+    ]
+    assert _VTT_TS.findall(to_vtt(demo)) == [
+        "00:00:00.300 --> 00:00:00.700",
+        "00:00:00.920 --> 00:00:01.320",
+    ]
+    ass = to_ass(demo)
+    assert "0:00:00.30,0:00:00.70" in ass
+    assert "0:00:00.92,0:00:01.32" in ass
