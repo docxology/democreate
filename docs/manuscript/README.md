@@ -48,8 +48,8 @@ criteria in evaluation, and digest field coverage in attribution.
   illustrations, not empirical results. Editor/slide/theme/typing images are
   generated synthetic states; the waveform uses a synthetic tone, not speech.
 - The package-only 3×2 montage uses six digest-checked decoded stills identified
-  in `data/visual-refresh-2026-11-08.json`. The fresh native render reproduced the
-  retained raw bytes; labels are requested cue-midpoint seeks, not annotated onsets.
+  in `data/visual-refresh-2026-11-08.json`. Changed samples have new retained paths;
+  labels are requested cue-midpoint seeks, not independent acoustic annotations.
 - `figures/paper_fig.png` is a retained external background input with an
   unrecorded extraction date. A newly composed paper-theme slide does not turn
   that input into a new extraction or establish a paper-video result.

@@ -5,6 +5,11 @@
 receipt and requested ffmpeg seek offsets are in `data/release-0.8.0.json`.
 Seek offsets are not independently annotated event/onset timestamps.
 
+`visual-refresh-2026-11-08/` retains four changed decoded samples from the refreshed
+cover/theme/illustrative-code showcase. Two byte-identical samples reuse their
+`candidate-0.8.0/` paths. The current six-frame selection, updated MP4 identity and
+bounded source/extraction receipt are in `data/visual-refresh-2026-11-08.json`.
+
 The older top-level stills predate the 2026-11-07 repair. Original extraction
 dates and source-video digests are unrecorded; their embedded suite counts and
 narration are obsolete, not current gate results. They remain preserved.

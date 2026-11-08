@@ -7,8 +7,9 @@ deliberately uses only the standard library so it runs with the project's core
 dependencies alone. :func:`generate` is the entry point; the thin
 ``scripts/generate_api_docs.py`` front door only bootstraps the output path.
 
-The output is fully deterministic for a given source tree, so it can be checked
-in and regenerated as the API evolves.
+The output is deterministic for fixed source and Python/dependency runtime.
+Named function defaults use qualified symbols, not process-specific addresses,
+so the reference can be checked in and regenerated as the API evolves.
 """
 
 from __future__ import annotations
@@ -125,11 +126,21 @@ def _clean_default(default: object) -> object:
     return default
 
 
+class _FunctionDefault:
+    """An unquoted function symbol for ``inspect.Signature`` formatting."""
+
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    def __repr__(self) -> str:
+        return self._name
+
+
 def signature_of(obj: object) -> str:
     """Best-effort one-line signature; empty string if it cannot be introspected.
 
-    Typer sentinel defaults are folded to their real values (or to "required")
-    so the rendered signature is clean and deterministic.
+    Typer sentinel defaults are folded to their real values (or to "required").
+    Function defaults are qualified names rather than address-bearing reprs.
     """
     try:
         sig = inspect.signature(obj)  # type: ignore[arg-type]
@@ -139,6 +150,10 @@ def signature_of(obj: object) -> str:
     changed = False
     for param in sig.parameters.values():
         cleaned = _clean_default(param.default)
+        if inspect.isfunction(cleaned):
+            module = cleaned.__module__
+            name = cleaned.__qualname__
+            cleaned = _FunctionDefault(f"{module}.{name}" if module else name)
         if cleaned is not param.default:
             changed = True
             param = param.replace(default=cleaned)

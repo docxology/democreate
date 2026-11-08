@@ -59,12 +59,16 @@ resolves to archived 0.6.2, not this candidate.
   evidence classes. Gallery examples use real public APIs and no invented paper
   identity; manuscript titles state mechanisms, responsibilities and limitations.
 - Modularized workflow/reference/evidence guidance; retained immutable historical
-  receipts and added `docs/visual-refresh.md` with current native package/media
-  provenance. A new Kokoro `af_heart` 2160p run reproduced the identified MP4 bytes;
-  this is not acoustic validation or a general neural-determinism guarantee.
+  receipts and added `docs/visual-refresh.md` with native package/media provenance.
+  An initial same-input Kokoro `af_heart` 2160p run reproduced the earlier MP4 bytes;
+  the refreshed showcase has changed inputs and a distinct recorded video identity.
+  Neither observation establishes acoustic accuracy or general neural determinism.
 - Public API reference now inventories 49 modules, includes classmethod factories
   and uses working CommonMark navigation. CI checks local file/fragment links,
   real localized MP4 output, full manuscript rendering and generated-file freshness.
+- Generated-workspace publication policy now rejects indexed files in both
+  `output/` and `project_videos/`, fails on an unavailable Git reader, and removes
+  the obsolete positive control that expected a force-tracked showcase video.
 
 - **CI currency** — `actions/checkout@v7`, `actions/setup-python@v7`,
   `astral-sh/setup-uv@v10`, and the test matrix now covers Python 3.11–3.15.
@@ -91,6 +95,12 @@ resolves to archived 0.6.2, not this candidate.
   integration.
 
 ### Fixed
+- Generated API signatures render named function defaults as qualified symbols,
+  not address-bearing object reprs. Independent-process generation now checks
+  artifact equality; the former implementation-echo test was removed.
+- Showcase cover/theme assets regenerate with manuscript figures, and illustrative
+  code panels no longer impersonate repository source paths. CI guards those
+  staged copies too; the refreshed 2160p MP4 has its own source/input identity.
 - Localized SRT/VTT use measured, padded `PipelineResult.demo` timings, not stale
   authored windows. Same-language caption generation copies borrowed input before
   synchronization; caller-owned authored/timing artifacts remain unchanged.

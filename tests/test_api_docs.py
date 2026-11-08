@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import inspect
+import subprocess
+import sys
 import types
 from pathlib import Path
 
@@ -29,12 +30,6 @@ def test_summary_returns_first_nonempty_line_or_placeholder() -> None:
 def test_is_public() -> None:
     assert api_docs.is_public("Demo")
     assert not api_docs.is_public("_private")
-
-
-def test_signature_of_plain_function_is_verbatim() -> None:
-    def f(a: int, b: str = "x") -> None: ...
-
-    assert api_docs.signature_of(f) == str(inspect.signature(f))
 
 
 def test_signature_of_cleans_typer_sentinel_default() -> None:
@@ -104,14 +99,21 @@ def test_members_real_module_lists_defined_public_classes() -> None:
     assert names == sorted(names)
 
 
-def test_generate_is_deterministic_and_complete(tmp_path: Path) -> None:
-    out1 = tmp_path / "api1.md"
-    out2 = tmp_path / "api2.md"
-    assert api_docs.generate(out1) == out1
-    api_docs.generate(out2)
-
-    text1 = out1.read_text(encoding="utf-8")
-    assert text1 == out2.read_text(encoding="utf-8")
+def test_generated_reference_is_identical_across_processes(tmp_path: Path) -> None:
+    """Fresh interpreters must publish the same callable-default representation."""
+    outputs = [tmp_path / "api1.md", tmp_path / "api2.md"]
+    script = (
+        "import sys; from pathlib import Path; "
+        "from democreate.api_docs import generate; generate(Path(sys.argv[1]))"
+    )
+    for output in outputs:
+        subprocess.run(
+            [sys.executable, "-B", "-c", script, str(output)],
+            check=True,
+            stdin=subprocess.DEVNULL,
+            timeout=60,
+        )
+    assert outputs[0].read_bytes() == outputs[1].read_bytes()
 
 
 def test_generated_reference_links_resolve_in_commonmark(tmp_path: Path) -> None:

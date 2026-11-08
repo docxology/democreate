@@ -2,9 +2,9 @@
 
 - **Candidate:** 0.8.0; publication and final archive metadata pending.
 - **Location:** `docs/manuscript/`; no sibling-template or top-level fallback.
-- **Evidence review:** 2026-11-08. Fresh core/canonical proof binds current package
-  Python bytes and a recorded dirty source snapshot. The identified MP4 and six
-  decoded frames reproduce earlier bytes; this does not certify future code.
+- **Evidence review:** 2026-11-08. Final native core proof: 931 passed, 11 skipped,
+  configured combined coverage 90.88%. Refreshed Kokoro media binds package bytes,
+  updated visual inputs and a recorded dirty snapshot; not future code.
 - **Blocking research criterion:** `domain_profile.yaml` `sync_accuracy` remains
   pending/unmet. No independently annotated ≥30-demo voiced corpus (≥10/mode)
   or executable acoustic evaluator is available to establish both required

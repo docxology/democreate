@@ -562,7 +562,8 @@ def make_video_stills() -> Path:
         "Decoded frames from the identified package MP4",
         f"Recorded {canonical['voice_backend']} / {canonical['voice']} | "
         f"{canonical['width']}x{canonical['height']} | "
-        f"{canonical['animation_fps']} fps. Not synthetic or paper-demo evidence.",
+        f"{canonical['animation_fps']} fps. "
+        "Decoded synthetic visuals, not paper-demo evidence.",
     )
     width, height = CANVAS
     margin, gap = int(width * 0.04), int(width * 0.02)

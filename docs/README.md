@@ -40,9 +40,9 @@ compositor are unwired. Dependency presence does not certify readiness.
 
 - [Synthetic gallery](gallery.md): authored renderer/diagram examples, **not**
   decoded-media or empirical paper evidence; [generator assets](_gallery/README.md).
-- [Video recipes and identities](videos.md): the current-source canonical Kokoro
-  reproduction, historical stills and optional external paper inputs. An ignored
-  output path alone does not identify a video.
+- [Video recipes and identities](videos.md): the refreshed current-source Kokoro
+  render, identified earlier observations and optional external paper inputs.
+  An ignored output path alone does not identify a video.
 - [Immutable 0.8.0 engineering receipt](release-0.8.0.md), backed by
   [structured source-bound evidence](../data/release-0.8.0.json): observed history,
   not proof of the subsequently edited tree.
@@ -56,8 +56,9 @@ compositor are unwired. Dependency presence does not certify readiness.
 
 Publication still requires ≥30 independently annotated voiced demos (≥10 per
 mode), with both pooled absolute-event-error median and median of demo-level
-absolute-error medians ≤120 ms. The candidate is unpublished and the configured
-GitHub release write class is disabled. Unsigned content hashes do not
+absolute-error medians ≤120 ms. The candidate remains unpublished. Operator-
+controlled write-class enablement and exact reviewed-plan confirmation are
+separate requirements; neither waives the study. Unsigned content hashes do not
 authenticate authors, images or video.
 
 ## Navigate source and contributor guidance

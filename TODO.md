@@ -144,7 +144,10 @@ unrecorded; they are explicitly historical.
   timings; same-language captions mutated borrowed source (`translation/`).
 - [x] Medium: closed 2026-11-08 — typing emitted multiple carets and manuscript
   relative outputs/long recipes broke real rendering (`capture/`, `manuscript.py`).
-- [x] Closed 2026-11-08: rerun current-source Kokoro af_heart 2160p with unchanged
-  local model assets; identical MP4 and six decoded frames, signal/cue inspection
-  (`data/visual-refresh-2026-11-08.json`). Not listening or acoustic accuracy.
+- [x] Closed 2026-11-08: rerun Kokoro af_heart 2160p after refreshed cover/theme
+  inputs and illustrative labels; retain the earlier same-input reproduction as
+  a separate epoch (`data/visual-refresh-2026-11-08.json`). Not acoustic accuracy.
+- [x] Medium: closed 2026-11-08 — callable defaults leaked process addresses into
+  generated API text and broke freshness gates; qualified symbols plus actual
+  fresh-process equality regression (`api_docs.py`, `tests/test_api_docs.py`).
 

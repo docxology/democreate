@@ -10,17 +10,18 @@ cryptographic authenticity.
 
 The canonical recipe remains **Kokoro `af_heart`, 2160p**. Required prerequisites:
 installed `tts` extra in a compatible runtime, locally acquired model/voices and
-ffmpeg/ffprobe. The fresh **2026-11-08 source-bound engineering run** reused the
-existing Python 3.14.10 voice environment and asserted imports from current
-repository source, without changing the core 3.15 pin. It reproduced the earlier
-3840×2160 H.264/AAC MP4 bytes:
-`234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4`.
-Video/audio durations are 159.867/159.905 s. All fifteen SRT/VTT cue windows agree;
-six decoded frames and the audio amplitude signal were inspected.
-The [fresh structured receipt](../data/visual-refresh-2026-11-08.json) binds package,
-model, caption, frame and video identities. The [earlier record](release-0.8.0.md)
-remains immutable history. Byte equality in this environment is not universal
-neural-TTS determinism, listening quality or acoustic-onset accuracy. The MP4 is
+ffmpeg/ffprobe. The **2026-11-08 refreshed source-bound run** reused the existing
+Python 3.14.10 voice environment with asserted current-source imports, without
+changing the core 3.15 pin. Updated cover/theme inputs and `illustrative_*.py`
+code labels produced this distinct 3840×2160 H.264/AAC MP4:
+`61fbcb84681f5cf20678c905c12004e59af8d20edcf9153b85f2598801ca16d4`.
+Video/audio durations are 159.867/159.905 s. All fifteen SRT/VTT windows agree;
+six decoded samples and audio amplitude were inspected. The
+[structured receipt](../data/visual-refresh-2026-11-08.json) binds package, authored
+Demo, background PNGs, model, caption, frame and video identities. An earlier
+same-input reproduction is retained separately; it is not a claim of equality
+after changed inputs, general neural determinism, listening or onset accuracy.
+The [original record](release-0.8.0.md) remains immutable history. The MP4 is
 unpublished; silent output is not an interchangeable replacement.
 
 ```bash

@@ -30,9 +30,16 @@ The ≥30-demo independently annotated corpus, ≤120 ms median-error hypothesis
 condition comparisons, baselines and ablations remain **PLANNED**, separate from
 engineering release checks in `domain_profile.yaml`.
 
-`release-0.8.0.json` records exercised engineering gates, source bindings, the
-actual Kokoro candidate MP4 identity, decoded-frame hashes, toolchain, core-only
-byte comparison, coverage exclusions and explicit publication blockers. It is
-not an authenticated signature, a passing acoustic study or a release record.
-Decoded frame times are requested ffmpeg seek offsets, not independently
-annotated presentation/event onsets.
+`release-0.8.0.json` preserves the earlier engineering epoch: exercised gates,
+source bindings, then-rendered Kokoro MP4, decoded samples, toolchain, core-only
+byte comparison, coverage exclusions and then-observed publication blockers.
+
+`visual-refresh-2026-11-08.json` records the subsequent graphical/documentation
+work, callable-default reproducibility correction, native core proof and refreshed
+Kokoro render. Its current media identity follows changed showcase inputs;
+the earlier same-input byte reproduction remains a separate historical epoch.
+See [the visual-refresh receipt](../docs/visual-refresh.md) for commands and limits.
+
+Neither file is an authenticated signature, a passing acoustic study or a release
+record. Decoded frame times are requested ffmpeg seek offsets, not independently
+annotated presentation/event onsets. Listening and acoustic alignment are untested.

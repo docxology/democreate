@@ -36,11 +36,12 @@ adapter-backed artifacts belong in `output/`.
    `sync_error_ms` (direction: minimize). Do not silently swap or re-scale it;
    add secondary metrics instead and document them in `experiment_plan.yaml`.
 
-5. **Deterministic-default invariant.** Any claim about producing "a real demo"
-   must hold with **only the light/default dependencies** installed
-   (pyyaml, typer, rich, jinja2, pillow). The required core outputs are
-   inspectable frames/manifests plus web, transcript, poster, and GIF artifacts;
-   MP4 assembly and verification require the `ffmpeg`/`ffprobe` system binaries.
+5. **Deterministic-default invariant.** Core builds require only the light/default
+   dependencies (pyyaml, typer, rich, jinja2, pillow). They emit inspectable
+   frames/manifests, silent WAV audio, captions, the resolved Demo, transcript and
+   HTML preview. Poster and GIF are separate exports, not automatic build outputs.
+   MP4 assembly and verification require the `ffmpeg`/`ffprobe` system binaries;
+   voiced synthesis requires a usable voice backend and its own prerequisites.
    Kokoro is implemented; Whisper, Chatterbox and Manim remain unwired slots
    unless their implementation and gates prove otherwise.
 
@@ -59,6 +60,7 @@ adapter-backed artifacts belong in `output/`.
 | `claim_ledger.yaml` | Analysis/manuscript pipeline; reviewed before release. |
 | `benchmarks.json` | Preserved historical aggregate; never silently relabel as current. |
 | `benchmarks-0.8.0.json` | Source-bound `scripts/benchmark.py` observation, integrated by the release owner. |
-| `release-0.8.0.json` | Exercised engineering receipts and explicit unmet release criteria. |
+| `release-0.8.0.json` | Immutable earlier engineering epoch and then-observed publication blockers. |
+| `visual-refresh-2026-11-08.json` | Source-bound visual/API/core/media epochs; preserve earlier observations separately. |
 | `README.md` | Maintainers documenting the data contract. |
 | `AGENTS.md` | Maintainers (this file). |

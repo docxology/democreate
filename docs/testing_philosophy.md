@@ -134,6 +134,7 @@ voiced demos (≥10 per declared mode), with both pooled absolute-event-error
 median and median of demo-level absolute-error medians ≤120 ms. Silent controls
 and generated timestamps do not qualify. Media checks establish stream presence,
 energy and sampled image variance, not intelligibility or onset accuracy.
-The [0.8.0 receipt](release-0.8.0.md) and structured historical records identify
-their observed source/runtime, not future edited-tree results. The configured
-GitHub release write class remains disabled.
+The [earlier receipt](release-0.8.0.md) and [current source-bound observation](../data/visual-refresh-2026-11-08.json)
+identify their executed snapshots, not future edited trees. Operator-controlled
+write-class enablement and exact reviewed-plan confirmation are separate
+requirements, not publication readiness or permission to waive the study.
