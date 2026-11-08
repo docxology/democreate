@@ -154,10 +154,9 @@ def signature_of(obj: object) -> str:
 def members(module: object, kind: str) -> list[tuple[str, object]]:
     """Return sorted ``(name, obj)`` members of ``module`` that are defined in it.
 
-    ``kind`` is ``"class"`` or ``"function"``. Re-exported names (defined in a
-    different module) are skipped so each symbol is documented under its home
-    module — except for the top-level ``democreate`` package, whose job *is* to
-    re-export, where we keep everything in ``__all__``.
+    ``kind`` is ``"class"`` or ``"function"``. Re-exports use their documented
+    home module, except explicit ``__all__`` exports whose home is outside the
+    inventory. The top-level ``democreate`` facade keeps all its public exports.
     """
     mod_name = getattr(module, "__name__", "")
     is_facade = mod_name == "democreate"
@@ -189,7 +188,7 @@ def module_anchor(mod_name: str) -> str:
 def render_module(mod_name: str) -> str:
     """Render the Markdown section for a single module."""
     module = importlib.import_module(mod_name)
-    lines: list[str] = [f"## `{mod_name}` {{#{module_anchor(mod_name)}}}", ""]
+    lines: list[str] = [f"## `{mod_name}`", ""]
     lines.append(summary(module))
     lines.append("")
 
@@ -203,7 +202,9 @@ def render_module(mod_name: str) -> str:
             tag = " *(dataclass)*" if is_dataclass(obj) else ""
             lines.append(f"- **`{name}`**{tag} — {summary(obj)}")
             # Document public methods of the class (defined on the class itself).
-            for mname, mobj in inspect.getmembers(obj, inspect.isfunction):
+            for mname, mobj in inspect.getmembers(
+                obj, lambda member: inspect.isfunction(member) or inspect.ismethod(member)
+            ):
                 if not is_public(mname):
                     continue
                 if mobj.__qualname__.split(".")[0] != name:

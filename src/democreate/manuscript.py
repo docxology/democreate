@@ -114,9 +114,9 @@ def build_manuscript(
         config: Path to the manuscript ``config.yaml``.
         manuscript_dir: Root of the manuscript tree; chapter, bibliography, and
             preamble paths from the config resolve against it and Pandoc runs
-            with it as the working directory.
-        output: Target PDF path; the extracted ``preamble.tex`` is written next
-            to it.
+            with it as the working directory. Relative roots use the caller's cwd.
+        output: Target PDF path, relative to the caller's cwd; the extracted
+            ``preamble.tex`` is written next to it.
         check: Run the gates only and skip the PDF build.
 
     Returns:
@@ -127,6 +127,8 @@ def build_manuscript(
             unresolved citation key, or a figure dropped from the LaTeX.
     """
     cfg = load_config(config)
+    manuscript_dir = manuscript_dir.resolve()
+    output = output.resolve()
     chapters = [manuscript_dir / c for c in cfg["chapters"]]
     missing_files = [c for c in chapters if not c.is_file()]
     if missing_files:

@@ -132,15 +132,15 @@ def localize_render(
         audio_demo, workspace
     )
 
-    # 2. Subtitle-language track: translated from the ORIGINAL (source) text, timed
-    #    by the audio-language demo — never from the (already-translated) audio demo.
+    # 2. Translate subtitle text from the ORIGINAL, not translated audio text;
+    #    use the pipeline's measured, padded clip windows for both sidecars.
     srt = localized_captions(
         demo, tr, source=languages.source, target=languages.subtitle,
-        fmt="srt", timing_demo=audio_demo,
+        fmt="srt", timing_demo=result.demo,
     )
     vtt = localized_captions(
         demo, tr, source=languages.source, target=languages.subtitle,
-        fmt="vtt", timing_demo=audio_demo,
+        fmt="vtt", timing_demo=result.demo,
     )
     # Name sidecars with the FULL audio+subtitle tag (matching the video): the
     # subtitle timing is derived from the audio, so two renders sharing a subtitle
