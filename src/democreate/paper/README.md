@@ -7,7 +7,7 @@ demo of a paper, the sibling of DemoCreate's software demos.
 This subsystem uses the **poppler** command-line tools (`pdfinfo`, `pdftotext`,
 `pdftoppm`) via `subprocess`. There is **no pip PDF dependency**: poppler ships
 on most scientific workstations (`brew install poppler`, `apt install
-poppler-utils`). No other binaries are needed.
+poppler-utils`). Voiced video additionally needs usable speech and ffmpeg/ffprobe.
 
 ## Layers
 
@@ -15,7 +15,7 @@ poppler-utils`). No other binaries are needed.
 |--------------|--------------------------------------------------------------------|
 | `pdf.py`     | Guarded subprocess wrappers: metadata, text, page→PNG rasters.     |
 | `extract.py` | Heuristic structuring into a `PaperSummary` (title/authors/abstract/figures). |
-| `structure.py` | Deeper extraction: the real abstract (skipping the TOC), `Figure N:` captions, and the section list. |
+| `structure.py` | Heuristic abstract/TOC filtering, figure-caption and section candidates; not semantic validation. |
 | `script.py`  | Build the narrated paper `Demo` from the summary + structure (`build_paper_demo`). |
 
 ## Public API
@@ -33,7 +33,7 @@ from democreate.paper import (
     summarize_paper,            # PaperSummary
     # structure.py — deeper extraction
     summarize_structure,        # dict — abstract + figure_captions + sections
-    extract_abstract,           # str — the real abstract (skips the TOC)
+    extract_abstract,           # str — heuristic abstract candidate with TOC filtering
     extract_figure_captions,    # list[FigureCaption] — "Figure N: …"
     extract_sections,           # list[PaperSection]
     FigureCaption, PaperSection,
@@ -65,3 +65,9 @@ OS binary — install it with `brew install poppler` / `apt-get install
 poppler-utils`), so callers get an actionable message instead of a raw
 `FileNotFoundError`.
 Missing or non-PDF input files raise `DemoCreateError`.
+
+Extraction and display normalization are heuristic/lossy; review against the
+source paper. Pure text helpers do not need poppler, but PDF reads do: there is
+no default core PDF decoder. [Paper workflow](../../../docs/paper.md) owns asset
+roots and reusable output instructions; [media evidence](../../../docs/videos.md)
+separates controlled fixtures, historical observations and unshipped paper inputs.

@@ -1,4 +1,4 @@
-# Animated video render
+# Video: scheduled animation, static holds and bounded media checks
 
 `democreate render` uses measured narration clip windows and a scheduled action
 stream. A spoken MP4 requires a usable real TTS plus ffmpeg/ffprobe; the default
@@ -18,7 +18,7 @@ The pipeline stage is `render_video()` in `pipeline.py`; the animation itself is
 `render_animation_frames()` in `assembly/animator.py`; the encode is
 `encode_frame_sequence()` in `export/video.py`.
 
-## Why frames stay locked to audio
+## Shared clip timebase and frame rounding
 
 The compositor emits one representative still per narration chunk.
 `render_video` requires a one-to-one frame/clip count. Default animated rendering
@@ -77,28 +77,27 @@ rasters are preserved and are not synthetically retyped.
 
 ## Animated cursor
 
-When a chunk's `FrameState` carries a `cursor_xy` position, the animator draws an
-arrow cursor there (`_draw_cursor()`), scaled to the frame height. At the start of
-the chunk's window a **click ripple** expands and fades out from the cursor over
-~600 ms, drawing the eye to where the action happens. Cursor drawing is governed
-by `VideoConfig.cursor` ([config.md](config.md)); chunks without a `cursor_xy`
-simply draw no cursor.
+When scheduled playback has a cursor position, the animator draws a scaled
+arrow at that position. A scheduled CLICK starts a roughly 600 ms ripple;
+snapshot-only calls use their chunk-start ripple convention. A starter without
+cursor coordinates does not invent a visible pointer. `VideoConfig.cursor`
+enables/disables the overlay; explicit compositor state can still supply it.
+See [configuration](config.md).
 
 ## Ken Burns, off by default
 
 The Ken Burns slow-zoom is **disabled by default** (`VideoConfig.ken_burns =
-False`). Zooming a full-frame figure, diagram, or PDF page pushes its edges off
-the frame — losing exactly the content a paper or architecture slide is there to
-show. DemoCreate's default instead keeps every background **whole** via the
-no-crop fit-contain layout (below) and gets its motion from typing, the moving
-waveform, the cursor, and crossfades. Enable Ken Burns explicitly (config
+False`). It can push figure/diagram/page edges out of view. Base contain fitting
+reduces that loss before motion, while typing, waveform, cursor and crossfades
+provide other motion. Overlays and explicit camera actions may still hide pixels.
+Enable Ken Burns explicitly (config
 `video.ken_burns: true`) only when you accept the edge crop; the peak zoom is then
 `ken_burns_zoom` (default `1.06`).
 
-## No-crop layout and slide surfaces
+## Base layout and slide surfaces
 
-Base fitting and bounded autosizing aid layout; neither guarantees intact content
-for arbitrary inputs (see [config.md](config.md#layout-no-crop-fit-contain-autosize-code)):
+Base fitting and bounded autosizing aid layout, not arbitrary-input guarantees;
+see [layout limits](config.md#layout-limits-contain-fitting-and-bounded-code-autosizing).
 
 - **Fit-contain backgrounds.** Base images are scaled proportionally into the
   content rectangle. Camera motion and overlays can still hide pixels.
@@ -108,24 +107,25 @@ for arbitrary inputs (see [config.md](config.md#layout-no-crop-fit-contain-autos
   or font-coverage guarantees.
 
 The animator also renders two packed slide surfaces carried on the
-[`FrameState`](schema.md#related-media-types-media.py): **bullet lists**
+[`FrameState`](schema.md#related-media-types): **bullet lists**
 (`FrameState.bullets`, up to 6 distributed items) and **stat cards**
 (`FrameState.stats`, up to 5 big-number `(value, label)` cards), both set from a
 slide scene's `context["bullets"]` / `context["stats"]`. The showcase demo uses
 both ([videos.md](videos.md)).
 
-## Resolution & quality
+## Resolution and encode quality
 
-The render is sized by `VideoConfig.width`/`height`, and `render --resolution`
-picks a named **16:9 tier** that sets both. Every visual element scales to the
-frame **height**, so a higher tier is genuinely higher resolution — not a 1080p
-render upscaled:
+The pipeline renders at the Demo's width/height. Explicit `render --resolution`
+sets a named 16:9 tier on both config and Demo before composition; `--aspect`
+then overrides geometry if also supplied. YAML dimensions alone do not resize
+the authored Demo. Higher geometry re-renders scalable content but cannot recover
+detail absent from a raster background. See [configuration](config.md).
 
 | Tier | Size | Notes |
 |------|------|-------|
 | `720p` | `1280×720` | Smaller/faster. |
 | `1080p` | `1920×1080` | The default. |
-| `1440p` | `2560×1440` | QHD (verified: produces a true `2560×1440` video). |
+| `1440p` | `2560×1440` | QHD geometry. |
 | `2160p` / `4k` | `3840×2160` | UHD / 4K. |
 
 `--resolution` sets `cfg.video.width`/`height` (via `RenderConfig.set_resolution`)
@@ -135,9 +135,8 @@ size. `--aspect` is the non-16:9 sibling (see [config.md](config.md)).
 Encode quality is two `VideoConfig` knobs passed straight to ffmpeg by
 `encode_frame_sequence` (animated path) and `assemble_video` (static path):
 
-- **`crf`** (default `18`) — the H.264 constant-rate-factor. Lower is
-  crisper/larger; `18` is **near-visually-lossless** — noticeably sharper than the
-  x264 default of `23` (DemoCreate's previous behavior).
+- **`crf`** (default `18`) — H.264 compression control. Lower values generally
+  trade larger output for less compression; no perceptual-quality guarantee.
 - **`preset`** (default `"medium"`) — the x264 speed/size tradeoff
   (`ultrafast` … `veryslow`); slower presets compress better at the same `crf`.
 
@@ -184,10 +183,9 @@ on `render`:
 | `ken_burns` | `False` | (config) | Slow zoom on background/slide frames (off by default — zoom crops the edges). |
 | `ken_burns_zoom` | `1.06` | (config) | Peak Ken Burns zoom factor (when enabled). |
 | `typing` | `True` | (config) | Type editor code in character-by-character. |
-| `typing_fraction` | `0.7` | (config) | Fraction of a chunk's window spent typing. |
 | `cursor` | `True` | (config) | Draw the animated cursor + click ripple. |
 | `width`/`height` | `1920`/`1080` | `--resolution` (16:9 tier) | Output size; everything scales to height. |
-| `crf` | `18` | (config) | H.264 quality; `18` ≈ visually lossless, lower = crisper. |
+| `crf` | `18` | (config) | H.264 compression control; inspect the encoded result. |
 | `preset` | `"medium"` | (config) | x264 speed/size tradeoff (`ultrafast`…`veryslow`). |
 
 `AnimationConfig.from_video()` builds the animator's settings from a
@@ -200,9 +198,11 @@ on `render`:
   frames, then `encode_frame_sequence()` encodes them with the voiceover at
   `animation_fps`.
 - **Static (`--no-animate`).** `assemble_video()` holds each still frame for its
-  measured clip duration via an ffmpeg concat demuxer — a slideshow synced to the
-  audio. In both paths `--captions` burns the SRT (requires libass); base images
-  do not pre-bake narration text, so silence windows stay free of subtitles.
+  measured clip duration plus lead/gap/trail holds via the ffmpeg concat demuxer.
+  It retains the previous still through a gap until the next spoken start;
+  animated playback can show the upcoming chunk during that gap. Both paths
+  burn SRT only when requested with `--captions` (requires libass); default base
+  images contain no baked narration, so silence windows have no subtitle text.
 
 Both paths require **`ffmpeg` on `PATH`** (no pip install needed); absence raises
 `BackendUnavailableError` naming ffmpeg, with no fictitious pip extra.
@@ -214,10 +214,10 @@ Every render is content-verified by default (`verify_video()` in
 real video stream of the expected size, an audio stream, **non-silent** audio
 (ffmpeg `volumedetect` mean volume above a floor), and a **non-black** sampled
 frame (grayscale pixel variance above a floor). `render` exits non-zero if
-verification fails. This is the harness that proved the end-to-end render real:
-the `Policy Entanglement in Active Inference` paper rendered to a 1920×1080 /
-~188 s H.264 + AAC video, content-verified ok (and the package showcase to a
-3840×2160 / 155.6 s video) — see [videos.md](videos.md).
+verification fails. These checks do not establish intelligibility, scientific
+accuracy, scene fidelity or acoustic synchronization. [Media identities](videos.md)
+and the immutable [engineering receipt](release-0.8.0.md) separate identified
+historical observations from future renders; no old duration proves this tree.
 
 ## See also
 

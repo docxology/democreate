@@ -25,10 +25,11 @@ the local pair (`AGENTS.md` + `README.md`) before touching a subsystem.
    `pyproject.toml` (`[tool.coverage.report]`). Thin adapters to heavy backends
    are excluded with `# pragma: no cover`; everything else must be exercised.
 
-4. **Deterministic defaults.** Every subsystem's default backend must produce
-   byte-for-byte stable output for the same input: no RNG, no wall-clock, no
-   network, no external fonts beyond `ImageFont.load_default()`. Tests assert
-   determinism; keep them green.
+4. **Deterministic defaults.** Core byte comparisons require fixed authored
+   input, assets, config and environment (including Pillow/FreeType). No RNG,
+   wall-clock, network or host-font selection in default rendering. Fonts use
+   Pillow's bundled `ImageFont.load_default(size=...)`. Do not broaden a
+   same-environment observation into cross-host or optional-model determinism.
 
 5. **Never import a heavy/optional dependency at module top level.** Heavy deps
    (`kokoro`, `chatterbox`, `whisper`, `mss`, `playwright`, `manim`, `moviepy`,

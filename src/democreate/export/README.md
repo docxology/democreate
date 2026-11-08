@@ -1,12 +1,11 @@
-# `democreate.export`
+# `democreate.export`: preview bundles, encoded media and unsigned metadata
 
-Turns a `Demo` (plus its rendered frames and audio) into shareable deliverables:
-video/GIF, a self-contained interactive HTML player, and document formats
-(Markdown transcript, JSON, chapter list, PDF).
-
-Everything here runs on the **core dependencies only** (`pyyaml`, `typer`,
-`rich`, `jinja2`, `pillow`) except two explicitly guarded paths — actual MP4
-encoding and PDF generation — which require an external binary / engine.
+Turns a Demo and rendered media into captions/transcripts, JSON, chapters,
+posters/GIFs and a timed HTML image preview. HTML embeds its controls/cue data,
+not PNG bytes or synthesized audio; keep sibling frame files when sharing it.
+Real MP4 encode/verify/container operations need native ffmpeg/ffprobe; PDF
+generation needs WeasyPrint. Import safety is not backend readiness. See
+[backends](../../../docs/backends.md) and [provenance](../../../docs/provenance.md).
 
 ## Modules
 
@@ -14,7 +13,7 @@ encoding and PDF generation — which require an external binary / engine.
 | Function | Kind | Notes |
 |----------|------|-------|
 | `build_ffmpeg_command(frames_glob, audio_path, out_path, *, fps=30)` | pure | Builds (never runs) the `ffmpeg` argv: `image2` input, optional audio mux, `libx264` / `yuv420p`. Returns `list[str]`. |
-| `frames_to_gif(frame_paths, out_path, *, fps=10)` | pure (Pillow) | Loads frames and writes an animated, looping GIF. Returns the path. |
+| `frames_to_gif(frame_paths, out_path, *, fps=10)` | core Pillow I/O | Loads frames and writes an animated looping GIF; no ffmpeg required. |
 | `export_video(frame_paths, audio_path, out_path, *, fps=30)` | **guarded** | Runs the encode. Requires the native `ffmpeg` binary on `PATH`; otherwise raises `BackendUnavailableError("ffmpeg")`. Inputs must be contiguous ascending numbered paths in one directory; sparse, reordered, mixed-pattern, missing, and percent-containing paths are rejected. Output is bounded to the supplied frame count, never stale neighbors. |
 | `encode_frame_sequence(frame_paths, audio_path, out_path, *, fps=15, captions=None, crf=18, preset="medium")` | **guarded** | Same exact numbered-input contract. `captions: Path \| None` burns the requested subtitle file at encoded frame times; `None` disables burn. Missing native subtitles/libass capability raises `RenderError`, never silently skips requested captions. |
 
@@ -22,7 +21,7 @@ encoding and PDF generation — which require an external binary / engine.
 | Function | Kind | Notes |
 |----------|------|-------|
 | `build_timeline(demo)` | pure | Caption/chapter timeline from chunk `start_ms` and `playback_duration_ms()` (measured duration, estimate only before synthesis). Returns `{captions, chapters, total_ms}`. |
-| `export_html_player(demo, timeline, out_path, *, frames_dir=None)` | pure (Jinja2) | Renders `templates/player.html.j2` into one self-contained, offline HTML file: title, click-to-seek chapter sidebar, caption track, vanilla-JS player. Optionally shows per-chunk frames. |
+| `export_html_player(demo, timeline, out_path, *, frames_dir=None)` | Jinja2 output | Offline navigation/cue HTML with optional sibling PNG references; timed image preview, not synthesized-audio playback or a single embedded-media file. |
 
 The player template embeds the captions/chapters as JSON inside a `<script>`
 block. That JSON is emitted with a script-safe encoder (`<`, `>`, `&`, and the
@@ -38,9 +37,9 @@ may include trailing silence beyond the last caption.
 | Function | Kind | Notes |
 |----------|------|-------|
 | `to_markdown(demo)` | pure | Readable transcript: H1 title, H2 per scene, narration + bulleted action list per chunk. |
-| `to_json(demo, *, indent=2)` | pure | Passthrough to `Demo.to_json` (round-trips via `Demo.from_json`). |
+| `to_json(demo, *, indent=2, relative_to=None)` | pure | Serializes a Demo; optional workspace-relative path normalization for a resolved bundle. |
 | `to_chapters(demo)` | pure | `[{title, scene_id, start_ms}]` for players / YouTube descriptions. |
-| `export_pdf(demo, out_path)` | **guarded** | Renders the transcript to PDF. Requires a Markdown→PDF engine (`weasyprint` / `markdown-pdf` / `reportlab`); otherwise raises `BackendUnavailableError("pdf", extra="docs")`. `to_markdown` is the always-available fallback. |
+| `export_pdf(demo, out_path)` | **guarded** | Styled transcript PDF via WeasyPrint; absent engine raises `BackendUnavailableError("pdf", extra="docs")`. Markdown remains core. |
 
 ### `verify.py` — content verification
 Content-asserts a rendered video so existence is never mistaken for content.
@@ -82,7 +81,7 @@ match. Operational `poster_signed` filenames are not cryptographic guarantees.
 | Capability | Upgraded by extra | Install |
 |------------|-------------------|---------|
 | `export_video` MP4 encode | system `ffmpeg` binary; the `video` extra supplies Python-side helpers, not the binary | install `ffmpeg` (`brew install ffmpeg`, `apt-get install ffmpeg`) |
-| `export_pdf` | a Markdown→PDF engine (`weasyprint` etc.) | `uv sync --extra docs` |
+| `export_pdf` | WeasyPrint and its native dependencies | `uv sync --extra docs` |
 
 All other functions need nothing beyond the core install.
 

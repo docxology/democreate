@@ -44,13 +44,23 @@ and timeline consistent even if a clip is regenerated.
 
 ## Sync semantics (do not change without updating tests)
 
-- `chunk.start_ms` = cumulative sum of preceding clip durations (chunk order).
-- Action with a matching `trigger_word` → `chunk.start_ms + word.start_ms`.
-- No trigger / no fuzzy match (`difflib`, cutoff 0.6, case-insensitive) →
-  `chunk.start_ms`.
-- Action `duration_ms` defaults to 600 ms only when unset (existing values kept).
-- Clips matched to chunks by `chunk_id`; falls back to `chunk.audio_path`, then a
-  300 ms per-chunk fallback when no audio exists.
+- `chunk.start_ms` includes configured lead silence, preceding measured clip
+  durations and inter-chunk gaps. Pipeline supplies its AudioConfig padding;
+  direct sync calls default to zero padding. Trailing silence is not a cue.
+- Matching `trigger_word` → `chunk.start_ms + word.start_ms`, with
+  case-insensitive fuzzy matching (`difflib`, cutoff 0.6). These default word
+  positions are character-weighted estimates, not measured acoustic onsets.
+- Explicit untriggered `timestamp_source="authored"` times survive. Triggered
+  actions and derived times refresh with `timestamp_source="sync"`; an unmatched
+  trigger uses chunk start, while an untriggered derived action uses the fallback
+  sequence cursor. WAIT advances that cursor by its timestamp plus duration.
+- Action `duration_ms` defaults to 600 ms only when unset; preserve explicit
+  values, including zero-duration captured discrete inputs.
+- Clips match by `chunk_id`; existing clip metadata supplies duration and its
+  WAV supplies word interpolation. Otherwise an existing `chunk.audio_path` WAV
+  supplies duration; without either, the per-chunk fallback is 300 ms.
+- `sync_demo` mutates its input. Pipeline clones authored input, so downstream
+  consumers read measured starts/durations and staged assets from `result.demo`.
 
 ## Verify before returning
 

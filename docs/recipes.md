@@ -1,14 +1,14 @@
-# Recipes
+# Recipes: compose the CLI into bounded media workflows
 
-A cookbook of runnable `democreate` commands for the common jobs. Each recipe is
-a short intro plus a copy-paste command block. Every flag here is real — see
-[cli.md](cli.md) for the full reference, and run any command with `--help`.
+Start with the [quickstart](quickstart.md) for installation and an authored
+`demo.json`. Paths below stand for inputs you must supply. [CLI](cli.md) owns
+flags/defaults, [configuration](config.md) owns precedence, and
+[backends](backends.md) owns implemented paths and runtime prerequisites.
 
-Real voice and real video need only **OS binaries** (no pip install): a usable
-system TTS (`say` on macOS, `espeak`/`espeak-ng` on Linux) and `ffmpeg` on
-`PATH`. The paper recipes additionally need **poppler**
-(`pdfinfo`/`pdftotext`/`pdftoppm`). Run `democreate backends` to see what's
-available.
+Spoken MP4 recipes require a usable selected TTS and ffmpeg/ffprobe; paper
+ingestion additionally needs poppler. `--voice Samantha` is a macOS example,
+not a portable voice name. `democreate backends` reports dependency/probe state,
+not complete render readiness.
 
 ## 1. Software demo (codebase tour → HD video)
 
@@ -31,11 +31,10 @@ democreate render demo.json --tts system
 
 ## 2. Research-paper demo (PDF + figures + codebase)
 
-Turn a paper PDF into a narrated walkthrough: a title card, the **real abstract**
-(the table of contents is skipped), a **structure** scene listing the paper's
-sections, figure scenes narrating the **real figure captions** (`"Figure N: ..."`),
-selected PDF pages, and — with `--repo` — a codebase architecture diagram. The
-`paper` theme gives slides a warm academic look. See [paper.md](paper.md).
+Extract candidate abstract/captions/sections from a supplied PDF, add figures,
+selected pages and an optional Python architecture diagram, then render. These
+are heuristic extractions requiring review against the source, not a guaranteed
+correct reading. See [paper.md](paper.md).
 
 ```bash
 democreate paper paper.pdf \
@@ -61,34 +60,29 @@ vertical reel/short; the demo is re-sized and rendered at that geometry. Presets
 ```bash
 democreate render demo.json --aspect 9:16 --tts system
 democreate render demo.json --aspect 1:1            # square
-democreate paper  paper.pdf --no-render             # then render a vertical cut:
-democreate render output/demos/paper.json --aspect 9:16 --theme paper
+# After an existing complete paper build, reuse its resolved staged bundle:
+democreate render output/demos/demo.json --asset-root output \
+  -o output/vertical --aspect 9:16 --theme paper
 ```
 
 ## 4. Themed render
 
-Pick a preset theme with `--theme` (`noir` — the default — `dark`, `light`,
-`midnight`, `paper`), or take full control with a `--config` YAML that pins
-colors, fonts, audio pacing, and motion. `--config` overrides `--theme`;
-`--voice`/`--tts` still apply on top.
+Pick a preset with `--theme` or create a config before using it. CLI defaults
+still override selected YAML settings; see [precedence](config.md#using-a-config).
+Choose an installed voice appropriate to the host (or omit the voice flag).
 
 ```bash
 democreate render demo.json --theme midnight --animation-fps 24
-democreate render demo.json --config my_theme.yaml --voice Daniel
-```
-
-Generate a starting YAML from the defaults, then edit it:
-
-```bash
-.venv/bin/python -c "from democreate.config import RenderConfig; \
-print(RenderConfig.preset('midnight').to_yaml())" > my_theme.yaml
+democreate config my_theme.yaml --theme midnight
+# Edit my_theme.yaml, then use it:
+democreate render demo.json --config my_theme.yaml --tts system
 ```
 
 ## 5. GIF preview + poster thumbnail
 
-`gif` builds the demo and exports an animated GIF preview (evenly sampled frames);
-`thumbnail` renders a depayload-bearing poster/title still — both great for a README or a
-social card.
+`gif` builds and samples representative per-chunk stills at uniform GIF cadence;
+it is not the action-scheduled MP4 animation or a speech player. `thumbnail`
+renders a plain title/poster still (not a payload-bearing poster).
 
 ```bash
 democreate gif demo.json --gif demo.gif --fps 8 --theme dark
@@ -98,10 +92,9 @@ democreate thumbnail demo.json --out poster.png --theme midnight \
 
 ## 6. YouTube chapters
 
-Chapters are written **automatically** on every `render`/`paper`: a YouTube
-chapter file (`output/chapters/youtube_chapters.txt`) plus chapter markers
-embedded directly into the MP4 (via ffmpeg `ffmetadata`, one per scene). Just
-render, then copy the chapter text into your video description:
+Rendering attempts chapter text and MP4 chapter embedding as best-effort exports.
+Inspect warnings and output rather than treating a completed MP4 as proof that
+chapter embedding succeeded. When present, copy the text into your description:
 
 ```bash
 democreate render demo.json --output output --tts system
@@ -112,29 +105,27 @@ The embedded markers are verifiable with `ffprobe -show_chapters output/video/de
 
 ## 7. Typing-animation demo
 
-The character-by-character typing animation is **on by default** for editor
-scenes whose chunks carry a `type_code` or `create_file` action — exactly what
-`init` scaffolds. So a plain render already types the code in, with the animated
-cursor and click ripple:
+Typing reveal is enabled by default for editor actions. Scheduled playback uses
+each action's trigger and `duration_ms`, not a fixed fraction of a chunk.
+The starter has no cursor coordinates; a cursor/ripple only appears when supplied.
 
 ```bash
 democreate init demo.json
-democreate render demo.json --tts system          # types the code in, animated cursor
+democreate render demo.json --tts system          # scheduled typing reveal
 ```
 
 Disable reveal with `video.typing: false`; tune pace using the action's
 `duration_ms`. The removed `video.typing_fraction` YAML field is rejected.
 See [the action-duration example](video.md#typing-animation) and
-[config.md](config.md#videoconfig-geometry-motion).
+[config.md](config.md).
 
 ## 8. Optional LLM narration (env-gated, library-only)
 
 The deterministic template narrator is always the default — the CLI never calls
 an LLM. Polishing narration with an OpenAI-compatible endpoint is a deliberate
-**library-only** surface (polished lines may drop a chunk's `trigger_word`, so
-wiring it into the pipeline would degrade TTS→STT action anchoring). Library
-users opt in explicitly; configuration is purely via environment variables
-([`narration/llm.py`](api.md#democreatenarrationllm)):
+**library-only** surface; rewritten text may lose trigger words and change
+estimated action anchoring. Set the endpoint/key explicitly and review its text
+before replacing narration ([narration source guide](../src/democreate/narration/README.md)):
 
 ```bash
 export OPENAI_API_KEY="sk-…"                       # or DEMOCREATE_LLM_API_KEY
@@ -143,6 +134,9 @@ export DEMOCREATE_LLM_BASE_URL="https://api.openai.com/v1"   # optional override
 
 ```python
 from democreate.narration.llm import get_narrator
+from democreate import Demo
+
+demo = Demo.from_file("demo.json")
 
 narrator = get_narrator()                      # env-configured, no pip extra
 texts = [c.text for c in demo.iter_chunks()]
@@ -196,11 +190,7 @@ democreate render demo.json --config democreate.yaml --resolution 2160p
 ## See also
 
 - [cli.md](cli.md) — every command and flag.
-- [gallery.md](gallery.md) — real frames these commands produce.
+- [gallery.md](gallery.md) — synthetic renderer illustrations, separate from decoded video.
 - [config.md](config.md) — themes, resolution tiers, aspect presets, typing/cursor settings.
 - [provenance.md](provenance.md) — on-screen bars, container tags, unsigned steganography.
 - [paper.md](paper.md) · [video.md](video.md) · [audio.md](audio.md) · [backends.md](backends.md)
-Unsigned digest records check consistency only: they do not authenticate authors,
-cover pixels, video bytes or external assets. The retained `poster_signed.png`
-filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
-there are no transmission-bookend sidecars. See [provenance.md](provenance.md).

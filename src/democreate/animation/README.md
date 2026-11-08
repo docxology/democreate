@@ -1,11 +1,10 @@
-# democreate.animation
+# `democreate.animation`: core visual primitives and the Manim slot
 
-Visual primitives for demo frames: syntax-highlighted code rendering,
-cursor-following zoom/pan math, and manim scene specs.
-
-Everything except the real manim render runs on **core dependencies only**
-(`rich`, `pillow`) and is fully deterministic — no I/O, no randomness, no
-network — so it is import-safe and unit-testable without any heavy backend.
+Syntax highlighting, font scaling, waveform/diagram drawing and zoom math run on
+core dependencies. WAV envelope helpers read actual files; not every function
+is I/O-free. Byte comparisons require fixed source and Pillow/FreeType runtime.
+Real Manim rendering remains unwired even when Manim is installed; pipeline
+Pillow animation is implemented separately. See [backends](../../../docs/backends.md).
 
 ## Modules
 
@@ -16,7 +15,7 @@ Pure syntax highlighting built on `rich` (a core dep).
 | --- | --- | --- |
 | `highlight_to_svg(code, *, language="python", theme="monokai", line_numbers=True)` | `str` | Vector highlight via `rich` record console + `export_svg`. Always contains `<svg`. |
 | `highlight_to_text(code, *, language="python")` | `str` | Flattened plain-text rendering (line numbers included). |
-| `render_code_image(code, *, language="python", size=(1280,720), highlight_lines=())` | `PIL.Image.Image` | Raster code frame on a fixed character grid with a line-number gutter and highlighted-line background bands. Byte-stable across machines (fixed cell size, not host-font metrics). |
+| `render_code_image(code, *, language="python", size=(1280,720), highlight_lines=())` | `PIL.Image.Image` | Fixed-grid raster highlighting; compare bytes only within a fixed rendering environment. |
 
 ### `zoom.py` — cursor-following zoom/pan
 Pure math plus one Pillow op.
@@ -33,7 +32,7 @@ Pure math plus one Pillow op.
 | Function | Returns | Notes |
 | --- | --- | --- |
 | `build_code_scene_spec(code, *, title="", language="python")` | `dict` | **Pure**, JSON-serializable line-by-line reveal description (title, code, language, ordered `steps` with `start_ms`/`duration_ms`, `total_duration_ms`). No manim required. |
-| `render_manim_scene(spec, out_path)` | `Path` | **Guarded** real render. Raises `BackendUnavailableError("manim", extra="animation")` when manim is absent. Marked `# pragma: no cover`. |
+| `render_manim_scene(spec, out_path)` | `Path` contract | Dependency guard raises `BackendUnavailableError` when absent; installed-dependency path raises `NotImplementedError`. Not an implemented renderer. |
 
 ### `fonts.py` — scaled, bundled TrueType font
 `load_font` / `scaled_font` use `ImageFont.load_default(size=...)` exclusively.
@@ -62,7 +61,6 @@ columns of nodes; a helper renders DemoCreate's own architecture image.
 
 ## Determinism
 
-`render_code_image` uses a fixed character cell (`_CELL_W`/`_CELL_H`) and fixed
-colors rather than the host font's metrics or a theme, so byte output is stable
-across machines. All zoom math is closed-form; `apply_zoom` is the only Pillow
-resample and preserves the input image size exactly.
+Fixed cells/colors avoid host-font selection, but do not establish cross-build
+Pillow/FreeType identity. Zoom math is closed-form; `apply_zoom` preserves image
+dimensions, not all original pixels (zoom is a crop). See [video layout limits](../../../docs/video.md).

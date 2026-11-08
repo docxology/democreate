@@ -9,13 +9,16 @@ cryptographic authenticity.
 ## Canonical package showcase
 
 The canonical recipe remains **Kokoro `af_heart`, 2160p**. Required prerequisites:
-installed `tts` extra, locally acquired Kokoro model/voices and ffmpeg/ffprobe.
-The 2026-11-08 governed candidate run passed structural/content-presence
-verification: 3840×2160 H.264, 159.867 s video, 159.905 s AAC audio, mean volume
-−16.4 dB. This is not LUFS, listening or acoustic-onset evaluation. Its digest,
-input identity and six decoded stills are in the
-[engineering record](../data/release-0.8.0.json). The MP4 remains local and
-unpublished; a silent render is not an interchangeable replacement.
+installed `tts` extra in a compatible runtime, locally acquired model/voices and
+ffmpeg/ffprobe. The identified **historical 2026-11-08 engineering observation**
+records 3840×2160 H.264, 159.867 s video, 159.905 s AAC audio and −16.4 dB mean
+volume—not LUFS, listening or acoustic-onset evaluation. MP4 SHA-256 is
+`234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4`.
+The fifteen cue sidecars, input identity and six decoded stills are recorded in
+the [structured receipt](../data/release-0.8.0.json) and
+[immutable engineering narrative](release-0.8.0.md). These identify that run,
+not future output from edited sources. The MP4 is unpublished; silent output
+is not an interchangeable replacement.
 
 ```bash
 .venv/bin/python docs/manuscript/figures/make_figures.py
@@ -26,15 +29,16 @@ democreate render examples/democreate_showcase.json -o output \
   --author "Daniel Ari Friedman" --watermark "github.com/docxology/democreate"
 democreate verify output/video/demo.mp4 --width 3840 --height 2160
 ```
-The actual proof used a repository-local **Python 3.14.10** voice environment;
+The recorded run used a repository-local **Python 3.14.10** voice environment;
 the locked ONNX distribution has no CPython 3.15 wheel. The core pin remains
-3.15. Model and voices paths were supplied explicitly. Observed model hashes
+3.15. Run the media command with that compatible voice environment's executable,
+not an assumed core `.venv` install. Model and voices paths were explicit.
 matched before/after, but supplier digests were unavailable; hashes are not
 publisher authentication. The 325 MB model exceeded the runner's 256 MiB
 per-seed cap and was a manifest-bound runtime asset, not a kernel-protected seed.
 The recipe does not burn captions unless `--captions` is supplied; SRT/VTT and
-the timed HTML preview remain companion outputs. Separate decoded-pixel checks
-exercise animated/static subtitle burning and clearing.
+the timed HTML image preview remain companion outputs. The historical receipt
+separately records decoded-pixel subtitle checks, not a new check of this tree.
 
 The 15 authored scenes demonstrate slides, typing codebase views and illustrative
 terminal output; there is no website scene. Current stat cards describe gates,

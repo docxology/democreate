@@ -27,9 +27,11 @@ Guidance for agents editing this subsystem.
 - ruff line-length 88 (E501 ignored).
 
 ## Determinism invariants (do not break)
-- `render_code_image` must stay byte-stable across machines: keep the fixed cell
-  size and fixed colors; do not switch to host-font metrics or theme-dependent
-  raster colors.
+- `render_code_image` must retain stable output for fixed input and rendering
+  environment, including Pillow/FreeType. Keep fixed cell size/colors; do not
+  switch to host-font selection or theme-dependent raster colors. Fonts use
+  Pillow's bundled `ImageFont.load_default(size=...)`; do not claim cross-build
+  or cross-machine byte identity from a same-environment comparison.
 - `compute_zoom_path` output must remain time-sorted with every `scale >= 1`.
 - `interpolate` must clamp outside the track and never divide by zero on a
   zero-span segment.

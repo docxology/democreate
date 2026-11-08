@@ -17,41 +17,38 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import sys
 import textwrap
 import wave
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-
-from democreate.animation.diagram import (
-    DiagramNode,
-    democreate_architecture_image,
-    render_architecture_diagram,
-)
-from democreate.animation.fonts import scaled_font
-from democreate.animation.waveform import compute_envelope, draw_waveform
-from democreate.assembly.compositor import Timeline
-from democreate.capture.screen import render_frame
-from democreate.config import THEMES, MetadataConfig
-from democreate.media import FrameState
-from democreate.schema import Action, SceneKind
-
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+
+
+from figure_layout import ACCENT, BG, DIM, FG, PANEL, arrow, card, text  # noqa: E402
+
+from democreate.animation.fonts import load_font, scaled_font  # noqa: E402
+from democreate.animation.waveform import (  # noqa: E402
+    compute_envelope,
+    draw_waveform,
+)
+from democreate.assembly.compositor import Timeline  # noqa: E402
+from democreate.capture.screen import render_frame  # noqa: E402
+from democreate.config import THEMES, MetadataConfig  # noqa: E402
+from democreate.media import FrameState  # noqa: E402
+from democreate.schema import Action, SceneKind  # noqa: E402
+
 
 # --- shared visual language ------------------------------------------------
-# Every figure shares this canvas size, NOIR palette, and the single red accent so
-# the eleven figures read as one consistent set — matching the noir videos. Black
-# and white carry the design; the red is the only chroma, used sparingly (title
-# rule, panel outlines, labels).
+# The schematics share a bounded text layout and the package's bundled font.
+# Synthetic renderer states, measured timing and decoded stills remain separate.
 CANVAS: tuple[int, int] = (1600, 900)
 WAVE_CANVAS: tuple[int, int] = (1600, 300)
 
-BG: tuple[int, int, int] = (12, 12, 14)        # noir near-black page background
-PANEL: tuple[int, int, int] = (22, 22, 26)     # raised panel surface
-FG: tuple[int, int, int] = (242, 242, 244)     # primary text (near-white)
-DIM: tuple[int, int, int] = (146, 146, 152)    # secondary text
-ACCENT: tuple[int, int, int] = (224, 49, 57)   # noir accent (THEMES["noir"].accent)
 
 # Committed standalone input; external paper refreshes must be explicit.
 PAPER_FIG = HERE / "paper_fig.png"
@@ -100,24 +97,6 @@ def _save(img: Image.Image, name: str) -> Path:
     return out
 
 
-def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_w: int) -> list[str]:
-    """Greedy word-wrap ``text`` to ``max_w`` pixels with ``font``."""
-    words = text.split()
-    if not words:
-        return [""]
-    lines: list[str] = []
-    cur = words[0]
-    for w in words[1:]:
-        trial = f"{cur} {w}"
-        if draw.textlength(trial, font=font) <= max_w:
-            cur = trial
-        else:
-            lines.append(cur)
-            cur = w
-    lines.append(cur)
-    return lines
-
-
 def _mix(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tuple[int, int, int]:
     """Linear blend of two RGB colors."""
     t = max(0.0, min(1.0, t))
@@ -140,20 +119,21 @@ def _canvas(
     draw = ImageDraw.Draw(img)
 
     margin = int(width * 0.04)
-    title_font = scaled_font(height, 0.052)
-    draw.text((margin, int(height * 0.045)), title, fill=FG, font=title_font)
-
-    y = int(height * 0.045) + int(title_font.size * 1.15)
+    title_size = int(height * 0.052)
+    title_height = text(
+        draw, (margin, int(height * 0.045), width - margin, int(height * 0.20)),
+        title, size=title_size,
+    )
+    y = int(height * 0.045) + title_height + 14
     if subtitle:
-        sub_font = scaled_font(height, 0.026)
-        for line in _wrap(draw, subtitle, sub_font, width - 2 * margin):
-            draw.text((margin, y), line, fill=DIM, font=sub_font)
-            y += int(sub_font.size * 1.25)
-        y += int(height * 0.006)
-
-    rule_y = y + int(height * 0.01)
+        y += text(
+            draw, (margin, y, width - margin, y + int(height * 0.17)),
+            subtitle, size=int(height * 0.029), fill=DIM,
+        )
+        y += 10
+    rule_y = y + 6
     draw.line([(margin, rule_y), (width - margin, rule_y)], fill=ACCENT, width=3)
-    content_top = rule_y + int(height * 0.03)
+    content_top = rule_y + 26
     return img, draw, content_top
 
 
@@ -186,11 +166,69 @@ def _fit_contain(
     return (px, py, px + nw, py + nh)
 
 
+def _source(
+    draw: ImageDraw.ImageDraw,
+    box: tuple[int, int, int, int],
+    lines: list[str],
+) -> None:
+    """Draw every source character, preserving spaces and marking visual wraps."""
+    x0, y0, x1, y1 = box
+    for size in range(26, 21, -1):
+        font = load_font(size, mono=True)
+        rows: list[tuple[str, str]] = []
+        for number, line in enumerate(lines, start=1):
+            current = ""
+            label = str(number)
+            for char in line:
+                if current and draw.textlength(current + char, font=font) > x1 - x0 - 84:
+                    rows.append((label, current))
+                    label, current = ">", ""
+                current += char
+            rows.append((label, current))
+        step = int(size * 1.36)
+        if len(rows) * step <= y1 - y0 - 32:
+            break
+    else:
+        raise ValueError("complete source does not fit the figure's reading panel")
+    draw.rounded_rectangle(box, radius=12, fill=PANEL, outline=ACCENT, width=1)
+    for index, (label, row) in enumerate(rows):
+        y = y0 + 16 + index * step
+        draw.text((x0 + 12, y), label, font=load_font(size - 4), fill=DIM,
+                  anchor="lt")
+        draw.text((x0 + 64, y), row, font=font, fill=FG, anchor="lt")
+
+
 # --- builders --------------------------------------------------------------
 
 def make_architecture() -> Path:
-    """The canonical four-stage architecture diagram (real diagram renderer)."""
-    img = democreate_architecture_image(CANVAS, accent=ACCENT, bg=BG, fg=FG)
+    """Show the spine, timing and scheduled state flow with dependency boundaries."""
+    img, draw, top = _canvas(
+        "From authored Demo to timed visual states",
+        "Schematic: inputs and assets are authored; clip durations are measured; "
+        "word times are estimated.",
+    )
+    stages = [
+        ("AUTHOR", "Demo", "Scenes / chunks / actions\n"
+         "Narration + trigger words\nAssets + RenderConfig",
+         "Caller input stays reusable."),
+        ("RESOLVE TIME", "AudioClip + timeline", "Silent WAVs in the core\n"
+         "Measured clip windows\nCharacter-weighted words\nAuthored times preserved",
+         "Not detected acoustic onsets."),
+        ("COMPILE", "FrameState at time t", "Scheduled action updates\n"
+         "Synthetic editor / slides\nCaptions + timed image HTML",
+         "HTML does not play speech."),
+    ]
+    for index, (label, heading, body, foot) in enumerate(stages):
+        x = 64 + index * 504
+        card(draw, (x, top, x + 464, 716), label, heading, body,
+             foot=foot, size=28)
+        if index < 2:
+            arrow(draw, (x + 472, 460), (x + 496, 460))
+    text(draw, (64, 752, 1536, 852),
+         "Optional path: system / Kokoro speech + ffmpeg -> voiced MP4. "
+         "Whisper / Chatterbox / Manim are unwired slots.\n"
+         "Deterministic comparisons require fixed input, assets, config "
+         "and environment.", size=27, fill=DIM)
     return _save(img, "architecture.png")
 
 
@@ -231,14 +269,14 @@ def make_frame_paper() -> Path:
         title="Figure 1",
         section="Figure 1",
         background_image=str(paper_fig),
-        caption="A paper figure becomes a full-frame background, narrated in place.",
+        caption="Committed paper figure, contain-fit inside the slide content area.",
     )
     img = render_frame(state, CANVAS, theme=THEMES["paper"])
     return _save(img, "frame_paper.png")
 
 
 def make_waveform() -> Path:
-    """A waveform scrubber strip synthesized from a real non-silent WAV."""
+    """Render a labelled synthetic tone envelope, never a speech measurement."""
     import math
 
     wav_path = HERE / "_tmp_waveform.wav"
@@ -247,8 +285,7 @@ def make_waveform() -> Path:
     n = int(sample_rate * duration_s)
     frames = bytearray()
     for i in range(n):
-        # An amplitude-modulated tone: non-silent, with a moving envelope so the
-        # bars vary in height like real speech.
+        # Deterministic amplitude-modulated tone; this is not sampled speech.
         t = i / sample_rate
         env = 0.35 + 0.65 * abs(math.sin(2 * math.pi * 0.9 * t))
         sample = int(env * 12000 * math.sin(2 * math.pi * 180.0 * t))
@@ -266,10 +303,15 @@ def make_waveform() -> Path:
     img = Image.new("RGB", WAVE_CANVAS, BG)
     _wd = ImageDraw.Draw(img)
     draw_waveform(
-        _wd, (0, 0, WAVE_CANVAS[0], WAVE_CANVAS[1]), envelope, progress=0.55,
+        _wd, (64, 72, WAVE_CANVAS[0] - 128, 162), envelope, progress=0.55,
         bar_color=_mix(BG, FG, 0.30), played_color=ACCENT,
         playhead_color=(245, 245, 250),
     )
+    text(_wd, (64, 16, 1536, 60),
+         "Synthetic tone envelope | 55% illustrative progress", size=30)
+    text(_wd, (64, 250, 1536, 292),
+         "2.0 s amplitude-modulated 180 Hz tone; not speech or onset evidence.",
+         size=25, fill=DIM)
     out = _save(img, "waveform.png")
     wav_path.unlink(missing_ok=True)
     return out
@@ -283,12 +325,12 @@ def make_themes() -> Path:
         code_lines=THEME_CODE,
         highlight_lines=[4],
         section="Themes",
-        caption="One frame, five themes - colors and font ratios are configurable.",
+        caption="",
     )
     img, draw, content_top = _canvas(
-        "Five themes, one frame",
-        "the same CODEBASE frame rendered under each preset theme (noir is the "
-        "default); every color and font ratio is configurable",
+        "Theme presets change appearance, not content",
+        "Five synthetic CODEBASE renders of one schematic Action model "
+        "(not a verbatim source excerpt). NOIR is the default.",
     )
     width, height = CANVAS
     margin = int(width * 0.04)
@@ -298,7 +340,7 @@ def make_themes() -> Path:
     cols, rows = 3, 2
     cell_w = (width - 2 * margin - (cols - 1) * gap) // cols
     cell_h = (grid_bottom - content_top - label_h * rows - gap) // rows
-    label_font = scaled_font(height, 0.026)
+    label_font = scaled_font(height, 0.031)
     order = ["noir", "dark", "light", "midnight", "paper"]
     for idx, name in enumerate(order):
         c, r = idx % cols, idx // cols
@@ -309,35 +351,38 @@ def make_themes() -> Path:
         img.paste(tile, (cx, cy + label_h))
         draw.rectangle([cx, cy + label_h, cx + cell_w - 1, cy + label_h + cell_h - 1],
                        outline=_mix(BG, ACCENT, 0.45), width=2)
+    cx = margin + 2 * (cell_w + gap)
+    cy = content_top + cell_h + label_h + gap
+    text(draw, (cx, cy, cx + cell_w, cy + label_h), "COMPARISON KEY",
+         size=27, fill=ACCENT)
+    text(draw, (cx, cy + label_h + 16, cx + cell_w, grid_bottom),
+         "Same schematic code and highlight.\n"
+         "Only the Theme preset changes.\n\n"
+         "Surfaces, syntax colors, accents and captions are configurable.",
+         size=27, minimum=25, fill=DIM)
     return _save(img, "themes.png")
 
 
 def make_typing_filmstrip() -> Path:
-    """Three columns of the SAME editor frame typed to 25%, 55%, and 100%.
-
-    Illustrates character-count reveal with a current public timing excerpt.
-    These are synthetic renderer states, not captures of scheduled playback.
-    The three panels share a title and per-panel label and are fit-CONTAINed.
-    """
-    img, draw, content_top = _canvas(
-        "Typing reveal: one FrameState, growing cursor_typed",
-        "current source: democreate.assembly.compositor.Timeline.entry_at_ms; "
-        "synthetic character-count illustration",
+    """Pair complete current source with three synthetic reveal-state previews."""
+    img, draw, top = _canvas(
+        "Character-count reveal, not speech recognition",
+        "Complete current source: "
+        "democreate.assembly.compositor.Timeline.entry_at_ms",
     )
-    width, height = CANVAS
-    margin = int(width * 0.04)
-    label_h = int(height * 0.045)
-    gap = int(width * 0.02)
-    bottom = height - margin
-    n = 3
-    cell_w = (width - 2 * margin - gap * (n - 1)) // n
-    cell_h = bottom - content_top - label_h
-    label_font = scaled_font(height, 0.028)
-
+    text(draw, (64, top, 1048, top + 40), "LIVE SOURCE / COMPLETE METHOD",
+         size=25, fill=ACCENT)
+    _source(draw, (64, top + 44, 1048, 810), TYPING_CODE_LINES)
     total = sum(len(line) for line in TYPING_CODE_LINES)
-    fractions = (0.25, 0.55, 1.0)
-    for col, frac in enumerate(fractions):
-        typed = int(total * frac)
+    for index, fraction in enumerate((0.25, 0.55, 1.0)):
+        typed = int(total * fraction)
+        y = top + index * 204
+        text(draw, (1090, y, 1536, y + 36),
+             f"{int(fraction * 100)}% | {typed} / {total} characters",
+             size=25, fill=FG)
+        draw.rectangle((1090, y + 40, 1536, y + 48), fill=PANEL)
+        draw.rectangle((1090, y + 40, 1090 + int(446 * fraction), y + 48),
+                       fill=ACCENT)
         state = FrameState(
             scene_kind=SceneKind.CODEBASE,
             file_path="assembly/compositor.py",
@@ -345,274 +390,164 @@ def make_typing_filmstrip() -> Path:
             highlight_lines=[11],
             cursor_typed=typed,
         )
-        cx = margin + col * (cell_w + gap)
-        draw.text((cx, content_top), f"TYPED {int(frac * 100)}%",
-                  fill=ACCENT, font=label_font)
-        tile = render_frame(state, (cell_w, cell_h), theme=THEMES["noir"])
-        img.paste(tile, (cx, content_top + label_h))
-        draw.rectangle([cx, content_top + label_h, cx + cell_w - 1,
-                        content_top + label_h + cell_h - 1],
-                       outline=_mix(BG, ACCENT, 0.45), width=2)
+        # Render at a source-legible geometry, then contain-fit the miniature.
+        # The complete source above is the reading surface, not these previews.
+        tile = render_frame(state, (900, 600), theme=THEMES["noir"])
+        _fit_contain(img, tile, (1090, y + 62, 1536, y + 190))
+    text(draw, (64, 836, 1536, 884),
+         "Counts exclude newline separators, matching cursor_typed. "
+         "Previews are synthetic states, not scheduled playback.", size=25, fill=DIM)
     return _save(img, "typing_filmstrip.png")
 
 
 def make_latency() -> Path:
-    """Show observed timing in separate cards without a mixed-unit bar axis."""
-    data = json.loads(BENCHMARKS.read_text(encoding="utf-8"))
+    """Show source-bound timing with independent units, never a shared bar axis."""
+    record = json.loads(EVIDENCE.read_text(encoding="utf-8"))["benchmark"]
+    raw = BENCHMARKS.read_bytes()
+    if (record["path"] != BENCHMARKS.relative_to(REPO).as_posix()
+            or hashlib.sha256(raw).hexdigest() != record["sha256"]):
+        raise ValueError("timing record does not match the recorded benchmark digest")
+    data = json.loads(raw)
+    if data["identity"]["source_sha256"] != record["source_sha256"]:
+        raise ValueError("benchmark source identity does not match its release record")
     build, render = data["build"], data["render"]
     if render is None:
-        raise ValueError("current timing figure requires an observed encoded render")
-    img, draw, content_top = _canvas(
-        "Measured starter workload - 0.8.0 candidate",
-        "one host / one synthetic silent input / wall clock; not the voiced corpus",
+        raise ValueError("timing figure requires an observed encoded render")
+    img, draw, top = _canvas(
+        "Observed wall clock for one silent workload",
+        "Historical source-bound observation: one host / synthetic silent input; "
+        "not the annotated voiced corpus.",
     )
-    width, height = CANVAS
-    margin, gap = int(width * 0.04), int(width * 0.025)
-    panel_w = (width - 2 * margin - gap) // 2
-    top, bottom = content_top + 30, int(height * 0.76)
     cards = [
         (
-            "Build wall clock",
-            f"{build['median_ms']:g}",
-            f"ms, median of {build['runs']} consecutive builds",
-            [
-                "Validation, TTS, sync, frames and exports.",
-                "Input construction and process imports are not timed.",
-                f"First timed build: {build['samples_ms'][0]:.1f} ms.",
-                "All raw samples retained; no warm-up sample excluded.",
-            ],
+            "BUILD WALL CLOCK", f"{build['median_ms']:g}",
+            f"ms | median of {build['runs']} consecutive builds",
+            "Validation, TTS, sync, frames and exports.\n"
+            "Input construction and process imports are not timed.\n"
+            f"First timed build: {build['samples_ms'][0]:.1f} ms.\n"
+            "All samples retained; no warm-up sample excluded.",
         ),
         (
-            "Whole render wall clock",
-            f"{render['ms_per_output_second']:g}",
+            "WHOLE RENDER WALL CLOCK", f"{render['ms_per_output_second']:g}",
             "ms per encoded output second",
-            [
-                "Audio processing, animation, encode and sidecars.",
-                f"Video: {render['output_seconds']:.6f} s at "
-                f"{render['animation_fps']} fps.",
-                f"Planned timeline: {render['timeline_seconds']:.3f} s.",
-                "ffprobe duration is measured outside the timer.",
-                "Content verification is disabled for this timing.",
-            ],
+            "Audio processing, animation, encode and sidecars.\n"
+            f"Video: {render['output_seconds']:.6f} s at "
+            f"{render['animation_fps']} fps.\n"
+            f"Planned timeline: {render['timeline_seconds']:.3f} s.\n"
+            "ffprobe duration is outside the timer.\n"
+            "Content verification disabled for this timing.",
         ),
     ]
     for index, (heading, value, unit, notes) in enumerate(cards):
-        x = margin + index * (panel_w + gap)
-        draw.rounded_rectangle(
-            (x, top, x + panel_w, bottom), radius=14, fill=PANEL,
-            outline=ACCENT, width=2,
-        )
-        draw.text((x + 24, top + 24), heading, font=scaled_font(height, 0.030), fill=FG)
-        draw.text((x + 24, top + 80), value, font=scaled_font(height, 0.075), fill=ACCENT)
-        draw.text((x + 24, top + 170), unit, font=scaled_font(height, 0.025), fill=FG)
-        y = top + 230
-        font = scaled_font(height, 0.023)
-        for note in notes:
-            for line in _wrap(draw, note, font, panel_w - 48):
-                draw.text((x + 24, y), line, font=font, fill=DIM)
-                y += int(font.size * 1.5)
-    font = scaled_font(height, 0.021)
-    footer = [
-        "Source: data/benchmarks-0.8.0.json; measured "
-        + data["identity"]["recorded_at_utc"],
-        "Different denominators, no shared scale. No compatible historical "
-        "comparison or performance-improvement claim.",
-    ]
-    y = bottom + 30
-    for text in footer:
-        for line in _wrap(draw, text, font, width - 2 * margin):
-            draw.text((margin, y), line, font=font, fill=DIM)
-            y += int(font.size * 1.5)
+        x = 64 + index * 756
+        draw.rounded_rectangle((x, top, x + 716, 694), radius=16,
+                               fill=PANEL, outline=ACCENT, width=2)
+        text(draw, (x + 28, top + 24, x + 688, top + 70), heading,
+             size=28, fill=FG)
+        text(draw, (x + 28, top + 86, x + 688, top + 204), value,
+             size=86, fill=ACCENT)
+        text(draw, (x + 28, top + 214, x + 688, top + 260), unit, size=27)
+        text(draw, (x + 28, top + 278, x + 688, 674), notes,
+             size=26, minimum=24, fill=DIM)
+    text(draw, (64, 726, 1536, 862),
+         "Source: data/benchmarks-0.8.0.json | "
+         + data["identity"]["recorded_at_utc"] + "\n"
+         + "Recorded source SHA-256: " + data["identity"]["source_sha256"] + "\n"
+         + "Different denominators, no shared scale or speedup comparison. "
+         "This record does not measure the edited checkout.", size=23, fill=DIM)
     return _save(img, "latency.png")
 
 
 def make_paper_flow() -> Path:
-    """A left-to-right flow diagram of the paper pipeline (real diagram renderer).
-
-    Uses :func:`render_architecture_diagram` — the same renderer the package
-    ships — to draw the PDF -> poppler -> structure/figures/pages/codebase ->
-    ``build_paper_demo`` -> narrated video flow under the academic ``paper`` theme.
-    """
-    paper = THEMES["paper"]
-    columns: list[tuple[str, list[DiagramNode]]] = [
-        ("Source", [DiagramNode("PDF", ["paper + figures + code"])]),
-        (
-            "poppler (zero-pip)",
-            [
-                DiagramNode("pdfinfo", ["metadata"]),
-                DiagramNode("pdftotext", ["text"]),
-                DiagramNode("pdftoppm", ["page rasters"]),
-            ],
-        ),
-        (
-            "Extract",
-            [
-                DiagramNode("structure", ["abstract / captions", "sections (skip TOC)"]),
-                DiagramNode("figures", ["collected PNGs"]),
-                DiagramNode("pages", ["rendered"]),
-                DiagramNode("codebase", ["ast summary"]),
-            ],
-        ),
-        ("Compose", [DiagramNode("build_paper_demo", ["Demo value"])]),
-        ("Render", [DiagramNode("Narrated video", ["content-verified"])]),
-    ]
-    img = render_architecture_diagram(
-        CANVAS,
-        title="Paper Pipeline: PDF to Narrated Video",
-        columns=columns,
-        bg=paper.bg_slide,
-        accent=paper.accent,
-        fg=paper.text,
+    """Separate PDF tooling and supplied assets from the ordinary Demo compiler."""
+    img, draw, top = _canvas(
+        "Paper inputs become an inspectable Demo",
+        "Schematic workflow, not a measured paper-demo result. "
+        "PDF extraction uses separately installed Poppler binaries.",
     )
+    stages = [
+        (
+            "EXTRACT / SUPPLY", "PDF + local assets",
+            "pdfinfo: metadata\npdftotext: text\npdftoppm: page images\n"
+            "Supply figure images separately.\nOptional repository: AST summary.",
+            "Text structure is heuristic.",
+        ),
+        (
+            "AUTHOR", "build_paper_demo",
+            "PaperSummary + selected assets\nTitle and abstract chunks\n"
+            "Figure / page slides\nOptional code architecture",
+            "Output: an ordinary Demo.",
+        ),
+        (
+            "COMPILE / EXPORT", "Shared timed pipeline",
+            "Measured clip durations\nEstimated word timestamps\n"
+            "Scheduled visual states\nCaptions and timed image preview",
+            "Silent core, not narrated evidence.",
+        ),
+    ]
+    for index, (label, heading, body, foot) in enumerate(stages):
+        x = 64 + index * 504
+        card(draw, (x, top, x + 464, 736), label, heading, body,
+             foot=foot, size=27)
+        if index < 2:
+            arrow(draw, (x + 472, 460), (x + 496, 460))
+    text(draw, (64, 772, 1536, 866),
+         "Voiced MP4 is optional: usable system / Kokoro speech + ffmpeg. "
+         "Basic stream, energy and picture checks do not assess scientific "
+         "content, intelligibility or acoustic word alignment.", size=28, fill=DIM)
     return _save(img, "paper_flow.png")
 
 
 def make_provenance() -> Path:
-    """A labelled diagram of the THREE provenance carriers from one config.
+    """Explain distinct, unsigned carriers without implying shared identity.
 
-    Draws, in pure Pillow, the three ways a single :class:`MetadataConfig` stamps
-    provenance onto a render: (a) on-screen top/bottom overlay bars, (b) MP4
-    container metadata tags, and (c) an unsigned steganographic payload hidden in
-    lossless poster PNGs. Every label is read from a *real*
-    ``MetadataConfig`` instance, so the figure cannot drift from the package's
-    own field names and defaults.
+    A real illustrative MetadataConfig supplies overlapping labels, not one
+    identical payload. The stable-content digest does not bind image pixels.
     """
-    # One real config drives every label below — the same dataclass the renderer,
-    # the animator, the metadata embedder, and the stego encoder all consume.
     meta = MetadataConfig(
         author="Daniel Ari Friedman",
         source="democreate (repo)",
-        url="https://github.com/...",
+        url="https://github.com/docxology/democreate",
         watermark="democreate",
         title="DemoCreate",
-        date="2026-06-04",
         header=True,
-        footer=True,
-        show_clock=True,
-        container_tags=True,
-        steganography=True,
     )
-
-    width, height = CANVAS
-    img, draw, content_top = _canvas(
-        "One MetadataConfig: three provenance carriers",
-        "the same author / source / url / title fields are stamped on screen, "
-        "into the container, and hidden in lossless PNGs",
+    img, draw, top = _canvas(
+        "Three carriers, no authenticated identity",
+        "Illustrative MetadataConfig + Demo: selected overlapping fields, "
+        "different representations. No publication date is asserted.",
     )
-    margin = int(width * 0.04)
-
-    # Distinct accent per carrier so the three columns read apart at a glance.
-    c_overlay = (124, 214, 124)   # on-screen
-    c_tags = (224, 175, 104)      # container
-    c_stego = (197, 134, 232)     # steganographic
-
-    head_font = scaled_font(height, 0.028)
-    body_font = scaled_font(height, 0.0215)
-    mono_font = scaled_font(height, 0.0195, mono=True)
-    note_font = scaled_font(height, 0.019)
-
-    # Source chip: the single config every carrier is fed from.
-    chip_w, chip_h = int(width * 0.30), int(height * 0.066)
-    chip_x = (width - chip_w) // 2
-    chip_y = content_top
-    draw.rounded_rectangle([chip_x, chip_y, chip_x + chip_w, chip_y + chip_h],
-                           radius=12, fill=_mix(BG, ACCENT, 0.18), outline=ACCENT, width=2)
-    chip_label = "MetadataConfig (config.py)"
-    cl_w = draw.textlength(chip_label, font=head_font)
-    draw.text((chip_x + (chip_w - cl_w) // 2, chip_y + int(chip_h * 0.30)),
-              chip_label, fill=FG, font=head_font)
-
-    cols = [
+    columns = [
         (
-            c_overlay,
-            "(a) On-screen overlay bars",
-            "export/overlay.py · draw_header / draw_footer",
-            [
-                f"header (top): title · section   [header={str(meta.header).lower()}]",
-                "footer (bottom edge): author · source · url",
-                f"running clock + watermark   [show_clock={str(meta.show_clock).lower()}]",
-                "burned into every video frame (_draw_overlays)",
-            ],
-            "survives H.264 (it IS the pixels)",
+            "VISIBLE PIXELS", "Overlay bars",
+            f"Title: {meta.title}\nAuthor: {meta.author}\n"
+            f"Source: {meta.source}\nURL / clock / watermark\n"
+            "export/overlay.py",
+            "Readable in frames; labels can be copied.",
         ),
         (
-            c_tags,
-            "(b) MP4 container tags",
-            "export/metadata.py · build_tags / embed_tags",
-            [
-                f"title = {meta.title!r}",
-                f"artist = {meta.author!r}",
-                "comment = 'made with DemoCreate …'",
-                f"date = {meta.date!r}   [via ffmpeg -metadata]",
-            ],
-            "read by players / ffprobe",
+            "CONTAINER FIELDS", "MP4 tags",
+            f"title = {meta.title}\nartist = {meta.author}\n"
+            "comment / description: tool credit + source + URL\n"
+            "export/metadata.py",
+            "ffmpeg tags; editable container metadata.",
         ),
         (
-            c_stego,
-            "(c) Unsigned steganographic PNG",
-            "export/stego.py · embed_provenance (LSB)",
-            [
-                "unsigned payload -> poster_signed.png",
-                "+ provenance.json sidecar",
-                "tool / version / author / scenes / chunks",
-                "content_sha256 (consistency, not identity)",
-            ],
-            "lossless PNG only - NOT the H.264 video",
+            "LOSSLESS PNG + JSON", "Unsigned association",
+            "tool / version / author\nscene and chunk counts\n"
+            "content_sha256: authored content\n"
+            "poster_signed.png + provenance.json\nexport/stego.py",
+            "LSB payload is not preserved by H.264.",
         ),
     ]
-
-    gap = int(width * 0.025)
-    col_top = chip_y + chip_h + int(height * 0.07)
-    col_bottom = height - margin
-    n = len(cols)
-    avail = width - 2 * margin - gap * (n - 1)
-    col_w = avail // n
-
-    for i, (caccent, header, srcline, bullets, foot) in enumerate(cols):
-        cx = margin + i * (col_w + gap)
-        # Connector from the central config chip down into each column header.
-        src_cx = chip_x + chip_w // 2
-        draw.line([(src_cx, chip_y + chip_h), (cx + col_w // 2, col_top)],
-                  fill=caccent, width=2)
-        draw.polygon(
-            [(cx + col_w // 2, col_top),
-             (cx + col_w // 2 - 7, col_top - 12),
-             (cx + col_w // 2 + 7, col_top - 12)],
-            fill=caccent,
-        )
-
-        draw.rounded_rectangle([cx, col_top, cx + col_w, col_bottom],
-                               radius=14, fill=PANEL, outline=caccent, width=2)
-        pad = int(col_w * 0.06)
-        # Carrier title.
-        ty = col_top + pad
-        for line in _wrap(draw, header, head_font, col_w - 2 * pad):
-            draw.text((cx + pad, ty), line, fill=caccent, font=head_font)
-            ty += int(head_font.size * 1.25)
-        # Source module (mono).
-        ty += int(height * 0.006)
-        for line in _wrap(draw, srcline, mono_font, col_w - 2 * pad):
-            draw.text((cx + pad, ty), line, fill=DIM, font=mono_font)
-            ty += int(mono_font.size * 1.35)
-        # Bullets.
-        ty += int(height * 0.012)
-        for b in bullets:
-            draw.ellipse([cx + pad, ty + int(body_font.size * 0.35),
-                          cx + pad + 7, ty + int(body_font.size * 0.35) + 7],
-                         fill=caccent)
-            bx = cx + pad + 18
-            for line in _wrap(draw, b, body_font, col_w - 2 * pad - 18):
-                draw.text((bx, ty), line, fill=FG, font=body_font)
-                ty += int(body_font.size * 1.32)
-            ty += int(body_font.size * 0.22)
-        # Survivability footer note, pinned near the bottom of the panel.
-        note_y = col_bottom - pad - int(note_font.size * 2.2)
-        draw.line([(cx + pad, note_y - 8), (cx + col_w - pad, note_y - 8)],
-                  fill=_mix(PANEL, caccent, 0.4), width=1)
-        for line in _wrap(draw, foot, note_font, col_w - 2 * pad):
-            draw.text((cx + pad, note_y), line, fill=caccent, font=note_font)
-            note_y += int(note_font.size * 1.25)
-
+    for index, (label, heading, body, foot) in enumerate(columns):
+        x = 64 + index * 504
+        card(draw, (x, top, x + 464, 736), label, heading, body,
+             foot=foot, size=27)
+    text(draw, (64, 774, 1536, 874),
+         "Trust boundary: an unsigned content hash checks consistency only. "
+         "It authenticates neither author nor carrier image/video; copied "
+         "payloads and pixel changes can still pass.", size=29, fill=FG)
     return _save(img, "provenance.png")
 
 
@@ -623,16 +558,17 @@ def make_video_stills() -> Path:
     if len(frames) != 6:
         raise ValueError("the current montage requires six recorded decoded frames")
     img, draw, content_top = _canvas(
-        "Canonical package showcase - 0.8.0 candidate",
-        "Kokoro af_heart / 3840x2160 / 15 fps; representative decoded frames, "
-        "not acoustic accuracy",
+        "Decoded frames from the identified package MP4",
+        f"Recorded {canonical['voice_backend']} / {canonical['voice']} | "
+        f"{canonical['width']}x{canonical['height']} | "
+        f"{canonical['animation_fps']} fps. Not synthetic or paper-demo evidence.",
     )
     width, height = CANVAS
     margin, gap = int(width * 0.04), int(width * 0.02)
-    label_h = int(height * 0.035)
+    label_h = 38
     cols, rows = 3, 2
     cell_w = (width - 2 * margin - gap * (cols - 1)) // cols
-    bottom = height - margin - 30
+    bottom = 740
     cell_h = (bottom - content_top - label_h * rows - gap) // rows
     for index, frame in enumerate(frames):
         source = (REPO / frame["path"]).resolve(strict=True)
@@ -647,14 +583,16 @@ def make_video_stills() -> Path:
         x = margin + (index % cols) * (cell_w + gap)
         y = content_top + (index // cols) * (cell_h + label_h + gap)
         draw.text(
-            (x, y), f"cue {frame['cue']}, seek {frame['seek_seconds']:.3f} s",
-            font=scaled_font(height, 0.021), fill=ACCENT,
+            (x, y), f"Cue {frame['cue']} | seek {frame['seek_seconds']:.3f} s",
+            font=scaled_font(height, 0.029), fill=ACCENT,
         )
         _fit_contain(img, still, (x, y + label_h, x + cell_w, y + label_h + cell_h))
-    draw.text(
-        (margin, height - margin), "MP4 SHA-256: " + canonical["video_sha256"],
-        font=scaled_font(height, 0.018), fill=DIM,
-    )
+    text(draw, (64, 768, 1536, 806),
+         "Recorded MP4 SHA-256: " + canonical["video_sha256"], size=22, fill=DIM)
+    text(draw, (64, 816, 1536, 882),
+         "Source: data/release-0.8.0.json; all six PNG digests checked. "
+         "Seek labels are requested offsets, not decoded PTS or annotated onsets. "
+         "No listening / alignment validation.", size=24, fill=DIM)
     return _save(img, "video_stills.png")
 
 

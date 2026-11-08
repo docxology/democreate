@@ -1,10 +1,11 @@
-# `scripts/`
+# Scripts: standalone front doors and source-bound measurement tooling
 
-Thin, runnable front doors over the `democreate` library. Each script carries no
-business logic of its own — it parses arguments, bootstraps repo paths, and
-makes a single delegated call into a `src/democreate/` module — so the behavior
-stays testable in the library and identical to the CLI. Run them through the
-project venv (`.venv/bin/python scripts/<name>.py …`).
+Run these from the repository root with the selected project interpreter
+(`.venv/bin/python scripts/<name>.py …`). Generation/manuscript wrappers delegate
+to package modules; `benchmark.py` additionally owns timing/provenance collection.
+They are not all CLI aliases or single-call wrappers. Core pin is Python 3.15;
+optional Kokoro measurement needs a compatible voice environment (recorded as
+Python 3.14) plus models. See [backend prerequisites](../docs/backends.md).
 
 | Script | Purpose | Delegates to | Command |
 |--------|---------|--------------|---------|
@@ -33,3 +34,9 @@ The benchmark identity hashes the complete runtime package tree (including
 `source_manifest` retains each included relative name, byte count and SHA-256;
 no absolute user paths are stored in that manifest. A template-only change
 therefore changes `source_sha256`, as does a change to the measured input.
+
+API output is generated, not hand-edited. Its curated inventory/facade exports
+must track the public source surface; a generated signature does not establish
+adapter readiness. Existing benchmark/release records remain immutable observed
+history, not verification of subsequent edits. The [documentation hub](../docs/README.md)
+separates recipes, references and the [0.8.0 historical receipt](../docs/release-0.8.0.md).

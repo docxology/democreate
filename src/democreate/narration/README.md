@@ -1,12 +1,11 @@
-# `democreate.narration`
+# `democreate.narration`: scripts, WAV synthesis and estimated word timing
 
-The narration subsystem owns the audio half of a demo build: turning structured
-input into a declarative `Demo`, voicing each chunk to real audio, and anchoring
-every action to the spoken word that triggers it.
-
-Every heavy capability sits behind an abstract base class with a **pure-Python
-deterministic default** that needs only the core dependencies. The whole
-subsystem is import-safe and fully testable with no heavy backends installed.
+Templates/project facts construct authored Demo content; implemented TTS paths
+write silent or spoken WAV clips; synchronization measures clip windows and
+estimates word/action positions from known text. It does **not** recognize spoken
+onsets by default. Abstract TTS/transcriber/script interfaces have core defaults,
+but optional dependency presence is not implementation/model readiness. See
+[backend prerequisites](../../../docs/backends.md).
 
 ## Modules
 
@@ -65,9 +64,10 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `HeuristicTranscriber` — **default**, stdlib-only. Reads the WAV's true
   duration and lays words across it proportional to character length. `text=None`
   → `[]`.
-- `WhisperTranscriber` — guarded adapter slot (`extra="whisper"`).
+- `WhisperTranscriber` — unwired slot (`extra="whisper"`); installed dependency
+  still raises `NotImplementedError`, not acoustic recognition.
 - `get_transcriber(name="auto") -> Transcriber`.
-- `sync_demo(demo, clips, transcriber=None) -> Demo` — cumulative measured chunk
+- `sync_demo(demo, clips, transcriber=None, *, lead_ms=0, gap_ms=0) -> Demo` — measured chunk
   windows and fuzzy, case-insensitive trigger matching. Explicit untriggered
   authored times survive; derived `timestamp_source="sync"` times refresh on
   re-synthesis. WAIT advances the fallback cursor. Unset action duration is
@@ -109,9 +109,11 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 
 ## Determinism
 
-No RNG, no network, no sleeping. The silent backend's audio duration encodes the
-estimated narration length, so the heuristic transcriber produces stable, sensible
-timings end to end — the same input always yields the same `Demo`.
+The silent/template/heuristic paths have no RNG, network or sleeping. Their
+duration model is reproducible for fixed input/config/runtime, not an accuracy
+measurement. Optional cloud/LLM calls are explicit network paths. Pipeline owns
+input cloning; direct `synthesize_demo`/`sync_demo` mutate the supplied Demo.
+Consumers of Pipeline must use `result.demo` for resolved timing and assets.
 
 ## Tests
 

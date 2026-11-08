@@ -1,6 +1,6 @@
-# Scope and Related Work {#sec:related}
+# Construction Models, Related Systems, and Comparison Limits {#sec:related}
 
-## Documented Construction Models
+## Virtual-IDE Actions, Screen Capture, and Terminal Replay
 
 CodeVideo documents typed actions for narration, editor, file explorer, terminal, mouse, external views and slides [@codevideo2024]. Its virtual-IDE model is a relevant precedent for DemoCreate's action stream. Event sourcing [@fowler2005event] supplies the broader replayable-log pattern; neither citation proves DemoCreate's timing accuracy or implementation correctness.
 
@@ -10,7 +10,7 @@ Code Video Generator's documentation describes a Manim-based library for code wa
 
 The earlier bibliography's VSpeak attribution lacked an authoritative project URL. Searches did not establish its cited project provenance. This manuscript consequently describes chunk/trigger narration as DemoCreate's organizing model without asserting that unverified external attribution; this is not a claim that no such project exists.
 
-## Agentic Educational and Paper Video
+## Agent-Generated Educational Code and Paper Presentations
 
 Code2Video uses Planner, Coder and Critic agents to construct educational videos through executable Python [@code2video2025]. Paper2Video introduces a paper/presentation benchmark and the PaperTalker generation framework [@paper2video2025]. The latter coordinates slides, speech, subtitles and a presenter. These primary papers establish their own systems and reported results, not a measured comparison against DemoCreate.
 
@@ -25,7 +25,7 @@ Code2Video uses Planner, Coder and Critic agents to construct educational videos
 
 : Construction models and provenance, not a superiority or feature-absence matrix. {#tbl:related}
 
-## Positioning and Limits
+## Architectural Positioning Without Measured Superiority
 
 DemoCreate integrates a Python schema, lightweight synthetic defaults, duration-based narration estimates and optional native media paths. Paper ingestion uses poppler [@poppler2024]. The browser representation is synthetic by default, not proof that a live website executed the described interactions. Manim, Whisper and Chatterbox interfaces remain unwired slots.
 

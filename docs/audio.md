@@ -1,95 +1,73 @@
-# Audio: voice and voiceover assembly
+# Audio: measured WAV clips, pauses and optional processing
 
-A render's audio is **ground truth** for timing: narration is synthesized per
-chunk, each clip's duration is measured, and the frames are held to those
-measured durations (see [video.md](video.md)). This doc covers how the per-chunk
-clips become one clean voiceover track.
-
-The assembly primitives live in `assembly/audio.py`; the orchestration is
-`pipeline._build_voiceover()`. All pacing is governed by
-[`AudioConfig`](config.md).
+TTS produces one WAV per narration chunk. The pipeline measures clip duration
+and uses configured lead/gap/trail windows for synchronization, captions,
+voiceover assembly and frame holds. This shares a **nominal timebase**, not a
+measurement of acoustic word onsets. Frame/codec rounding can change encoded
+endpoints. See [video](video.md) for animated versus static playback.
 
 ## The system voice (zero pip)
 
-The default real voice — `SystemTTSBackend` — uses the OS speech binary:
-**macOS `say`** or **Linux `espeak` / `espeak-ng`**. It needs no `pip`/`uv`
-install at all, just a usable speech binary plus `ffmpeg` or `afconvert` for
-transcoding. DemoCreate smoke-tests that path before reporting it available.
-Select it with:
+Core `build` and library defaults synthesize **silence**; `render` defaults to
+`system`. `SystemTTSBackend` uses usable macOS `say` or Linux
+`espeak`/`espeak-ng`, then ffmpeg or macOS afconvert for canonical PCM WAV.
+Availability includes a synthesis/transcode probe, not only executable presence.
 
 ```bash
-democreate render demo.json --tts system --voice Samantha
+democreate render demo.json --tts system
 ```
 
-On macOS, list available voices with `say -v '?'` (e.g. `Samantha`, `Daniel`).
-Because it is a *platform* backend (not portable), it is never the `auto`
-default — but it turns the silent default into genuine spoken narration for
-free. Other backends: `silent` (deterministic silent clips, the core default),
-`kokoro` (a wired, fully-local neural voice — `tts` extra + `democreate
-fetch-voice`), and a guarded `chatterbox` slot (extra `tts`). See
-[backends.md](backends.md).
+Choose an installed voice with `--voice`; macOS can list voices with `say -v '?'`.
+Kokoro is implemented but requires a compatible voice environment, packages and
+model/voices. ElevenLabs is a cloud adapter needing credentials/network.
+Chatterbox is unwired and no published extra enables it. The
+[backend reference](backends.md) owns provisioning and readiness details.
 
 ## Voiceover assembly: gaps, lead, trail
 
-`concat_with_gaps()` concatenates the per-chunk clips in order, inserting
-silence to give the narration breathing room. It is **pure standard library**
-(the `wave` module) — import-safe, deterministic, and testable with no external
-binary. Silence is generated at the clips' own `(channels, sampwidth,
-framerate)`, so concatenation never resamples; mismatched clip formats raise a
-`ValueError`.
+`assembly.audio.concat_with_gaps()` writes a new WAV using stdlib `wave`, with no
+resampling. All inputs must share channels, sample width and sample rate;
+mismatch raises `ValueError`. The high-level TTS paths use 16-bit mono PCM.
+Files are numbered `chunk_0000.wav`, etc.; chunk IDs are labels, not paths.
 
-| Pad | `AudioConfig` field | Default | Where |
-|-----|--------------------|---------|-------|
-| Lead silence | `lead_silence_ms` | `300` | Before the first clip. |
-| Inter-chunk gap | `gap_ms` | `220` | Between consecutive clips. |
-| Trail silence | `trail_silence_ms` | `600` | After the last clip. |
-
-The same lead/gap/trail windows feed the animator's `chunk_timing()`.
-Visual boundaries are quantized to the animation frame grid; encoded stream
-duration is probed separately rather than assumed to match audio exactly.
-
-Canonical audio is 16-bit mono PCM. `measure_duration_ms()` reads the true
-duration from the WAV header (frame count ÷ frame rate).
+[AudioConfig](config.md) defines the defaults: 300 ms
+lead, 220 ms gaps and 600 ms trail. `measure_duration_ms()` reads actual frame
+count/sample rate. Pauses do not extend subtitle cue windows. Static frame
+holds keep the preceding still until the next spoken start; animated playback
+can show the upcoming chunk during a gap. Neither silently speaks text in HTML.
 
 ## Normalization and fade (ffmpeg, guarded)
 
-When `normalize` is set **and** `ffmpeg` is on `PATH`, the raw voiceover is
-post-processed:
+`pipeline._build_voiceover()` concatenates clips, then optionally post-processes:
 
-1. **`normalize_audio()`** — ffmpeg `loudnorm` filter, targeting integrated
-   loudness `I = −16 LUFS`, true-peak `TP = −1.5 dBTP`, loudness range
-   `LRA = 11 LU`. Integrated LUFS and `volumedetect` mean dB are distinct metrics; mean dB does not verify the LUFS target.
-2. **`apply_fade()`** — a fade-in and fade-out of `fade_ms` (default 180 ms)
-   each, via ffmpeg `afade`. The fade-out start is computed from the true clip
-   duration.
+1. `normalize_audio()` applies ffmpeg `loudnorm`, targeting −16 LUFS integrated,
+   −1.5 dBTP true peak and 11 LU loudness range. A target setting is not a measured
+   compliance result; `volumedetect` mean dB is a different metric.
+2. `apply_fade()` applies configured fade-in/out (default 180 ms each).
 
-Both helpers accept readable PCM WAV input, preserve its sample rate/channel
-count and publish standard 16-bit PCM headers readable on Python 3.11. This
-avoids FFmpeg's implicit 192 kHz/extensible-WAV output. Malformed reads and
-processing/output failures raise `RenderError` without replacing prior output.
+Both helpers preserve input sample rate/channels and publish standard 16-bit PCM
+headers readable on Python 3.11. Malformed PCM input, failed processing or output
+errors raise `RenderError` without replacing prior output. Absent ffmpeg raises
+`BackendUnavailableError`; no Python extra supplies that native executable.
 
-Both are **guarded**: an absent `ffmpeg` raises
-`BackendUnavailableError(extra="video")`. Optional post-processing failure
-allows audio assembly to retain the raw, un-faded track; it is not a guarantee
-that arbitrary raw audio or MP4 encoding succeeds. MP4 encoding still needs
-FFmpeg. The pure concat path does not.
+The orchestration can retain the valid raw/unfaded voiceover when optional
+post-processing fails and reports the skipped processing. That is not evidence
+that normalization ran or that a subsequent encode succeeds. MP4 encoding still
+requires ffmpeg/ffprobe.
 
-## Settings summary
+## Configure and inspect the result
 
-| Field | Default | Meaning |
-|-------|---------|---------|
-| `backend` | `system` | `system` / `silent` / `kokoro` (wired neural voice); `chatterbox` is a guarded slot. |
-| `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
-| `rate_wpm` | `None` | Optional speaking-rate override. |
-| `lead_silence_ms` | `300` | Silence before the first clip. |
-| `gap_ms` | `220` | Silence between chunks. |
-| `trail_silence_ms` | `600` | Silence after the last clip. |
-| `normalize` | `True` | Apply `loudnorm` (needs ffmpeg). |
-| `fade_ms` | `180` | Fade in/out duration (needs ffmpeg). |
+Create a config before using it:
 
-## See also
+```bash
+democreate config audio.yaml
+democreate render demo.json --config audio.yaml --tts system
+```
 
-- [config.md](config.md) — `AudioConfig` reference and YAML sample.
-- [video.md](video.md) — how measured clip durations drive frame timing.
-- [backends.md](backends.md) — TTS backends and the zero-pip system voice.
-- [cli.md](cli.md) — `render` `--tts` / `--voice` options.
+Edit `audio.lead_silence_ms`, `gap_ms`, `trail_silence_ms`, `normalize`,
+`fade_ms`, `voice` or `rate_wpm` as needed. Only the system backend uses the
+speaking-rate override. CLI precedence matters: `render`'s default `--tts system`
+overrides the config's backend, while a blank `--voice` preserves its voice.
+See [configuration](config.md) for the complete contract, [CLI](cli.md#render)
+for flags, [media identities](videos.md) for source-bound observations and
+[testing](testing_philosophy.md) for what core checks do not establish.

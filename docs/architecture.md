@@ -1,13 +1,13 @@
-# Architecture
+# Architecture: authored input, resolved timing and media outputs
 
-DemoCreate has one organizing idea: **a `Demo` is the single declarative source
-of truth, and rendering is a pure function of it.** Everything else is a backend
-that consumes the spine and writes artifacts into a `Workspace`.
+The `Demo` is the declarative source of authored content, not the complete
+reproduction environment. Core byte comparisons require fixed **Demo + assets +
+config + runtime**. The pipeline consumes these inputs and writes a `Workspace`.
 
 ## The spine
 
-The spine is pure Python — no I/O, no heavy dependencies — and lives in a handful
-of modules at the package root:
+Schema/media value types are import-light; path management and orchestration
+perform real I/O. The package-root modules have distinct roles:
 
 | Module | Role |
 |--------|------|
@@ -15,7 +15,7 @@ of modules at the package root:
 | `media.py` | Shared media value types exchanged between subsystems: `AudioClip` (a rendered narration clip) and `FrameState` (a renderable snapshot of the virtual environment). |
 | `errors.py` | The `DemoCreateError` hierarchy, including `BackendUnavailableError` (carries the extra to install), `SchemaValidationError`, `RenderError`, `SyncError`, `CaptureError`. |
 | `project_paths.py` | `Workspace` — centralizes every output location (`demos/`, `audio/`, `frames/`, `video/`, `captions/`, `web/`, `manifests/`) so no module hardcodes a path. |
-| `config.py` | `RenderConfig` (`Theme` + `AudioConfig` + `VideoConfig`) — the look/sound/motion settings, YAML-loadable, threaded through the pipeline. See [config.md](config.md). |
+| `config.py` | `RenderConfig` (`Theme` + `AudioConfig` + `VideoConfig` + `MetadataConfig`); [configuration](config.md) owns defaults and precedence. |
 | `pipeline.py` | `Pipeline` / `build_demo` / `render_video` — the thin orchestrator that wires the subsystems in canonical order. |
 | `portfolio.py` | `render_portfolio` / `render_project` / `collect_project_facts` / `discover_projects` — a thin orchestration sibling of `pipeline.py` that turns a directory of repositories into one timestamped, content-verified summary video per project. Builds each demo via `narration.project_summary.generate_project_summary_demo` (a deterministic README + AST "describing" generator) and renders it through `pipeline`. |
 | `cli.py` | The `democreate` Typer app — a thin layer over `pipeline`, `portfolio`, and the subsystems. |
@@ -43,14 +43,14 @@ ingestion have separate prerequisites (see [backends.md](backends.md)).
 | `capture/` | Frame rendering and recording terminal/browser/input sessions. | `SyntheticRenderer` (scaled TrueType fonts + pygments highlighting + themes), `NullBrowserDriver`, pure event model. | `capture`, `browser`, `replay` |
 | `narration/` | Script generation, TTS, duration-based word estimates. | `TemplateScriptGenerator`, `SilentTTSBackend`, `HeuristicTranscriber`; optional native `SystemTTSBackend`. | `say`/`espeak` (OS), `tts`, `whisper` |
 | `animation/` | Scaled fonts, speech waveform, architecture diagrams, manim specs. | `fonts.py`, `waveform.py`, `diagram.py`, JSON manim spec. | `animation` |
-| `codebase/` | AST traversal, visualization, and import-dependency graphs. | stdlib `ast`. | `codebase` |
+| `codebase/` | Python AST traversal, visualization and import-dependency graphs. | stdlib `ast`. | `codebase` extra packages do not wire multi-language parsing |
 | `assembly/` | Timeline build, compositing, captions, audio assembly, timed-frame animation. | `ManifestCompositor`, pure SRT/VTT/ASS, `audio.py` (stdlib `wave` concat), `animator.py`. | ffmpeg (audio/video), `video` |
 | `export/` | Turn the spine + frames + audio into deliverables, then verify. | Jinja2 HTML player, Markdown/JSON/chapters, ffmpeg-argv builder. | ffmpeg/ffprobe (`video`) |
 | `paper/` | PDF ingestion and paper demos. | poppler CLI (`pdfinfo`, `pdftotext`, `pdftoppm`). | OS binaries; no `pdf` pip extra |
+| `translation/` | Separate audio/subtitle language tracks. | `IdentityTranslator` no-op. | Explicit Ollama server/model; suitable TTS voice |
 
-The look (`Theme`), sound (`AudioConfig`), and motion (`VideoConfig`) of a render
-are governed by a single `RenderConfig` (`config.py`), threaded through the
-pipeline, renderer, and animator — see [config.md](config.md).
+See [backends](backends.md) for implemented versus unwired paths and native/model
+prerequisites; [configuration](config.md) owns look, sound, motion and metadata.
 
 ## Data flow
 
@@ -79,7 +79,7 @@ flowchart TB
     Timeline["assembly.compositor<br/>build_timeline (fps, wpm)"]
     Compose["capture.screen + assembly.compositor<br/>compose → still frames (one per chunk) + manifest"]
     Captions["assembly.captions<br/>SRT / VTT / ASS"]
-    Player["export.interactive<br/>HTML player · transcript · demo.json"]
+    Player["export.interactive<br/>timed image preview · transcript · demo.json"]
     Voiceover["assembly.audio<br/>concat_with_gaps (lead/gap/trail)<br/>normalize (loudnorm) + fade"]
     Animate["assembly.animator<br/>resample @ animation_fps<br/>+ typing + cursor + waveform + top-edge progress + transitions"]
     Encode["export.video<br/>encode_frame_sequence (ffmpeg)"]
@@ -114,14 +114,17 @@ TTS → sync → animate → encode → verify pipeline as a software demo — s
 clips. `HeuristicTranscriber` interpolates known words by character length over
 that duration. This is not acoustic recognition, and trigger timing does not
 necessarily coincide with speech. Installing Whisper does not provide a working
-recognizer: its adapter remains unimplemented. The annotated ≥30-demo/≤120 ms
-study is planned, separate from structural timestamp tests.
+recognizer: its adapter remains unimplemented. The blocking study requires ≥30
+independently annotated voiced demos (≥10/mode), with both the pooled absolute
+event-error median and median of demo-level absolute-error medians ≤120 ms.
+Structural timestamp tests and silent controls cannot satisfy it.
 
 ## Determinism as a design constraint
 
-The default path has no RNG, no wall-clock, and no network. A given `Demo`
-renders byte-for-byte identically on every machine. That is what makes the demos
-reproducible and what makes the test suite able to assert exact output rather than
-loose tolerances. Guarded media backends may trade that exactness for fidelity,
-and live behind `# pragma: no cover` adapters so they never compromise the core's
-guarantees.
+The default core uses no RNG, wall-clock or network. Byte comparisons are scoped
+to fixed authored input, staged assets, configuration and environment, including
+Pillow/FreeType. This is not cross-host or encoded-media byte determinism.
+Optional speech/model/codec paths have separate variability; portfolio outputs
+include timestamped filenames. No coverage exclusion establishes correctness of
+an adapter. See [testing](testing_philosophy.md) and the historical,
+source-bound [engineering receipt](release-0.8.0.md).

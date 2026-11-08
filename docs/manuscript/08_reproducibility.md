@@ -1,8 +1,8 @@
-# Reproducibility and Use {#sec:reproducibility}
+# Reproducing Core Builds and Optional Voiced Renders {#sec:reproducibility}
 
-This section provides illustrative installation, gate and rendering commands. They are instructions for obtaining evidence, not commands executed for this chapter or current passing receipts. Independent reproduction requires fixed source, inputs/assets, configuration and runtime versions. The planned voiced acoustic study remains blocking: at least 30 independently annotated voiced demos, pooled event median and median of demo-level errors at most 120 ms are required by `experiment_plan.yaml`; silent-default output is ineligible. No such corpus or measured result is supplied here ([@sec:evaluation]).
+This section provides the manuscript's installation, gate and rendering recipes. They are instructions for obtaining evidence, not commands executed for this chapter or current passing receipts. Independent reproduction requires fixed source, inputs/assets, configuration and runtime versions. The blocking voiced-acoustic study and both required error medians are defined in [@sec:evaluation]; none of the commands below substitutes for that independent evaluation.
 
-## Environment and Installation
+## Locked Core Environment and Backend-Specific Prerequisites
 
 Candidate 0.8.0 requires Python ≥3.11.5 and Pillow ≥13; the build backend requires setuptools ≥84.2.1. The patch floor excludes legacy locked dependency partitions with known advisories. The checkout's core development pin remains Python 3.15; that support statement does not establish that every optional dependency has a compatible wheel. uv [@astral2024uv] and the lockfile can record an environment, but an editable pip install by itself does not enforce it. Core dependencies are `pyyaml`, `typer`, `rich`, `jinja2` and `pillow`; Pillow includes native components although a silent core build needs no external media executable.
 
@@ -25,7 +25,7 @@ Kokoro additionally needs model/voice files (`democreate fetch-voice` downloads 
 
 System narration needs a usable `say` or `espeak` voice and the required transcode path. Paper ingestion needs poppler [@poppler2024]; encoding, loudness processing and media inspection need usable ffmpeg/ffprobe binaries. The backend table is an availability aid, not a capability test: dependency presence does not wire the Whisper, Chatterbox, Manim or legacy MoviePy slots. Core defaults produce silent audio and synthetic visuals, not real speech, browser activity or optional-adapter evidence.
 
-## The Test Gate
+## Obtaining a Source-Identified Core Coverage Receipt
 
 The engineering gate runs the real-filesystem suite and enforces the ≥90% configured core coverage floor. Results and counts require a fresh receipt, not a current percentage copied into prose:
 
@@ -35,7 +35,7 @@ uv run --locked python -m pytest --cov=src/democreate --cov-report=term-missing
 
 The core suite is designed around real temporary files and deterministic backends rather than a mocking framework; optional integration surfaces have separate prerequisites and may skip when unavailable. Core coverage excludes designated heavy adapters, so even a passing ≥90% core floor would not establish optional-backend correctness. Static lint/type gates use ruff and mypy against the shipped `py.typed` package. Fresh results must identify their source revision and environment; no current test count, coverage percentage or passing gate is asserted here.
 
-## Producing a Software Demo
+## Silent Software Build, Image Preview, and Optional MP4
 
 The CLI delegates to the library's pipeline and subsystems. It includes authoring/inspection, build/render, tours/portfolios, paper ingestion, captions, configuration, localization, metadata/media exports and backend discovery. An illustrative starter workflow is:
 
@@ -45,7 +45,7 @@ democreate inspect demo.json       # validate and summarize it
 democreate build demo.json -o out --asset-root .  # silent core build
 ```
 
-`build` validates, stages allowed image inputs, synthesizes silent WAVs by default, measures clip durations, interpolates known-text word timing, resolves the timeline, composites representative stills, and emits captions/transcript/JSON/HTML. It does not perform STT. `out/web/player.html` embeds interface code and caption/chapter data but references sibling `out/frames` media; keep the bundle together. Animated MP4 playback is a separate render path. For an optional system-voice MP4, first supply an actually available voice and the binary prerequisites; the following macOS voice name is an example, not a portable guarantee:
+`build` validates, stages allowed image inputs, synthesizes silent WAVs by default, measures clip durations, interpolates known-text word timing, resolves the timeline, composites representative stills, and emits captions/transcript/JSON/HTML. It does not perform STT. `out/web/player.html` is a timed image preview without audio playback; it embeds interface code and caption/chapter data but references sibling `out/frames` images. Keep that bundle together. Animated MP4 with a voiceover is a separate render path. For an optional system-voice MP4, first supply an actually available voice and the binary prerequisites; the following macOS voice name is an example, not a portable guarantee:
 
 ```bash
 democreate render demo.json -o out --asset-root . --tts system --voice Samantha --theme midnight
@@ -62,7 +62,7 @@ democreate tour /path/to/repo -o out --title "My Project Tour" --render
 
 This walks Python sources using the stdlib `ast` summarizer, generates a `Demo` via `generate_codebase_demo`, writes `out/demos/tour.json` and requests rendering. A voiced render still needs its backend and binaries. Repository-summary/portfolio commands shown in a synthetic terminal are illustrative strings, never executed by DemoCreate; their sample output and discovered test-function counts are not successful execution or test receipts.
 
-## Producing a Research-Paper Demo
+## Review Paper Extraction Before Rendering with an Asset Root
 
 The paper path ([@sec:paper]) needs a real readable PDF, poppler, and any requested source/figure inputs. For explicit control of external image inputs, generate the authored Demo first, then render with an image allow-root:
 

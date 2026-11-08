@@ -40,9 +40,9 @@ scientific machines and avoids a heavyweight binary-wheel dependency.
 This subsystem owns `pdf.py`, `extract.py`, `structure.py`, `script.py` and the
 matching `tests/paper/test_*.py` files (`pdf`, `extract`, `structure`, `script`).
 
-Tests run real poppler against the real 170-page paper PDF at
-`…/actinf_policy_entanglement_lean/output/pdf/…_combined.pdf` and its
-`…/figures` directory. They skip gracefully when poppler or the fixture PDF is
-unavailable, and use `monkeypatch` on `shutil.which` to prove the
-missing-backend guard raises `BackendUnavailableError`. No mocks of real
-computation.
+`tests/paper/conftest.py` writes a real controlled two-page PDF and PNG/JPEG
+figures into temporary directories using stdlib/Pillow. Real poppler exercises
+metadata, extraction and page rasterization; these fixtures do not depend on
+private research-paper paths or establish empirical paper results. Binary-backed
+cases skip when poppler is unavailable. `monkeypatch` on `shutil.which` proves
+the missing-backend `BackendUnavailableError` guard; no mocked computation.

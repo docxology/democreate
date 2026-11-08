@@ -1,4 +1,4 @@
-# Troubleshooting
+# Troubleshooting: distinguish input, dependency and media failures
 
 Most issues come from one of a few sources: a real backend invoked without its
 extra, headless/display problems, or a system binary (`ffmpeg`, poppler) not
@@ -22,13 +22,17 @@ engine yet. The error names the relevant extra when a dependency is missing.
 system backend, or fall back to the deterministic default:
 
 ```bash
-democreate backends                  # see which extras are installed vs default
+democreate backends                  # module presence and native probes, not readiness
 uv pip install -e ".[tts]"           # install the named extra
 democreate build demo.json --tts silent   # or force the deterministic default
 ```
 
-The error is raised early (in the backend constructor) and carries `.backend` and
-`.extra` attributes if you are catching it programmatically.
+`BackendUnavailableError` carries `.backend` and `.extra` (which can be `None`).
+Guards run at construction or call time depending on the backend. Installing a
+dependency does not repair an unwired adapter: Whisper, Chatterbox, Manim and
+the legacy MoviePy compositor still have no concrete implementation. Kokoro is
+implemented but its locked ONNX distribution requires a compatible runtime such
+as the recorded Python 3.14 voice environment; core Python remains pinned 3.15.
 
 ## Headless rendering / no display
 
@@ -48,14 +52,14 @@ display, a window server, or a missing browser.
 - **`capture` extra (mss).** Real screen capture needs an actual display/session;
   it will not work in a headless CI runner. Use the `SyntheticRenderer` default
   there.
-- **`animation` extra (Manim).** Manim renders need a working Cairo/ffmpeg stack;
-  on headless machines prefer the JSON scene-spec default
-  (`build_code_scene_spec`) and render elsewhere.
+- **Manim slot.** Real Manim rendering is unwired even with its dependency
+  installed. JSON `build_code_scene_spec` and Pillow pipeline animation remain
+  separate core surfaces; installing Cairo does not implement that slot.
 
 ## `ffmpeg` not on `PATH`
 
-**Symptom.** Video/GIF export fails with a "ffmpeg not found" style error even
-though the `video` extra is installed.
+**Symptom.** MP4 encoding, verification or audio filtering fails because ffmpeg
+or ffprobe is missing. Pillow GIF export does not require either binary.
 
 **Cause.** The `video` extra installs the Python wrappers (`moviepy`,
 `ffmpeg-python`) but **not** the `ffmpeg` binary. DemoCreate builds the ffmpeg
@@ -101,9 +105,26 @@ problems and exits non-zero.
 **Cause.** The demo failed structural validation: empty title, non-positive
 geometry/fps, duplicate scene or chunk ids, or an invalid action type.
 
-**Fix.** Run `democreate inspect demo.json` to see the exact problem list. Fix the
-artifact, or build with `--no-strict` to downgrade problems to warnings and still
-produce output.
+**Fix.** Run `democreate inspect demo.json` and repair the authored artifact.
+`--no-strict` only downgrades structural problems at the pipeline boundary; it
+cannot make invalid media, unsafe/missing asset paths or unsupported schema
+versions usable. Schema 1.0 is intentionally rejected; author schema 1.1.
+
+## Missing images or a resolved bundle fails to rebuild
+
+CLI backgrounds default to the input Demo directory; library Pipeline defaults
+to the current directory. Emitted `demos/demo.json` uses workspace-relative
+staged references, so rebuild with the original workspace as `--asset-root`.
+Do not widen a root to hide missing required images. See
+[image authority](cli.md#image-authority-and-resolved-bundles).
+
+## Preview is silent or voiced verification rejects output
+
+HTML is a timed image/caption preview with no synthesized-audio playback.
+`auto` TTS deliberately chooses silence, regardless of installed voices.
+Use a working implemented voice and render MP4 for speech. A silent MP4 failing
+the non-silence check is expected; do not weaken verification. Non-silent audio
+and sampled non-black pixels still do not prove intelligibility or onset accuracy.
 
 ## Tests pass locally but the gate fails
 

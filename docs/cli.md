@@ -1,10 +1,10 @@
-# CLI reference
+# CLI reference: commands, defaults, output paths and input authority
 
-The `democreate` command is a **thin orchestration layer** over the library
-(`pipeline.py` and the subsystems) — it carries no business logic of its own.
-Every command resolves to a few library calls. It is a [Typer](https://typer.tiangolo.com/)
-app; run any command with `--help` for its options. Running `democreate` with no
-arguments prints help.
+`democreate` is the native Typer entry point over the library. No arguments
+prints help; each command accepts `--help`. This page owns command/default
+reference; [quickstart](quickstart.md) and [recipes](recipes.md) own workflows,
+[configuration](config.md) owns override precedence and [backends](backends.md)
+distinguishes implemented paths from dependency-present unwired slots.
 
 ```
 democreate init      [PATH]   [--format json|yaml]   write a starter demo artifact
@@ -73,9 +73,9 @@ democreate inspect demo.json --json
 
 ## `build`
 
-Run the full pipeline — TTS → TTS→STT sync → timeline → frames + manifest →
-captions → HTML player + transcript + JSON — into an output workspace. Prints a
-JSON summary and the player path.
+Run TTS → duration-based sync → timeline → frames/manifest → captions → timed
+HTML image preview, transcript and resolved JSON. The preview has navigation
+and caption cues but does not play synthesized audio. Prints a JSON summary.
 
 ```bash
 democreate build demo.json --output output --tts auto
@@ -85,8 +85,9 @@ democreate build demo.json --output output --tts auto
 |--------|---------|---------|
 | `DEMO` (arg) | required | Path to a `.json`/`.yaml` demo. |
 | `--output`, `-o` | `output` | Output workspace directory. |
-| `--tts` | `auto` | TTS backend: `auto`, `silent`, `kokoro`, `elevenlabs`, `chatterbox`. |
+| `--tts` | `auto` | `auto`/`silent` → silent core; implemented `system`, `kokoro`, `elevenlabs`; `chatterbox` is unwired. |
 | `--strict / --no-strict` | `--strict` | Fail (`SchemaValidationError`) on an invalid demo vs. warn and continue. |
+| `--asset-root` | Demo file directory | Relative background base and allowed input root; see [resolved bundles](#image-authority-and-resolved-bundles). |
 
 ## `tour`
 
@@ -153,7 +154,7 @@ Render a demo with **audio in one language and subtitles in another**, using a
 local, configurable translator (an `ollama` server). The narration is translated
 to the audio language and synthesized (driving the timing); the subtitle track is
 translated against that same timing. Each output filename encodes both languages
-(`<stem>-audio_<a>-subs_<s>.mp4`), with a subtitle-language `.srt`/`.vtt` sidecar.
+(`<title-slug>-audio_<a>-subs_<s>.mp4`), with full-tag `.srt`/`.vtt` sidecars in `captions/`.
 
 ```bash
 democreate localize demo.json --audio-lang en --subtitle-lang ru --model lfm2.5
@@ -164,6 +165,8 @@ democreate localize demo.json --translator identity     # no-op (source language
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `DEMO` (arg) | required | Demo `.json`/`.yaml`. |
+| `--output`, `-o` | `output` | Workspace directory. |
+| `--asset-root` | Demo file directory | Background base/allowed root. |
 | `--audio-lang` | `en` | Spoken (TTS) language code. |
 | `--subtitle-lang` | `ru` | Subtitle-track language code. |
 | `--source-lang` | `en` | Language the demo is authored in. |
@@ -173,15 +176,16 @@ democreate localize demo.json --translator identity     # no-op (source language
 | `--host` | `http://localhost:11434` | ollama host. |
 | `--tts` / `--voice` | `kokoro` / `af_heart` | TTS for the audio language (must suit it). |
 | `--theme` / `--resolution` | `noir` / `1080p` | Look + size. |
-| `--burn / --no-burn` | `--no-burn` | Burn the subtitle track into the picture. |
+| `--burn / --no-burn` | `--no-burn` | Additionally burn the subtitle track into the picture; sidecars are retained. |
 
 > Subtitles are text and work for any language; *audio* in a language needs a TTS
 > voice for it (Kokoro langs or an installed system voice).
 
 ## `captions`
 
-Emit subtitles for a demo to stdout in the chosen format. Useful for piping into
-a file or a player.
+Emit one cue per chunk to stdout. Uses resolved measured starts/durations when
+supplied; an authored unsynthesized input only yields text-duration estimates.
+This command does not run synthesis or acoustic recognition.
 
 ```bash
 democreate captions demo.json --format srt > demo.srt
@@ -194,19 +198,14 @@ democreate captions demo.json -f vtt
 
 ## `render`
 
-Render a demo to a real **animated HD MP4 with a spoken voiceover**, then
-content-verify it. Builds the demo (using the chosen TTS), assembles the
-per-chunk narration into one voiceover track (with lead/gap/trail silence,
-`loudnorm`, and fades — see [audio.md](audio.md)), and — by default —
-**animates** the still per-chunk frames: re-samples them onto `animation_fps` and
-overlays a moving speech waveform, a progress bar, scene crossfades, and Ken
-Burns on slide/background frames (see [video.md](video.md)). Each frame is held
-for its narration clip's *measured* duration so audio and video share one
-timebase (no drift). Writes `<output>/video/demo.mp4`.
+Build with the selected voice, assemble WAV clips with configured pauses,
+animate scheduled actions by default, encode MP4 and run basic content checks.
+Writes `<output>/video/demo.mp4`. The shared measured clip timebase does not
+establish acoustic word-onset accuracy or identical encoded endpoints.
 
-By default the animated render also **types editor code in character-by-character**
-(with an animated cursor and click ripple) for codebase scenes whose chunks carry
-a `type_code`/`create_file` action — see [video.md](video.md#typing-animation).
+[Video](video.md) owns typing/cursor/transitions and animated/static behavior;
+[audio](audio.md) owns WAV assembly, optional normalization and fades. Ken Burns
+is off by default; explicit camera motion and overlays can still hide content.
 `--resolution` picks a named 16:9 tier (`720p`/`1080p`/`1440p`/`2160p`/`4k`) and
 `--aspect` reshapes the output to a named aspect-ratio preset before rendering.
 `--author`/`--watermark` add on-screen provenance (footer bar + container tag +
@@ -231,7 +230,7 @@ democreate render demo.json --no-animate            # static slideshow, audio-sy
 | `--tts` | `system` | `system` (real OS voice), `silent`, `kokoro`, `elevenlabs`, `chatterbox`. |
 | `--voice`, `-v` | `""` (OS default) | Optional system voice name (macOS: see `say -v '?'`). |
 | `--fps` | `0` | Static-render frame rate (`0` = the demo's fps). |
-| `--captions / --no-captions` | `--no-captions` | Burn subtitles in, static path (needs libass). |
+| `--captions / --no-captions` | `--no-captions` | Burn SRT in either render path; requires subtitles/libass. |
 | `--animate / --no-animate` | `--animate` | Moving waveform + progress bar + transitions + typing/cursor vs static slideshow. |
 | `--animation-fps` | `15` | Frame rate of the animated render. |
 | `--theme` | `noir` | Theme preset: `noir`, `dark`, `light`, `midnight`, `paper`. |
@@ -240,14 +239,14 @@ democreate render demo.json --no-animate            # static slideshow, audio-sy
 | `--author` | `""` | Creator name → footer bar + MP4 `artist` tag + provenance record. |
 | `--watermark` | `""` | Persistent watermark text (footer far-right). |
 | `--header / --no-header` | `--no-header` | Show the top metadata bar (title · section). Off by default. |
-| `--config` | `None` | `RenderConfig` YAML; **overrides `--theme`/`--voice`** (see [config.md](config.md)). |
+| `--config` | `None` | RenderConfig YAML replaces theme preset; CLI TTS and other defaults still apply. See [precedence](config.md#using-a-config). |
+| `--asset-root` | Demo file directory | Background base/allowed root. |
 
-Requires a usable system TTS (`say` on macOS, `espeak` on Linux) and `ffmpeg` on
-`PATH`. Exits non-zero if verification fails. With `--tts silent` you get a real
-video with a (correctly-flagged) silent track. Every render also writes YouTube
-chapters and embeds chapter markers into the MP4, **container metadata tags**,
-and a **unsigned steganographic poster** (see [provenance.md](provenance.md) and
-the chapters note below).
+The selected implemented TTS must be usable; encoding/checks need ffmpeg/ffprobe.
+Silent TTS can encode a video but correctly fails voiced-content verification,
+causing nonzero exit. Chapter embedding, container tags and unsigned poster
+outputs are attempted as configured and can log best-effort failures; a completed
+MP4 alone is not proof that every companion output exists. See [provenance](provenance.md).
 
 ## `verify`
 
@@ -277,10 +276,9 @@ of the codebase, assembles a `Demo`, and renders it. Writes
 `<output>/demos/paper.json` and `<output>/video/demo.mp4`. See [paper.md](paper.md)
 for the full workflow.
 
-It also reads the paper's **deeper structure**: the real abstract (skipping the
-table of contents), the real figure captions (`"Figure N: ..."`, narrated on each
-figure scene), and the section list (which adds a **structure** scene mapping the
-paper's parts). This is best-effort and degrades gracefully if poppler is absent.
+Abstract/caption/section extraction is heuristic and best-effort. A structure
+failure may be logged without discarding the summary; missing poppler cannot
+support PDF ingestion and is not a successful fallback. Review text against PDF.
 
 By default the video is attributed to the **PDF's own author** (the container
 `artist` tag and the unsigned provenance) and its `source` is set to the paper
@@ -379,13 +377,13 @@ democreate render demo.json --config democreate.yaml
 
 Extract — and optionally **verify** — the steganographic provenance hidden in a
 payload-bearing PNG (e.g. `output/provenance/poster_signed.png`, written by every
-`render`/`paper`). Prints the embedded JSON record; with `--demo` it recomputes the
-content digest and reports whether the payload matches that demo, exiting non-zero
-on a mismatch. See [provenance.md](provenance.md).
+`render`/`paper` when enabled and successful). Prints the embedded JSON record;
+with `--demo`, compares a recomputed content digest and exits nonzero on mismatch.
+Use the resolved emitted Demo; see [provenance](provenance.md).
 
 ```bash
 democreate stego output/provenance/poster_signed.png
-democreate stego output/provenance/poster_signed.png --demo demo.json   # verify
+democreate stego output/provenance/poster_signed.png --demo output/demos/demo.json
 ```
 
 | Option | Default | Meaning |
@@ -397,11 +395,22 @@ Remember the honesty note: the payload lives in the **lossless PNG sidecars**, n
 the H.264 video pixels — an MP4 re-encode destroys LSB steganography, so the video
 carries container tags instead ([provenance.md](provenance.md)).
 
+## `fetch-voice`
+
+Explicitly download Kokoro model/voices (roughly 340 MB) into the selected cache.
+This is not performed by ordinary core builds and is not package installation.
+Use a compatible voice runtime and provision the `tts` packages separately;
+[backends](backends.md) owns paths and readiness limits.
+
+```bash
+democreate fetch-voice
+```
+
 ## `backends`
 
-List every subsystem capability and whether its optional extra is installed
-(`installed`) or the deterministic default is in use (`default`), with the
-`uv sync --extra <extra>` command to upgrade each.
+Print native `found`/`absent` probe state and optional `module installed`/
+`module absent` state. These are not `ready` declarations; unwired slots remain
+unwired. See [backend reference](backends.md#inspecting-backend-state).
 
 ```bash
 democreate backends
@@ -423,14 +432,11 @@ The commands group naturally into the lifecycle phases referenced across the doc
 **thumbnail** / **gif** (still + preview exports), **config** / **stego**
 (config authoring + provenance verification), and
 **captions** / **backends** / **version** (export + introspection). `build` stops
-at the interactive HTML player (player, transcript, demo JSON, captions); `render`
-and `paper` continue through the animated render, encode, and content
-verification — see [video.md](video.md), [audio.md](audio.md),
-[architecture.md](architecture.md), and [backends.md](backends.md).
-Unsigned digest records check consistency only: they do not authenticate authors,
-cover pixels, video bytes or external assets. The retained `poster_signed.png`
-filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
-there are no transmission-bookend sidecars. See [provenance.md](provenance.md).
+at a timed HTML frame/caption preview, transcript, resolved Demo and captions.
+`render` and default `paper` continue through video encode and basic verification.
+Use [video](video.md), [audio](audio.md), [architecture](architecture.md) and
+[backends](backends.md) for behavior rather than treating command names as readiness.
+Unsigned digest semantics are defined in [provenance](provenance.md).
 
 ## Image authority and resolved bundles
 

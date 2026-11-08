@@ -1,79 +1,67 @@
-# DemoCreate — Documentation Hub
+# Documentation: choose a workflow, reference or evidence record
 
-`democreate` generates **narrated HD video demos** of both **software packages**
-(codebase tours, website walkthroughs, terminal/CLI sessions) and **research
-papers** (PDF + figures + codebase). It is built on a **declarative,
-deterministic spine** — a `Demo` is scenes → chunks → actions, and rendering is a
-pure function of it — and every heavy backend (TTS, transcription, capture,
-animation, video assembly, PDF) sits behind an abstract interface with a
-pure-Python deterministic default. The package produces a real demo with only its
-light core dependencies. Optional extras and zero-pip system binaries upgrade
-specific media surfaces; **Kokoro neural TTS is fully wired** (a local neural
-voice), while Whisper, Chatterbox, and Manim remain guarded adapter slots.
+DemoCreate's core builds silent WAVs, synthetic frames, captions, transcripts and
+a timed HTML image preview. The HTML is **not a synthesized-audio player**.
+Voiced MP4, real capture and PDF ingestion have separate prerequisites; not every
+subsystem has an abstract backend or a core replacement for external tools.
 
-This `docs/` directory is the project's documentation hub. Each file is focused
-and self-contained.
+## Start with the job you want to do
 
-## Map of the docs
+| Purpose | Authoritative guide |
+|---|---|
+| Install, author a starter and build an offline preview | [Quickstart](quickstart.md) |
+| Copy a bounded workflow: tour, paper, vertical cut, GIF, chapters | [Recipes](recipes.md) |
+| Understand authored input, staged assets and scheduled output | [Architecture and determinism boundaries](architecture.md) |
+| Prepare paper text, figures and a codebase | [Paper workflow](paper.md) |
+| Translate narration/subtitles with an explicit local server | [Localization](translation.md) |
+| Resolve missing tools, models or malformed inputs | [Troubleshooting](troubleshooting.md) |
 
-| Doc | What it covers |
-|-----|----------------|
-| [architecture.md](architecture.md) | The spine, the subsystems, the full data flow (`Demo → tts → sync → timeline → compose → animate → encode → verify`), the paper branch, and the pipeline mermaid diagram. |
-| [quickstart.md](quickstart.md) | Clean clone to a rendered demo: `uv` install, `build`, `render --theme`, `paper <pdf> --repo`. |
-| [recipes.md](recipes.md) | A cookbook of runnable commands: software demo, paper demo, vertical `9:16` cut, themed render, GIF + thumbnail, chapters, typing animation, optional LLM narration. |
-| [gallery.md](gallery.md) | **Real rendered frames** — a typing editor frame, a paper figure, a title slide, the architecture diagram, and a theme strip — produced by [`_gallery/make_gallery.py`](_gallery/make_gallery.py). |
-| [videos.md](videos.md) | **The two produced videos** — the package demo (`output/video/demo.mp4`) and the research-paper demo (`output/paper_showcase/video/demo.mp4`): exact paths, sizes/durations, one-line regenerate commands, what each shows, companion artifacts, and real embedded stills. |
-| [schema.md](schema.md) | Full reference of `Demo` / `Scene` / `Chunk` / `Action` / `ActionType` / `SceneKind`, with a JSON example. |
-| [cli.md](cli.md) | Every `democreate` command — `init`, `inspect`, `build`, `tour`, `portfolio`, `localize`, `captions`, `render`, `verify`, `paper`, `thumbnail`, `gif`, `config`, `stego`, `fetch-voice`, `backends`, `version` — with all options. |
-| [config.md](config.md) | `Theme` / `AudioConfig` / `VideoConfig` / `MetadataConfig` / `RenderConfig`, the **five theme presets** (default **noir**), **resolution tiers**, aspect presets, a sample YAML, and `democreate config` / `--config` / `--theme` / `--resolution` / `--aspect`. |
-| [video.md](video.md) | The animated render: typing animation, animated cursor, waveform, progress bar, scene transitions, Ken Burns, `animation_fps`, **resolution & quality (`crf`/`preset`)**, **on-screen metadata bars**, encode, and content verification. |
-| [audio.md](audio.md) | Voiceover assembly: the system voice, lead/gap/trail silence, `loudnorm` normalization, and fades. |
-| [paper.md](paper.md) | The research-paper workflow end-to-end: real abstract / figure captions / sections, PDF pages, figures, and a codebase become narrated scenes. |
-| [translation.md](translation.md) | The `localize` workflow: audio in one language, subtitles in another, via `IdentityTranslator` (deterministic no-op, the library default) or `OllamaTranslator` (a local `ollama` server), with sidecar `.srt`/`.vtt` output. |
-| [provenance.md](provenance.md) | The provenance/metadata story: on-screen top/bottom metadata bars, MP4 container tags (`ffprobe`), and the unsigned steganographic provenance in lossless PNG sidecars (`democreate stego` to verify). |
-| [backends.md](backends.md) | Every subsystem mapped to its deterministic default, the optional extra (or zero-pip system binary) that upgrades it, plus optional LLM narration and the chapters / metadata / poster exports. |
-| [api.md](api.md) | **Generated** API reference (public classes + functions per module) — regenerate with [`scripts/generate_api_docs.py`](../scripts/generate_api_docs.py). |
-| [AGENTS.md](AGENTS.md) | Operating rules for agents in this repo: thin orchestrators, no-mock tests, ≥90% core coverage, deterministic defaults, no top-level heavy imports. |
-| [testing_philosophy.md](testing_philosophy.md) | No mocks, deterministic, pure-core coverage gate, and the `backend` skip marker. |
-| [troubleshooting.md](troubleshooting.md) | Common failures: missing extras → `BackendUnavailableError`, headless rendering, `ffmpeg`/poppler on `PATH`. |
+## Consult one reference per contract
 
-## Where else to look
+| Contract | Reference |
+|---|---|
+| Commands, flags, defaults, image authority and resolved bundles | [CLI](cli.md) |
+| Demo → Scene → Chunk → Action, measured versus authored timing | [Schema 1.1](schema.md) |
+| Theme, AudioConfig, VideoConfig, MetadataConfig and CLI precedence | [Configuration](config.md) |
+| Implemented backends versus unwired slots; extras and runtime prerequisites | [Backends](backends.md) |
+| Scheduled animation, static holds, captions, quantization and encode limits | [Video](video.md) |
+| WAV assembly, pauses, normalization and fades | [Audio](audio.md) |
+| Visible/container metadata and unsigned poster digest limitations | [Provenance](provenance.md) |
+| Public library signatures generated from source | [API reference](api.md) — generated, not hand-edited |
 
-- **Subsystem docs** live next to the code. Subsystem directories under
-  `src/democreate/` carry their own `README.md` (what it does) and `AGENTS.md`
-  (rules for changing it): `capture/`, `narration/`, `animation/`, `codebase/`,
-  `assembly/`, `export/`, `paper/`, `translation/`. Read the local pair before
-  touching a subsystem.
-- **Source of truth for behavior** is the code and its tests under `tests/`. The
-  docs here describe intent and contracts; the tests enforce them — ≥90% core coverage is a hard gate, and the
-  collected test count is command-verifiable at any time:
-  `.venv/bin/python -m pytest --collect-only -q | tail -1`
-  (historical collection snapshot recorded 2026-10-25; not a current gate result).
+Procedural guides link to these references rather than redefining their option
+and default tables. Source and native CLI help remain the behavioral authority.
+The package floor is **Python 3.11.5 / Pillow 13**, the core pin **Python 3.15**;
+Kokoro is implemented but needs a compatible voice environment (recorded as
+Python 3.14), packages and models. Whisper/Chatterbox/Manim and the legacy MoviePy
+compositor are unwired. Dependency presence does not certify readiness.
 
-## The three load-bearing ideas (one paragraph each)
+## Separate illustrations, identified observations and release gates
 
-1. **Declarative spine.** All content is a single `Demo` artifact — scenes →
-   chunks → actions (typed `Action`s plus narration `Chunk`s). Rendering is a
-   pure function of the artifact, so you edit the `Demo` and re-render rather than
-   re-record. It combines CodeVideo's event-sourced virtual IDE with narration
-   organized into chunks and word triggers.
+- [Synthetic gallery](gallery.md): authored renderer/diagram examples, **not**
+  decoded-media or empirical paper evidence; [generator assets](_gallery/README.md).
+- [Video recipes and identities](videos.md): one identified canonical Kokoro
+  package render, separate historical stills and optional external paper inputs.
+  An ignored output path does not identify a current video.
+- [Immutable 0.8.0 engineering receipt](release-0.8.0.md), backed by
+  [structured source-bound evidence](../data/release-0.8.0.json): observed history,
+  not proof of the subsequently edited tree.
+- [Manuscript](manuscript/README.md): scientific framing, figures and evaluation
+  limits. Measured clip windows are not acoustic word onsets.
+- [Testing policy](testing_philosophy.md): no mocked core computation, lazy heavy
+  imports and the unchanged **≥90% core coverage gate**, not a current result.
 
-2. **Backends behind interfaces.** The core writes silent WAVs, synthetic frames,
-   captions, manifests and an HTML player with light dependencies. Native speech,
-   MP4 and PDF ingestion separately require `say`/`espeak`, ffmpeg and poppler.
-   Optional model/browser/capture adapters have their own prerequisites; guarded
-   slots are not implementations.
+Publication still requires ≥30 independently annotated voiced demos (≥10 per
+mode), with both pooled absolute-event-error median and median of demo-level
+absolute-error medians ≤120 ms. The candidate is unpublished and the configured
+GitHub release write class is disabled. Unsigned content hashes do not
+authenticate authors, images or video.
 
-3. **Duration-based synchronization.** Generated clip durations drive playback.
-   The default transcriber interpolates known text; it does not measure acoustic
-   word onsets. Whisper is unimplemented even when its dependency is installed.
-   The ≥30-demo corpus and ≤120 ms median-error hypothesis remain planned.
+## Navigate source and contributor guidance
 
-## Prior art
-
-DemoCreate stands on a line of demo-generation and recording tools:
-[CodeVideo](https://docs.codevideo.io/overview/), asciinema, termtosvg,
-[code-video-generator](https://github.com/sleuth-io/code-video-generator),
-Code2Video and Paper2Video. See [architecture.md](architecture.md) for the
-spine and duration-based narration model, and
-[paper.md](paper.md) for the research-paper branch.
+The [source map](../src/democreate/README.md) links each subsystem's local
+README/AGENTS pair. [Scripts](../scripts/README.md) cover standalone front doors,
+API generation, benchmarking and manuscript tooling. [Root AGENTS](../AGENTS.md)
+and [documentation guidance](AGENTS.md) define contribution invariants;
+[CHANGELOG](../CHANGELOG.md), [TODO](../TODO.md) and [tasks](../tasks.yaml) track
+changes and work, not substitute media evidence.

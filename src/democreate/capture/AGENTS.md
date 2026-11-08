@@ -34,10 +34,12 @@ spine value types (`FrameState`, `Demo`, `Scene`, `Action`, `ActionType`,
 | `replay.py` | event model (pure) | `record_session`/`replay_session` (`pynput`/`pyautogui`) | `replay` |
 
 ## Determinism contract
-`SyntheticRenderer` output must be byte-for-byte stable for a given
-`(FrameState, size)` — no RNG, no clocks, no font files beyond
-`ImageFont.load_default()`. `record_commands` uses a fixed synthetic timing
-model. Tests assert these invariants; keep them green.
+`SyntheticRenderer` byte comparisons require fixed `FrameState`, size, theme,
+background asset bytes and rendering environment (including Pillow/FreeType).
+No RNG, clocks or host-font selection: use Pillow's bundled
+`ImageFont.load_default(size=...)`. `record_commands` uses fixed synthetic
+timing. Keep these invariants green without broadening them into cross-build or
+optional live-capture determinism.
 
 ## Tests
 No mocks. Real temp files via `tmp_path` / `sample_demo`. Heavy backends are only

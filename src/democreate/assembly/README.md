@@ -1,13 +1,14 @@
-# `democreate.assembly`
+# `democreate.assembly`: scheduled state, frames, WAVs and captions
 
 The assembly subsystem turns a declarative `Demo` into rendered output. It owns
 the **timeline** (the pure, central data structure that pairs absolute time
 windows with renderable frame states), the **compositor backends** that render a
 timeline, the **caption formatters**, and a small set of **image effects**.
 
-Everything here runs on the core dependencies (`pillow`, `pyyaml`, …) except the
-guarded legacy `MoviePyCompositor` adapter slot. The default path is fully
-deterministic and import-safe.
+Timeline/caption/effect and Pillow animation paths use core dependencies.
+Audio normalization/fades require native ffmpeg. `MoviePyCompositor` remains an
+unwired legacy slot; direct ffmpeg export is implemented elsewhere. Core byte
+comparisons require fixed inputs, assets, config and runtime.
 
 ## Modules
 
@@ -116,10 +117,11 @@ Pure WAV concatenation plus guarded ffmpeg post-processing:
 
 | Backend | Extra | Install |
 |---|---|---|
-| `MoviePyCompositor` | `video` | `uv sync --extra video` |
+| `MoviePyCompositor` | `video` | Package installation does not implement this legacy slot. |
+| WAV normalization/fades | native ffmpeg | No Python extra supplies the executable. |
 
-Everything else (timeline, `ManifestCompositor`, captions, effects) needs no
-extras.
+Timeline, `ManifestCompositor`, captions, Pillow effects and animation need no
+optional packages. See [audio](../../../docs/audio.md) and [video](../../../docs/video.md).
 
 ## Tests
 

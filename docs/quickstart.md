@@ -1,155 +1,111 @@
-# Quickstart
+# Quickstart: offline preview first, spoken MP4 when provisioned
 
-From a clean clone to a rendered demo. Requires Python ≥ 3.11.5 and
-[uv](https://github.com/astral-sh/uv). No heavy binaries (ffmpeg, torch, chrome)
-are needed for the default path — the deterministic backends carry the whole
-pipeline.
+Requires [uv](https://github.com/astral-sh/uv). Supported package floor:
+**Python ≥3.11.5**, **Pillow ≥13**; this checkout pins core Python **3.15**.
+The core preview requires no ffmpeg, voice model, browser binary or display.
 
-## 1. Create the environment and install
+## 1. Install the standalone package
+
+From the repository root:
 
 ```bash
-uv venv
+uv venv --python 3.15
 source .venv/bin/activate           # Windows: .venv\Scripts\activate
-uv pip install -e ".[dev]"
-```
-
-This installs the light core dependencies (pyyaml, typer, rich, jinja2, pillow)
-plus the dev toolchain (pytest, pytest-cov, ruff, mypy).
-
-Verify the install imports cleanly on core deps and the CLI is on `PATH`:
-
-```bash
-python -c "import democreate; print(democreate.__version__)"
+uv pip install -e .
 democreate version
 ```
 
-## 2. Write a starter demo and inspect it
+Contributors can install `.[dev]` instead; see [testing policy](testing_philosophy.md).
+Optional model packages may require another compatible interpreter; see
+[backends](backends.md), rather than installing every extra into the core runtime.
 
-`init` writes a small, valid `Demo` artifact you can edit. `inspect` validates it
-and prints a structural summary.
+## 2. Author and inspect a starter
 
 ```bash
-democreate init demo.json           # or: --format yaml
+democreate init demo.json
 democreate inspect demo.json
+democreate build demo.json --tts silent --output output
 ```
 
-`inspect` reports scene/chunk/action counts, an estimated duration, and whether
-the demo is valid (exit code 1 if not).
+Edit the declarative artifact and rebuild. `inspect` validates structure, not the
+scientific accuracy of narration or the quality of a future video. Its duration
+is a text estimate until generated audio supplies measured durations.
 
-## 3. Build a demo from JSON
+## 3. Open the timed image preview
 
-`build` runs the full pipeline — TTS, TTS→STT sync, timeline, frames + manifest,
-captions, and an interactive HTML player — into an output workspace.
+Open `output/web/player.html` in a browser. It supports frame/chapter navigation
+and caption timing, **not synthesized speech playback**. Its PNGs remain sibling
+files: copy the workspace, not only the HTML.
 
-```bash
-democreate build demo.json --output output
-open output/web/player.html         # Linux: xdg-open
-```
-
-The workspace layout (created lazily) is:
-
-```
+```text
 output/
-  demos/        demo.json · transcript.md (paper: paper.json)
-  audio/        rendered narration + voiceover (.wav)
-  frames/       rendered still frames (.png); frames/anim/ animated frames
-  captions/     captions.srt · captions.vtt
-  web/          player.html  ← open this
-  manifests/    deterministic render manifest (.json)
-  video/        demo.mp4 (after render)
-  pages/        rasterized PDF pages (paper)
-  assets/       architecture.png (paper)
+  demos/       demo.json (resolved) · transcript.md
+  audio/       chunk_0000.wav … (silent with this recipe)
+  frames/      frame_0000.png …
+  captions/    captions.srt · captions.vtt
+  manifests/   render_manifest.json
+  web/         player.html
 ```
 
-With only core deps, the audio is deterministic silence sized to the narration,
-and the frames are synthetic (Pillow) renders — a real, inspectable demo.
+The pipeline leaves the authored Demo unchanged. Resolved JSON uses staged
+workspace-relative assets. See [image authority and rebuilding bundles](cli.md#image-authority-and-resolved-bundles)
+before rendering that emitted JSON in a new workspace.
 
-## 4. Tour a real codebase
+## 4. Generate a repository tour
 
-Point `tour` at a repository to auto-generate a codebase-walkthrough demo from its
-AST and (by default) render it:
+Replace the path with an existing repository:
 
 ```bash
-democreate tour /path/to/repo --title "My Project Tour" --output output
+democreate tour /path/to/repo --title "My Project Tour" -o output/tour
 ```
 
-## 5. Render a real HD video with a spoken voiceover
+This generates `demos/tour.json` and builds a preview by default; it does not
+produce MP4 unless `--render` is passed. Python AST summaries and docstrings
+supply content, not an independent assessment of the project.
 
-`render` goes past the player: it speaks the narration with a real OS voice,
-**animates** the frames (character-by-character typing, animated cursor, moving
-waveform, a top-edge progress line, scene transitions), encodes an HD MP4 with
-`ffmpeg`, and content-verifies it. The default theme is **noir** and figures are
-fit *whole* (no crop). Needs a usable system TTS (`say` on macOS, `espeak` on
-Linux) plus `ffmpeg` on `PATH` for transcode/encode/verification.
+## 5. Render audible MP4 after provisioning
+
+With usable `say` or `espeak`/`espeak-ng` and ffmpeg/ffprobe on `PATH`:
 
 ```bash
-democreate render demo.json -o output --tts system --voice Samantha
-democreate render demo.json --theme midnight              # a theme preset
-democreate render demo.json --config my_theme.yaml        # full RenderConfig
-open output/video/demo.mp4
+democreate render demo.json -o output --tts system
+democreate verify output/video/demo.mp4 --width 1920 --height 1080
 ```
 
-Pick a theme preset (`noir` — the default — `dark`/`light`/`midnight`/`paper`)
-with `--theme`, or pin everything in a YAML config with `--config` (see
-[config.md](config.md), [video.md](video.md), [audio.md](audio.md)).
+Use an installed voice name only when appropriate to your OS. Real system TTS
+must pass synthesis/transcode probing. Content verification checks media presence,
+audio energy and sampled picture variance—not intelligibility or acoustic onset
+accuracy. `--tts silent` can encode a video but correctly fails voiced-content
+verification. See [backend readiness](backends.md), [video](video.md) and
+[configuration/precedence](config.md) for themes, animation and geometry.
 
-## 6. Make a demo of a research paper
+## 6. Prepare paper inputs or localized output
 
-Point `paper` at a PDF — optionally with the paper's codebase and a directory of
-exported figures — to generate and render a narrated paper walkthrough. Needs
-poppler (`pdfinfo`/`pdftotext`/`pdftoppm`) on `PATH`, plus a usable system TTS
-and `ffmpeg` to render. See [paper.md](paper.md).
+With a real PDF and poppler installed, inspect a generated paper artifact before
+voiced rendering:
 
 ```bash
-democreate paper paper.pdf --repo /path/to/code --figures /path/to/figs --theme paper
-open output/video/demo.mp4
+democreate paper /path/to/paper.pdf --no-render -o output/paper
 ```
 
-## 7. Use it as a library
+[Paper workflow](paper.md) explains supplied figure roots, page staging and
+heuristic extraction. [Localization](translation.md) explains independent audio
+and subtitle languages, model/server prerequisites and identity translation.
+
+## 7. Use the same core as a library
 
 ```python
+from pathlib import Path
 from democreate import Demo
 from democreate.pipeline import build_demo
 from democreate.project_paths import Workspace
 
-demo = Demo.from_json(open("demo.json").read())
-result = build_demo(demo, Workspace("output"))
-print(result.summary())             # scenes, chunks, actions, duration, player path
+source = Path("demo.json")
+demo = Demo.from_file(source)
+result = build_demo(demo, Workspace("output"), asset_root=source.resolve().parent)
+print(result.summary())
+print(result.demo_path)  # resolved timing/assets; authored demo remains reusable
 ```
 
-## 8. Install extras and system backends
-
-Extras install optional Python packages for guarded subsystems. The currently
-wired real media paths also need usable system binaries (`say`/`espeak` that can
-synthesize non-empty audio, `ffmpeg`/`ffprobe`, poppler) on `PATH`; neural TTS,
-Whisper, and Manim are adapter slots, not guaranteed turnkey render paths.
-Install only what you need (see [backends.md](backends.md)):
-
-```bash
-uv pip install -e ".[tts]"          # neural TTS adapter packages
-uv pip install -e ".[whisper]"      # Whisper adapter package
-uv pip install -e ".[capture]"      # mss real screen capture
-uv pip install -e ".[browser]"      # Playwright website driving
-uv pip install -e ".[animation]"    # Manim adapter package
-uv pip install -e ".[video]"        # video helper packages; ffmpeg binary still required
-uv pip install -e ".[codebase]"     # tree-sitter multi-language analysis
-uv pip install -e ".[all]"          # everything
-```
-
-Check what is active at any time:
-
-```bash
-democreate backends
-```
-
-Each capability shows `installed` (extra present) or `default` (deterministic
-fallback in use). Invoking a real backend without its extra raises
-`BackendUnavailableError` with the exact `uv sync --extra <extra>` hint.
-
-## 9. Run the tests
-
-```bash
-.venv/bin/python -m pytest -q                 # full suite (no mocks)
-.venv/bin/python -m pytest --cov              # coverage gate (≥90% core)
-ruff check . && mypy src
-```
+Next: [recipes](recipes.md), [CLI reference](cli.md), [schema](schema.md),
+[identified media and historical receipts](videos.md).

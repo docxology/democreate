@@ -1,4 +1,4 @@
-"""Render the candidate capability schematic with the shared Pillow renderer.
+"""Render a readable, evidence-bounded overview of Demo compilation.
 
 This is a schematic, not an empirical result or a current-video receipt. It uses
 Pillow's bundled font and no historical stills, host fonts or external assets.
@@ -17,69 +17,83 @@ _REPO = _THIS.parents[3]
 _SRC = _REPO / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
+if str(_THIS.parent) not in sys.path:
+    sys.path.insert(0, str(_THIS.parent))
 
 from democreate import __version__  # noqa: E402
-from democreate.animation.diagram import (  # noqa: E402
-    DiagramNode,
-    render_architecture_diagram,
-)
-from democreate.animation.fonts import load_font  # noqa: E402
-from democreate.config import THEMES  # noqa: E402
+from figure_layout import ACCENT, BG, DIM, FG, arrow, card, text  # noqa: E402
 
 __all__ = ["build", "main"]
 
 W, H = 2400, 1350
 OUT = _THIS.parent / "graphical_abstract.png"
-_BG = (10, 10, 12)
-_FG = (242, 242, 244)
-_DIM = (170, 170, 176)
+_MARGIN = 70
 
 
 def build() -> Image.Image:
-    """Compose the schematic without implying acoustic or authenticity results.
+    """Compose an authored spine, timed compilation and separate export lanes.
 
     Returns:
-        A 2400 by 1350 RGB image using the package's shared diagram layout.
+        A 2400 by 1350 RGB schematic; no measured performance is depicted.
     """
-    columns = [
-        ("Inputs", [
-            DiagramNode("Python repository", ["README + AST", "No inspected-code execution"]),
-            DiagramNode("Paper + assets", ["Poppler text / metadata", "Heuristic structure", "Local figure images"]),
-        ]),
-        ("Authored artifact", [
-            DiagramNode("Demo", ["Scenes / chunks / actions", "Narration + trigger words", "Assets + configuration"]),
-        ]),
-        ("Compile", [
-            DiagramNode("Narration", ["Silent core default", "System / Kokoro optional"]),
-            DiagramNode("Timing", ["Measured clip windows", "Character-weighted words"]),
-            DiagramNode("Composition", ["Scheduled action frames", "Theme / camera / waveform"]),
-        ]),
-        ("Outputs", [
-            DiagramNode("Core exports", ["PNG + WAV", "SRT / VTT / HTML preview"]),
-            DiagramNode("Optional MP4", ["ffmpeg + usable speech", "H.264 / AAC"]),
-            DiagramNode("Basic verification", ["Streams / energy / picture", "Not acoustic accuracy"]),
-        ]),
-    ]
-    diagram = render_architecture_diagram(
-        (W, H - 200),
-        title=f"DemoCreate {__version__} candidate",
-        columns=columns,
-        bg=_BG,
-        accent=THEMES["noir"].accent,
-        fg=_FG,
-    )
-    image = Image.new("RGB", (W, H), _BG)
-    image.paste(diagram, (0, 0))
+    image = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(image)
-    draw.line([(70, H - 180), (W - 70, H - 180)], fill=THEMES["noir"].accent, width=3)
-    notes = [
-        "Byte comparisons require fixed inputs, assets, configuration and runtime.",
-        "Clip-duration timing is not acoustic word detection. Unsigned hashes do not authenticate.",
-        "Research gate pending: independently annotated >=30-demo voiced corpus and <=120 ms result.",
+    text(draw, (70, 58, W - 70, 150), f"DemoCreate {__version__}: a demo you compile",
+         size=72)
+    text(draw, (70, 164, W - 70, 232),
+         "One authored Demo connects narration, timed actions and visual output.",
+         size=40, fill=DIM)
+    draw.line((70, 252, W - 70, 252), fill=ACCENT, width=4)
+
+    width, gap = 720, 50
+    stages = [
+        (
+            "DECLARATIVE SPINE", "1  Author the Demo",
+            "Scenes > narration chunks > typed actions.\n"
+            "Trigger words or explicit action times.\n"
+            "Software sources or paper + local assets.",
+            "Authoring inputs are not playback evidence.",
+        ),
+        (
+            "DURATION-BASED TIMING", "2  Anchor to audio",
+            "Measure WAV clip durations.\n"
+            "Estimate word times by character length.\n"
+            "Resolve trigger-word action times.",
+            "Silent core; system / Kokoro speech optional.",
+        ),
+        (
+            "SCHEDULED COMPILATION", "3  Build the visuals",
+            "Actions update a FrameState.\n"
+            "The timeline selects what appears at t.\n"
+            "Apply theme, captions and animation.",
+            "Fixed inputs + assets + config + environment.",
+        ),
     ]
-    font = load_font(30)
-    for index, note in enumerate(notes):
-        draw.text((70, H - 150 + index * 48), note, font=font, fill=_DIM)
+    for index, (label, heading, body, foot) in enumerate(stages):
+        x = _MARGIN + index * (width + gap)
+        card(draw, (x, 292, x + width, 854), label, heading, body,
+             foot=foot, size=34)
+        if index < 2:
+            arrow(draw, (x + width + 8, 570), (x + width + gap - 8, 570))
+
+    draw.rounded_rectangle((70, 894, 1370, 1104), radius=16, fill=BG,
+                           outline=ACCENT, width=2)
+    draw.rounded_rectangle((1410, 894, 2330, 1104), radius=16, fill=BG,
+                           outline=ACCENT, width=2)
+    text(draw, (102, 916, 1338, 958), "CORE OUTPUTS", size=28, fill=ACCENT)
+    text(draw, (102, 968, 1338, 1022), "PNG + silent WAV + SRT / VTT", size=40)
+    text(draw, (102, 1032, 1338, 1084),
+         "HTML: timed image preview, not a speech player.", size=32)
+    text(draw, (1442, 916, 2298, 958), "OPTIONAL MEDIA PATH", size=28, fill=ACCENT)
+    text(draw, (1442, 968, 2298, 1022), "H.264 / AAC MP4", size=40)
+    text(draw, (1442, 1032, 2298, 1098),
+         "ffmpeg + usable speech for voiced output.", size=30)
+    text(draw, (70, 1146, 2330, 1215),
+         "Evidence boundary: clip windows are not acoustic word onsets; "
+         "unsigned hashes do not authenticate.", size=34, fill=FG)
+    text(draw, (70, 1234, 2330, 1320),
+         "Blocking research gate: >=30 annotated voiced demos (>=10 per mode); "
+         "both median errors <=120 ms. Not established.", size=32, fill=DIM)
     return image
 
 

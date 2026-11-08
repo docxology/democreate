@@ -1,6 +1,6 @@
-# Schema reference
+# Schema 1.1: authored scenes, narration chunks and timed actions
 
-The schema is the deterministic spine. It is pure Python (no I/O, no heavy deps),
+The schema is the declarative spine, using Python value types and serialization,
 defined in `src/democreate/schema.py`, and round-trips losslessly through
 `dict` / JSON / YAML. `SCHEMA_VERSION` is currently `"1.1"` (1.0 is intentionally rejected); the enum *string
 values* are the on-disk representation and must not be renamed without a
@@ -12,8 +12,8 @@ Related media value types (`AudioClip`, `FrameState`) live in `media.py`.
 
 ## `Demo`
 
-The top-level declarative artifact for a complete walkthrough. Rendering is a pure
-function of it — edit and re-render rather than re-record.
+The top-level authored walkthrough. Reproduction additionally needs assets,
+render configuration and a fixed environment; edit and rebuild rather than record.
 
 | Field | Type | Default | Notes |
 |-------|------|---------|-------|
@@ -100,10 +100,11 @@ The capture/render strategy a scene implies: `CODEBASE` (`codebase`), `WEBSITE`
 
 ## `WordTimestamp`
 
-A single transcribed word with millisecond bounds, produced by a transcriber
-during TTS→STT sync: `word: str`, `start_ms: int`, `end_ms: int`.
+A word with millisecond bounds: `word: str`, `start_ms: int`, `end_ms: int`.
+The default transcriber estimates these bounds from supplied text and measured
+WAV duration; the type itself does not establish acoustic recognition.
 
-## Related media types (`media.py`)
+## Related media types
 
 - **`AudioClip`** — a rendered narration file and its measured properties:
   `path: Path`, `duration_ms: int`, `sample_rate: int = 22050`, `text: str`,
@@ -111,8 +112,8 @@ during TTS→STT sync: `word: str`, `start_ms: int`, `end_ms: int`.
 - **`FrameState`** — a renderable snapshot of the virtual environment at one
   instant: `scene_kind`, `title`, `caption`, `file_path`, `code_lines`,
   `highlight_lines`, `cursor_typed`, `terminal_lines`, `url`, `cursor_xy`,
-  `scale`, `background_image` (a full-frame image fit *whole* — contain, never
-  cropped), `section` (top-chrome chapter label), `subtitle` (slide headline),
+  `scale`, `background_image` (base contain fit; camera motion and overlays may
+  hide pixels), `section` (top-chrome chapter label), `subtitle` (slide headline),
   `bullets: list[str]` (a packed bullet-list slide surface), and
   `stats: list[tuple[str, str]]` (big-number stat-card slide surface). Producers
   fill only the fields relevant to the scene kind; `bullets`/`stats`/`subtitle`/
@@ -121,7 +122,8 @@ during TTS→STT sync: `word: str`, `start_ms: int`, `end_ms: int`.
 
 ## JSON example
 
-A complete, valid two-scene demo (the artifact `democreate init` produces):
+A valid starter with the same scenes/actions as `democreate init`; serialization
+also emits each action's default `timestamp_source: "authored"`.
 
 ```json
 {

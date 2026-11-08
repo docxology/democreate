@@ -1,52 +1,47 @@
-# Backends and extras
+# Backend readiness: implemented paths, prerequisites and unwired slots
 
-Core dependencies support silent WAVs, synthetic frames, captions and an HTML
-preview. Real speech, capture and encoding have separate prerequisites.
-Kokoro is implemented; Whisper, Chatterbox and Manim remain unwired slots.
-Installing a dependency does not establish adapter, model, binary or host
-readiness. No published extra enables Chatterbox synthesis.
+Core Python **3.15** is pinned for development; package support starts at
+**3.11.5**, with **Pillow ≥13**. Core packages are `pyyaml`, `typer`, `rich`,
+`jinja2` and `pillow`. Fixed inputs/assets/config/runtime yield deterministic
+silent WAVs, synthetic PNGs, captions, manifests and a timed HTML preview. That
+preview does not play synthesized narration.
 
-## Core dependencies (always installed)
+## Choose an implemented media path
 
-`pyyaml`, `typer`, `rich`, `jinja2`, `pillow`. These are enough for the entire
-default build: silent WAVs with measured duration, synthetic frames, a render
-manifest, captions and the HTML preview. Silent output has no acoustic onsets.
+| Capability | Implemented core or real path | Additional prerequisites |
+|---|---|---|
+| Core narration | `SilentTTSBackend`; `auto` and `silent` both select it | None; generated WAV duration is measured, but it has no spoken onsets |
+| OS speech | `SystemTTSBackend` | Usable macOS `say` or Linux `espeak`/`espeak-ng`, plus ffmpeg or macOS afconvert for canonical WAV conversion |
+| Local neural speech | `KokoroTTSBackend` | `tts` extra, compatible Python/ONNX runtime, local model and voices |
+| Cloud speech | `ElevenLabsTTSBackend` | `elevenlabs` extra, `ELEVENLABS_API_KEY`, provider/network access |
+| Word/action timing | `HeuristicTranscriber` | Known narration text; estimates character-weighted positions over measured WAV duration, not recognition |
+| Screen pixels | `SyntheticRenderer` by default; `MssScreenCapture` for actual capture | `capture` extra and usable display/session for mss |
+| Browser automation | `NullBrowserDriver` records synthetic calls; `PlaywrightBrowserDriver` drives a browser | `browser` extra and installed browser executable; explicitly select driver in library calls |
+| Input hooks | Pure `EventLog`; real `record_session` / `replay_session` | `replay` extra, OS permissions/session; replay causes actual input effects |
+| Python source analysis | stdlib `ast` walker, import graph, text/DOT output | No extra; does not execute the analyzed project |
+| Frame animation | Pillow scheduled action replay, waveform, cursor and transitions | No animation extra; see [video](video.md) |
+| MP4 encode/verify and audio filters | Direct native ffmpeg/ffprobe subprocesses | Both binaries on `PATH`; subtitle burn additionally needs subtitles/libass support |
+| Research-paper ingestion | poppler `pdfinfo`, `pdftotext`, `pdftoppm` | Native poppler; no `pdf` pip extra and no core PDF fallback |
+| Transcript PDF export | WeasyPrint | `docs` extra and its native dependencies; Markdown export is core |
+| Translation | `IdentityTranslator` no-op; `OllamaTranslator` HTTP client | Explicitly running server and acquired model for Ollama; no translation pip extra |
 
-## Subsystem → default → upgrade
+These are separate capabilities, not automatic upgrades to every pipeline stage.
+Ordinary `build`/`render` uses synthetic visuals; installing capture/browser
+packages does not turn authored virtual actions into live recordings.
 
-| Subsystem | Capability | Deterministic default | Real backend | Extra | Dependency | Install |
-|-----------|-----------|-----------------------|--------------|-------|------------|---------|
-| `narration/` | Text-to-speech | `SilentTTSBackend` | Implemented system/Kokoro adapters, requiring usable engines/models | `tts` (Kokoro only) | usable OS speech; or `kokoro-onnx`, `soundfile`, `numpy` and local models | provision the stated runtime/model prerequisites; not proof of quality or readiness |
-| `narration/` | Cloud text-to-speech | — (local/OS defaults cover it) | **`ElevenLabsTTSBackend`** (cloud voice, needs `ELEVENLABS_API_KEY`) | `elevenlabs` | `elevenlabs` | `uv pip install -e ".[elevenlabs]"` |
-| `narration/` | Transcription (TTS→STT) | `HeuristicTranscriber` (length-weighted interpolation over measured duration) | `WhisperTranscriber` adapter slot | `whisper` | `openai-whisper` | `uv pip install -e ".[whisper]"` |
-| `narration/` | Narration text | **template generator** (deterministic, default) | `LLMNarrator` (OpenAI-compatible, **stdlib `urllib`, zero pip**) | — | OpenAI-compatible API + `OPENAI_API_KEY` | env var only (no install) |
-| `capture/` | Screen pixels | `SyntheticRenderer` (scaled TrueType fonts + pygments + themes) | `MssScreenCapture` | `capture` | `mss`, `numpy` | `uv pip install -e ".[capture]"` |
-| `capture/` | Website driving | `NullBrowserDriver` (records calls, synthetic screenshots) | `PlaywrightBrowserDriver` | `browser` | `playwright` | `uv pip install -e ".[browser]"` |
-| `capture/` | Input record/replay | pure event model (`EventLog`) | `record_session` / `replay_session` | `replay` | `pynput`, `pyautogui` | `uv pip install -e ".[replay]"` |
-| `animation/` | Waveform / diagrams / animation | `waveform.py`, `diagram.py`, scaled fonts, JSON manim spec | `render_manim_scene` adapter slot | `animation` | `manim` | `uv pip install -e ".[animation]"` |
-| `codebase/` | Code analysis | stdlib `ast` walker | tree-sitter multi-language | `codebase` | `tree-sitter`, `tree-sitter-languages` | `uv pip install -e ".[codebase]"` |
-| `assembly/` | Audio assembly + animation | `audio.py` (stdlib `wave` concat), `animator.py` (timed frames) | `normalize_audio` / `apply_fade` via **`ffmpeg`** | `video` | `ffmpeg` on `PATH` (no pip needed) | OS binary |
-| `export/` | Video encode + verify | ffmpeg-argv/concat builders + Jinja2 HTML player | `assemble_video` / `encode_frame_sequence` (real HD MP4) + `verify_video` (content assertions) via **`ffmpeg`/`ffprobe`** | `video` | `ffmpeg`/`ffprobe` on `PATH` (no pip needed); Python helpers in the `video` extra | OS binary, plus `uv pip install -e ".[video]"` if using helper libraries |
-| `paper/` | Read research-paper PDF | — | **poppler CLI** (`pdfinfo` / `pdftotext` / `pdftoppm`, zero pip) | — | poppler binaries on `PATH` | OS binary (`brew install poppler` / `apt-get install poppler-utils`) |
-| `export/` | PDF export of transcript | `to_markdown` (always available) | `export_pdf` via **WeasyPrint** | `docs` | `weasyprint` | `uv pip install -e ".[docs]"` |
+## Unwired slots and package-only extras
 
-Install everything at once with the aggregate extra:
+| Surface | Current boundary |
+|---|---|
+| `WhisperTranscriber` / `whisper` extra | Dependency guard, then `NotImplementedError`; no acoustic recognizer |
+| `ChatterboxTTSBackend` | Unwired; **no published extra** enables its synthesis |
+| `render_manim_scene` / `animation` extra | JSON scene specs are core; real Manim rendering remains unwired |
+| `MoviePyCompositor` / `video` extra | Legacy compositor raises `NotImplementedError` even when MoviePy is installed; direct ffmpeg export is implemented separately |
+| `codebase` extra | Installs tree-sitter packages; current source walker remains Python AST, not a wired multi-language analyzer |
 
-```bash
-uv pip install -e ".[all]"
-```
-
-## How the fallback works
-
-- Availability is detected at call time with `importlib.util.find_spec("name")`,
-  never by importing the heavy dependency at module top level. The package and all
-  public modules import cleanly on core deps alone.
-- Asking for a guarded backend whose dependency is absent raises
-  `BackendUnavailableError(backend, extra=...)`. The message includes the exact
-  remedy, e.g. `backend 'kokoro' is unavailable — install it with
-  \`uv sync --extra tts\``.
-- Real-backend adapters carry `# pragma: no cover` so they never dilute the
-  ≥90% coverage gate on the pure core.
+Install only prerequisites for an implemented path. `.[all]` is an aggregate
+package request, not a ready-to-render configuration or a guarantee that all
+packages support core Python 3.15.
 
 ## Inspecting backend state
 
@@ -54,143 +49,48 @@ uv pip install -e ".[all]"
 democreate backends
 ```
 
-The system TTS row reports `available` only after a short synthesis/transcode
-smoke test, so a host that exposes `say` or `espeak` but emits empty audio is
-treated as absent.
+Native rows say `found`/`absent`; the system TTS probe tests a short synthesis and
+transcode. Optional rows say `module installed`/`module absent`. Neither a module
+nor an ffmpeg executable proves model availability, browser/display permissions,
+codec/filter support or successful execution. Unwired rows stay unwired when
+installed. Missing guards raise `BackendUnavailableError` with `.backend` and,
+where a real extra exists, `.extra`; dependency-present unwired calls fail
+explicitly rather than falling back to fabricated output.
 
-prints a table of each capability with status `installed` (extra present) or
-`default` (deterministic fallback in use) plus the `uv sync --extra <extra>`
-command to upgrade it. The CLI also reminds you: *all capabilities have a working
-deterministic default backend.*
+## Neural voice (Kokoro) — explicit runtime and model provisioning
 
-## Zero-pip real backends (system binaries)
-
-The highest-value upgrades need **no `pip`/`uv` install at all** — only usable OS
-binaries:
-
-- **Real voiceover** — `SystemTTSBackend` uses macOS `say` or Linux
-  `espeak`/`espeak-ng`, then transcodes to canonical WAV via `ffmpeg` or
-  `afconvert`. Selected with `democreate render --tts system --voice <name>`.
-  This is a *platform* backend (not portable), so it is never the `auto` default,
-  but it turns the silent default into genuine spoken narration for free. See
-  [audio.md](audio.md).
-- **Real HD video + verification** — `democreate render` / `paper` / `verify`
-  shell out to `ffmpeg`/`ffprobe`. The animator holds each frame for its
-  *measured* narration duration (audio is ground truth) and overlays the waveform,
-  the top-edge progress line, transitions, and the typing/cursor animation (Ken
-  Burns is available but off by default); `encode_frame_sequence` encodes it;
-  `verify_video` asserts the result is a real, non-silent, non-black video of the
-  expected size. ffmpeg also powers audio `loudnorm` + fades. See [video.md](video.md)
-  and [audio.md](audio.md).
-- **Research-paper PDF reading** — the `paper/` subsystem shells out to the
-  poppler utilities `pdfinfo` / `pdftotext` / `pdftoppm` to read metadata, extract
-  text, and rasterize pages — **no pip PDF dependency**. Missing poppler raises
-  `BackendUnavailableError(backend="poppler")`. See [paper.md](paper.md).
-
-`democreate backends` shows the TTS and ffmpeg rows as `available` / `absent`
-based on the smoke-tested synthesis/transcode path and the OS binaries.
-
-## Neural voice (Kokoro) — a better, fully-local AI voice
-
-`KokoroTTSBackend` is a wired neural TTS — the open-weight 82M-parameter
-[Kokoro](https://github.com/thewh1teagle/kokoro-onnx) model running offline via
-ONNX Runtime. It sounds markedly more natural than the system `say`/`espeak`
-voices, is fully local (no cloud, no API key), and is the recommended upgrade for
-the best-sounding videos. It is heavier and slower — the model loads in ~1 s and
-each narration chunk synthesizes in a few seconds on CPU.
-
-Two things are needed: the `tts` extra (`kokoro-onnx`, `soundfile`, `numpy`) and
-the model files (`kokoro-v1.0.onnx` + `voices-v1.0.bin`, ~340 MB), which are **not
-pip-installed**. The one-step setup:
+Kokoro is an implemented local ONNX synthesis path, not a placeholder. The
+historical identified voice run used Python **3.14.10**; the locked ONNX
+distribution has no CPython 3.15 wheel. Use a separately compatible environment
+without changing the core pin. In that environment:
 
 ```bash
 uv pip install -e ".[tts]"
-democreate fetch-voice                 # downloads the model into ~/.cache/democreate/kokoro
+democreate fetch-voice
 democreate render demo.json --tts kokoro --voice af_heart
-democreate portfolio ~/code --tts kokoro --voice af_heart
 ```
 
-The model files are resolved from `KOKORO_MODEL_PATH` + `KOKORO_VOICES_PATH`, then
-from `DEMOCREATE_KOKORO_DIR` (default `~/.cache/democreate/kokoro`). If they are
-absent, the backend raises `BackendUnavailableError` with the exact remedy.
-Voices include `af_heart`, `af_bella`, `am_michael`, `bf_emma`, and more (run
-`Kokoro.get_voices()`); an unknown voice name (e.g. a demo authored with the
-system voice `Samantha`) falls back to the configured Kokoro voice rather than
-erroring, so any demo renders. Output is synthesized at 24 kHz and transcoded to
-the pipeline's canonical WAV; duration is measured from the file (audio stays the
-single source of timing truth).
+`fetch-voice` explicitly downloads roughly 340 MB. Models are resolved from
+`KOKORO_MODEL_PATH` and `KOKORO_VOICES_PATH`, then `DEMOCREATE_KOKORO_DIR`
+(default `~/.cache/democreate/kokoro`). Both model and voice files are required;
+subsequent synthesis can run locally. Unknown per-chunk voice names fall back to
+the configured valid voice. Voice naturalness/speed depends on the environment;
+no comparative quality or timing result follows from adapter availability. See
+[identified media](videos.md) for the historical run, not a proof of this tree.
 
 ## Optional LLM narration
-The deterministic template generator (`narration/script.py`) is **always the
-default** and is never changed by the LLM module. When an OpenAI-compatible API is
-configured via environment variables, `LLMNarrator` (`narration/llm.py`) can
-generate richer narration or polish the template's output through a
-`/chat/completions` endpoint. It is **import-safe and dependency-free** — it uses
-only the standard library `urllib`, so there is **no pip extra** — and its
-network-touching methods are guarded: they raise `BackendUnavailableError` when no
-key is configured.
 
-The module is a deliberate **library-only surface**: the CLI/pipeline always uses
-the deterministic template, because narration text carries the `trigger_word`
-anchoring contract (a polished line may drop a chunk's trigger words and degrade
-action anchoring) and the default path must stay deterministic and byte-stable.
-Library users opt in explicitly:
+`narration.llm` is a library-only, stdlib `urllib` OpenAI-compatible client.
+CLI template narration does not invoke it. Configure `OPENAI_API_KEY` or
+`DEMOCREATE_LLM_API_KEY`; `DEMOCREATE_LLM_BASE_URL` defaults to
+`https://api.openai.com/v1`. Calling it can transmit source narration externally;
+there is no local-only guarantee. Rewritten text can lose trigger words and must
+be reviewed before replacing authored content. See the
+[opt-in recipe](recipes.md#8-optional-llm-narration-env-gated-library-only).
 
-```python
-from democreate.narration.llm import get_narrator
+## Related media controls
 
-narrator = get_narrator()                      # env-configured
-texts = [c.text for c in demo.iter_chunks()]
-polished = narrator.rewrite_chunks(texts, context=demo.title)
-```
-
-Environment variables consulted:
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `OPENAI_API_KEY` / `DEMOCREATE_LLM_API_KEY` | Bearer key (presence = enabled) | unset → template used |
-| `DEMOCREATE_LLM_BASE_URL` | API base URL | `https://api.openai.com/v1` |
-
-The pure `build_chat_payload()` helper builds the request body and is fully
-testable without any network access. See the [recipes](recipes.md#optional-llm-narration-env-gated).
-
-## Chapters, metadata, and poster/GIF exports
-
-Several presentation- and provenance-layer exports ship in the core (Pillow +
-ffmpeg only, no extras):
-
-- **Chapters** (`export/chapters.py`). Every `render`/`paper` writes a YouTube
-  chapter file (`M:SS Title` per scene, first line forced to `0:00`) and embeds
-  chapter markers into the MP4 via an ffmpeg `FFMETADATA1` document (one
-  `[CHAPTER]` per scene). The embed is a guarded best-effort step; verify with
-  `ffprobe -show_chapters`.
-- **Container metadata tags** (`export/metadata.py`). ffmpeg also carries
-  standard container tags: `build_tags()` is a pure `dict[str, str]` of
-  `title`/`artist`/`comment`/`date`, and `embed_tags()` muxes them into the MP4 by
-  **stream-copy** (`-codec copy`, no re-encode). Read them with
-  `ffprobe -show_entries format_tags=…`. See [provenance.md](provenance.md).
-- **On-screen overlay bars** (`export/overlay.py`) and **steganography**
-  (`export/stego.py`) are **pure Pillow** — no ffmpeg, no extras. The overlay
-  draws the header/footer provenance bars per frame (burned into the pixels, so
-  they survive the encode); the stego module LSB-embeds a unsigned provenance
-  payload into lossless poster PNGs (which an H.264 re-encode would
-  destroy — hence PNG, not the video pixels). See [provenance.md](provenance.md).
-- **Poster + GIF** (`export/poster.py`). `render_poster()` paints a designed
-  title still (`democreate thumbnail`); `demo_to_gif()` evenly down-samples a
-  frame sequence into an animated GIF preview (`democreate gif`). Both are pure,
-  deterministic, and import no optional dependencies at module top level.
-
-## Notes on heavy extras
-
-- **`video` needs `ffmpeg` on `PATH`** in addition to (or instead of) the Python
-  packages — the argv is built purely, but actually encoding shells out. See
-  [troubleshooting.md](troubleshooting.md).
-- **`browser`** requires a one-time `playwright install` of browser binaries
-  after the pip extra.
-- **`whisper`** pulls in `torch` transitively and is the heaviest extra; the
-  `HeuristicTranscriber` default keeps the sync mechanism fully exercised without
-  it.
-Unsigned digest records check consistency only: they do not authenticate authors,
-cover pixels, video bytes or external assets. The retained `poster_signed.png`
-filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
-there are no transmission-bookend sidecars. See [provenance.md](provenance.md).
+[Audio](audio.md) owns WAV assembly and filters; [video](video.md) owns scheduled
+animation, static holds, captions and media checks; [configuration](config.md)
+owns defaults and precedence; [provenance](provenance.md) owns unsigned metadata
+semantics. [Troubleshooting](troubleshooting.md) covers missing prerequisites.

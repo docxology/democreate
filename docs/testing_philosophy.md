@@ -1,8 +1,8 @@
-# Testing philosophy
+# Testing policy: real core computation and bounded evidence
 
-DemoCreate's tests are a contract, not a courtesy. The same property that makes
-the demos reproducible — determinism — makes the suite able to assert *exact*
-output. Four principles govern every test.
+Core tests exercise reproducible computation on fixed inputs and environments;
+they are not listening studies, external-model validation or a publication receipt.
+The unchanged pure-core coverage threshold is **≥90%**. Four principles follow.
 
 ## 1. No mocks
 
@@ -32,9 +32,10 @@ def test_pipeline_writes_player(tmp_path):
 
 ## 2. Deterministic
 
-The default path has no RNG, no wall-clock, and no network, so output is
-byte-for-byte stable. Tests assert exact frames, exact manifests, exact captions,
-and exact round-trips — not loose tolerances.
+The core default uses no RNG, wall-clock or network. Exact output comparisons
+require fixed authored input, assets, configuration and rendering environment
+(including Pillow/FreeType); they do not establish cross-host, neural speech or
+codec byte identity. Tests compare real frames/manifests/captions and round-trips.
 
 ```python
 def test_demo_round_trips_losslessly():
@@ -125,3 +126,14 @@ Source-wording, collection-count and copied-default tests are intentionally not
 used to bind incidental prose. Structured ledger/metadata/evidence-reference
 validation remains. Whisper is unwired; dependency availability does not imply a
 working acoustic recognizer. Acoustic accuracy needs independent annotation.
+
+## Scientific and publication gates remain separate
+
+The blocking synchronization criterion requires ≥30 independently annotated
+voiced demos (≥10 per declared mode), with both pooled absolute-event-error
+median and median of demo-level absolute-error medians ≤120 ms. Silent controls
+and generated timestamps do not qualify. Media checks establish stream presence,
+energy and sampled image variance, not intelligibility or onset accuracy.
+The [0.8.0 receipt](release-0.8.0.md) and structured historical records identify
+their observed source/runtime, not future edited-tree results. The configured
+GitHub release write class remains disabled.

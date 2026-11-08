@@ -1,4 +1,4 @@
-# `democreate.translation`
+# `democreate.translation`: explicit language transforms and localized media
 
 Localizes a demo so a render can carry **audio in one language and subtitles in
 another** (e.g. English audio with Russian subtitles, or vice-versa). Translation
@@ -17,15 +17,14 @@ default so the whole path is import-safe and offline-testable.
 
 The narration is translated to the **audio** language and synthesized — that drives
 the audio, the frames, and the timing. The **subtitle** track is translated
-separately against that *same* (audio-derived) timing, so two different languages
-stay in lock-step. The output filename encodes both, e.g.
-`demo-audio_en-subs_ru.mp4`.
+separately against resolved audio-language clip windows; that shared nominal
+timebase is not an acoustic-alignment or translation-quality proof. The output
+filename encodes both, e.g. `demo-audio_en-subs_ru.mp4`.
 
-> Subtitles work for any language (text only). *Audio* in a language needs a TTS
-> voice for it — a Kokoro-supported language (kokoro-onnx ships voices for
-> English, Spanish, French, German, Japanese, Korean, and Chinese) or an installed
-> system voice. So "English audio + Russian subtitles" works out of the box;
-> Russian *audio* needs a Russian voice present.
+> A subtitle language needs appropriate glyph coverage and reviewed model output;
+> audio additionally needs a suitable TTS voice. English audio with Russian
+> subtitles is a provisioned workflow, not an out-of-box core result. Russian
+> audio requires a suitable installed voice; Kokoro has no Russian language map.
 
 ## Public API
 
@@ -62,3 +61,8 @@ democreate localize demo.json --pairs "en:ru,ru:en,en:es" --model lfm2.5
 | Backend | Dependency | Notes |
 |---------|-----------|-------|
 | `OllamaTranslator` | a running `ollama` server (no pip dep) | `ollama serve` + `ollama pull <model>` |
+
+CLI defaults are Ollama and Kokoro, whereas the library translator default is
+identity. Both real server/model and voice/runtime prerequisites must be
+provisioned explicitly. See [localization guide](../../../docs/translation.md),
+[CLI defaults](../../../docs/cli.md#localize) and [backends](../../../docs/backends.md).

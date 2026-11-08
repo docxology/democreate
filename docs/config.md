@@ -1,4 +1,4 @@
-# Configuration and theming
+# Render configuration: defaults, layout limits and CLI precedence
 
 A single `RenderConfig` controls the **look** (theme colors + font scale), the
 **sound** (voice, pacing, normalization, fades), the **motion** (fps, resolution,
@@ -64,7 +64,7 @@ tuples and rejects unknown fields.
 
 | Field | Default | Meaning |
 |-------|---------|---------|
-| `backend` | `"system"` | TTS backend: `system` / `silent` / `kokoro` / `chatterbox`. |
+| `backend` | `"system"` | Backend selector; implemented `system`, `silent`/`auto`, `kokoro`, `elevenlabs`; `chatterbox` is unwired. This field alone does not choose a library Pipeline's TTS instance. |
 | `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
 | `rate_wpm` | `None` | Optional speaking-rate override (system voices). |
 | `lead_silence_ms` | `300` | Silence prepended to the whole voiceover. |
@@ -100,32 +100,23 @@ Inspect the encoded result: a CRF value alone does not establish visual quality.
 See [video.md](video.md) for the animator and action-duration controls,
 including the [typing animation](video.md#typing-animation),
 [cursor](video.md#animated-cursor), and
-[resolution & quality](video.md#resolution-quality).
+[resolution and encode quality](video.md#resolution-and-encode-quality).
 
-### Layout: no-crop fit-contain + autosize code
+### Layout limits: contain fitting and bounded code autosizing
 
-Two layout invariants in the synthetic renderer (`capture/screen.py`) keep
-content whole at every resolution and aspect ratio — there is no config knob for
-them because losing information is never the right default:
-
-- **Fit-contain backgrounds (never crop).** A full-frame `background_image`
-  (figure, PDF page, architecture diagram, screenshot) is scaled by
-  `min(bw/sw, bh/sh)` — the **contain** fit — so the whole image is visible inside
-  the content band with a subtle matte frame around it. A cover-crop would push
-  the edges of a figure or diagram off-screen; DemoCreate refuses that. This pairs
-  with `ken_burns: false` (above): a slow zoom would re-introduce the very edge
-  crop the contain fit avoids.
-- **Autosize code (no clip).** An editor frame picks the **largest** legible mono
-  font that fits the *whole* code block — sized by both the longest line (so it
-  fits the width without clipping the right edge) and the line count (so every
-  line fits the height), with a hard legibility floor and a cap of `0.034 ×`
-  frame height. Code never overflows the frame and never gets silently truncated.
+The synthetic renderer scales backgrounds proportionally into its content band
+using contain fitting. That base fit does not guarantee every source pixel stays
+visible: chrome, waveform/metadata overlays, explicit camera motion and optional
+Ken Burns can hide content. Code font size is bounded by available width/height,
+a maximum and a hard minimum; arbitrarily long lines or dense blocks can still
+overflow. Pillow's bundled font has limited glyph coverage. Inspect representative
+encoded frames rather than treating layout as a universal no-crop guarantee.
 
 ### Slide surfaces: bullet lists and stat cards
 
 A `slide`-kind scene can carry two packed, no-crop slide surfaces, set from the
 scene's free-form `context` dict and threaded onto the per-chunk
-[`FrameState`](schema.md#related-media-types-media.py) by the compositor:
+[`FrameState`](schema.md#related-media-types) by the compositor:
 
 | Surface | `scene.context` key | `FrameState` field | Renders as |
 |---------|---------------------|--------------------|------------|
@@ -166,7 +157,7 @@ is now part of `RenderConfig` (`cfg.metadata`). The full provenance story is in
 | `footer` | `True` | Draw the bottom metadata bar (author · source · url · clock). |
 | `show_clock` | `True` | Show a running `M:SS / M:SS` clock in the footer. |
 | `container_tags` | `True` | Write MP4 metadata tags via ffmpeg (`build_tags` → `embed_tags`). |
-| `steganography` | `True` | Embed a unsigned provenance payload in lossless PNG sidecars. |
+| `steganography` | `True` | Attempt to embed an unsigned digest-association payload in lossless poster sidecars; no signature or image/video identity guarantee. |
 
 `--author` and `--watermark` on `render` set those fields without a config file.
 
@@ -184,10 +175,9 @@ higher resolution — not an upscale of a 1080p render:
 | `2160p` | `3840×2160` |
 | `4k` | `3840×2160` (alias of `2160p`) |
 
-`RenderConfig.set_resolution(name)` sets `video.width`/`video.height` from the tier
-and returns `self` for chaining; unknown names are ignored. The `render` command
-also pushes the new geometry onto the demo, so the whole pipeline renders at that
-size (verified: `1440p` produces a true `2560×1440` video):
+`RenderConfig.set_resolution(name)` sets `video.width`/`video.height` and returns
+`self`; unknown library names are ignored. CLI names are validated. `render`
+pushes explicit resolution geometry onto the Demo before composing:
 
 ```python
 cfg = RenderConfig.preset("dark").set_resolution("1440p")   # 2560×1440
@@ -247,7 +237,7 @@ video:
   # resolution tiers (16:9): 720p 1280x720 · 1080p 1920x1080 · 1440p 2560x1440 · 2160p/4k 3840x2160
   fps: 30                  # demo frame rate
   animation_fps: 15        # animated render frame rate (motion smoothness)
-  crf: 18                  # H.264 quality: 18 ~ visually lossless, 23 = default, lower = crisper
+  crf: 18                  # H.264 compression setting, not a perceptual-quality guarantee
   preset: medium           # x264 speed/size tradeoff: ultrafast..veryslow
 ```
 
@@ -270,9 +260,17 @@ that uses that preset theme (audio/video at their defaults).
 democreate render demo.json --config my_theme.yaml
 ```
 
-`--config` overrides `--theme`. The CLI still applies `--voice`/`--tts` on top
-of a loaded config, so you can pin a theme in YAML and pick the voice on the
-command line.
+`--config` replaces the theme preset. For `render`, CLI `--tts` always applies
+(including its default `system`); a nonempty `--voice` overrides YAML, while a
+blank voice preserves the loaded value. `--header`/`--no-header`, `--animate`/
+`--no-animate` and `--animation-fps` also apply their CLI defaults unless changed
+explicitly. Therefore YAML alone is not a frozen command invocation.
+
+Explicit `--resolution` sets 16:9 dimensions, then `--aspect` replaces them with
+its preset dimensions if both are supplied. Without those flags, the CLI keeps
+the authored Demo's geometry; config width/height alone do not resize that Demo.
+Library callers choose the TTS instance and Demo geometry explicitly; supplying
+`AudioConfig.backend` does not instantiate a backend in `Pipeline.run`.
 
 ## A sample YAML config
 
@@ -343,7 +341,4 @@ text = cfg.to_yaml()                        # serialize back out
 - [audio.md](audio.md) — the voiceover assembly driven by `AudioConfig`.
 - [provenance.md](provenance.md) — the full `MetadataConfig` story (bars, tags, steganography).
 - [architecture.md](architecture.md) — where config threads through the pipeline.
-Unsigned digest records check consistency only: they do not authenticate authors,
-cover pixels, video bytes or external assets. The retained `poster_signed.png`
-filename is not a signature. Only poster PNGs and `provenance.json` are emitted;
-there are no transmission-bookend sidecars. See [provenance.md](provenance.md).
+Unsigned digest semantics are defined once in [provenance.md](provenance.md).

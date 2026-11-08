@@ -1,10 +1,10 @@
-# `democreate.capture`
+# `democreate.capture`: synthetic frames and explicit live capture
 
-The visual-capture subsystem. It turns the declarative demo schema into
-rendered frames and records terminal / browser / input sessions. Every heavy
-capability has a **pure-Python deterministic default** that runs with only the
-core dependencies (Pillow + stdlib); real backends sit behind optional extras
-and raise `BackendUnavailableError` when their dependency is missing.
+Virtual editor/terminal/browser/slide frames use core Pillow/stdlib. Library
+adapters provide separate real screen/browser/input operations with optional
+packages, executables, session permissions and side effects. Installing extras
+does not make `build` or `render` record a browser or execute terminal commands;
+their default visuals remain synthetic. See [backends](../../../docs/backends.md).
 
 ## Modules
 
@@ -18,7 +18,8 @@ and raise `BackendUnavailableError` when their dependency is missing.
   - browser: address bar with `url` + placeholder body;
   - slide: centered `title`.
   Any non-empty `caption` is overlaid as a lower-third subtitle. Uses
-  `ImageFont.load_default()` (no external fonts). Byte-for-byte deterministic.
+  `ImageFont.load_default(size=...)` uses Pillow's bundled face; byte comparison
+  requires the same Pillow/FreeType build. Pipeline stills suppress baked captions.
   Camera scales greater than one apply a centered content crop/resize before
   drawing the fixed waveform band, section and caption overlays.
 - `MssScreenCapture` — real pixel capture (extra `capture`, via `mss`).
@@ -79,8 +80,10 @@ and raise `BackendUnavailableError` when their dependency is missing.
 | Record input | `record_session` | `replay` | `pynput` |
 | Replay input | `replay_session` | `replay` | `pyautogui` |
 
-Install with e.g. `uv sync --extra capture`. The default backends need none of
-these and produce identical output on every machine.
+Install only the needed extra (for example `uv sync --extra capture`). Core
+synthetic paths need none; fixed input/theme/geometry and rendering runtime are
+required for byte comparisons. Camera crops, overlays and bounded code sizing
+are not universal no-crop or glyph-coverage guarantees; see [layout limits](../../../docs/config.md#layout-limits-contain-fitting-and-bounded-code-autosizing).
 
 ## Tests
 `tests/capture/test_screen.py`, `tests/capture/test_terminal.py`,

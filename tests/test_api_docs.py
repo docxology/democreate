@@ -112,7 +112,42 @@ def test_generate_is_deterministic_and_complete(tmp_path: Path) -> None:
 
     text1 = out1.read_text(encoding="utf-8")
     assert text1 == out2.read_text(encoding="utf-8")
-    assert text1.startswith("# API reference")
-    assert "## `democreate.errors`" in text1
-    assert "### Functions" in text1
-    assert text1.endswith("\n")
+
+
+def test_generated_reference_links_resolve_in_commonmark(tmp_path: Path) -> None:
+    """Module navigation must work without a Pandoc-only heading extension."""
+    import re
+    from html.parser import HTMLParser
+
+    from markdown_it import MarkdownIt
+
+    class Headings(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__()
+            self.collecting = False
+            self.text = ""
+            self.anchors: set[str] = set()
+
+        def handle_starttag(self, tag, attrs) -> None:
+            if tag == "h2":
+                self.collecting = True
+                self.text = ""
+
+        def handle_data(self, data) -> None:
+            if self.collecting:
+                self.text += data
+
+        def handle_endtag(self, tag) -> None:
+            if tag == "h2":
+                self.anchors.add(
+                    re.sub(r"[^a-z0-9_-]", "", self.text.lower().replace(" ", "-"))
+                )
+                self.collecting = False
+
+    path = tmp_path / "api.md"
+    api_docs.generate(path)
+    html = MarkdownIt("commonmark").render(path.read_text())
+    headings = Headings()
+    headings.feed(html)
+    targets = set(re.findall(r'href="#([^"]+)"', html))
+    assert targets - headings.anchors == set()

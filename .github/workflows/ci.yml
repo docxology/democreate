@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'chore/visual-docs-*']
   pull_request:
     branches: [main]
 
@@ -15,6 +15,7 @@ jobs:
   test:
     name: test (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -81,4 +82,74 @@ jobs:
       # gate (which fails if anything other than the self-descriptor bundle is
       # tracked under output/).
       - name: Test + coverage gate
-        run: pytest --cov
+        run: pytest --cov --cov-report=term-missing --cov-report=json:output/coverage.json
+
+  visual-docs:
+    name: docs / figures / manuscript
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Install native rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils texlive-xetex texlive-latex-extra texlive-science texlive-fonts-recommended
+          uv pip install --system -e .
+      - name: Install matched manuscript tools
+        run: |
+          mkdir -p output/ci-tools/bin
+          curl --fail --location --silent --show-error \
+            https://github.com/jgm/pandoc/releases/download/3.13/pandoc-3.13-linux-amd64.tar.gz \
+            --output output/ci-tools/pandoc.tar.gz
+          curl --fail --location --silent --show-error \
+            https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.26a/pandoc-crossref-Linux-X64.tar.xz \
+            --output output/ci-tools/pandoc-crossref.tar.xz
+          printf '%s\n' \
+            '38aa33b325a2bc96a4c39409631212db55702f564250bcdbead180b3bf646389  output/ci-tools/pandoc.tar.gz' \
+            'e61fc62485bd432c0662c2508eb40a9e501d0f47a90736995793ad73e3c0c017  output/ci-tools/pandoc-crossref.tar.xz' \
+            | sha256sum --check
+          tar -xzf output/ci-tools/pandoc.tar.gz --strip-components=2 \
+            --directory output/ci-tools/bin pandoc-3.13/bin/pandoc
+          tar -xJf output/ci-tools/pandoc-crossref.tar.xz \
+            --directory output/ci-tools/bin pandoc-crossref
+          echo "$GITHUB_WORKSPACE/output/ci-tools/bin" >> "$GITHUB_PATH"
+      - name: Regenerate source-owned visualizations and API
+        run: |
+          python docs/manuscript/figures/make_figures.py
+          python docs/manuscript/figures/graphical_abstract.py
+          python docs/_gallery/make_gallery.py
+          python scripts/generate_api_docs.py
+      - name: Check and render manuscript
+        run: |
+          mkdir -p output/ci-visual/pages
+          python scripts/build_manuscript.py --check -o output/ci-visual/manuscript.pdf
+          python scripts/build_manuscript.py -o output/ci-visual/manuscript.pdf
+          pdftoppm -scale-to 1200 -png output/ci-visual/manuscript.pdf output/ci-visual/pages/page
+      - name: Bind produced artifacts to source
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, sys
+          root = pathlib.Path(".")
+          files = sorted({p for pattern in ("docs/manuscript/figures/*.png", "docs/_gallery/*.png", "docs/api.md", "output/ci-visual/**/*.png", "output/ci-visual/*.pdf") for p in root.glob(pattern) if p.is_file()})
+          manifest = {"commit": os.environ["GITHUB_SHA"], "python": sys.version, "files": [{"path": p.as_posix(), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]}
+          output = root / "output/ci-visual/manifest.json"
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+      - name: Retain inspectable visual proof
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-proof-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            docs/manuscript/figures/*.png
+            docs/_gallery/*.png
+            docs/api.md
+            output/ci-visual/

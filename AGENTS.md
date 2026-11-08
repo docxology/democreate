@@ -9,10 +9,11 @@ canonical, project-wide contract. The detailed agent guidance lives in
 
 ## What this package is
 
-`democreate` generates audio-visual demos of software from a single declarative
-`Demo` artifact (a virtual-IDE action stream + narration chunks). Rendering is a
-pure function of the artifact. Read [`README.md`](README.md) and
-[`docs/architecture.md`](docs/architecture.md) for the full picture.
+`democreate` generates previews and optional voiced videos from declarative
+`Demo` content. Core output is silent WAVs, synthetic frames, captions and timed
+HTML image navigation (not speech playback). Reproduction closes over authored
+input, assets, config and runtime. See [README](README.md) and
+[architecture](docs/architecture.md).
 
 ## Current state & where to look next (orientation ladder)
 
@@ -40,9 +41,10 @@ pure function of the artifact. Read [`README.md`](README.md) and
    the core-only fallback path; never to fake a deterministic backend's output.
 3. **≥90% coverage on the pure core.** Enforced by `fail_under = 90` in
    `pyproject.toml`. Heavy adapters are excluded with `# pragma: no cover`.
-4. **Deterministic defaults.** Every default backend yields byte-for-byte stable
-   output for the same input: no RNG, no wall-clock, no network, no external
-   fonts beyond `ImageFont.load_default()`.
+4. **Deterministic defaults.** Fixed input, assets, configuration and runtime
+   (including Pillow/FreeType) yield stable core output: no RNG, wall-clock,
+   network or host-font selection. Fonts use Pillow's bundled
+   `ImageFont.load_default(size=...)`; do not claim cross-build byte identity.
 5. **Never import a heavy/optional dependency at module top level.** Heavy deps
    (`kokoro`, `chatterbox`, `whisper`, `mss`, `playwright`, `manim`, `moviepy`,
    `pynput`, `pyautogui`, `tree_sitter`, `numpy`, `soundfile`) are imported

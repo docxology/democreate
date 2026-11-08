@@ -24,11 +24,12 @@ formatting, and image effects. Do **not** edit files outside this directory
   is a guarded legacy adapter slot and still raises `NotImplementedError` when
   MoviePy is present until real assembly is wired. It is marked
   `# pragma: no cover`. Never import `moviepy` at module top level.
-- **`ManifestCompositor` must stay core-only.** It imports
-  `democreate.capture.screen.render_frame` *lazily* (inside `compose`) and falls
-  back to a built-in Pillow renderer if capture is unavailable, so build order
-  with the parallel `capture` subsystem never matters. `render_frame(state,
-  size)` returns a `PIL.Image.Image`; the compositor saves it to the frame path.
+- **`ManifestCompositor` must stay core-only.** It imports the required
+  `democreate.capture.screen.render_frame` lazily inside `compose`; broken core
+  imports or image decoding fail rather than substituting placeholder frames.
+  The renderer returns a `PIL.Image.Image`; the compositor saves captionless
+  representative PNGs, leaving HTML cues or explicitly burned SRT to supply
+  narration text. Optional audio normalization/fades separately need native ffmpeg.
 - **Effects are size-preserving and never mutate the input image** (`.copy()` /
   `Image.blend` produce new images).
 - **Captions** carry one cue per chunk for `to_srt`/`to_vtt`/`to_ass`; cue timing

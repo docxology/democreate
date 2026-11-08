@@ -15,11 +15,7 @@ authors:
     affiliation: "Active Inference Institute"
     corresponding: true
 
-publication:
-  journal: "Preprint"
-  volume: "1"
-  pages: "1-N"
-  year: "2026"
+# Publication venue, volume, pages and year remain unset pending publication.
 
 keywords:
   - "software demo generation"

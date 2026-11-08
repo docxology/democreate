@@ -1,4 +1,4 @@
-# `democreate.codebase`
+# `democreate.codebase`: Python AST facts and import graphs
 
 Codebase analysis for DemoCreate codebase scenes. Turns a Python repository into
 structured, JSON-able summaries and visualizations that a scene can narrate —
@@ -40,13 +40,13 @@ all with **pure standard-library `ast`**, no heavy dependencies.
 `topological_order()` treats an edge `(a, b)` as "`a` depends on `b`", so `b`
 precedes `a` in the result.
 
-## Optional upgrade
+## Optional packages do not change the walker
 
-The deterministic default backend is `ast` (always available with core deps).
-Multi-language parsing via **`tree-sitter`** is the optional upgrade
-(`uv sync --extra codebase`). It is detected at call time and never imported at
-module top level; a real-backend call without the dep raises
-`BackendUnavailableError("tree-sitter", extra="codebase")`.
+The implemented source walker is Python stdlib `ast`. The published `codebase`
+extra installs tree-sitter packages, but no current analysis function selects
+them; it is not an implemented multi-language backend. Non-Python project
+portfolio summaries can use README/stat facts without Python code scenes.
+See [backend boundaries](../../../docs/backends.md).
 
 ## Tests
 

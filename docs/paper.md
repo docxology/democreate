@@ -1,4 +1,4 @@
-# Research-paper demos
+# Paper workflow: PDF extraction, supplied figures and narrated scenes
 
 With poppler and a usable speech/encoding environment, DemoCreate can compile a
 PDF's extracted text and supplied images into a narrated walkthrough. Extraction
@@ -50,8 +50,9 @@ LLM, for fixed extracted text, figures, options and runtime):
 Figures and PDF pages are carried as full-frame `background_image` scene context.
 Base images use proportional contain fitting. Camera zoom and overlays may still
 hide content; inspect encoded frames. `--theme paper` selects a warm light
-palette; `noir` is the package/CLI default. Neither setting establishes semantic
-correctness, faithful mathematical notation or empirical paper results.
+palette and is the `paper` command's default (`render` defaults to `noir`).
+Neither setting establishes semantic correctness, faithful mathematical notation
+or empirical paper results.
 
 ## How the PDF is read (poppler, zero pip)
 
@@ -65,7 +66,9 @@ workstations — **no pip PDF dependency**:
   (default 150 DPI; the CLI uses 140).
 
 Every function checks its binary is on `PATH` first and raises
-`BackendUnavailableError(backend="poppler")` if it is missing. `poppler_available()` reports readiness.
+`BackendUnavailableError(backend="poppler")` if it is missing.
+`poppler_available()` checks all required executable paths, not PDF validity or
+semantic extraction accuracy.
 
 ## Deeper structure: real abstract, captions, sections
 
@@ -109,43 +112,37 @@ succeeds if it yields nothing. Older Active Inference-paper observations are
 historical and unbound; controlled synthetic PDF fixtures prove mechanics, not
 accuracy on that unshipped research source.
 
-## Options
+## Options and reusable paper assets
 
-| Option | Default | Meaning |
-|--------|---------|---------|
-| `PDF` (arg) | required | Path to the paper PDF. |
-| `--repo`, `-r` | `None` | Associated codebase directory (architecture diagram). |
-| `--figures` | `None` | Directory of exported figure images (`.png`/`.jpg`). |
-| `--output`, `-o` | `output` | Output workspace. |
-| `--pages` | `"1"` | Comma-separated 1-based PDF pages to show. |
-| `--theme` | `noir` | `paper` / `noir` / `dark` / `light` / `midnight`. |
-| `--voice`, `-v` | `""` (OS default) | Optional system voice name. |
-| `--tts` | `system` | TTS backend. |
-| `--aspect` | `""` (demo's size) | Aspect preset: `16:9` / `9:16` / `1:1` / `4:3` / `4:5`. |
-| `--resolution` | `""` (demo's size) | 16:9 tier: `720p` / `1080p` / `1440p` / `2160p` / `4k`. |
-| `--author` | `""` (the PDF's author) | Override the creator name (defaults to the PDF metadata's author). |
-| `--watermark` | `""` | Persistent watermark text (footer far-right). |
-| `--max-figures` | `6` | How many figures to feature. |
-| `--config` | `None` | `RenderConfig` YAML (overrides `--theme`). |
-| `--render / --no-render` | `--render` | Render the video, or only emit `paper.json`. |
+The [CLI paper reference](cli.md#paper) owns the option/default table. Use
+`--no-render` to emit `output/demos/paper.json` without claiming voiced media;
+poppler is still required. The command writes generated pages and architecture
+assets into the output workspace. Supplied figure images must remain within
+the selected figure directory (or the PDF directory when no figure root is set).
 
-## Worked example (verified end-to-end)
-
-The `Policy Entanglement in Active Inference` paper — a 170-page PDF with 47
-figures and a 145-module codebase — was rendered and content-verified:
+After a complete build/render, `output/demos/demo.json` is the resolved,
+workspace-relative bundle. Reuse it with an explicit asset root:
 
 ```bash
-democreate paper policy-entanglement.pdf \
-  --repo ./active-inference-repo \
-  --figures ./figures \
-  --pages 1,2 \
-  --theme paper
+democreate render output/demos/demo.json --asset-root output \
+  -o output/paper-rerender --theme paper --tts system
 ```
 
-Result: a **1920×1080 / ~188 s H.264 + AAC** video, `verify_video` ok (rendered in
-the noir look — see [videos.md](videos.md)). The figures, the code, and
-the overview were all generated from the same sources — reproducible by
-construction.
+The earlier `paper.json` is an authored intermediate, not that resolved bundle;
+its generated workspace-relative references are not automatically relative to
+its `demos/` parent. Inspect or normalize those references before using it as a
+standalone CLI input. Missing or outside-root assets fail, not silently disappear.
+
+## Historical paper example, not a current result
+
+Earlier documentation described a 170-page *Policy Entanglement in Active
+Inference* paper, 47 figures and a 145-module codebase, with an approximately
+188-second template-generated video. Its source-video digest and extraction
+date are unrecorded. Those observations do not prove current output or semantic
+accuracy; the external PDF/code/figures are not shipped. See
+[media identities](videos.md) for the separate curated paper recipe and historical
+stills. Controlled synthetic PDF fixtures establish mechanics, not empirical
+results on an unshipped research source.
 
 ## See also
 
