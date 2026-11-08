@@ -22,7 +22,7 @@ Only this standalone repository and its owned `output/wfz/` development lane wer
 - Model downloads publish completed files atomically without replacing a peer. Dependency presence is not adapter/model readiness; unwired backends do not advertise misleading install remedies. Unsigned poster hashes associate selected content, not authorship, cover pixels or video identity.
 - Config loaders reject unknown fields. Removed high-level `video.typing_fraction`; author action durations instead. Schema 1.0 is rejected without a shim. Python floor is 3.11.5, Pillow floor 13; default fonts use Pillow's bundled resource. SDK metadata uses SPDX MIT and setuptools >=84.2.1.
 - Manuscript/source claims, moved/incorrect references, historical evidence labels, version metadata and CI drift are corrected. Current timing uses probed encoded duration, not planned duration; distinct units no longer share a bar scale. Obsolete wording/default/wiring tests were removed rather than repinned.
-- Hosted CI exposed legacy-reader incompatibility in FFmpeg's automatic WAV output. Normalization/fades now preserve PCM WAV sample rate/channels, stream raw PCM through bounded-memory copying, and atomically publish standard 16-bit WAV headers. Real tone regressions include 96 kHz and three-channel inputs; input bytes, duration, audible signal and fade attenuation are checked.
+- Hosted CI exposed legacy-reader incompatibility in FFmpeg's automatic WAV output. Normalization/fades now preserve PCM WAV sample rate/channels, stream raw PCM through bounded-memory copying, and atomically publish standard 16-bit WAV headers. Real tone regressions include 96 kHz and three-channel inputs; input bytes, duration, nonzero signal and fade attenuation are checked.
 
 The named Workflowz audit and separate refutation pools covered all eight subsystems, the spine/config/CLI, data, dependencies/build/release, tests, documentation and manuscript. Defensive review assumed attacker-controlled artifacts/text/paths, not host credentials or privileged configuration. Generic shell/RCE/authentication accusations without a reproducible route were rejected. High-risk judgments were peer-checked and exercised; no independent external penetration test is claimed.
 
@@ -32,7 +32,7 @@ All subprocess gates used the inherited qualified bounded offline runner, with r
 
 | Surface | Actual exercise and result |
 |---|---|
-| Full core gate | `.venv/bin/python -m pytest -q --cov=democreate --cov-report=term-missing --cov-report=json:output/wfz/coverage.json --cov-report=xml:output/wfz/coverage.xml`: **921 passed, 12 skipped**, configured line/branch total **90.47%** after the CI audio fix. 1,163 designated lines excluded; this is not all-adapter coverage. |
+| Full core gate | `.venv/bin/python -m pytest -q --cov=democreate --cov-report=term-missing --cov-report=json:output/wfz/coverage.json --cov-report=xml:output/wfz/coverage.xml`: **926 passed, 12 skipped**, configured line/branch total **90.47%** after the final refutation fixes. 1,166 designated lines excluded; this is not all-adapter coverage. |
 | Lint/types | `.venv/bin/ruff check .`; `.venv/bin/mypy src`: passed, 66 source files. Mypy retains one existing untyped-constructor-body note; no stronger type-coverage claim. |
 | Core-only distribution | Offline `uv build --no-build-isolation` from independent staging; wheel/sdist paths, metadata, template and archive containment inspected. A fresh Python 3.15.2 prefix installed locked core dependencies plus the wheel, outside the source checkout import path. Core preflight loaded no optional heavy modules. |
 | Real consumers | Installed `init`, `inspect`, two `build --tts silent` runs, `thumbnail`, `gif`, and `stego --demo` against the emitted resolved bundle; script `generate_demo.py` and manuscript help. Every generated core file compared byte-for-byte: ten files, zero differences. |
@@ -51,15 +51,15 @@ Actual command (relative paths shown):
 
 ```sh
 output/wfz/voice-env/bin/python -m democreate.cli render \
-  output/wfz/stage4/examples/democreate_showcase.json \
-  -o output/wfz/canonical-stage4 --tts kokoro --voice af_heart \
+  output/wfz/stage9/examples/democreate_showcase.json \
+  -o output/wfz/canonical-stage9 --tts kokoro --voice af_heart \
   --resolution 2160p --author "Daniel Ari Friedman" \
   --watermark "github.com/docxology/democreate"
 output/wfz/voice-env/bin/python -m democreate.cli verify \
-  output/wfz/canonical-stage4/video/demo.mp4 --width 3840 --height 2160
+  output/wfz/canonical-stage9/video/demo.mp4 --width 3840 --height 2160
 ```
 
-The staged input matches the integrated example bytes. The result is 3840x2160 H.264/AAC at 15 fps, 159.867 s video / 159.905 s audio, mean volume -16.4 dB (not LUFS). MP4 SHA-256: `8bbc99a5e37e4f04a7ebdae4d40d457c72dfdd945c873723741375b9af580413`. Fifteen caption cues and chapters, six decoded representative frames and the decoded audio signal were inspected. SRT/VTT are sidecars; this recipe does not burn them. No listening/intelligibility or independent event/word-onset evaluation was performed. Requested extraction seek offsets are not annotated frame/event timestamps.
+The staged input matches the integrated example bytes. The final integrated result is 3840x2160 H.264/AAC at 15 fps, 159.867 s video / 159.905 s audio, mean volume -16.4 dB (not LUFS). MP4 SHA-256: `234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4`. Fifteen caption cues and chapters, six newly decoded representative frames and the decoded audio signal were inspected. Raw, normalized and faded WAVs all retain 22,050 Hz mono/16-bit and 3,525,912 frames; post-processing actually ran, not the raw fallback. SRT/VTT are sidecars; this recipe does not burn them. No listening/intelligibility or independent event/word-onset evaluation was performed. Requested extraction seek offsets are not annotated frame/event timestamps.
 
 ### Reproducibility and timing limits
 
@@ -68,7 +68,8 @@ The staged input matches the integrated example bytes. The result is 3840x2160 H
 ## Failures, skips and unexamined runtime surfaces
 
 - The first full-suite collection found obsolete private compositor imports; a subsequent diagnostic run exposed old wording/fallback expectations. Callers/regressions were migrated without shims; old incidental tests were deleted. The corrected full coverage run passed. Initial benchmark proof instrumentation used a nonexistent workspace property, and the tar audit initially rejected the standard root-directory entry; both proof-driver errors were corrected against observed APIs/bytes, not hidden.
-- The first hosted matrix run on `865dc3371f42212d54b191748c99cbc148f74acc` failed: Python 3.11 had three real render failures (`wave.Error: unknown format: 65534`), while 3.12–3.15 passed tests but missed coverage at 89.95% because Pandoc/crossref were absent. The WAV producer was repaired, and CI now installs a version-matched, upstream-digest-checked tool pair; the 90% threshold and tests were not relaxed. Native post-fix scoped proof passed 140 tests, and the full gate passed 921. Hosted post-fix results remain to be observed.
+- The first hosted matrix run on `865dc3371f42212d54b191748c99cbc148f74acc` failed: Python 3.11 had three real render failures (`wave.Error: unknown format: 65534`), while 3.12–3.15 passed tests but missed coverage at 89.95% because Pandoc/crossref were absent. The WAV producer was repaired, and CI now installs a version-matched, upstream-digest-checked tool pair; the 90% threshold and tests were not relaxed. Native post-fix scoped proof passed 140 tests, and the full gate passed 921. [Hosted post-fix CI passed all five Python 3.11–3.15 jobs on `7e4d0e4`](https://github.com/docxology/democreate/actions/runs/42448902641).
+- The separate post-CI refutation pool identified malformed-WAV error leakage and a benchmark crash when only `ffprobe` is absent. Real reproduction produced four failures and one already-passing boundary case. Both roots were corrected; final scoped/full gates passed. Standalone API/CLI smoke confirmed typed `RenderError`, unchanged source/prior output, and a retained partial benchmark report naming `ffprobe`; a real rejected FFmpeg filter also preserved prior output. Fresh timing retains the slower observed samples rather than selecting earlier faster runs.
 - Stock FFmpeg lacked libass; an existing read-only full build was used. Native system TTS was unusable. Core Python 3.15 lacks a locked ONNX wheel; a separate compatible repository-local voice prefix was used, without changing the core pin.
 - The 325 MB model exceeds the runner's 256 MiB per-seed limit. Its small manifest was sealed and runtime hashes matched before/after, but the model itself was not a kernel-protected seed. Supplier digests were unavailable: observed hashes are not publisher authentication.
 - Nested Chrome's own sandbox failed under the qualified outer Seatbelt sandbox. Only the owned proof instance used `--no-sandbox`; the outer offline/Git-store/seed controls remained active. No user browser session or Herdr pane was commandeered.

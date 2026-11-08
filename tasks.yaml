@@ -124,11 +124,14 @@ tasks:
     The earlier shipped-v0.7.0 assertion below is not confirmed by remote
     publication state. Candidate 0.8.0 remains untagged/unpublished; its
     independently annotated voiced-corpus accuracy gate remains unmet.
-    Engineering evidence 2026-11-08 UTC: 917 passed, 12 skipped, configured
+    Engineering evidence 2026-11-08 UTC: 926 passed, 12 skipped, configured
     coverage 90.47%; Ruff/mypy passed. Fresh core-only wheel/CLI, 25-page
     manuscript and real Kokoro af_heart 2160p render exercised; see
     data/release-0.8.0.json. Release remains blocked: no independent acoustic
     corpus/evaluator result, and the operator's release write class is disabled.
+    Hosted Python 3.11–3.15 passed on 7e4d0e4 after the WAV/toolchain fix.
+    Final refutation fixes reproduce malformed-WAV and missing-probe failures,
+    retain typed errors/partial observations, and refresh bound media/artifacts.
     Historical work-log assertion, not current evidence:
     Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
     90.19% coverage. ruff clean, mypy clean. New features: translation subsystem

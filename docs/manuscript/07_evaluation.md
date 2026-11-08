@@ -18,6 +18,11 @@
 
 The 2026-11-08 record retains the exact starter input, runtime-package/resources manifest, lock, interpreter, installed packages, tool versions and raw samples. It is a synthetic **silent** starter at 1920×1080, not a voiced corpus or a neural-TTS benchmark. Five consecutive build samples include the first timed build; process imports and input construction are outside the timer. The median is not a cold-process startup estimate.
 
+The current record was re-measured after the final PCM/error-boundary and
+missing-probe corrections. Earlier candidate raw samples remain under
+`prior_candidate_records`; these are retained observations, not a controlled
+before/after performance comparison.
+
 ![Current starter timing shown as independent cards, not dimensionally incompatible bars on one axis. Whole-render throughput uses ffprobe's measured video-stream duration outside the timer; the planned timeline is retained separately. These host-specific observations provide no compatible historical comparison or performance-improvement claim.](figures/latency.png){#fig:latency}
 
 ## Engineering Gates, Not Suite-Size Claims

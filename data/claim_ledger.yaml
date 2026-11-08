@@ -310,7 +310,7 @@ claims:
     receipt: "data/release-0.8.0.json#canonical"
   - id: C30
     claim: "Observed median of five consecutive synthetic silent-starter builds in one recorded environment; not cold-process startup."
-    value: 19.2
+    value: 44.7
     unit: ms
     direction: "=="
     backed_by: "domain_profile.yaml:validation_gates#source_bound_starter_benchmark"
@@ -319,7 +319,7 @@ claims:
     receipt: "data/benchmarks-0.8.0.json#build"
   - id: C31
     claim: "Observed whole-render wall-clock throughput for one synthetic silent starter, normalized by probed encoded-video duration."
-    value: 233.9
+    value: 475.3
     unit: ms_per_encoded_output_second
     direction: "=="
     backed_by: "domain_profile.yaml:validation_gates#source_bound_starter_benchmark"
@@ -332,7 +332,7 @@ claims:
     unit: percent
     direction: ">="
     backed_by: "domain_profile.yaml:validation_gates#coverage_core"
-    source: "917 passed and 12 skipped; current run source binding and exclusions retained in data/release-0.8.0.json."
+    source: "926 passed and 12 skipped; current run source binding and exclusions retained in data/release-0.8.0.json."
     status: verified
     receipt: "data/release-0.8.0.json#core_validation"
   - id: C33

@@ -93,3 +93,29 @@ def test_benchmark_identity_tracks_resources_and_input_without_absolute_paths(
     assert benchmark._source_identity(root, '{"input": 2}')["source_sha256"] != (
         after["source_sha256"]
     )
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is unavailable")
+def test_benchmark_missing_probe_retains_other_observations(tmp_path: Path) -> None:
+    """A real CLI with only FFmpeg available must retain the partial report."""
+    import json
+    import os
+    import subprocess
+    import sys
+
+    binary_dir = tmp_path / "bin"
+    binary_dir.mkdir()
+    binary_dir.joinpath("ffmpeg").symlink_to(shutil.which("ffmpeg"))
+    report_path = tmp_path / "benchmark.json"
+    result = subprocess.run(
+        [sys.executable, str(SCRIPTS / "benchmark.py"), "--output", str(report_path)],
+        env=dict(os.environ, PATH=str(binary_dir)),
+        stdin=subprocess.DEVNULL, capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    report = json.loads(report_path.read_text())
+    assert report["render"] is None
+    assert report["render_unavailable_tools"] == ["ffprobe"]
+    assert report["identity"]["tools"]["ffprobe"]["available"] is False
+    assert report["build"]["runs"] == len(report["build"]["samples_ms"])
+    assert report["sync"]["actions_timestamped"] == report["sync"]["actions"]

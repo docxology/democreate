@@ -62,6 +62,9 @@ resolves to archived 0.6.2, not this candidate.
   Processing uses bounded-memory PCM copying and atomically publishes the WAV.
 - CI installs a SHA-256-checked, matched Pandoc 3.13/pandoc-crossref 0.3.26a pair,
   so manuscript figure/citation checks execute instead of silently skipping.
+- Malformed WAV reads in normalization/fades now raise `RenderError` while
+  preserving source and prior output. An absent `ffprobe` leaves an explicit
+  partial benchmark report instead of discarding completed observations.
 - Docs drift: the README subsystem table no longer claims a `pdf` extra for
   `paper/` (poppler on `PATH`, no pip extra — as `docs/backends.md` already
   said), the localized showcase cuts are described as rendered-on-demand rather

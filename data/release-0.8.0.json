@@ -4,8 +4,8 @@
   "release_state": "blocked_unpublished",
   "base_revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
   "canonical": {
-    "video_sha256": "8bbc99a5e37e4f04a7ebdae4d40d457c72dfdd945c873723741375b9af580413",
-    "video_bytes": 10206262,
+    "video_sha256": "234d3d282f015a2cfa4de24eb7729ce19076c1147652ae8bf5693fff0c18efd4",
+    "video_bytes": 10180819,
     "width": 3840,
     "height": 2160,
     "video_duration_s": 159.866667,
@@ -24,42 +24,42 @@
     "decoded_frames": [
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-00.png",
-        "sha256": "96fe429f7cd17b76e7a1f5560b58dbe4d12e2d3eb0ba415dc4f867640b451f4d",
+        "sha256": "3c9de4ac7bd6cc8cb2168124d037805e1f3fdbc084e714716274ca70018533f6",
         "cue": 1,
         "caption": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
         "seek_seconds": 3.244
       },
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-02.png",
-        "sha256": "63bb3e45f46afe6872e2029214acb80096126bf13d96d22daa2d7b8418b6be60",
+        "sha256": "d3f2dfcba76c3779720b481a4626dc9cbcfc6e82b2b392d920d74a53245385cf",
         "cue": 3,
         "caption": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
         "seek_seconds": 22.3185
       },
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-05.png",
-        "sha256": "47eefa9052ed39dbeb25040eb868708321760ee550f56f07160c96fe38896aed",
+        "sha256": "85be578e56ebf95fea5d8dbd82dbe18ce522ce8ca5f8fa6e8972e9c5d4e385a1",
         "cue": 6,
         "caption": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
         "seek_seconds": 57.9435
       },
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-07.png",
-        "sha256": "ff488a8e716a6bd4f9422546b2a56abe27db656f260d435ad719057e93c9c16d",
+        "sha256": "ef2cbf2d80fc878ecb136a38b63a93d7f70294faaea138f9ba6ed3c54c6bfdc0",
         "cue": 8,
         "caption": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
         "seek_seconds": 76.5165
       },
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-10.png",
-        "sha256": "2b09a233e42f7d7c52ad5bfc8f9c23416deaa8aef4232a4b85b72165859cefbc",
+        "sha256": "21bb3e249fcbb4db7c5e0f494a805fac790960d8a3357e9254f0ddbbb8317946",
         "cue": 11,
         "caption": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
         "seek_seconds": 112.3125
       },
       {
         "path": "docs/_videoframes/candidate-0.8.0/cue-14.png",
-        "sha256": "0f95a3466b1dbbd357507ae7329ef5de26f25ef6659a31a846b476422d052b3d",
+        "sha256": "22957ade5b699949105ca46205881d5793e6da16917a6174b55b3572d5c5baab",
         "cue": 15,
         "caption": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
         "seek_seconds": 154.1945
@@ -68,8 +68,8 @@
     "audio_inspection": {
       "sample_rate_for_inspection": 16000,
       "mono_samples": 2558485,
-      "rms_dbfs": -16.508512099560054,
-      "peak_dbfs": -1.4037664241037964,
+      "rms_dbfs": -16.506238540085583,
+      "peak_dbfs": -1.3938019694217376,
       "intelligibility_assessed": false,
       "acoustic_alignment_annotated": false
     },
@@ -109,41 +109,65 @@
     "source_receipt": {
       "outcome": "SUCCEEDED",
       "returncode": 0,
-      "finished": "2026-11-08T03:11:49.470280+00:00",
+      "finished": "2026-11-08T05:26:00.581415+00:00",
       "binding": {
         "source": "docxology/democreate",
-        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
-        "run": "canonical-final",
-        "generation": "16068-5da5ac6b07b248d2922f588229895ad8"
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-integrated",
+        "generation": "16964-7b7376dbb956443d8c7c77945c3bddf4"
       },
       "classification": "test",
-      "timeout_seconds": 1500,
-      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "timeout_seconds": 900,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
       "source_unchanged": true
     },
-    "local_video": "output/wfz/canonical-stage4/video/demo.mp4",
+    "local_video": "output/wfz/canonical-stage9/video/demo.mp4",
     "media_published": false,
     "frame_time_basis": "Requested ffmpeg -ss offsets at cue midpoints; actual decoded PTS is quantized, not independently onset-annotated.",
     "extraction_receipt": {
       "outcome": "SUCCEEDED",
       "returncode": 0,
-      "finished": "2026-11-08T03:17:47.421971+00:00",
+      "finished": "2026-11-08T05:27:17.395369+00:00",
       "binding": {
         "source": "docxology/democreate",
-        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
-        "run": "canonical-inspection-final",
-        "generation": "16120-20806dce608548b3bf4d56a39869d56a"
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-inspection-integrated",
+        "generation": "16995-f6a67b43d4ab43a3b5554c8e83e4cdaf"
       },
       "classification": "test",
-      "timeout_seconds": 120,
-      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "timeout_seconds": 150,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
       "source_unchanged": true
+    },
+    "runtime_manifest_source_sha256": "764bffe626d7429f9934227e6d6d07397ebacc7f7eed2f574524714241546bad",
+    "processing_wavs": {
+      "voiceover_raw.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      },
+      "voiceover_norm.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      },
+      "voiceover.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3525912,
+        "duration_s": 159.905306122449
+      }
     }
   },
   "benchmark": {
     "path": "data/benchmarks-0.8.0.json",
-    "sha256": "12e203702be23a5f93e70e2f8bb7df0032b30893c248923c66ce7978c45e53e2",
-    "source_sha256": "c81b895a1ba8b89f190afc62e45c58f5fd311eb60d44a7d54e6430ecd8c3b522",
+    "sha256": "b4fb3d46b1ff28cd24232fc8c6bb21190950d5f3bec767c4aba0fdee1e61c36a",
+    "source_sha256": "764bffe626d7429f9934227e6d6d07397ebacc7f7eed2f574524714241546bad",
     "classification": "synthetic silent starter, one environment; not the planned voiced corpus; no improvement comparison"
   },
   "browser": {
@@ -193,24 +217,24 @@
     "silent_controls_eligible": false
   },
   "core_validation": {
-    "passed": 921,
+    "passed": 926,
     "skipped": 12,
     "configured_coverage_percent": 90.47364195879048,
-    "excluded_lines": 1163,
+    "excluded_lines": 1166,
     "branch_coverage_enabled": true,
     "coverage_receipt": {
       "outcome": "SUCCEEDED",
       "returncode": 0,
-      "finished": "2026-11-08T04:55:27.489117+00:00",
+      "finished": "2026-11-08T05:14:12.884213+00:00",
       "binding": {
         "source": "docxology/democreate",
-        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
-        "run": "ci-fix-coverage",
-        "generation": "16819-064aec7f260f435f811a67d371d99bad"
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-coverage",
+        "generation": "16934-948cdd9fc92b431eaf0dd7bb514e9d0b"
       },
       "classification": "test",
       "timeout_seconds": 300,
-      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
+      "source_after_sha256": "99e3b2e298abec935d92f5ac6ff523a47aad900046e2c6de05b96df63e5305e1",
       "source_unchanged": true
     },
     "coverage_scope": "configured pure-core gate, not all heavy adapters",
@@ -262,19 +286,35 @@
       }
     },
     "identical_all_produced_bytes": true,
-    "differing_files": []
+    "differing_files": [],
+    "receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:35.472132+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "wheel8-consumer",
+        "generation": "17010-910d0c08bf1d4f358882448d05810031"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    }
   },
   "manuscript": {
-    "pdf_sha256": "5cfb863ac0a7c4a3edcc6d1b5f371e5016c0e6b788a7d04d8a96357f2110dfdb",
+    "pdf_sha256": "283dba29fc6774536cb87e159ac07a33b7dcf142931396cb60c746e181df454c",
     "pages_rendered": 25,
-    "pdfinfo": "Title:           DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers\nAuthor:          Daniel Ari Friedman\nCreator:         LaTeX via pandoc\nProducer:        xdvipdfmx (20260317)\nCreationDate:    Sat Nov  7 20:26:22 2026 PST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           25\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       1195577 bytes\nOptimized:       no\nPDF version:     1.7\n",
+    "pdfinfo": "Title:           DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers\nAuthor:          Daniel Ari Friedman\nCreator:         LaTeX via pandoc\nProducer:        xdvipdfmx (20260317)\nCreationDate:    Sat Nov  7 21:31:15 2026 PST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           25\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       1196117 bytes\nOptimized:       no\nPDF version:     1.7\n",
     "citations_used": 28,
     "citations_defined": 32,
     "unresolved_citations": 0,
     "figures_inserted": 12,
     "figures_rendered": 12,
     "all_pages_layout_inspected": true,
-    "full_bibliography_independently_validated": false
+    "full_bibliography_independently_validated": false,
+    "local_pdf": "output/wfz/manuscript/stage8-democreate-0.8.0.pdf"
   },
   "dependency_observation": {
     "observed_at": "2026-11-08T02:22:26.048030+00:00",
@@ -809,9 +849,740 @@
       "timeout_seconds": 300,
       "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
       "source_unchanged": true
+    },
+    "benchmark-post-ci": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:58:56.189880+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "benchmark-post-ci",
+        "generation": "16849-f823f715db8e46e19f8d1ec063ce4efd"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "6ccb610b6087081b3e360dcb084f85d3bd384d1fa08b748319c308f3b128c24b",
+      "source_unchanged": true
+    },
+    "snapshot7": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:58:57.393361+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "snapshot7",
+        "generation": "16850-dd310a03cd91410ea9cfcb696acc0095"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "6ccb610b6087081b3e360dcb084f85d3bd384d1fa08b748319c308f3b128c24b",
+      "source_unchanged": true
+    },
+    "canonical-post-ci": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:02:00.635422+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-post-ci",
+        "generation": "16854-886dfc57192946bea6eed5216124c10c"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "6ccb610b6087081b3e360dcb084f85d3bd384d1fa08b748319c308f3b128c24b",
+      "source_unchanged": true
+    },
+    "canonical-inspection-post-ci": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:05:01.352879+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-inspection-post-ci",
+        "generation": "16880-db42f070876542f2b6c530262cda28fb"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "a810dd3b4bcabd570c3535e42baccb8cf54c75d0f7c1eae72cba5b6e49ff5468",
+      "source_unchanged": true
+    },
+    "ci-fix-metadata": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:58:12.510594+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-metadata",
+        "generation": "16830-54b0e36162a944589efe6c4f7714aea7"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "54fad951dc6568f2624f10645d1c79d39ce59b1962eff6ef4eb48b00916b294e",
+      "source_unchanged": true
+    },
+    "refutation-after": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:13:46.594794+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-after",
+        "generation": "16932-02814e55cb6d47c6b35528432b64b8b1"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "99e3b2e298abec935d92f5ac6ff523a47aad900046e2c6de05b96df63e5305e1",
+      "source_unchanged": true
+    },
+    "refutation-lint": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:13:48.311957+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-lint",
+        "generation": "16933-f86a8427b3944ecbb07edc6c4ee76727"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "99e3b2e298abec935d92f5ac6ff523a47aad900046e2c6de05b96df63e5305e1",
+      "source_unchanged": true
+    },
+    "refutation-coverage": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:14:12.884213+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-coverage",
+        "generation": "16934-948cdd9fc92b431eaf0dd7bb514e9d0b"
+      },
+      "classification": "test",
+      "timeout_seconds": 300,
+      "source_after_sha256": "99e3b2e298abec935d92f5ac6ff523a47aad900046e2c6de05b96df63e5305e1",
+      "source_unchanged": true
+    },
+    "boundary-runtime": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:19:12.919959+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "boundary-runtime",
+        "generation": "16960-dca163b292434a37a34067a21543eb73"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "benchmark-integrated": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:19:20.982308+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "benchmark-integrated",
+        "generation": "16961-b6d71cbbb7e646b7b05e6f58acfc266c"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "snapshot9": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:19:23.632503+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "snapshot9",
+        "generation": "16963-e46df2d1159749d1b949df64520dcc4b"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "canonical-integrated": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:26:00.581415+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-integrated",
+        "generation": "16964-7b7376dbb956443d8c7c77945c3bddf4"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "canonical-inspection-integrated": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:27:17.395369+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "canonical-inspection-integrated",
+        "generation": "16995-f6a67b43d4ab43a3b5554c8e83e4cdaf"
+      },
+      "classification": "test",
+      "timeout_seconds": 150,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "ffmpeg-failure-custody": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:27:19.552078+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "ffmpeg-failure-custody",
+        "generation": "16996-17d7ce514cd145feaa106c2097cffb9a"
+      },
+      "classification": "test",
+      "timeout_seconds": 60,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    },
+    "snapshot8": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:30:45.031905+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "snapshot8",
+        "generation": "17004-a3a38f1933134e9ba1d6af53270652ef"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "generate8": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:30:54.461767+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "generate8",
+        "generation": "17006-c92b5e2888644626a798e882514671c2"
+      },
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "manuscript8": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:17.019128+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "manuscript8",
+        "generation": "17007-c525d078d700406f9e294bea26b631fe"
+      },
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "package8": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:23.129582+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "package8",
+        "generation": "17008-78fe2f986e9944ad9f7aaa5e5e7d2519"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "package8-inspection": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:27.141391+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "package8-inspection",
+        "generation": "17009-ddee79c0974f416ab28cfb543da742d7"
+      },
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "wheel8-consumer": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:35.472132+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "wheel8-consumer",
+        "generation": "17010-910d0c08bf1d4f358882448d05810031"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
+    },
+    "pdf8-inspection": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:31:47.024900+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "pdf8-inspection",
+        "generation": "17011-45949d46147848a4bd541b8e823faf34"
+      },
+      "classification": "test",
+      "timeout_seconds": 150,
+      "source_after_sha256": "652affa6a3eb5c2bf933be669d2485cc47c5e256adede31d66be25f9df811e59",
+      "source_unchanged": true
     }
   },
   "packages": {
+    "wheel_sha256": "f9c63d88e8b631a6c5487feb416ab17e943b1ea2d96cbed981fbf1729eefae59",
+    "sdist_sha256": "80dedcf644ccfdab898d75d281c2c37a5751ff4b14660f4e66c161f832a9d151",
+    "wheel_members": 74,
+    "sdist_members": 116,
+    "version": "0.8.0",
+    "requires_python": ">=3.11.5",
+    "runtime_requirements": [
+      "pyyaml>=6.0",
+      "typer>=0.12.0",
+      "rich>=13.0.0",
+      "jinja2>=3.1.0",
+      "pillow>=13.0.0",
+      "kokoro-onnx>=0.3.0; extra == \"tts\"",
+      "soundfile>=0.12.0; extra == \"tts\"",
+      "numpy>=1.24.0; extra == \"tts\"",
+      "elevenlabs>=1.0.0; extra == \"elevenlabs\"",
+      "openai-whisper>=20231117; extra == \"whisper\"",
+      "mss>=9.0.0; extra == \"capture\"",
+      "numpy>=1.24.0; extra == \"capture\"",
+      "playwright>=1.40.0; extra == \"browser\"",
+      "manim>=0.18.0; extra == \"animation\"",
+      "pynput>=1.7.0; extra == \"replay\"",
+      "pyautogui>=0.9.54; extra == \"replay\"",
+      "moviepy>=1.0.3; extra == \"video\"",
+      "ffmpeg-python>=0.2.0; extra == \"video\"",
+      "tree-sitter>=0.21.0; extra == \"codebase\"",
+      "tree-sitter-languages>=1.10.0; extra == \"codebase\"",
+      "weasyprint>=62.0; extra == \"docs\"",
+      "kokoro-onnx>=0.3.0; extra == \"all\"",
+      "soundfile>=0.12.0; extra == \"all\"",
+      "numpy>=1.24.0; extra == \"all\"",
+      "elevenlabs>=1.0.0; extra == \"all\"",
+      "openai-whisper>=20231117; extra == \"all\"",
+      "mss>=9.0.0; extra == \"all\"",
+      "playwright>=1.40.0; extra == \"all\"",
+      "manim>=0.18.0; extra == \"all\"",
+      "pynput>=1.7.0; extra == \"all\"",
+      "pyautogui>=0.9.54; extra == \"all\"",
+      "moviepy>=1.0.3; extra == \"all\"",
+      "ffmpeg-python>=0.2.0; extra == \"all\"",
+      "tree-sitter>=0.21.0; extra == \"all\"",
+      "tree-sitter-languages>=1.10.0; extra == \"all\"",
+      "weasyprint>=62.0; extra == \"all\"",
+      "pytest>=8.0.0; extra == \"dev\"",
+      "pytest-cov>=5.0.0; extra == \"dev\"",
+      "ruff>=0.5.0; extra == \"dev\"",
+      "mypy>=1.10.0; extra == \"dev\"",
+      "types-PyYAML>=6.0; extra == \"dev\""
+    ],
+    "template_present": true,
+    "sensitive_output_paths_present": false,
+    "final_wheel_consumer": {
+      "wheel_sha256": "f9c63d88e8b631a6c5487feb416ab17e943b1ea2d96cbed981fbf1729eefae59",
+      "installed_from_final_artifact": true,
+      "core_dependency_prefix_reused": true,
+      "optional_modules_loaded": [],
+      "identical_all_produced_bytes": true,
+      "files": {
+        "audio/chunk_0000.wav": "9954b1ec94cd58bd7debcf5e3a34585c545100427917cee822de476787090e3c",
+        "audio/chunk_0001.wav": "1ce7196c0bfc6545240d8651f59b0e575165a9f7d63488daf6e2284e5c10cec8",
+        "captions/captions.srt": "26a5d6b97644b28e534e0a05d04ca4d4e549fb315ae2ef80cc3dfe22440c6232",
+        "captions/captions.vtt": "34a38a82ca57281007ec01ef7c889200b732abf7446ea903ed90c4ff1c12a2f9",
+        "demos/demo.json": "f69f55c748f02382e6bcb34efb92d91dcd7af49423988734092da28a4e2d31f5",
+        "demos/transcript.md": "00807a60dea39fd1caf33a5b28b8612464ac054410a0be3cc312fcf7a864ec10",
+        "frames/frame_0000.png": "801cfba20de3ad1606ce786da3b86852423d890ae4bfa37945f9bf41ddb3bc9c",
+        "frames/frame_0001.png": "e76892b8e894e8149d5639892e830059532ac8a2be07ec675b15f772f28a13c6",
+        "manifests/render_manifest.json": "3355318c27c1a163bcedf4e1a034c8d16f8309cd787d2f991cea230b368d7a37",
+        "web/player.html": "d8aaa4c37e0f02b1c09e4bc305588fdc68d16e74d81341a22dd5efa6690e0002"
+      }
+    }
+  },
+  "human_receipt": "docs/release-0.8.0.md",
+  "core_validation_before_hosted_ci": {
+    "passed": 917,
+    "skipped": 12,
+    "configured_coverage_percent": 90.47236718854543,
+    "excluded_lines": 1153,
+    "branch_coverage_enabled": true,
+    "coverage_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:56:25.002209+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "coverage-complete",
+        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
+      },
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
+      "source_unchanged": true
+    },
+    "coverage_scope": "configured pure-core gate, not all heavy adapters",
+    "mypy": "passed 66 source files; one existing untyped-body note remains",
+    "ruff": "passed"
+  },
+  "hosted_ci": {
+    "first_attempt": {
+      "commit": "865dc3371f42212d54b191748c99cbc148f74acc",
+      "url": "https://github.com/docxology/democreate/actions/runs/42447713930",
+      "conclusion": "failure",
+      "python_3_11_render_failures": 3,
+      "other_matrix_coverage_percent": 89.95,
+      "root_causes": [
+        "FFmpeg WAVE_FORMAT_EXTENSIBLE incompatible with Python 3.11 wave reader",
+        "missing Pandoc/crossref skipped four manuscript checks"
+      ]
+    },
+    "post_fix": {
+      "commit": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+      "checks": [
+        {
+          "name": "test (py3.15)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641/job/128633690528"
+        },
+        {
+          "name": "test (py3.14)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641/job/128633690417"
+        },
+        {
+          "name": "test (py3.12)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641/job/128633690416"
+        },
+        {
+          "name": "test (py3.11)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641/job/128633690369"
+        },
+        {
+          "name": "test (py3.13)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641/job/128633690265"
+        }
+      ],
+      "runs": [
+        {
+          "id": 42448902641,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/docxology/democreate/actions/runs/42448902641",
+          "head_sha": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39"
+        }
+      ]
+    }
+  },
+  "canonical_before_hosted_ci": {
+    "video_sha256": "8bbc99a5e37e4f04a7ebdae4d40d457c72dfdd945c873723741375b9af580413",
+    "video_bytes": 10206262,
+    "width": 3840,
+    "height": 2160,
+    "video_duration_s": 159.866667,
+    "audio_duration_s": 159.905313,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "animation_fps": 15,
+    "voice_backend": "kokoro",
+    "voice": "af_heart",
+    "python": "3.14.10",
+    "mean_volume_db": -16.4,
+    "structural_verification_ok": true,
+    "captions_burned": false,
+    "caption_cues": 15,
+    "chapters": 15,
+    "decoded_frames": [
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-00.png",
+        "sha256": "96fe429f7cd17b76e7a1f5560b58dbe4d12e2d3eb0ba415dc4f867640b451f4d",
+        "cue": 1,
+        "caption": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
+        "seek_seconds": 3.244
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-02.png",
+        "sha256": "63bb3e45f46afe6872e2029214acb80096126bf13d96d22daa2d7b8418b6be60",
+        "cue": 3,
+        "caption": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
+        "seek_seconds": 22.3185
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-05.png",
+        "sha256": "47eefa9052ed39dbeb25040eb868708321760ee550f56f07160c96fe38896aed",
+        "cue": 6,
+        "caption": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
+        "seek_seconds": 57.9435
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-07.png",
+        "sha256": "ff488a8e716a6bd4f9422546b2a56abe27db656f260d435ad719057e93c9c16d",
+        "cue": 8,
+        "caption": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
+        "seek_seconds": 76.5165
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-10.png",
+        "sha256": "2b09a233e42f7d7c52ad5bfc8f9c23416deaa8aef4232a4b85b72165859cefbc",
+        "cue": 11,
+        "caption": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
+        "seek_seconds": 112.3125
+      },
+      {
+        "path": "docs/_videoframes/candidate-0.8.0/cue-14.png",
+        "sha256": "0f95a3466b1dbbd357507ae7329ef5de26f25ef6659a31a846b476422d052b3d",
+        "cue": 15,
+        "caption": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
+        "seek_seconds": 154.1945
+      }
+    ],
+    "audio_inspection": {
+      "sample_rate_for_inspection": 16000,
+      "mono_samples": 2558485,
+      "rms_dbfs": -16.508512099560054,
+      "peak_dbfs": -1.4037664241037964,
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "demo_input": {
+      "path": "examples/democreate_showcase.json",
+      "sha256": "31d8a726771ffe40dac2863e685cc7fbee47ee47893bb556f26676f604d702e8"
+    },
+    "model_assets": {
+      "assets_before": [
+        {
+          "name": "voices-v1.0.bin",
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+          "size": 28214398
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+          "size": 325532387
+        }
+      ],
+      "assets_after": [
+        {
+          "name": "voices-v1.0.bin",
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+          "size": 28214398
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+          "size": 325532387
+        }
+      ],
+      "large_model_kernel_seed_protected": false,
+      "large_model_seed_limit_bytes": 268435456,
+      "supplier_digests_available": false
+    },
+    "source_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:11:49.470280+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-final",
+        "generation": "16068-5da5ac6b07b248d2922f588229895ad8"
+      },
+      "classification": "test",
+      "timeout_seconds": 1500,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "local_video": "output/wfz/canonical-stage4/video/demo.mp4",
+    "media_published": false,
+    "frame_time_basis": "Requested ffmpeg -ss offsets at cue midpoints; actual decoded PTS is quantized, not independently onset-annotated.",
+    "extraction_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T03:17:47.421971+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
+        "run": "canonical-inspection-final",
+        "generation": "16120-20806dce608548b3bf4d56a39869d56a"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "20018278db0b4d8d247bb4c983467198cc274114b57a55911aad6e837f8cdf2b",
+      "source_unchanged": true
+    },
+    "artifact_paths_at_revision": "865dc3371f42212d54b191748c99cbc148f74acc"
+  },
+  "artifact_epoch_note": "Each section records its own source binding. Prior candidate records remain historical. Final native runtime/benchmark manifest SHA-256 is 764bffe626d7429f9934227e6d6d07397ebacc7f7eed2f574524714241546bad; final Git SHA is recorded externally in the publication receipt to avoid self-reference.",
+  "core_validation_after_first_ci_fix": {
+    "passed": 921,
+    "skipped": 12,
+    "configured_coverage_percent": 90.47364195879048,
+    "excluded_lines": 1163,
+    "branch_coverage_enabled": true,
+    "coverage_receipt": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T04:55:27.489117+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "865dc3371f42212d54b191748c99cbc148f74acc",
+        "run": "ci-fix-coverage",
+        "generation": "16819-064aec7f260f435f811a67d371d99bad"
+      },
+      "classification": "test",
+      "timeout_seconds": 300,
+      "source_after_sha256": "ac8382012949415db792948fbd39464b1f366cb83faf3876e5a23f19f2bb88c4",
+      "source_unchanged": true
+    },
+    "coverage_scope": "configured pure-core gate, not all heavy adapters",
+    "mypy": "passed 66 source files; one existing untyped-body note remains",
+    "ruff": "passed"
+  },
+  "adversarial_counterexamples": {
+    "before": {
+      "outcome": "FAILED",
+      "returncode": 1,
+      "finished": "2026-11-08T05:11:50.708378+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-before",
+        "generation": "16918-4125304d4c304d549956de02ff36fbc7"
+      },
+      "classification": "test",
+      "timeout_seconds": 120
+    },
+    "before_results": {
+      "failed": 4,
+      "passed": 1
+    },
+    "after": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:13:46.594794+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "refutation-after",
+        "generation": "16932-02814e55cb6d47c6b35528432b64b8b1"
+      },
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "99e3b2e298abec935d92f5ac6ff523a47aad900046e2c6de05b96df63e5305e1",
+      "source_unchanged": true
+    },
+    "direct_runtime": {
+      "normalize_audio": {
+        "exception": "RenderError",
+        "cause": "EOFError",
+        "source_unchanged": true,
+        "destination_unchanged": true
+      },
+      "apply_fade": {
+        "exception": "RenderError",
+        "cause": "EOFError",
+        "source_unchanged": true,
+        "destination_unchanged": true
+      },
+      "benchmark_cli": {
+        "returncode": 0,
+        "missing_tools": [
+          "ffprobe"
+        ],
+        "render": null,
+        "raw_build_samples": [
+          828.572417027317,
+          42.75466699618846,
+          40.791875042486936,
+          42.0612909947522,
+          42.024832975585014
+        ],
+        "sync": {
+          "kind": "heuristic structural sanity; not acoustic accuracy",
+          "actions": 3,
+          "actions_timestamped": 3,
+          "monotonic": true
+        },
+        "report_retained": true
+      }
+    },
+    "subprocess_failure": {
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-08T05:27:19.552078+00:00",
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "7e4d0e4d046e2cf8c1590520c0a5ecb9da8fcf39",
+        "run": "ffmpeg-failure-custody",
+        "generation": "16996-17d7ce514cd145feaa106c2097cffb9a"
+      },
+      "classification": "test",
+      "timeout_seconds": 60,
+      "source_after_sha256": "88de2c2b18280be862c5f9baf420ee32aefb795ecf59c238f9be8e4a4ae17dcb",
+      "source_unchanged": true
+    }
+  },
+  "manuscript_before_final_refresh": {
+    "pdf_sha256": "5cfb863ac0a7c4a3edcc6d1b5f371e5016c0e6b788a7d04d8a96357f2110dfdb",
+    "pages_rendered": 25,
+    "pdfinfo": "Title:           DemoCreate: Declarative, Deterministic Generation of Narrated Demos of Software and Research Papers\nAuthor:          Daniel Ari Friedman\nCreator:         LaTeX via pandoc\nProducer:        xdvipdfmx (20260317)\nCreationDate:    Sat Nov  7 20:26:22 2026 PST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           25\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       1195577 bytes\nOptimized:       no\nPDF version:     1.7\n",
+    "citations_used": 28,
+    "citations_defined": 32,
+    "unresolved_citations": 0,
+    "figures_inserted": 12,
+    "figures_rendered": 12,
+    "all_pages_layout_inspected": true,
+    "full_bibliography_independently_validated": false,
+    "local_pdf": "output/wfz/manuscript/stage6-democreate-0.8.0.pdf"
+  },
+  "packages_before_final_refresh": {
     "wheel_sha256": "139159aa2c4fbc852a6ce87c762c1cc8475dfd002fa83fc818f252a6bd7a0b16",
     "sdist_sha256": "bd1fa9cbe19d7edb96de37914d8f54c9c0ad8ea3f26d146c2f4a650ad542cbe3",
     "wheel_members": 74,
@@ -881,46 +1652,14 @@
         "manifests/render_manifest.json": "3355318c27c1a163bcedf4e1a034c8d16f8309cd787d2f991cea230b368d7a37",
         "web/player.html": "d8aaa4c37e0f02b1c09e4bc305588fdc68d16e74d81341a22dd5efa6690e0002"
       }
+    },
+    "artifact_paths_at_revision": "865dc3371f42212d54b191748c99cbc148f74acc"
+  },
+  "optional_generator_non_runs": [
+    {
+      "operation": "live dashboard capture",
+      "source": "examples/make_assets.py",
+      "reason": "Playwright absent; no fresh capture asserted"
     }
-  },
-  "human_receipt": "docs/release-0.8.0.md",
-  "core_validation_before_hosted_ci": {
-    "passed": 917,
-    "skipped": 12,
-    "configured_coverage_percent": 90.47236718854543,
-    "excluded_lines": 1153,
-    "branch_coverage_enabled": true,
-    "coverage_receipt": {
-      "outcome": "SUCCEEDED",
-      "returncode": 0,
-      "finished": "2026-11-08T03:56:25.002209+00:00",
-      "binding": {
-        "source": "docxology/democreate",
-        "revision": "b85cefab7564d88090ef51039b889f3e9d35a723",
-        "run": "coverage-complete",
-        "generation": "16359-d7d26e230de24063a0fdf9038522ce95"
-      },
-      "classification": "test",
-      "timeout_seconds": 900,
-      "source_after_sha256": "0823894a1dc333c2dfe2fdc06acbd885f30083782b99903153f84350763b16c9",
-      "source_unchanged": true
-    },
-    "coverage_scope": "configured pure-core gate, not all heavy adapters",
-    "mypy": "passed 66 source files; one existing untyped-body note remains",
-    "ruff": "passed"
-  },
-  "hosted_ci": {
-    "first_attempt": {
-      "commit": "865dc3371f42212d54b191748c99cbc148f74acc",
-      "url": "https://github.com/docxology/democreate/actions/runs/42447713930",
-      "conclusion": "failure",
-      "python_3_11_render_failures": 3,
-      "other_matrix_coverage_percent": 89.95,
-      "root_causes": [
-        "FFmpeg WAVE_FORMAT_EXTENSIBLE incompatible with Python 3.11 wave reader",
-        "missing Pandoc/crossref skipped four manuscript checks"
-      ]
-    },
-    "post_fix": "not_yet_observed"
-  }
+  ]
 }

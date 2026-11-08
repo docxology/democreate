@@ -65,7 +65,7 @@ def bench_render(animation_fps: int = 15) -> dict | None:
     Encoding uses the shipped default animation frame rate. Probe the resulting
     video stream outside the timer; retain its planned timeline separately.
     """
-    if not ffmpeg_available():
+    if not ffmpeg_available() or shutil.which("ffprobe") is None:
         return None
     import tempfile
 
@@ -230,7 +230,13 @@ def main() -> None:
         "sync": bench_sync(),
     }
     if report["render"] is None:
-        report["render_unavailable_reason"] = "ffmpeg is unavailable"
+        missing_tools = [
+            name for name in ("ffmpeg", "ffprobe") if shutil.which(name) is None
+        ]
+        report["render_unavailable_tools"] = missing_tools
+        report["render_unavailable_reason"] = (
+            "required render tools unavailable: " + ", ".join(missing_tools)
+        )
     out = args.output
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

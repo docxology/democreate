@@ -223,3 +223,22 @@ def test_normalize_and_fade_preserve_pcm_timing_and_legacy_wav(
         sum(value * value for value in middle) / len(middle) / 2
     )
     assert source.read_bytes() == original
+
+
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is unavailable")
+@pytest.mark.parametrize("operation", ["normalize_audio", "apply_fade"])
+@pytest.mark.parametrize("payload", [b"", b"RIFF\x24\x00\x00\x00WAVEfmt "])
+def test_truncated_wav_is_render_error_without_replacing_output(
+    tmp_path: Path, operation: str, payload: bytes
+) -> None:
+    """Malformed media cannot bypass the rendering error or custody contract."""
+    from democreate.assembly import audio
+
+    source = tmp_path / "truncated.wav"
+    source.write_bytes(payload)
+    destination = tmp_path / "existing.wav"
+    destination.write_bytes(b"previous complete output")
+    with pytest.raises(RenderError):
+        getattr(audio, operation)(source, destination)
+    assert source.read_bytes() == payload
+    assert destination.read_bytes() == b"previous complete output"

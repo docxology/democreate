@@ -231,7 +231,7 @@ def _filter_wav(
                 while data := raw.read(65536 * params.nchannels):
                     output.writeframesraw(data)
             wav_path.replace(out_path)
-    except (OSError, wave.Error, subprocess.CalledProcessError) as exc:
+    except (OSError, EOFError, wave.Error, subprocess.CalledProcessError) as exc:
         raise RenderError(f"ffmpeg audio {operation} failed") from exc
     return out_path
 
@@ -306,7 +306,10 @@ def apply_fade(
     in_path = Path(in_path)
     out_path = Path(out_path)
 
-    total_ms = measure_duration_ms(in_path)
+    try:
+        total_ms = measure_duration_ms(in_path)
+    except (OSError, EOFError, wave.Error) as exc:
+        raise RenderError("cannot read WAV for audio fade") from exc
     fade_s = max(fade_ms, 0) / 1000.0
     out_start_s = max(total_ms - max(fade_ms, 0), 0) / 1000.0
     afade = f"afade=t=in:st=0:d={fade_s},afade=t=out:st={out_start_s}:d={fade_s}"

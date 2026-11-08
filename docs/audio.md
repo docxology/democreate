@@ -44,8 +44,9 @@ framerate)`, so concatenation never resamples; mismatched clip formats raise a
 | Inter-chunk gap | `gap_ms` | `220` | Between consecutive clips. |
 | Trail silence | `trail_silence_ms` | `600` | After the last clip. |
 
-These same lead/gap/trail values are fed to the animator's `chunk_timing()` so
-the frame timeline matches the padded audio exactly — no drift.
+The same lead/gap/trail windows feed the animator's `chunk_timing()`.
+Visual boundaries are quantized to the animation frame grid; encoded stream
+duration is probed separately rather than assumed to match audio exactly.
 
 Canonical audio is 16-bit mono PCM. `measure_duration_ms()` reads the true
 duration from the WAV header (frame count ÷ frame rate).
@@ -62,10 +63,16 @@ post-processed:
    each, via ffmpeg `afade`. The fade-out start is computed from the true clip
    duration.
 
-Both are **guarded**: if `ffmpeg` is absent they raise
-`BackendUnavailableError(extra="video")`, and `_build_voiceover()` catches that
-(plus `RenderError` / `OSError`) and gracefully falls back to the raw, un-faded
-track — the render still completes. The pure concat path never needs ffmpeg.
+Both helpers accept readable PCM WAV input, preserve its sample rate/channel
+count and publish standard 16-bit PCM headers readable on Python 3.11. This
+avoids FFmpeg's implicit 192 kHz/extensible-WAV output. Malformed reads and
+processing/output failures raise `RenderError` without replacing prior output.
+
+Both are **guarded**: an absent `ffmpeg` raises
+`BackendUnavailableError(extra="video")`. Optional post-processing failure
+allows audio assembly to retain the raw, un-faded track; it is not a guarantee
+that arbitrary raw audio or MP4 encoding succeeds. MP4 encoding still needs
+FFmpeg. The pure concat path does not.
 
 ## Settings summary
 

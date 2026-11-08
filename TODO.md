@@ -121,3 +121,15 @@ unrecorded; they are explicitly historical.
 - [x] Closed 2026-11-07: align candidate metadata/runtime/schema contracts,
   native portfolio failure policy and benchmark identity/raw samples.
 
+## 2026-11-08 hosted and adversarial boundary closure
+
+- [x] Medium: closed 2026-11-08 — Python 3.11 render failures from FFmpeg's
+  extensible WAV output; preserve PCM rate/channels and publish legacy-readable
+  headers (`assembly/audio.py`, real multichannel/high-rate regressions).
+- [x] Medium: closed 2026-11-08 — absent manuscript tools skipped real CI gates;
+  install upstream-digest-checked matched Pandoc/crossref binaries (CI workflow).
+- [x] Medium: closed 2026-11-08 — malformed-WAV errors escaped the rendering
+  boundary; retain typed errors and prior output (`assembly/audio.py`).
+- [x] Medium: closed 2026-11-08 — absent ffprobe aborted optional benchmarks;
+  retain available observations and concrete missing tools (`scripts/benchmark.py`).
+
