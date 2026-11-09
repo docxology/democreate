@@ -23,8 +23,9 @@ all with **pure standard-library `ast`**, no heavy dependencies.
 - `summarize_module(path: Path) -> ModuleSummary` — raises `DemoCreateError` on a
   read or syntax error.
 - `walk_repository(root, *, pattern="**/*.py", exclude=(...)) -> list[ModuleSummary]` —
-  deterministic sorted order; excluded path parts skipped; unparsable files logged
-  and skipped.
+  deterministic sorted order; excluded directories are relative to `root`, not
+  its ancestors; returned paths retain the caller's spelling. Unparsable files
+  are logged and skipped.
 
 ### `ast_viz`
 - `module_to_tree(summary) -> str` — indented `module > class > method`, then functions.
@@ -39,6 +40,11 @@ all with **pure standard-library `ast`**, no heavy dependencies.
 
 `topological_order()` treats an edge `(a, b)` as "`a` depends on `b`", so `b`
 precedes `a` in the result.
+
+Relative imports in a package's `__init__.py` resolve from that package, while
+ordinary modules resolve from their containing package. Graph node keys remain
+root-relative dotted names (`sub` for `sub/__init__.py`, `sub.leaf` for
+`sub/leaf.py`).
 
 ## Optional packages do not change the walker
 

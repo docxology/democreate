@@ -272,3 +272,91 @@ def test_native_static_captions_change_inside_held_frame(tmp_path: Path) -> None
     for index in (1, 8):
         assert max(pixels[index * frame_bytes : (index + 1) * frame_bytes]) < 10
     assert max(pixels[5 * frame_bytes : 6 * frame_bytes]) > 100
+
+
+@pytest.mark.parametrize(
+    "exporter_name", ["export_video", "encode_frame_sequence", "assemble_video"]
+)
+def test_native_encoders_publish_atomically_on_real_write_failure(
+    tmp_path: Path, exporter_name: str
+) -> None:
+    import subprocess
+    import sys
+
+    pytest.importorskip("resource", reason="requires POSIX RLIMIT_FSIZE")
+    from PIL import Image
+
+    import democreate.export.video as video_mod
+
+    if not video_mod.ffmpeg_available():
+        pytest.skip("requires native ffmpeg with libx264")
+    frames = []
+    for index in range(10):
+        frame = tmp_path / f"frame_{index:04d}.png"
+        image = Image.new("RGB", (160, 96))
+        image.putdata([
+            ((x * 37 + index * 11) % 256, (y * 53) % 256, (x * y) % 256)
+            for y in range(96) for x in range(160)
+        ])
+        image.save(frame)
+        frames.append(frame)
+    output = tmp_path / "final.mp4"
+    exporter = getattr(video_mod, exporter_name)
+    if exporter_name == "assemble_video":
+        result = exporter(frames, [100] * len(frames), None, output, fps=10)
+    else:
+        result = exporter(frames, None, output, fps=10)
+    assert result == output
+    previous = output.read_bytes()
+    assert len(previous) > 2048
+    assert _decoded_rgb(output)
+    unrelated = tmp_path / "final_frames.concat"
+    unrelated.write_text("not this attempt's scratch", encoding="utf-8")
+    before = set(tmp_path.iterdir())
+    child = """
+import resource
+import sys
+from pathlib import Path
+from democreate.errors import RenderError
+from democreate.export import video
+root = Path(sys.argv[1])
+name = sys.argv[2]
+frames = sorted(root.glob("frame_*.png"))
+limit = 2048
+if name == "assemble_video":
+    # Reach FFmpeg rather than failing Python's path-dependent manifest write.
+    manifest = video.build_concat_demuxer_file([(p.resolve(), 0.1) for p in frames])
+    limit = max(limit, len(manifest.encode("utf-8")) + 1)
+assert len((root / "final.mp4").read_bytes()) > limit
+resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
+try:
+    exporter = getattr(video, name)
+    if name == "assemble_video":
+        exporter(frames, [100] * len(frames), None, root / "final.mp4", fps=10)
+    else:
+        exporter(frames, None, root / "final.mp4", fps=10)
+except RenderError:
+    pass
+else:
+    raise AssertionError("native encoder unexpectedly succeeded under RLIMIT_FSIZE")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", child, str(tmp_path), exporter_name],
+        capture_output=True, text=True, check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert output.read_bytes() == previous
+    assert set(tmp_path.iterdir()) == before
+    assert unrelated.read_text(encoding="utf-8") == "not this attempt's scratch"
+
+
+def test_native_encoder_accepts_valid_near_limit_output_basename(tmp_path: Path) -> None:
+    from democreate.export.video import ffmpeg_available
+
+    if not ffmpeg_available():
+        pytest.skip("requires native ffmpeg with libx264")
+    frame = _make_png(tmp_path / "frame_0000.png", (30, 120, 210), size=32)
+    output = tmp_path / ("a" * 250 + ".mp4")
+    encode_frame_sequence([frame], None, output, fps=2, preset="ultrafast")
+    assert tuple(_decoded_rgb(output)[:3]) == pytest.approx((30, 120, 210), abs=6)
+

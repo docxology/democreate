@@ -43,3 +43,11 @@ See [the visual-refresh receipt](../docs/visual-refresh.md) for commands and lim
 Neither file is an authenticated signature, a passing acoustic study or a release
 record. Decoded frame times are requested ffmpeg seek offsets, not independently
 annotated presentation/event onsets. Listening and acoustic alignment are untested.
+
+`deep-audit-2026-11-09.json` records the later timing/input/export repairs,
+supplied-annotation scorer, central native coverage, fresh offline installation,
+before/after real consumers and explicit gaps. Production Python hashes and
+per-run commands/bindings distinguish it from earlier epochs. See the
+[native audit receipt](../docs/deep-audit.md). Its initial staged manuscript and
+earlier canonical-video references are dated observations, not final publication
+or independent acoustic evidence.

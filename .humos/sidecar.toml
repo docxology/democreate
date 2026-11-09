@@ -1,8 +1,8 @@
-# .humos/sidecar.toml - HumOS sidecar registration for DemoCreate.
-# Coupling is standalone: the sidecar makes the project discoverable by
-# lab tooling; it grants no humos.* import surface. DemoCreate is a
-# zero-runtime-dependency declarative demo generator whose outputs
-# (videos, HTML players, transcripts) are consumable by hum-dashboard.
+# .humos/sidecar.toml - HumOS integration declaration for DemoCreate.
+# Standalone coupling grants no humos.* runtime import surface.
+# Core package dependencies are declared in pyproject.toml; standalone does not
+# mean zero Python dependencies. Registration and dashboard consumption are
+# declarations, not verified live integrations.
 
 [sidecar]
 schema_version = 1

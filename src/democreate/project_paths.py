@@ -186,8 +186,8 @@ def stage_demo_assets(demo: Demo, workspace: Workspace, asset_root: Path) -> Non
         asset_root: Trusted input root, also the base of relative image paths.
 
     Raises:
-        RenderError: If a required image is missing, malformed, outside the allowed
-            roots, or changes while it is being staged.
+        RenderError: If a required image is missing, fails verification or RGB
+            decoding, is outside the allowed roots, or changes while staged.
     """
     allowed = asset_root.resolve()
     staged: dict[Path, Path] = {}
@@ -208,6 +208,11 @@ def stage_demo_assets(demo: Demo, workspace: Workspace, asset_root: Path) -> Non
                 try:
                     with Image.open(source) as image:
                         image.verify()
+                    # Container verification alone need not decompress pixel data.
+                    # Reopen, as required by Pillow after verify(), and perform the
+                    # same RGB conversion as the renderer before narration writes.
+                    with Image.open(source) as image:
+                        image.convert("RGB").close()
                 except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
                     raise RenderError(f"cannot decode background image: {raw}") from exc
                 with source.open("rb") as stream:

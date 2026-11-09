@@ -19,6 +19,14 @@ ffprobe -v error -show_entries format_tags=title,artist,comment \
 
 The system TTS availability probe and ffmpeg must succeed for this voiced render.
 
+Tag/chapter remuxers explicitly retain every video, audio and subtitle stream,
+including audio language tags. Tag updates retain source chapters; chapter
+updates replace chapters from ffmetadata and retain source global metadata.
+Chapter-carrier data is regenerated; arbitrary nonchapter data tracks are
+excluded. Each remux stages locally and preserves its prior destination on
+native failure. Stream preservation and packet identity do not authenticate
+the media or its attribution.
+
 ## Unsigned poster payload
 
 `export/stego.py` places a length-prefixed JSON record in image-channel LSBs.

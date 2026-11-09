@@ -26,9 +26,9 @@ _TEMPLATE_NAME = "player.html.j2"
 def build_timeline(demo: Demo) -> dict:
     """Build a deterministic caption/chapter timeline from a demo.
 
-    Each chunk becomes a caption cue. A cue's ``start_ms`` is the chunk's own
-    ``start_ms`` if the sync engine has filled it in, otherwise the running sum of
-    measured playback durations (falling back to estimates before synthesis).
+    Each chunk becomes a caption cue. Synced starts retain genuine gaps but
+    are clamped to the running cursor so merged/resolved windows never overlap.
+    Duration is measured playback time, falling back to estimates before synthesis.
     Each scene becomes a chapter anchored to its first chunk's start (or the
     running cursor when a scene has no chunks).
 
@@ -48,7 +48,7 @@ def build_timeline(demo: Demo) -> dict:
         chapter_start = cursor
         first = True
         for chunk in scene.chunks:
-            start = chunk.start_ms if chunk.start_ms is not None else cursor
+            start = max(cursor, chunk.start_ms if chunk.start_ms is not None else cursor)
             end = start + chunk.playback_duration_ms()
             if first:
                 chapter_start = start

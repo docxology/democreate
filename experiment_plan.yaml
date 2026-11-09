@@ -85,6 +85,12 @@ primary_metric:
     action timestamps. Identify events by scene/chunk ID and action index; retain
     audio/video SHA-256 identities, onset annotations, disagreement/adjudication
     records and frame cadence. Report annotation uncertainty and frame quantization.
+    Supplied-annotation arithmetic is implemented by democreate score-sync
+    (annotation format 1; docs/evaluation.md), separately from Demo schema 1.1.
+    This does not detect onsets or verify independence/predeclaration/media bytes.
+    Both tracks use zero-based milliseconds from the first presented video
+    timestamp. Failed media stay explicit with null unavailable identities or
+    duration; never fabricate a digest or silently drop an intended event.
 
 secondary_metrics:
   - id: render_ms_per_output_s

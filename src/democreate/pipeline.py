@@ -57,6 +57,8 @@ class PipelineResult:
         player_path: The interactive HTML player.
         transcript_path: The Markdown transcript.
         demo_path: The serialized demo JSON.
+        config: Per-build configuration snapshot. Export may change style/encoding,
+            but changing lead/gap/trail requires rebuilding the synchronized demo.
         rerender_states: Use the built-in state renderer during animation. Explicit
             compositor overrides retain their supplied raster content instead.
     """
@@ -73,6 +75,14 @@ class PipelineResult:
     demo_path: Path | None = None
     config: RenderConfig = field(default_factory=RenderConfig)
     rerender_states: bool = False
+    _built_padding_ms: tuple[int, int, int] = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """Retain the padding that established this result's timing authority."""
+        audio = self.config.audio
+        self._built_padding_ms = (
+            audio.lead_silence_ms, audio.gap_ms, audio.trail_silence_ms
+        )
 
     def summary(self) -> dict[str, object]:
         """A compact JSON-able summary of what was produced."""
@@ -161,8 +171,13 @@ class Pipeline:
                 logger.warning("demo validation: %s", p)
 
         demo = deepcopy(demo)
+        cfg = deepcopy(self.config)
+        if cfg.audio.voice:
+            # An explicitly configured default replaces the artifact default;
+            # synthesize_demo still honors deliberate per-chunk casting.
+            demo.voice = cfg.audio.voice
         result = PipelineResult(
-            demo=demo, workspace=ws, config=self.config,
+            demo=demo, workspace=ws, config=cfg,
             rerender_states=self._compositor_override is None,
         )
         stage_demo_assets(demo, ws, self.asset_root)
@@ -173,20 +188,20 @@ class Pipeline:
             # Share configured clip windows with voiceover and captions.
             # Trigger-word positions remain estimates, not acoustic detections.
             sync_demo(demo, result.clips, transcriber=self.transcriber,
-                      lead_ms=self.config.audio.lead_silence_ms,
-                      gap_ms=self.config.audio.gap_ms)
+                      lead_ms=cfg.audio.lead_silence_ms,
+                      gap_ms=cfg.audio.gap_ms)
 
         with log_stage("timeline", logger):
             result.timeline = build_timeline(
                 demo, fps=demo.fps, wpm=self.wpm,
-                trail_ms=self.config.audio.trail_silence_ms,
+                trail_ms=cfg.audio.trail_silence_ms,
             )
 
         with log_stage("compose frames + manifest", logger):
             compositor = self._compositor_override
             if compositor is None:
                 compositor = ManifestCompositor(
-                    width=demo.width, height=demo.height, theme=self.config.theme
+                    width=demo.width, height=demo.height, theme=cfg.theme
                 )
             result.manifest_path = compositor.compose(result.timeline, ws)
             result.frame_paths = [
@@ -361,6 +376,14 @@ def render_video(
     from .export.video import assemble_video
 
     cfg = config or result.config
+    audio = cfg.audio
+    if (audio.lead_silence_ms, audio.gap_ms, audio.trail_silence_ms) != (
+        result._built_padding_ms
+    ):
+        raise RenderError(
+            "audio padding differs from the built timeline; rebuild the demo "
+            "before changing lead, gap or trailing silence"
+        )
     demo = result.demo
     ws = result.workspace
     ws.ensure_safe()

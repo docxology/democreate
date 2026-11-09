@@ -11,7 +11,7 @@ resolves to the latest archived release.
 Candidate **0.8.0** — pending publication.
 
 The pre-existing blocking ≤120 ms acoustic-sync criterion remains pending/unmet;
-no annotated corpus/oracle or passing research receipt is available. Candidate
+no independent onset measurements or passing research receipt is available. Candidate
 release/manuscript readiness is not established.
 
 No release date or new version archive DOI is asserted. The concept DOI currently
@@ -63,7 +63,7 @@ resolves to archived 0.6.2, not this candidate.
   An initial same-input Kokoro `af_heart` 2160p run reproduced the earlier MP4 bytes;
   the refreshed showcase has changed inputs and a distinct recorded video identity.
   Neither observation establishes acoustic accuracy or general neural determinism.
-- Public API reference now inventories 49 modules, includes classmethod factories
+- Public API reference inventories curated public modules, includes classmethod factories
   and uses working CommonMark navigation. CI checks local file/fragment links,
   real localized MP4 output, full manuscript rendering and generated-file freshness.
 - Generated-workspace publication policy now rejects indexed files in both
@@ -89,12 +89,37 @@ resolves to archived 0.6.2, not this candidate.
   gate description rather than a current collection count.
 
 ### Added
+- Supplied-onset scoring API and `score-sync` CLI: separate pooled/demo medians,
+  fixed-mode counts, strict JSON, explicit missing/failed data and unverified
+  evidence limits. No supplied empirical corpus or release authorization.
+- Template action mappings accept canonical schema fields, including timing
+  origin and zero durations, while retaining existing Action-object support.
 - **`.humos/` sidecar contract** — DemoCreate now carries a HumOS sidecar
   (`sidecar.toml`, `bridges.toml`, `conformance.toml`) declaring standalone
-  coupling and a `data` bridge to `hum-dashboard` for versioned demo video
-  integration.
+  coupling and a `feeds` declaration to `hum-dashboard`; runtime discovery,
+  registration and task synchronization remain explicitly unverified.
 
 ### Fixed
+- Annotation scoring rejects integer-to-binary64 precision loss instead of
+  silently turning a declared failing error into a passing threshold result.
+  Large losslessly representable integers remain supported.
+- Terminal replay orders prompt/start and output/completion effects chronologically;
+  late output appends without rewriting prior lines or switching active surfaces.
+  Unsigned 8-bit WAV padding now uses the PCM midpoint, not full-scale negative DC.
+- Required images undergo real pixel decoding before narration; repository
+  exclusions are root-relative; nested initializer imports resolve correctly;
+  Poppler receives unambiguous absolute native paths.
+- Native encoders/remuxers publish atomically on native success, preserve all
+  video/audio/subtitle streams with documented chapter handling, and accept valid
+  long filenames. Strict content decoding rejects corrupt tails; short videos
+  sample within their timestamp interval and unknown durations cannot pass.
+- Merge preserves complete resolved scene trees; HTML, captions and compositor
+  windows agree for overlapping resolved fragments. Build config is snapshotted;
+  export rejects stale padding before writes. Configured default voices no longer
+  lose to the authored Demo default; deliberate chunk casting still wins.
+- Localization honors explicit geometry and provider-specific voice defaults;
+  paper forwards configured system speaking rate. Reserved portfolio index
+  names fail before per-project writes and remain explicit batch failures.
 - Generated API signatures render named function defaults as qualified symbols,
   not address-bearing object reprs. Independent-process generation now checks
   artifact equality; the former implementation-echo test was removed.

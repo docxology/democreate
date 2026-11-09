@@ -32,6 +32,22 @@ positive geometry/fps, unique scene/chunk ids, valid action types), `is_valid()`
 `to_dict()` / `from_dict()`, `to_json()` / `from_json()`, `to_yaml()` /
 `from_yaml()`. `__eq__` compares the serialized dicts.
 
+## Merge fragments without dropping resolved timing
+
+`left.merge(right)` preserves complete scene/chunk/action trees, including audio
+paths, measured durations and starts, without sharing those trees with either
+input. Geometry/default voice come from the left Demo; top-level metadata is
+shallow-merged with the right side winning. Scene/chunk ID collisions receive
+unique suffixes.
+
+This is not audio-file concatenation or an automatic absolute-time rebase.
+`offset` controls ID suffixes, not milliseconds. Caption, HTML/chapter and
+compositor consumers clamp overlapping chunk starts forward while retaining real
+gaps. Authored action timestamps remain absolute: express them on the combined
+timebase, or synchronize unresolved/derived actions when rebuilding. Asset/audio
+files themselves are not copied by this pure operation.
+
+
 ## `Scene`
 
 A logical chapter with a single capture strategy.

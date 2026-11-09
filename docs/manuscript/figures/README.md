@@ -10,6 +10,9 @@ The cover, architecture, paper-flow and attribution diagrams explain constructio
 boundaries; none is an empirical validation result. The attribution schematic
 distinguishes selected overlapping field sets and unsigned consistency checks,
 not signatures or authenticated identities.
+The graphical abstract's separate footer lanes distinguish timing/attribution
+limits, supplied-annotation arithmetic and the unmet independent study. No
+numerical result is inferred from the scoring capability.
 
 `frame_*.png` are synthetic `render_frame` illustrations, not video extractions.
 `frame_paper.png` composes the retained `paper_fig.png` input; its generation does

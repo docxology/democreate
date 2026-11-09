@@ -256,3 +256,65 @@ def test_gallery_encodes_paths_in_url_context(tmp_path: Path) -> None:
     assert urlsplit(href).scheme == ""
     assert href.startswith("./")
     assert unquote(href[2:]) == video.relative_to(tmp_path).as_posix()
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["portfolio_index.json", "Portfolio_Index.JSON", "portfolio_index.html", "PORTFOLIO_INDEX.HTML"],
+)
+def test_reserved_index_names_fail_before_project_writes(tmp_path: Path, name: str) -> None:
+    repo = tmp_path / "projects" / name
+    repo.mkdir(parents=True)
+    (repo / "engine.py").write_text("def run():\n    return 1\n", encoding="utf-8")
+    assert repo in discover_projects(repo.parent)
+    output = tmp_path / "out"
+    output.mkdir()
+    sentinel = output / "portfolio_index.json"
+    sentinel.write_text('{"preserve": true}', encoding="utf-8")
+    with pytest.raises(ValueError, match="reserved for the portfolio index"):
+        portfolio.render_project(repo, output, tts="silent", verify=False)
+    assert list(output.iterdir()) == [sentinel]
+    assert sentinel.read_text() == '{"preserve": true}'
+
+
+@pytest.mark.backend
+@pytest.mark.skipif(not ffmpeg_available(), reason="ffmpeg not installed")
+def test_portfolio_isolates_reserved_projects_and_writes_real_indexes(tmp_path: Path) -> None:
+    import json
+
+    from democreate.config import RenderConfig
+
+    projects = tmp_path / "projects"
+    normal = _make_repo(projects, "normal")
+    reserved_names = ("Portfolio_Index.JSON", "portfolio_index.html")
+    for name in reserved_names:
+        repo = projects / name
+        repo.mkdir()
+        (repo / "engine.py").write_text("def run():\n    return 1\n", encoding="utf-8")
+    assert set(discover_projects(projects)) == {
+        normal, *(projects / name for name in reserved_names),
+    }
+    config = RenderConfig()
+    config.video.width, config.video.height = 320, 180
+    config.video.animation_fps = 5
+    config.video.preset = "ultrafast"
+    config.audio.normalize = False
+    output = tmp_path / "out"
+    report = portfolio.render_portfolio(
+        projects, output, config=config, tts="silent", verify=False,
+        timestamp="20261109T000000Z",
+    )
+    by_name = {result.name: result for result in report.results}
+    assert by_name["normal"].ok
+    assert by_name["normal"].video_path is not None
+    assert by_name["normal"].video_path.is_file()
+    for name in reserved_names:
+        assert not by_name[name].ok
+        assert "reserved for the portfolio index" in by_name[name].error
+        assert by_name[name].video_path is None
+    index = json.loads((output / "portfolio_index.json").read_text())
+    assert len(index["projects"]) == 3
+    assert (output / "portfolio_index.html").is_file()
+    assert sorted(path.name for path in output.iterdir()) == [
+        "normal", "portfolio_index.html", "portfolio_index.json", "project_videos",
+    ]

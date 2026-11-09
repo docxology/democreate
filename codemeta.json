@@ -3,11 +3,10 @@
   "@type": "SoftwareSourceCode",
   "identifier": "https://doi.org/10.5281/zenodo.20693216",
   "name": "DemoCreate: Declarative Audio-Visual Demo Generation for Software",
-  "description": "DemoCreate compiles declarative scenes, narration chunks and actions into inspectable frames, captions and HTML. Optional system or Kokoro TTS and ffmpeg produce voiced video. Clip durations are measured; default word timings are length-weighted interpolation, not acoustic recognition. Whisper, Chatterbox and Manim are unwired slots. Version 0.8.0 is a candidate pending publication.",
+  "description": "DemoCreate compiles declarative scenes, narration and actions into silent WAVs, synthetic frames, captions, transcripts and a timed HTML image preview without audio playback. Optional system/Kokoro TTS and ffmpeg produce voiced video. Default word timing interpolates known text over measured clip durations, not acoustic onsets. Supplied annotations can be scored with explicit missing-data accounting, without verifying independence or replacing the absent study. Whisper, Chatterbox and Manim are unwired. Version 0.8.0 remains an unpublished candidate.",
   "version": "0.8.0",
-  "dateModified": "2026-11-07",
+  "dateModified": "2026-11-09",
   "dateCreated": "2026-06-04",
-  "datePublished": "2026-06-04",
   "license": "https://spdx.org/licenses/MIT",
   "codeRepository": "https://github.com/docxology/democreate",
   "url": "https://github.com/docxology/democreate",
@@ -70,7 +69,7 @@
     "ffmpeg-python >= 0.2.0 (video helper package; ffmpeg binary still required)",
     "pynput >= 1.7.0 (replay backend)",
     "pyautogui >= 0.9.54 (replay backend)",
-    "tree-sitter >= 0.21.0 (codebase backend)"
+    "tree-sitter >= 0.21.0 (unwired multi-language parser slot; Python AST analysis is core)"
   ],
   "referencePublication": [
     {

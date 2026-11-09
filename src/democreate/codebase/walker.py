@@ -339,9 +339,9 @@ def walk_repository(
 ) -> list[ModuleSummary]:
     """Summarize every matching Python file under ``root``.
 
-    Files whose path contains any excluded directory part are skipped. Results
-    are returned in a deterministic (sorted by path) order. Individual files
-    that fail to parse are logged and skipped rather than aborting the walk.
+    Files beneath an excluded directory inside ``root`` are skipped; ancestor
+    directory names do not affect discovery. Results are returned in deterministic
+    path order. Files that fail to parse are logged and skipped.
 
     Args:
         root: Repository root to walk.
@@ -361,7 +361,7 @@ def walk_repository(
             or not file_path.resolve().is_relative_to(root.resolve())
         ):
             continue
-        if exclude_set.intersection(file_path.parts):
+        if exclude_set.intersection(file_path.relative_to(root).parent.parts):
             continue
         try:
             summaries.append(summarize_module(file_path))

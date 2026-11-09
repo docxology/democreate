@@ -1,8 +1,9 @@
 # Examples
 
-All JSON artifacts use schema **1.1**. Background images are relative to the
-Demo file directory; each generator stages its assets under sibling `assets/`.
-Do not replace those paths with author-machine or sibling-project paths.
+Demo JSON artifacts use schema **1.1**; the annotation example below uses its
+separate format **1**. Background images are relative to the Demo file directory;
+generators stage assets under sibling `assets/`. Do not replace those paths with
+author-machine or sibling-project paths.
 
 ## Canonical package showcase
 
@@ -60,3 +61,11 @@ resolves the PDF, figures and source tree and rejects links escaping the selecte
 the authority, even if it is itself a link. Missing inputs fail; there is no
 fallback project. It never writes into the supplied project.
 See [video recipes](../docs/videos.md) for curated versus template identities.
+
+## Missing onset annotations: an executable negative control
+
+`sync_annotations_missing.json` declares one intended event with no supplied media
+or measurements. `democreate score-sync examples/sync_annotations_missing.json`
+returns diagnostic JSON and exits **1**, with undefined medians rather than fake
+zero errors. It is neither a Demo nor an empirical corpus. See
+[annotation scoring](../docs/evaluation.md) for identities, nulls and eligibility.

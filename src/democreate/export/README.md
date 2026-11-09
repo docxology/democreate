@@ -17,6 +17,13 @@ generation needs WeasyPrint. Import safety is not backend readiness. See
 | `export_video(frame_paths, audio_path, out_path, *, fps=30)` | **guarded** | Runs the encode. Requires the native `ffmpeg` binary on `PATH`; otherwise raises `BackendUnavailableError("ffmpeg")`. Inputs must be contiguous ascending numbered paths in one directory; sparse, reordered, mixed-pattern, missing, and percent-containing paths are rejected. Output is bounded to the supplied frame count, never stale neighbors. |
 | `encode_frame_sequence(frame_paths, audio_path, out_path, *, fps=15, captions=None, crf=18, preset="medium")` | **guarded** | Same exact numbered-input contract. `captions: Path \| None` burns the requested subtitle file at encoded frame times; `None` disables burn. Missing native subtitles/libass capability raises `RenderError`, never silently skips requested captions. |
 
+Native encoders and tag/chapter remuxers stage each attempt in a unique temporary
+directory beside the requested destination, then replace that destination only
+on native success. Failure preserves its previous bytes and removes only that
+attempt's scratch (including concat scripts). This is not a pipeline transaction:
+`verify=False` remains supported, and a completed encode rejected by later content
+verification remains available at the requested path for diagnosis.
+
 ### `interactive.py`
 | Function | Kind | Notes |
 |----------|------|-------|
@@ -45,8 +52,11 @@ may include trailing silence beyond the last caption.
 Content-asserts a rendered video so existence is never mistaken for content.
 `VideoReport` (dataclass) + `verify_video(path, *, expected_width, expected_height,
 min_duration_s)` parse `ffprobe`/`volumedetect` to assert a real video stream of
-the expected size, an audio stream that is **not silent**, and a sampled frame that
-is **not black**. `parse_ffprobe` is the pure parser.
+the expected size, non-silent audio, and a nonblank frame sampled inside the
+measured video interval (including subsecond videos). The volume pass strictly
+decodes all video/audio streams once: decode failures or missing measurements
+fail closed. `check_content=False` remains structural-only. `parse_ffprobe` is
+the pure parser.
 
 ### `chapters.py` — chapter markers
 `write_chapters`, `to_youtube_chapters`, `to_ffmetadata`, `embed_chapters`, and
@@ -57,6 +67,13 @@ YouTube chapter file and embed one chapter marker per scene into the MP4.
 `build_tags`/`embed_tags` write MP4 container metadata (`title`/`artist`/`comment`,
 readable by players and `ffprobe`); `ffmpeg_metadata_args`/`to_ffmetadata` are the
 pure helpers.
+
+Both remuxers explicitly copy every source video, audio and subtitle stream,
+preserving language tags and encoded packet payloads. Chapter embedding replaces
+chapters from the supplied metadata document and retains source global tags;
+tag embedding retains source chapters. Data tracks are not copied: MP4 chapter
+carriers are regenerated from the selected chapters, so chapters-then-tags and
+replacement of existing chapters do not copy stale unsupported chapter tracks.
 
 ### `overlay.py` — on-screen provenance bars
 Pure Pillow drawing of the top/bottom metadata bars (author · source · running

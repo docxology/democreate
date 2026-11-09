@@ -4,8 +4,9 @@ The library translates authored narration for audio and independently translates
 the original text for subtitles. A TTS voice must support the **audio** language;
 subtitle text support is not a promise of font coverage or translation quality.
 The library default `IdentityTranslator` is a deterministic **no-op**, while the
-CLI defaults to **Ollama** and **Kokoro `af_heart`**. Neither server nor voice
-models ship with the core package.
+CLI defaults to **Ollama** and **Kokoro**. Voice selection is blank by default:
+configured/authored choices are retained, then Kokoro's language-specific fallback
+applies (English: `af_heart`). Neither server nor voice models ship with core.
 
 ## Prepare the selected server and voice
 
@@ -39,6 +40,12 @@ unchanged even when target language labels differ.
 Inspect translated content, cue timing and encoded output. Identity translation,
 media-energy checks and heuristic word timing do not validate language quality
 or semantic equivalence.
+
+Explicit/configured voice defaults are applied to the pipeline's owned Demo;
+per-chunk casting remains higher precedence and borrowed same-language inputs
+are unchanged. A blank system voice can use the native default rather than an
+unrelated Kokoro ID. CLI `--resolution` explicitly resizes the loaded Demo;
+omission preserves authored geometry. Library config alone does not resize it.
 
 ## Select a language pair or batch
 

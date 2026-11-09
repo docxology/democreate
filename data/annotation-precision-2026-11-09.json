@@ -1,0 +1,100 @@
+{
+  "record_version": 1,
+  "recorded_at_utc": "2026-11-09T20:00:01.942897+00:00",
+  "candidate_version": "0.8.0",
+  "annotation_version": "1",
+  "relationship": "Post-central-suite refutation correction; prior native full-suite hashes/counts remain a separate epoch in deep-audit-2026-11-09.json.",
+  "evaluation_source_sha256": "3e27987866b7066b76c7262ec831fa92e3d186dcc62ed9de0247590dc83d74ce",
+  "regression_source_sha256": "e1b343f327610e0513f31d2e54d92289de8de7ca1e786959e839023f017ded95",
+  "counterexample": {
+    "synthetic": true,
+    "declared_error_ms": 121,
+    "before_reported_pooled_median_ms": 120,
+    "before_reported_demo_median_ms": 120,
+    "before_cli_exit": 0,
+    "after_cli_exit": 2,
+    "after_error": "observation.visual_onset_ms cannot be represented losslessly as binary64"
+  },
+  "decision": "Retain binary64 arithmetic and reject lossy integer conversions instead of silently changing supplied measurements. Large losslessly representable integers remain valid. No scientific threshold changed.",
+  "validation": {
+    "python": "3.15.2",
+    "scoring_tests_passed": 82,
+    "ruff": "passed",
+    "mypy_source_files": 68,
+    "mypy": "passed"
+  },
+  "execution_receipts": [
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "aef9de0566c9f6547b247f26806e08d0a363efcf",
+        "run": "deep-before-precision",
+        "generation": "29933-dc292fd0bace43ceb45144b238f5edd8"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:51:38.830565+00:00",
+      "classification": "test",
+      "source_after_sha256": "7414f63e413ba8cb9564b7057bd10a1ef849521396a3d81c7023141f30c4e9c3",
+      "source_unchanged": true
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-precision",
+        "generation": "29968-1dff205c8f1949358a29b85f548cb1d4"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:55:39.246164+00:00",
+      "classification": "test",
+      "source_after_sha256": "aa4c062882651bd91c0c5115ae2597e63b7bf3c8e1d7fc2330b0e66c6fe86a5e",
+      "source_unchanged": true
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-final-annotation-tests",
+        "generation": "29972-418bd34d355248df939431ec77a884e5"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:55:43.527127+00:00",
+      "classification": "test",
+      "source_after_sha256": "aa4c062882651bd91c0c5115ae2597e63b7bf3c8e1d7fc2330b0e66c6fe86a5e",
+      "source_unchanged": true
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-precision-ruff",
+        "generation": "29975-e021d6708d2b447dbdbe7b611a69f92d"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:55:46.778465+00:00",
+      "classification": "test",
+      "source_after_sha256": "607872dd3cf8248779ddd386654b930da57f1afdebd80a79274bc783bfdebbc3",
+      "source_unchanged": true
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-precision-mypy",
+        "generation": "29978-7c0e6e052e3b4b0ca41c4315048c89df"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:55:50.714102+00:00",
+      "classification": "test",
+      "source_after_sha256": "6f96a29c2271893ca32ec2ee78bf413b66825faff734f7c259c9341e7c59ccdd",
+      "source_unchanged": true
+    }
+  ],
+  "evidence_verification": "No real corpus, media identity or independent acoustic measurement verified.",
+  "public_artifact_boundary": "Operator interpreter locations are represented neutrally; exact invocation remains in the private repository-owned execution lane."
+}

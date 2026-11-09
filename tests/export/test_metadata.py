@@ -132,3 +132,159 @@ def test_embed_tags_raises_when_ffmpeg_missing(
         md.embed_tags(mp4_in, tmp_path / "out.mp4", tags)
     assert excinfo.value.backend == "ffmpeg"
     assert excinfo.value.extra is None
+
+
+def _native_multitrack_source(tmp_path: Path) -> Path:
+    """Create two differently tagged AAC tracks, subtitles and existing chapters."""
+    import shutil
+    import subprocess
+
+    if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+        pytest.skip("requires native ffmpeg/ffprobe with libx264 and AAC")
+    subtitles = tmp_path / "source.srt"
+    subtitles.write_text(
+        "1\n00:00:00,000 --> 00:00:00,900\nOriginal subtitle\n", encoding="utf-8"
+    )
+    chapters = tmp_path / "old.ffmeta"
+    chapters.write_text(
+        ";FFMETADATA1\n[CHAPTER]\nTIMEBASE=1/1000\n"
+        "START=0\nEND=1000\ntitle=Old chapter\n", encoding="utf-8",
+    )
+    source = tmp_path / "source.mp4"
+    subprocess.run(
+        [
+            "ffmpeg", "-v", "error", "-y",
+            "-f", "lavfi", "-i", "testsrc2=size=160x90:rate=10:duration=1",
+            "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
+            "-f", "lavfi", "-i", "sine=frequency=880:duration=1",
+            "-i", str(subtitles), "-i", str(chapters),
+            "-map", "0:v", "-map", "1:a", "-map", "2:a", "-map", "3:s",
+            "-map_chapters", "4", "-c:v", "libx264", "-preset", "ultrafast",
+            "-threads", "1", "-c:a", "aac", "-c:s", "mov_text",
+            "-metadata:s:a:0", "language=eng",
+            "-metadata:s:a:1", "language=fra", "-metadata", "title=Original",
+            str(source),
+        ],
+        capture_output=True, check=True,
+    )
+    return source
+
+
+def _native_media_identity(path: Path) -> tuple[list, dict]:
+    """Read native stream identities and per-stream encoded packet hashes."""
+    import json
+    import subprocess
+
+    probe = json.loads(subprocess.run(
+        [
+            "ffprobe", "-v", "error", "-of", "json",
+            "-show_streams", "-show_packets", "-show_data_hash", "sha256",
+            str(path),
+        ],
+        capture_output=True, text=True, check=True,
+    ).stdout)
+    streams = [
+        stream for stream in probe["streams"]
+        if stream["codec_type"] in {"video", "audio", "subtitle"}
+    ]
+    identity = [
+        (
+            stream["codec_type"], stream["codec_name"],
+            stream.get("tags", {}).get("language"),
+        )
+        for stream in streams
+    ]
+    packets = {
+        index: [
+            packet["data_hash"] for packet in probe["packets"]
+            if packet["stream_index"] == stream["index"]
+        ]
+        for index, stream in enumerate(streams)
+    }
+    assert all(packets.values())
+    return identity, packets
+
+
+@pytest.mark.parametrize("replace_chapters", [False, True])
+def test_native_tags_retain_all_media_and_selected_chapters(
+    tmp_path: Path, replace_chapters: bool
+) -> None:
+    import json
+    import subprocess
+
+    from democreate.export.chapters import embed_chapters
+
+    source = _native_multitrack_source(tmp_path)
+    expected = _native_media_identity(source)
+    assert [stream[2] for stream in expected[0] if stream[0] == "audio"] == [
+        "eng", "fra",
+    ]
+    assert sum(stream[0] == "subtitle" for stream in expected[0]) == 1
+    if replace_chapters:
+        metadata = tmp_path / "new.ffmeta"
+        metadata.write_text(
+            ";FFMETADATA1\n[CHAPTER]\nTIMEBASE=1/1000\n"
+            "START=0\nEND=500\ntitle=First\n"
+            "[CHAPTER]\nTIMEBASE=1/1000\nSTART=500\nEND=1000\ntitle=Second\n",
+            encoding="utf-8",
+        )
+        chaptered = tmp_path / "chaptered.mp4"
+        assert embed_chapters(source, metadata, chaptered) == chaptered
+        assert _native_media_identity(chaptered) == expected
+        source = chaptered
+    # In-place publication must also work without ffmpeg truncating its input.
+    assert md.embed_tags(source, source, {"title": "Updated"}) == source
+    assert _native_media_identity(source) == expected
+    probe = json.loads(subprocess.run(
+        [
+            "ffprobe", "-v", "error", "-of", "json",
+            "-show_chapters", "-show_format", str(source),
+        ],
+        capture_output=True, text=True, check=True,
+    ).stdout)
+    assert probe["format"]["tags"]["title"] == "Updated"
+    assert [chapter["tags"]["title"] for chapter in probe["chapters"]] == (
+        ["First", "Second"] if replace_chapters else ["Old chapter"]
+    )
+    subprocess.run(
+        [
+            "ffmpeg", "-v", "error", "-xerror", "-err_detect", "explode",
+            "-i", str(source), "-map", "0:v", "-map", "0:a", "-f", "null", "-",
+        ],
+        capture_output=True, check=True,
+    )
+
+
+def test_native_tags_preserve_destination_on_real_write_failure(tmp_path: Path) -> None:
+    import subprocess
+    import sys
+
+    pytest.importorskip("resource", reason="requires POSIX RLIMIT_FSIZE")
+    source = _native_multitrack_source(tmp_path)
+    output = tmp_path / "final.mp4"
+    previous = source.read_bytes()
+    assert len(previous) > 2048
+    output.write_bytes(previous)
+    before = set(tmp_path.iterdir())
+    child = """
+import resource
+import sys
+from pathlib import Path
+from democreate.errors import RenderError
+from democreate.export.metadata import embed_tags
+root = Path(sys.argv[1])
+resource.setrlimit(resource.RLIMIT_FSIZE, (2048, 2048))
+try:
+    embed_tags(root / "source.mp4", root / "final.mp4", {"title": "Replacement"})
+except RenderError:
+    pass
+else:
+    raise AssertionError("native remux unexpectedly succeeded under RLIMIT_FSIZE")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", child, str(tmp_path)],
+        capture_output=True, text=True, check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert output.read_bytes() == previous
+    assert set(tmp_path.iterdir()) == before

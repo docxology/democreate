@@ -247,13 +247,13 @@ def build() -> Demo:
                   trigger="renders"),
 
         # 14 — Outro
-        _slide("outro", "Dogfooded",
-               "Declarative. Deterministic. Dogfooded. This entire video was "
-               "compiled by DemoCreate from one file. Edit it, re-render, and never "
-               "record a take again.",
+        _slide("outro", "Rebuild from explicit inputs",
+               "This showcase was compiled locally by DemoCreate. Edit the Demo and "
+               "re-render with fixed configuration, assets and runtime. These "
+               "synthetic visuals do not establish independent acoustic accuracy.",
                title="DemoCreate",
                subtitle="github.com/docxology/democreate",
-               trigger="dogfooded"),
+               trigger="compiled"),
     ]
 
     return Demo(

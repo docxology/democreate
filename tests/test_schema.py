@@ -214,6 +214,48 @@ def test_merge_metadata() -> None:
     assert merged.metadata["keep"] == "yes"  # original kept
 
 
+def test_merge_preserves_measured_caption_and_playback_windows() -> None:
+    from democreate.assembly.captions import to_srt
+    from democreate.assembly.compositor import build_timeline
+
+    left = Demo(title="Combined", scenes=[
+        Scene(id="s", chunks=[Chunk(
+            id="c", text="first", start_ms=100, duration_ms=50,
+            audio_path="audio/first.wav",
+        )])
+    ])
+    right = Demo(title="Resolved", scenes=[
+        Scene(id="s", chunks=[Chunk(
+            id="c", text="measured narration is not a word-count estimate",
+            start_ms=1200, duration_ms=125, audio_path="audio/second.wav",
+        )])
+    ])
+    combined = left.merge(right)
+    timeline = build_timeline(combined)
+    assert [(entry.start_ms, entry.end_ms) for entry in timeline.entries] == [
+        (100, 150), (1200, 1325),
+    ]
+    assert [entry.audio_path for entry in timeline.entries] == [
+        "audio/first.wav", "audio/second.wav",
+    ]
+    assert "00:00:01,200 --> 00:00:01,325" in to_srt(combined)
+    assert combined.validate() == []
+
+
+def test_merged_scene_edits_leave_both_authored_inputs_unchanged() -> None:
+    left = _demo()
+    right = _demo()
+    for demo in (left, right):
+        demo.scenes[0].context["nested"] = {"label": "original"}
+        demo.iter_actions()[0].params["nested"] = {"path": "original.py"}
+    before = [left.to_json(), right.to_json()]
+    combined = left.merge(right)
+    for scene in combined.scenes:
+        scene.context["nested"]["label"] = "edited"
+        scene.chunks[0].actions[0].params["nested"]["path"] = "edited.py"
+    assert [left.to_json(), right.to_json()] == before
+
+
 def test_filter_scenes_by_id() -> None:
     s1 = Scene(id="a", title="A")
     s2 = Scene(id="b", title="B")

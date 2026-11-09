@@ -29,6 +29,7 @@ democreate render    DEMO     [--output] [--tts] [--voice] [--fps] [--captions]
                                                       animated HD MP4 + voiceover, then verify
 democreate verify    VIDEO    [--width] [--height] [--min-duration]
                                                       content-assert a video file
+democreate score-sync ANNOTATIONS                    score supplied onset annotations as JSON
 democreate paper     PDF      [--repo] [--figures] [--output] [--pages] [--theme]
                               [--voice] [--tts] [--aspect] [--resolution] [--author]
                               [--watermark] [--max-figures] [--config] [--render/--no-render]
@@ -121,6 +122,11 @@ named `<name>-summary-<UTC>.mp4`; a project that fails to render is recorded and
 the batch continues. A `portfolio_index.json` and `portfolio_index.html` gallery
 are written at the output root.
 
+Project names matching `portfolio_index.json` or `portfolio_index.html`
+case-insensitively are reserved for the aggregate files. They fail before any
+per-project workspace writes and remain explicit failed entries; they are not
+silently filtered out of discovery.
+
 The summary is *describing*, not enumerating: a title card, a what-it-is bullet
 slide drawn from the real README, an architecture diagram of the real packages, a
 by-the-numbers stat card, two or three load-bearing modules shown as real source
@@ -174,12 +180,24 @@ democreate localize demo.json --translator identity     # no-op (source language
 | `--translator` | `ollama` | `identity` (no-op) or `ollama`. |
 | `--model` | `smollm2` | ollama model tag (e.g. `lfm2.5`). |
 | `--host` | `http://localhost:11434` | ollama host. |
-| `--tts` / `--voice` | `kokoro` / `af_heart` | TTS for the audio language (must suit it). |
-| `--theme` / `--resolution` | `noir` / `1080p` | Look + size. |
+| `--tts` | `kokoro` | Implemented TTS for the audio language; prerequisites must be usable. |
+| `--voice` | `""` | Preserve configured/authored defaults; Kokoro alone has language-specific fallback voices. |
+| `--theme` | `noir` | Theme preset. |
+| `--resolution` | `""` | Preserve authored Demo geometry; an explicit preset changes the loaded Demo's output size. |
 | `--burn / --no-burn` | `--no-burn` | Additionally burn the subtitle track into the picture; sidecars are retained. |
 
 > Subtitles are text and work for any language; *audio* in a language needs a TTS
 > voice for it (Kokoro langs or an installed system voice).
+
+## `score-sync`: supplied annotation diagnostics
+
+Read annotation-format-1 JSON, not a Demo artifact. Print unrounded event/demo
+error summaries, fixed-mode corpus counts, missing data and eligibility as JSON.
+Exit 0 means only the supplied-data checks pass; exit 1 retains diagnostic JSON
+for unmet criteria; malformed/unreadable input exits 2 with error JSON on stderr.
+No media/provenance reference is opened. See [the scoring contract](evaluation.md)
+for the complete format and executable missing-data example. This command cannot
+certify independence, establish the absent study or authorize publication.
 
 ## `captions`
 
@@ -449,8 +467,9 @@ the original workspace. Rebuild that bundle with its explicit asset root:
 democreate build output/demos/demo.json --asset-root output -o output/rerender
 ```
 
-Outside-root or missing backgrounds fail before rendering. This does not make
-direct low-level Pillow/capture APIs a sandbox.
+Outside-root, missing or pixel-undecodable required backgrounds fail before
+narration synthesis or rendering; container verification alone is insufficient.
+This does not make direct low-level Pillow/capture APIs a sandbox.
 
 The HTML surface is a timed caption/frame preview, not synthesized-audio
 playback. Its narration cues are separate from the PNGs. For audible playback

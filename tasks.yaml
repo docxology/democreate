@@ -1,5 +1,5 @@
 # tasks.yaml — task + Gantt source of truth for this project.
-# Managed by the projects/taskboard server (live read-write) and seed_tasks.py.
+# Historical taskboard/seed use; no live shared-task synchronization is verified.
 # status: todo | in_progress | blocked | done. dates: YYYY-MM-DD. progress: 0-100.
 project:
   name: demo_create
@@ -148,6 +148,13 @@ tasks:
     and recorded exact skip reasons. Release enablement was observed earlier,
     then absent in the later policy observation; the independent acoustic study
     and exact reviewed-plan approval remain required. Candidate unpublished.
+    Deep native audit 2026-11-09 UTC: 1084 passed, 12 skipped, combined coverage
+    92.37%; Ruff/mypy passed. Fresh offline wheel/core-only installation and real
+    CLI, browser, FFmpeg, Poppler and existing-model Kokoro clip paths exercised.
+    Timing/configuration/input/export root causes repaired; supplied-annotation
+    arithmetic added without claiming an independent study. See
+    data/deep-audit-2026-11-09.json. Release remains blocked by the unmet voiced
+    corpus criterion and unavailable release admission; no new tag created.
     Historical work-log assertion, not current evidence:
     Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
     90.19% coverage. ruff clean, mypy clean. New features: translation subsystem

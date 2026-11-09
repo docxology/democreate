@@ -235,15 +235,8 @@ def _apply_action(
     elif atype in (ActionType.RUN_COMMAND, ActionType.PRINT_OUTPUT):
         state.scene_kind = SceneKind.TERMINAL
         command = params.get("command")
-        output = params.get("output")
         if command is not None:
-            state.terminal_lines = state.terminal_lines + [f"$ {command}"]
-        if output is not None and progress >= 1:
-            extra = (
-                [str(line) for line in output]
-                if isinstance(output, (list, tuple)) else str(output).splitlines()
-            )
-            state.terminal_lines = state.terminal_lines + extra
+            state.terminal_lines.append(f"$ {command}")
     elif atype == ActionType.NAVIGATE:
         state.scene_kind = SceneKind.WEBSITE
         if params.get("url"):
@@ -268,17 +261,34 @@ def _replay(
     initial: FrameState, actions: tuple[Action, ...], t_ms: int | None,
     *, typing: bool = True,
 ) -> FrameState:
-    """Replay scene events at a time, or to their final representative state."""
+    """Replay starts and terminal completions in stable chronological order."""
     state = deepcopy(initial)
     files: dict[str, list[str]] = {}
-    for action in actions:
+    effects: list[tuple[int, int, bool, Action]] = []
+    for index, action in enumerate(actions):
         start = action.timestamp_ms if action.timestamp_ms is not None else 0
-        if t_ms is not None and t_ms < start:
+        effects.append((start, index, False, action))
+        if action.type in (ActionType.RUN_COMMAND, ActionType.PRINT_OUTPUT):
+            if (action.params or {}).get("output") is not None:
+                effects.append((
+                    start + max(0, action.duration_ms or 0), index, True, action,
+                ))
+    # Scene action order breaks timestamp ties; a zero-duration action's prompt
+    # precedes its own output. Completion appends without changing the surface.
+    for when, _, completion, action in sorted(effects):
+        if t_ms is not None and t_ms < when:
             break
+        if completion:
+            output = action.params["output"]
+            state.terminal_lines.extend(
+                [str(line) for line in output]
+                if isinstance(output, (list, tuple)) else str(output).splitlines()
+            )
+            continue
         duration = max(0, action.duration_ms or 0)
         progress = (
             1.0 if t_ms is None or duration == 0
-            else min(1.0, (t_ms - start) / duration)
+            else min(1.0, (t_ms - when) / duration)
         )
         if not typing and action.type in (
             ActionType.OPEN_FILE, ActionType.CREATE_FILE, ActionType.TYPE_CODE,

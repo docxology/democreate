@@ -195,3 +195,35 @@ def test_native_browser_clears_captions_outside_measured_windows(
             assert page.evaluate("typeof window.injected") == "undefined"
         finally:
             browser.close()
+
+
+def test_merged_resolved_windows_match_captions_playback_and_chapters() -> None:
+    from democreate.assembly.captions import to_srt
+    from democreate.assembly.compositor import build_timeline as render_timeline
+    from democreate.schema import Chunk
+
+    left = Demo(title="Left", scenes=[
+        Scene(id="left", chunks=[
+            Chunk(id="first", text="First scene", start_ms=0, duration_ms=1000)
+        ])
+    ])
+    right = Demo(title="Right", scenes=[
+        Scene(id="right", chunks=[
+            Chunk(id="second", text="Second scene", start_ms=0, duration_ms=1000),
+            Chunk(id="gap", text="After a real gap", start_ms=2500, duration_ms=250),
+        ])
+    ])
+    combined = left.merge(right)
+    expected = [(0, 1000), (1000, 2000), (2500, 2750)]
+    html = build_timeline(combined)
+    playback = render_timeline(combined, trail_ms=0)
+    assert [(cue["start_ms"], cue["end_ms"]) for cue in html["captions"]] == expected
+    assert [(entry.start_ms, entry.end_ms) for entry in playback.entries] == expected
+    assert [chapter["start_ms"] for chapter in html["chapters"]] == [0, 1000]
+    assert html["total_ms"] == playback.total_ms == 2750
+    srt = to_srt(combined)
+    assert "00:00:00,000 --> 00:00:01,000" in srt
+    assert "00:00:01,000 --> 00:00:02,000" in srt
+    assert "00:00:02,500 --> 00:00:02,750" in srt
+    assert right.iter_chunks()[0].start_ms == 0
+

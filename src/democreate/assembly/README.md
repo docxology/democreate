@@ -21,7 +21,10 @@ The timeline is pure and central; building it never touches disk.
   `chunk_id`, `initial_state` (scene-opening state), and `actions` (the shared
   absolute-time scene event stream). `state_at_ms(t_ms, *, typing=True)` returns
   an independent scheduled snapshot, including partial code/camera/pointer motion
-  over action durations; command output appears on completion. With `typing=False`,
+  over action durations; command prompts appear at their start and output appends
+  on completion, even when overlapping commands finish in reverse order. Timestamp
+  ties retain scene action order, with each prompt before its zero-duration output.
+  Output completion does not change the active surface. With `typing=False`,
   complete code appears at its trigger, never before it, while camera/pointer
   motion and command completion retain their durations. Replay never mutates
   shared actions or stored snapshots. `duration_ms` and `to_dict()` expose the
@@ -108,7 +111,8 @@ frames and scheduled renders retain only active/previous images, not typing hist
 Pure WAV concatenation plus guarded ffmpeg post-processing:
 
 - `write_silence`, `concat_with_gaps` (lead/gap/trail silence), `measure_duration_ms`
-  — stdlib `wave` only.
+  — stdlib `wave` only. Concatenation preserves clip bytes and PCM format; inserted
+  silence uses `0x80` for unsigned 8-bit samples and zero for wider signed samples.
 - `normalize_audio`, `apply_fade`, `ffmpeg_audio_available` — ffmpeg loudnorm/fade.
   An absent binary raises `BackendUnavailableError`; unsuccessful processing
   raises `RenderError` so callers can retain their valid raw/unfaded WAV.

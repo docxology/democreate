@@ -117,6 +117,46 @@ def test_template_unique_chunk_ids() -> None:
     assert len(ids) == len(set(ids))
 
 
+def test_template_action_maps_schedule_authored_and_refreshed_times(tmp_path) -> None:
+    from democreate.assembly.compositor import build_timeline
+    from democreate.narration.sync import sync_demo
+    from democreate.narration.tts import SilentTTSBackend, synthesize_demo
+    from democreate.project_paths import Workspace
+
+    demo = TemplateScriptGenerator().generate({
+        "title": "Canonical template timing",
+        "steps": [{
+            "narration": "one two end",
+            "actions": [
+                {"type": "create_file", "params": {"path": "main.py", "code": "original"},
+                 "timestamp_ms": "120", "timestamp_source": "authored", "duration_ms": 0},
+                {"type": "wait", "timestamp_ms": 300, "duration_ms": 100},
+                {"type": "type_code", "params": {"code": "\nchanged"},
+                 "timestamp_ms": 999, "timestamp_source": "sync", "duration_ms": 0},
+                {"type": "highlight_lines", "params": {"lines": [1]},
+                 "trigger_word": "end", "timestamp_ms": 999, "duration_ms": 0},
+            ],
+        }],
+    })
+    actions = list(demo.iter_actions())
+    assert actions[0].timestamp_ms == 120
+    assert actions[2].timestamp_source == "sync"
+    clips = synthesize_demo(demo, Workspace(tmp_path), SilentTTSBackend())
+    sync_demo(demo, clips, lead_ms=50)
+    assert [action.timestamp_ms for action in actions] == [120, 300, 400, 850]
+    assert [action.duration_ms for action in actions] == [0, 100, 0, 0]
+    assert [action.timestamp_source for action in actions] == [
+        "authored", "authored", "sync", "sync",
+    ]
+    entry = build_timeline(demo).entries[0]
+    assert entry.state_at_ms(119).code_lines == []
+    assert entry.state_at_ms(120).code_lines == ["original"]
+    assert entry.state_at_ms(399).code_lines == ["original"]
+    assert entry.state_at_ms(400).code_lines == ["original", "changed"]
+    assert entry.state_at_ms(849).highlight_lines == []
+    assert entry.state_at_ms(850).highlight_lines == [1]
+
+
 # --- generate_codebase_demo -----------------------------------------------
 
 

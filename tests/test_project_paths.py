@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import struct
+import zlib
 from pathlib import Path
 
 import pytest
@@ -121,3 +123,60 @@ def test_authored_demo_can_be_reused_with_updated_assets(tmp_path: Path) -> None
     assert demo.to_json() == authored
     assert second.frame_paths[0].read_bytes() != first_frame
     assert first.frame_paths[0].read_bytes() == first_frame
+
+
+def test_invalid_pixel_stream_preserves_prior_build_and_inputs(tmp_path: Path) -> None:
+    inputs = tmp_path / "inputs"
+    inputs.mkdir()
+    image = inputs / "figure.png"
+    Image.new("RGB", (24, 24), "blue").save(image)
+    workspace = Workspace(tmp_path / "build")
+    pipeline = Pipeline(asset_root=inputs)
+    prior = pipeline.run(_demo(Path("figure.png")), workspace)
+    assert prior.manifest_path is not None
+    assert prior.clips[0].path.is_file() and prior.frame_paths[0].is_file()
+    protected = {
+        path: path.read_bytes()
+        for path in workspace.root.rglob("*")
+        if path.is_file()
+    }
+
+    def png_chunk(kind: bytes, payload: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(payload)) + kind + payload
+            + struct.pack(">I", zlib.crc32(kind + payload))
+        )
+
+    # Every chunk CRC is valid, but IDAT is not a decodable zlib pixel stream.
+    invalid = (
+        b"\x89PNG\r\n\x1a\n"
+        + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+        + png_chunk(b"IDAT", b"not a zlib pixel stream")
+        + png_chunk(b"IEND", b"")
+    )
+    image.write_bytes(invalid)
+    with Image.open(image) as container:
+        container.verify()
+    with Image.open(image) as pixels, pytest.raises(OSError):
+        pixels.convert("RGB")
+
+    demo = _demo(Path("figure.png"))
+    demo.scenes[0].chunks[0].text = (
+        "Different, much longer narration would replace the prior WAV if "
+        "required pixel decoding were deferred until frame rendering."
+    )
+    authored = demo.to_json()
+    authored_path = inputs / "demo.json"
+    authored_path.write_text(authored, encoding="utf-8")
+    authored_bytes = authored_path.read_bytes()
+    with pytest.raises(RenderError, match="cannot decode background image") as exc:
+        pipeline.run(demo, workspace)
+    assert isinstance(exc.value.__cause__, OSError)
+    assert {
+        path: path.read_bytes()
+        for path in workspace.root.rglob("*")
+        if path.is_file()
+    } == protected
+    assert demo.to_json() == authored
+    assert authored_path.read_bytes() == authored_bytes
+    assert image.read_bytes() == invalid

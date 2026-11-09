@@ -47,6 +47,12 @@ filename encodes both, e.g. `demo-audio_en-subs_ru.mp4`.
 - `localize_render(demo, workspace, *, languages, translator, …) -> LocalizedResult`.
 - `localize_batch(demo, workspace, *, pairs=[(audio, subtitle), …], …) -> list[LocalizedResult]`
   — one video per pair; a failing pair is isolated, not fatal.
+  Language-specific default voice ids apply only to Kokoro. A blank system voice
+  uses the native OS default. An explicit `voice` (or configured audio voice)
+  supplies the owned Pipeline Demo's default; per-chunk casting still wins.
+  Same-language borrowed inputs and caller configuration remain unchanged.
+  Library configuration does not replace authored Demo geometry. CLI
+  `--resolution` explicitly replaces it; omitting the option preserves it.
 
 ## CLI
 

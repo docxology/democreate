@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import chdir
 from pathlib import Path
 
 import pytest
@@ -134,3 +135,63 @@ def test_render_page_preserves_multidot_destination_identity(tmp_path: Path) -> 
         red, green, blue = image.convert("RGB").getpixel((32, 24))
         assert red > 200 and green < 50 and blue < 50
     assert neighbor.read_bytes() == original
+
+
+@_needs_poppler
+@pytest.mark.parametrize("filename", ["ordinary.pdf", "-v", "-", "-h.pdf"])
+def test_relative_option_like_pdf_names_use_real_file_bytes(
+    sample_paper: Path, tmp_path: Path, filename: str
+) -> None:
+    from PIL import Image
+
+    original = sample_paper.read_bytes()
+    source = tmp_path / filename
+    source.write_bytes(original)
+    with chdir(tmp_path):
+        pdf = Path(filename)
+        info = paper_pdf.pdf_info(pdf)
+        assert info["title"] == "Portable PDF Fixture"
+        assert info["pages"] == "2"
+        text = paper_pdf.extract_text(pdf, first=1, last=1)
+        assert "1 Introduction" in text and "2 Methods" not in text
+        result = paper_pdf.render_page(pdf, 1, Path("-raster.v1.png"), dpi=72)
+        assert result == Path("-raster.v1.png")
+        with Image.open(result) as image:
+            assert image.size == (612, 792)
+            assert image.convert("RGB").getpixel((60, 260)) == (255, 0, 0)
+        results = paper_pdf.render_pages(
+            pdf, Path("-pages"), dpi=72, prefix="-figure.v1"
+        )
+        assert results == [
+            Path("-pages/-figure.v1_001.png"), Path("-pages/-figure.v1_002.png")
+        ]
+        with Image.open(results[1]) as image:
+            assert image.convert("RGB").getpixel((60, 260)) == (0, 0, 255)
+    assert source.read_bytes() == original
+
+
+@_needs_poppler
+@pytest.mark.parametrize(
+    ("destination", "expected"),
+    [
+        ("page.png", "page.png"),
+        ("figure.v1.png", "figure.v1.png"),
+        ("-v.png", "-v.png"),
+        ("-", "-.png"),
+        ("plain", "plain.png"),
+    ],
+)
+def test_raster_argv_normalization_preserves_relative_return_paths(
+    sample_paper: Path, tmp_path: Path, destination: str, expected: str
+) -> None:
+    from PIL import Image
+
+    with chdir(tmp_path):
+        result = paper_pdf.render_page(
+            sample_paper, 2, Path(destination), dpi=72
+        )
+        assert result == Path(expected)
+        assert not result.is_absolute()
+        with Image.open(result) as image:
+            assert image.size == (612, 792)
+            assert image.convert("RGB").getpixel((60, 260)) == (0, 0, 255)

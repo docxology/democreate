@@ -109,3 +109,37 @@ def test_paper_no_render_generates_demo(tmp_path: Path) -> None:
     assert res.exit_code == 0, res.stdout
     demo_json = out / "demos" / "paper.json"
     assert demo_json.exists(), f"expected {demo_json}; stdout={res.stdout}"
+
+
+@_needs_ffmpeg
+@pytest.mark.parametrize(
+    ("options", "expected"),
+    [([], (320, 180)), (["--resolution", "720p"], (1280, 720))],
+)
+def test_localize_resolution_reaches_real_video(
+    tmp_path: Path, options: list[str], expected: tuple[int, int],
+) -> None:
+    from democreate.export.verify import verify_video
+    from democreate.schema import Chunk, Demo, Scene
+
+    source = Demo(title="Geometry", width=320, height=180, scenes=[
+        Scene(id="s", chunks=[Chunk(id="c", text="Geometry.")]),
+    ])
+    demo = tmp_path / "geometry.json"
+    demo.write_text(source.to_json(), encoding="utf-8")
+    original = demo.read_bytes()
+    output = tmp_path / "localized"
+    result = runner.invoke(app, [
+        "localize", str(demo), "-o", str(output), "--tts", "silent",
+        "--translator", "identity", "--audio-lang", "en", "--subtitle-lang", "en",
+        *options,
+    ])
+    # Content verification must reject silence, but retain the completed video.
+    assert result.exit_code == 1, result.stdout
+    video = output / "video" / "geometry-audio_en-subs_en.mp4"
+    report = verify_video(video, check_content=False, min_duration_s=0)
+    assert report.has_video
+    assert (report.width, report.height) == expected
+    resolved = Demo.from_file(output / "demos" / "demo.json")
+    assert (resolved.width, resolved.height) == expected
+    assert demo.read_bytes() == original

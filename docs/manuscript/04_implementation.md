@@ -13,6 +13,7 @@ The top-level modules hold the shared, dependency-light primitives that the subs
 | `media.py` | Shared value types: `AudioClip` (a rendered narration file and its measured properties) and `FrameState` (a renderable snapshot of the virtual environment) |
 | `pipeline.py` | The `Pipeline` orchestrator, `PipelineResult`, `build_demo`, and `render_video` |
 | `cli.py` | The `democreate` command-line interface (Typer [@typer2024] + Rich [@rich2024]) |
+| `evaluation.py` | Supplied-onset arithmetic and missing-data accounting, without verifying independent evidence ([@sec:evaluation]) |
 | `project_paths.py` | The `Workspace` path resolver that creates and exposes all output sub-directories |
 | `errors.py` | The exception hierarchy rooted at `DemoCreateError` (`SchemaValidationError`, `BackendUnavailableError`, `SyncError`, `RenderError`, …) |
 | `_logging.py` | Self-contained structured logging and the `log_stage` context manager |

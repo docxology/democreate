@@ -16,6 +16,7 @@ Commands::
     democreate localize  DEMO             audio in one language, subtitles in another
     democreate captions  DEMO  [--format]  emit subtitles to stdout
     democreate verify    VIDEO             content-assert a video (real/non-silent/non-black)
+    democreate score-sync ANNOTATIONS     score supplied onset annotations as JSON
     democreate config    [OUT] [--theme]   write a commented render-config YAML
     democreate thumbnail DEMO  [--out]     render a poster/thumbnail frame
     democreate gif       DEMO  [--output]  build + export an animated GIF preview
@@ -92,6 +93,31 @@ def _starter_demo() -> Demo:
 def version() -> None:
     """Print the installed DemoCreate version."""
     console.print(f"democreate {__version__}")
+
+
+@app.command("score-sync")
+def score_sync(
+    annotations: Path = typer.Argument(..., help="Annotation-format-1 JSON file"),
+) -> None:
+    """Score supplied onset annotations, not study independence or release readiness.
+
+    Args:
+        annotations: UTF-8 JSON file; referenced media/provenance are not opened.
+
+    Exits:
+        0: Supplied-data checks met. 1: Unmet criteria, with diagnostic JSON.
+        2: Malformed/unreadable input, with an error JSON object on stderr.
+    """
+    from .evaluation import load_sync_annotations
+
+    try:
+        result = load_sync_annotations(annotations)
+    except (OSError, ValueError) as exc:
+        typer.echo(json.dumps({"error": str(exc)}, ensure_ascii=True), err=True)
+        raise typer.Exit(code=2) from exc
+    typer.echo(json.dumps(result.to_dict(), allow_nan=False))
+    if not result.criteria_met_for_supplied_annotations:
+        raise typer.Exit(code=1)
 
 
 @app.command()
@@ -388,7 +414,9 @@ def paper(
         cfg.metadata.watermark = watermark
     from .narration.tts import get_tts_backend
 
-    backend = get_tts_backend(cfg.audio.backend, voice=cfg.audio.voice)
+    backend = get_tts_backend(
+        cfg.audio.backend, voice=cfg.audio.voice, rate_wpm=cfg.audio.rate_wpm
+    )
     result = Pipeline(
         tts_backend=backend, strict=False, config=cfg,
         asset_root=figures.resolve() if figures is not None else pdf.resolve().parent,
@@ -414,9 +442,9 @@ def localize(
     model: str = typer.Option("smollm2", "--model", help="ollama model tag"),
     host: str = typer.Option("http://localhost:11434", "--host", help="ollama host"),
     tts: str = typer.Option("kokoro", "--tts", help="TTS backend for the audio language"),
-    voice: str = typer.Option("af_heart", "--voice", "-v", help="Voice id for the audio language"),
+    voice: str = typer.Option("", "--voice", "-v", help="Voice id (blank = backend/language default)"),
     theme: str = typer.Option("noir", "--theme"),
-    resolution: str = typer.Option("1080p", "--resolution"),
+    resolution: str = typer.Option("", "--resolution", help="Override authored geometry: 720p|1080p|1440p|2160p|4k"),
     burn: bool = typer.Option(False, "--burn/--no-burn", help="Burn subtitles into the picture"),
     asset_root: Path | None = typer.Option(None, "--asset-root", help="Allowed image root/base (default: demo file directory)"),
 ) -> None:
@@ -432,9 +460,10 @@ def localize(
     theme = _validate_theme(theme)
     resolution = _validate_resolution(resolution)
     cfg = _resolve_config(None, theme, voice, tts)
+    d = _load_demo(demo)
     if resolution:
         cfg.set_resolution(resolution)
-    d = _load_demo(demo)
+        d.width, d.height = cfg.video.width, cfg.video.height
     tr = get_translator(translator, model=model, host=host)
     if translator.lower() == "ollama" and not tr.is_available():
         console.print(

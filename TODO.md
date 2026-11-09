@@ -1,9 +1,9 @@
 # TODO.md — DemoCreate backlog
 
-Single source of truth for open work in this repo. The task/Gantt history lives
-in `tasks.yaml` (managed by the taskboard server); this file tracks *open*
-agent-facing work items. When an item closes, mark it `[x]` with the date —
-do not delete it.
+Native agent-facing backlog. The task/Gantt history lives in `tasks.yaml`; a live
+taskboard connection is not established by either file. When an item closes,
+mark it `[x]` with the date rather than deleting it. Session todos do not
+automatically update these files.
 
 ## Minor
 
@@ -151,3 +151,29 @@ unrecorded; they are explicitly historical.
   generated API text and broke freshness gates; qualified symbols plus actual
   fresh-process equality regression (`api_docs.py`, `tests/test_api_docs.py`).
 
+
+## Blocking independent study
+
+- [ ] Supply the predeclared, independently annotated voiced corpus (>=30 demos,
+      >=10 each codebase/website/terminal), retain failures and provenance, and
+      establish both required medians <=120 ms. `score-sync` provides supplied-data
+      arithmetic, not the missing measurements or release authorization.
+      Paths: `experiment_plan.yaml`, `domain_profile.yaml`, `docs/evaluation.md`.
+
+## 2026-11-09 verified root-cause repairs
+
+- [x] Preserve resolved scene ownership/windows and matching direct HTML playback;
+      snapshot build configuration and reject post-build retiming. Closed
+      2026-11-09; `schema.py`, `pipeline.py`, `export/interactive.py`.
+- [x] Correct terminal effect chronology, unsigned PCM pauses, root-relative
+      traversal exclusions and package-initializer imports. Closed 2026-11-09;
+      `assembly/`, `codebase/`.
+- [x] Decode images before narration, disambiguate Poppler paths and preserve
+      prior media on native encoder/remux failures while retaining streams.
+      Closed 2026-11-09; `project_paths.py`, `paper/pdf.py`, `export/`.
+- [x] Honor voice/geometry/rate precedence and typed action mappings; isolate
+      reserved portfolio-index collisions. Closed 2026-11-09; `cli.py`,
+      `translation/localize.py`, `narration/script.py`, `_portfolio_render.py`.
+- [x] Add strict supplied-onset scoring and missing-data diagnostics without
+      certifying media/independence. Closed 2026-11-09; `evaluation.py`,
+      `docs/evaluation.md`. The independent study above remains open.

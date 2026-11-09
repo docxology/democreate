@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 from .._logging import get_logger
 from ..errors import BackendUnavailableError, RenderError
+from ._atomic import _atomic_output
 
 if TYPE_CHECKING:
     from ..config import MetadataConfig
@@ -158,9 +159,9 @@ def ffmpeg_metadata_args(tags: dict[str, str]) -> list[str]:
 def embed_tags(mp4_in: Path, mp4_out: Path, tags: dict[str, str]) -> Path:  # pragma: no cover - requires the ffmpeg binary
     """Write container metadata into an MP4 by stream-copying through ffmpeg.
 
-    Runs ``ffmpeg -i mp4_in <-metadata ...> -codec copy mp4_out`` so the video and
-    audio streams are copied verbatim (no re-encode) while the global metadata is
-    replaced with ``tags``.
+    Copies all video, audio and subtitle streams without re-encoding, retaining
+    source chapters and updating the requested global tags. MP4 chapter data
+    carriers are regenerated from chapters rather than copied as data streams.
 
     Args:
         mp4_in: Source MP4 to read.
@@ -177,13 +178,18 @@ def embed_tags(mp4_in: Path, mp4_out: Path, tags: dict[str, str]) -> Path:  # pr
     if shutil.which("ffmpeg") is None:
         raise BackendUnavailableError("ffmpeg")
 
-    mp4_out.parent.mkdir(parents=True, exist_ok=True)
-    cmd: list[str] = ["ffmpeg", "-y", "-i", str(mp4_in)]
-    cmd += ffmpeg_metadata_args(tags)
-    cmd += ["-codec", "copy", str(mp4_out)]
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise RenderError(f"ffmpeg metadata embed failed: {result.stderr.strip()[-800:]}")
+    with _atomic_output(mp4_out) as staged:
+        cmd: list[str] = [
+            "ffmpeg", "-y", "-i", str(mp4_in),
+            "-map", "0:v?", "-map", "0:a?", "-map", "0:s?",
+            "-map_metadata", "0", "-map_chapters", "0",
+        ]
+        cmd += ffmpeg_metadata_args(tags)
+        cmd += ["-codec", "copy", str(staged)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RenderError(
+                f"ffmpeg metadata embed failed: {result.stderr.strip()[-800:]}"
+            )
     logger.info("embedded %d metadata tag(s) → %s", len(tags), mp4_out)
     return mp4_out

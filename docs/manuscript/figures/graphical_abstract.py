@@ -89,12 +89,24 @@ def build() -> Image.Image:
     text(draw, (1442, 968, 2298, 1028), "H.264 / AAC MP4", size=44)
     text(draw, (1442, 1038, 2298, 1098),
          "ffmpeg + usable speech for voiced output.", size=34)
-    text(draw, (70, 1146, 2330, 1215),
-         "Evidence boundary: clip windows are not acoustic word onsets; "
-         "unsigned hashes do not authenticate.", size=34, fill=FG)
-    text(draw, (70, 1234, 2330, 1320),
-         "Blocking research gate: >=30 annotated voiced demos (>=10 per mode); "
-         "both median errors <=120 ms. Not established.", size=32, fill=DIM)
+    evidence = [
+        ("TIMING / ATTRIBUTION LIMITS", "Clip windows != acoustic onsets",
+         "Unsigned digests do not authenticate."),
+        ("ANNOTATION ARITHMETIC", "Both medians + missing events",
+         "Declared inputs; not study verification."),
+        ("UNMET INDEPENDENT STUDY", ">=30 voiced demos; >=10 / mode",
+         "Both medians <=120 ms: not measured."),
+    ]
+    for index, (label, body, foot) in enumerate(evidence):
+        x = _MARGIN + index * (width + gap)
+        draw.rounded_rectangle((x, 1140, x + width, 1324), radius=16,
+                               fill=BG, outline=ACCENT, width=2)
+        text(draw, (x + 22, 1158, x + width - 22, 1203), label,
+             size=32, fill=ACCENT)
+        text(draw, (x + 22, 1210, x + width - 22, 1258), body,
+             size=36, fill=FG)
+        text(draw, (x + 22, 1268, x + width - 22, 1312), foot,
+             size=30, fill=DIM)
     return image
 
 

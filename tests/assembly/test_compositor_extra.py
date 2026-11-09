@@ -95,6 +95,67 @@ def test_print_output_string_splits_lines() -> None:
     assert s.terminal_lines == ["line1", "line2"]
 
 
+def test_terminal_ties_zero_durations_and_multiline_output_keep_stable_order() -> None:
+    demo = Demo(title="Ties", scenes=[Scene(id="s", chunks=[Chunk(
+        id="c", text="commands", duration_ms=1000, actions=[
+            Action(ActionType.RUN_COMMAND, {"command": "first", "output": "a\nb\n"},
+                   timestamp_ms=0, duration_ms=500),
+            Action(ActionType.RUN_COMMAND, {"command": "second", "output": ["c", 2]},
+                   timestamp_ms=0, duration_ms=500),
+            Action(ActionType.RUN_COMMAND, {"command": "instant", "output": ("d", "e")},
+                   timestamp_ms=500, duration_ms=0),
+            Action(ActionType.PRINT_OUTPUT, {"output": "f\n\ng"}, timestamp_ms=500),
+        ],
+    )])])
+    entry = build_timeline(demo).entries[0]
+    assert entry.state_at_ms(0).terminal_lines == ["$ first", "$ second"]
+    assert entry.state_at_ms(499).terminal_lines == ["$ first", "$ second"]
+    expected = [
+        "$ first", "$ second", "a", "b", "c", "2", "$ instant", "d", "e",
+        "f", "", "g",
+    ]
+    assert entry.state_at_ms(500).terminal_lines == expected
+    assert entry.state.terminal_lines == expected
+
+
+def test_terminal_completion_preserves_initial_state_and_later_surface_changes() -> None:
+    from democreate.assembly.compositor import TimelineEntry
+    from democreate.media import FrameState
+
+    initial = FrameState(
+        scene_kind=SceneKind.CODEBASE, terminal_lines=["existing"],
+        file_path="a.py", code_lines=["pass"], title="Editor",
+    )
+    actions = (
+        Action(ActionType.RUN_COMMAND, {"command": "slow", "output": "done"},
+               timestamp_ms=100, duration_ms=400),
+        Action(ActionType.NAVIGATE, {"url": "https://example.test"}, timestamp_ms=200),
+        Action(ActionType.OPEN_FILE, {"path": "a.py"}, timestamp_ms=600),
+    )
+    entry = TimelineEntry(
+        index=0, start_ms=0, end_ms=1000, state=FrameState(caption="caption"),
+        initial_state=initial, actions=actions,
+    )
+    before = entry.state_at_ms(99)
+    assert before.scene_kind == SceneKind.CODEBASE
+    assert before.terminal_lines == ["existing"]
+    assert before.code_lines == ["pass"]
+    assert entry.state_at_ms(100).scene_kind == SceneKind.TERMINAL
+    completed = entry.state_at_ms(500)
+    assert completed.scene_kind == SceneKind.WEBSITE
+    assert completed.url == "https://example.test"
+    assert completed.terminal_lines == ["existing", "$ slow", "done"]
+    assert completed.caption == "caption"
+    reopened = entry.state_at_ms(600)
+    assert reopened.scene_kind == SceneKind.CODEBASE
+    assert reopened.code_lines == ["pass"]
+    assert reopened.terminal_lines == completed.terminal_lines
+    completed.terminal_lines.append("private")
+    assert initial.terminal_lines == ["existing"]
+    assert initial.scene_kind == SceneKind.CODEBASE
+    assert entry.state_at_ms(500).terminal_lines == ["existing", "$ slow", "done"]
+
+
 def test_navigate_switches_to_website() -> None:
     s = _state([Action(ActionType.NAVIGATE, {"url": "https://y.test"})])
     assert s.scene_kind == SceneKind.WEBSITE

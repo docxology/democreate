@@ -10,6 +10,7 @@ a video carrying a *silent* audio track all satisfy a naive "does ffprobe report
 * a second, **audio** stream whose duration covers the video;
 * that the audio is **not digital silence** (mean volume above a floor); and
 * that at least one sampled frame is **not uniformly black** (pixel variance).
+* a successful strict full decode of video/audio during the volume measurement.
 
 The JSON-parsing core (:func:`parse_ffprobe`) is pure and unit-tested with canned
 ``ffprobe`` output; the probes that shell out to ``ffprobe``/``ffmpeg`` are guarded
@@ -19,6 +20,7 @@ and excluded from coverage because they need the binaries.
 from __future__ import annotations
 
 import json
+import math
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -142,7 +144,9 @@ def parse_ffprobe(
             report.problems.append(
                 f"video height {report.height} != expected {expected_height}"
             )
-        if report.duration_s < min_duration_s:
+        if report.duration_s <= 0:
+            report.problems.append("video duration is unavailable or nonpositive")
+        elif report.duration_s < min_duration_s:
             report.problems.append(
                 f"video duration {report.duration_s:.2f}s < minimum {min_duration_s}s"
             )
@@ -166,7 +170,8 @@ def parse_ffprobe(
 def _to_float(value: Any) -> float:
     """Best-effort float coercion; ``None``/garbage become ``0.0``."""
     try:
-        return float(value)
+        number = float(value)
+        return number if math.isfinite(number) else 0.0
     except (TypeError, ValueError):
         return 0.0
 
@@ -185,8 +190,9 @@ def verify_video(
         path: The ``.mp4`` (or other container) to verify.
         expected_width / expected_height: Required dimensions, or ``None``.
         min_duration_s: Minimum acceptable duration.
-        check_content: Also assert the audio is not silent and a frame is not
-            black (requires ffmpeg). When ``False``, only structural checks run.
+        check_content: Strictly decode video/audio and assert non-silent audio
+            and a nonblank in-range frame (requires ffmpeg). When ``False``,
+            only structural checks run.
 
     Returns:
         A :class:`VideoReport`. Inspect ``report.ok``.
@@ -216,7 +222,7 @@ def verify_video(
             # Fail CLOSED: an un-measurable probe is not a pass. Otherwise a
             # genuinely silent video (or a tooling change) sails through as ok.
             report.problems.append(
-                "could not measure audio volume (probe returned no reading)"
+                "could not strictly decode audio/video and measure audio volume"
             )
         elif report.mean_volume_db <= SILENCE_FLOOR_DB:
             report.is_silent = True
@@ -225,7 +231,17 @@ def verify_video(
             )
 
     if check_content and report.has_video:
-        report.frame_variance = _sample_frame_variance(path)
+        video = next(
+            stream for stream in probe["streams"]
+            if stream.get("codec_type") == "video"
+        )
+        # Seek in the stream's actual timestamp interval, even when the media
+        # starts at a nonzero timestamp. Input seeking avoids decoding its prefix.
+        start = _to_float(video.get("start_time"))
+        report.frame_variance = (
+            _sample_frame_variance(path, sample_s=start + report.duration_s / 2)
+            if report.duration_s > 0 else None
+        )
         if report.frame_variance is None:
             report.problems.append(
                 "could not sample a video frame (probe returned no reading)"
@@ -258,21 +274,29 @@ def _run_ffprobe(path: Path) -> dict[str, Any]:  # pragma: no cover - binary
 
 
 def _measure_mean_volume_db(path: Path) -> float | None:  # pragma: no cover - binary
-    """Return the mean audio volume in dB via ffmpeg ``volumedetect``."""
+    """Strictly decode audio/video once and return mean audio volume in dB."""
     import re
     import subprocess
 
     result = subprocess.run(
-        ["ffmpeg", "-i", str(path), "-af", "volumedetect", "-f", "null", "-"],
+        [
+            "ffmpeg", "-xerror", "-err_detect", "explode", "-i", str(path),
+            "-map", "0:v?", "-map", "0:a?",
+            "-af", "volumedetect", "-f", "null", "-",
+        ],
         capture_output=True,
         text=True,
     )
+    if result.returncode != 0:
+        return None
     match = re.search(r"mean_volume:\s*(-?\d+(?:\.\d+)?) dB", result.stderr)
     return float(match.group(1)) if match else None
 
 
-def _sample_frame_variance(path: Path) -> float | None:  # pragma: no cover - binary
-    """Extract one mid-stream frame and return its grayscale pixel variance."""
+def _sample_frame_variance(
+    path: Path, *, sample_s: float
+) -> float | None:  # pragma: no cover - binary
+    """Extract one in-range frame and return its grayscale pixel variance."""
     import subprocess
     import tempfile
 
@@ -280,7 +304,9 @@ def _sample_frame_variance(path: Path) -> float | None:  # pragma: no cover - bi
         frame = Path(tmp) / "sample.png"
         result = subprocess.run(
             [
-                "ffmpeg", "-y", "-ss", "0.5", "-i", str(path),
+                "ffmpeg", "-y", "-xerror", "-err_detect", "explode",
+                "-threads", "1", "-ss", str(sample_s), "-seek_timestamp", "1",
+                "-i", str(path), "-map", "0:v:0",
                 "-frames:v", "1", str(frame),
             ],
             capture_output=True,
@@ -290,5 +316,8 @@ def _sample_frame_variance(path: Path) -> float | None:  # pragma: no cover - bi
             return None
         from PIL import Image, ImageStat
 
-        img = Image.open(frame).convert("L")
-        return ImageStat.Stat(img).var[0]
+        try:
+            with Image.open(frame) as image:
+                return float(ImageStat.Stat(image.convert("L")).var[0])
+        except (OSError, ValueError):
+            return None

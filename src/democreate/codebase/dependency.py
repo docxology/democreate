@@ -234,21 +234,24 @@ def build_import_graph(
 
     for key in ordered_keys:
         summary = keys[key]
+        importer_package = (
+            key if Path(summary.path).stem == "__init__" else key.rpartition(".")[0]
+        )
         for imp in summary.imports:
-            target = _resolve_import(imp, key, package, known)
+            target = _resolve_import(imp, importer_package, package, known)
             if target is not None and target != key:
                 graph.add_edge(key, target)
     return graph
 
 
 def _resolve_import(
-    imp: str, importer_key: str, package: str, known: set[str]
+    imp: str, importer_package: str, package: str, known: set[str]
 ) -> str | None:
     """Resolve an import string to a discovered module key, if internal.
 
     Args:
         imp: The raw import target (``"a.b"`` or relative ``".sibling"``).
-        importer_key: Dotted key of the module performing the import.
+        importer_package: Dotted package anchor of the importing source file.
         package: Package prefix for the repository.
         known: Set of all discovered module keys.
 
@@ -259,9 +262,13 @@ def _resolve_import(
     if imp.startswith("."):
         level = len(imp) - len(imp.lstrip("."))
         remainder = imp.lstrip(".")
-        base_parts = importer_key.split(".")
-        # A relative import ascends ``level`` package levels from the importer.
-        anchor = base_parts[: len(base_parts) - level] if level <= len(base_parts) else []
+        base_parts = importer_package.split(".") if importer_package else []
+        # One dot stays in the package; additional dots ascend its parents.
+        ascents = level - 1
+        anchor = (
+            base_parts[: len(base_parts) - ascents]
+            if ascents <= len(base_parts) else []
+        )
         candidate_parts = anchor + ([remainder] if remainder else [])
         candidate = ".".join(p for p in candidate_parts if p)
     else:

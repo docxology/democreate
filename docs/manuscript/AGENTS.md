@@ -21,7 +21,7 @@ packages; `references.bib` owns citations; `SYNTAX.md` owns authoring convention
 | `04_implementation.md` | Subsystem Responsibilities and Output Contracts | `#sec:implementation` |
 | `05_composition_and_configurability.md` | Configuring Layout, Motion, Audio, and Media Exports | `#sec:composition` |
 | `06_research_paper_demos.md` | From PDF Text and Supplied Figures to Demo Scenes | `#sec:paper` |
-| `07_evaluation.md` | Evaluation: Source-Bound Observations and Blocking Acoustic Study | `#sec:evaluation` |
+| `07_evaluation.md` | Runtime Observations, Annotation Scoring, and the Unmet Acoustic Study | `#sec:evaluation` |
 | `08_reproducibility.md` | Reproducing Core Builds and Optional Voiced Renders | `#sec:reproducibility` |
 | `09_scope_and_related_work.md` | Construction Models and Comparison Limits | `#sec:related` |
 | `10_provenance_and_distribution.md` | Unsigned Attribution, Digest Scope, and Distribution | `#sec:provenance` |

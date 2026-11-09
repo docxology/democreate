@@ -15,6 +15,7 @@ pin: **3.15**. Kokoro is implemented but needs a compatible voice runtime/models
 | `pipeline.py` | Clone/stage input; TTS → sync → timeline → compose → captions/preview; optional video | [Architecture](../../docs/architecture.md) |
 | `cli.py`, `_cli_common.py`, `_cli_media.py` | Native Typer entry point, shared resolution and media commands | [CLI](../../docs/cli.md) |
 | `portfolio.py`, `_portfolio_facts.py`, `_portfolio_render.py` | README/Python facts, project summaries and timestamped batch output | [CLI portfolio](../../docs/cli.md#portfolio) |
+| `evaluation.py` | Strict supplied-onset scoring, corpus accounting and unverified-evidence limits | [Annotation scoring](../../docs/evaluation.md) |
 
 `Pipeline.run` leaves authored input unchanged; use `PipelineResult.demo` for
 resolved timing and staged assets. CLI image roots default to the Demo directory;

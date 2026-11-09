@@ -15,7 +15,7 @@ source language for both surfaces. A real ``ollama`` translator localizes for re
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from .._logging import get_logger
@@ -106,7 +106,8 @@ def localize_render(
         translator: Translator to use (default: the no-op :class:`IdentityTranslator`).
         config: Optional :class:`~democreate.config.RenderConfig`.
         tts: TTS backend for the audio language (``system``/``kokoro``/``silent``).
-        voice: Voice id for the audio language (must suit ``languages.audio``).
+        voice: Explicit Demo-default voice override; chunk casting still wins.
+            Blank retains the configured/authored voice, or the backend default.
         burn: Burn the subtitle-language track into the picture.
         verify: Content-verify the produced MP4.
         name: Base filename stem (default: the demo title slug).
@@ -116,6 +117,8 @@ def localize_render(
     from ..pipeline import Pipeline, render_video
 
     cfg = config or RenderConfig()
+    if voice:
+        cfg = replace(cfg, audio=replace(cfg.audio, voice=voice))
     tr = translator or get_translator("identity")
     stem = name or _slug(demo.title)
     tag = languages.tag()
@@ -124,10 +127,17 @@ def localize_render(
     audio_demo = translate_demo(
         demo, tr, source=languages.source, target=languages.audio
     )
-    # Pick a Kokoro language code + a default voice for the audio language so
-    # non-English audio is phonemized correctly (an explicit ``voice`` wins).
-    klang, default_voice = KOKORO_AUDIO_LANGS.get(languages.audio, ("en-us", "af_heart"))
-    use_voice = (voice or default_voice) if tts != "silent" else None
+    # Only Kokoro uses this language/voice map. A blank system voice means the
+    # native OS default, not a Kokoro voice id. Explicit defaults are applied to
+    # Pipeline's owned Demo via config, without mutating a borrowed same-language
+    # translate_demo result or replacing per-chunk casting.
+    use_voice = cfg.audio.voice or None
+    klang = None
+    if tts.lower() == "kokoro":
+        klang, default_voice = KOKORO_AUDIO_LANGS.get(
+            languages.audio, ("en-us", "af_heart")
+        )
+        use_voice = use_voice or default_voice
     backend = get_tts_backend(tts, voice=use_voice, lang=klang, rate_wpm=cfg.audio.rate_wpm)
     result = Pipeline(tts_backend=backend, strict=False, config=cfg, asset_root=asset_root).run(
         audio_demo, workspace

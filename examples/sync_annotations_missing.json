@@ -1,0 +1,32 @@
+{
+  "annotation_version": "1",
+  "condition": "voiced_heuristic",
+  "tts_backend": "kokoro",
+  "voice": "af_heart",
+  "animation": "scheduled",
+  "website_capture": "synthetic",
+  "annotation_method": "unavailable",
+  "timebase": "encoded_video_ms",
+  "inventory_ref": "example:one-declared-event",
+  "annotation_ref": "example:no-measurements-supplied",
+  "demos": [
+    {
+      "id": "unrendered-format-example",
+      "mode": "codebase",
+      "audio_sha256": null,
+      "video_sha256": null,
+      "fps": null,
+      "duration_ms": null,
+      "failure_reason": "No media or measurements supplied: annotation-format negative control.",
+      "expected_events": [
+        {
+          "scene_id": "intro",
+          "chunk_id": "intro-1",
+          "action_index": 0,
+          "trigger_ref": "example:intended-token-occurrence-0"
+        }
+      ],
+      "observations": []
+    }
+  ]
+}

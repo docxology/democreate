@@ -137,3 +137,43 @@ def test_build_import_graph_absolute_internal_import(tmp_path: Path) -> None:
     (pkg / "app.py").write_text("from proj import core\n", encoding="utf-8")
     g = build_import_graph(pkg, package="proj")
     assert ("app", "core") in g.edges
+
+
+@pytest.mark.parametrize("package", [None, "mypkg"])
+def test_nested_package_initializers_use_their_package_anchor(
+    tmp_path: Path, package: str | None
+) -> None:
+    root = tmp_path / "mypkg"
+    (root / "sub" / "child").mkdir(parents=True)
+    sources = {
+        "__init__.py": "",
+        "leaf.py": "VALUE = 'root'\n",
+        "sub/__init__.py": "from .leaf import VALUE\n",
+        "sub/leaf.py": "VALUE = 'sub'\n",
+        "sub/worker.py": "from . import leaf\nfrom .. import leaf as root_leaf\n",
+        "sub/child/__init__.py": (
+            "from . import leaf\nfrom .. import leaf as parent_leaf\n"
+        ),
+        "sub/child/leaf.py": "VALUE = 'child'\n",
+        "sub/child/worker.py": (
+            "from . import leaf\nfrom .. import leaf as parent_leaf\n"
+            "from ... import leaf as root_leaf\n"
+        ),
+    }
+    for relative, source in sources.items():
+        (root / relative).write_text(source, encoding="utf-8")
+    graph = build_import_graph(root, package=package)
+    assert set(graph.nodes) == {
+        "leaf", "sub", "sub.leaf", "sub.worker",
+        "sub.child", "sub.child.leaf", "sub.child.worker",
+    }
+    assert set(graph.edges) == {
+        ("sub", "sub.leaf"),
+        ("sub.worker", "sub.leaf"),
+        ("sub.worker", "leaf"),
+        ("sub.child", "sub.child.leaf"),
+        ("sub.child", "sub.leaf"),
+        ("sub.child.worker", "sub.child.leaf"),
+        ("sub.child.worker", "sub.leaf"),
+        ("sub.child.worker", "leaf"),
+    }

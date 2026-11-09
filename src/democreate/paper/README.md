@@ -66,6 +66,11 @@ poppler-utils`), so callers get an actionable message instead of a raw
 `FileNotFoundError`.
 Missing or non-PDF input files raise `DemoCreateError`.
 
+Filesystem arguments sent to poppler are absolute, so relative filenames such
+as `-v` and `-` are treated as files rather than options or stdin. The intentional
+`pdftotext` stdout argument remains `-`. Raster functions return paths with the
+caller's relative/absolute spelling; only subprocess arguments are normalized.
+
 Extraction and display normalization are heuristic/lossy; review against the
 source paper. Pure text helpers do not need poppler, but PDF reads do: there is
 no default core PDF decoder. [Paper workflow](../../../docs/paper.md) owns asset

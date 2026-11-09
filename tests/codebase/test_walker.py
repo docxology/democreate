@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import chdir
 from pathlib import Path
 
 import pytest
@@ -196,3 +197,22 @@ def test_walk_refuses_external_symlinks_and_respects_source_encoding(tmp_path: P
     summaries = walk_repository(repository)
     assert [summary.name for summary in summaries] == ["latin"]
     assert summaries[0].loc == 2
+
+
+@pytest.mark.parametrize("root_name", ["build/repo", "dist/repo", "build", "dist"])
+@pytest.mark.parametrize("relative", [False, True])
+def test_exclusions_are_relative_to_walked_root(
+    tmp_path: Path, root_name: str, relative: bool
+) -> None:
+    repository = tmp_path / root_name
+    repository.mkdir(parents=True)
+    (repository / "main.py").write_text("VALUE = 1\n", encoding="utf-8")
+    for excluded in ("build", "dist", ".venv", "__pycache__"):
+        directory = repository / excluded
+        directory.mkdir()
+        (directory / "hidden.py").write_text("HIDDEN = 1\n", encoding="utf-8")
+    with chdir(tmp_path):
+        root = Path(root_name) if relative else repository
+        summaries = walk_repository(root)
+    assert [summary.name for summary in summaries] == ["main"]
+    assert [summary.path for summary in summaries] == [str(root / "main.py")]

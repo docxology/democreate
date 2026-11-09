@@ -24,6 +24,7 @@ from subprocess import run
 from .._logging import get_logger
 from ..errors import BackendUnavailableError, RenderError
 from ..schema import Demo
+from ._atomic import _atomic_output
 from .interactive import build_timeline
 from .metadata import _escape_ffmetadata
 
@@ -212,9 +213,9 @@ def embed_chapters(
 ) -> Path:  # pragma: no cover
     """Mux chapter metadata into an MP4 with ffmpeg.
 
-    Runs ``ffmpeg -i mp4_in -i ffmetadata -map_metadata 1 -codec copy mp4_out``,
-    copying every stream verbatim and taking metadata (including chapters) from
-    the second input.
+    Copies all source video, audio and subtitle streams and global tags, taking
+    chapters explicitly from the ffmetadata input. MP4 chapter data carriers are
+    regenerated, not copied as stale or unsupported data streams.
 
     Args:
         mp4_in: Source MP4 path.
@@ -233,27 +234,19 @@ def embed_chapters(
         raise BackendUnavailableError("ffmpeg")
 
     mp4_out = Path(mp4_out)
-    mp4_out.parent.mkdir(parents=True, exist_ok=True)
-
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        str(mp4_in),
-        "-i",
-        str(ffmetadata),
-        "-map_metadata",
-        "1",
-        "-codec",
-        "copy",
-        str(mp4_out),
-    ]
-    completed = run(cmd, capture_output=True, text=True, check=False)
-    if completed.returncode != 0:
-        raise RenderError(
-            f"ffmpeg failed to embed chapters (exit {completed.returncode}): "
-            f"{completed.stderr.strip()}"
-        )
+    with _atomic_output(mp4_out) as staged:
+        cmd = [
+            "ffmpeg", "-y", "-i", str(mp4_in), "-i", str(ffmetadata),
+            "-map", "0:v?", "-map", "0:a?", "-map", "0:s?",
+            "-map_metadata", "0", "-map_chapters", "1",
+            "-codec", "copy", str(staged),
+        ]
+        completed = run(cmd, capture_output=True, text=True, check=False)
+        if completed.returncode != 0:
+            raise RenderError(
+                f"ffmpeg failed to embed chapters (exit {completed.returncode}): "
+                f"{completed.stderr.strip()}"
+            )
 
     logger.info("embedded chapters → %s", mp4_out)
     return mp4_out

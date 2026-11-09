@@ -1,6 +1,6 @@
 {
   "title": "DemoCreate: Declarative Audio-Visual Demo Generation for Software",
-  "description": "<p>DemoCreate generates inspectable demo artifacts from declarative scenes, narration and actions. Kokoro and system TTS are implemented optional voices; ffmpeg is required for MP4. Default synchronization measures clip duration and interpolates known text, not acoustic word onsets. Whisper, Chatterbox and Manim remain unwired slots. Version 0.8.0 is a release candidate pending publication; no final version archive DOI or release date is asserted.</p>",
+  "description": "<p>DemoCreate generates inspectable artifacts from declarative scenes, narration and actions: silent WAVs, synthetic frames, captions, transcripts and a timed HTML image preview without audio playback. Fixed inputs, assets, configuration and environment are required for core byte reproducibility. Kokoro and system TTS are implemented optional voices; ffmpeg is required for MP4. Default synchronization interpolates known text over measured clip durations, not acoustic word onsets. Supplied onset annotations can be scored with explicit missing-data accounting, without verifying independence or replacing the missing study. Whisper, Chatterbox and Manim remain unwired. Version 0.8.0 is an unpublished candidate; no final archive DOI or release date is asserted.</p>",
   "upload_type": "software",
   "version": "0.8.0",
   "language": "eng",

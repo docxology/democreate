@@ -107,6 +107,10 @@ def render_project(
     the full workspace (frames, captions, player, transcript, provenance) sits
     alongside it under ``output_root/<name>/``.
 
+    Project names matching either portfolio index filename (case-insensitively)
+    are rejected before creating their workspace. Batch discovery retains them
+    so the portfolio report records an explicit per-project failure.
+
     Args:
         repo: Repository root.
         output_root: Parent directory; a ``<name>/`` subfolder is created under it.
@@ -127,6 +131,8 @@ def render_project(
 
     repo = Path(repo)
     name = repo.name
+    if name.casefold() in {"portfolio_index.json", "portfolio_index.html"}:
+        raise ValueError(f"project name {name!r} is reserved for the portfolio index")
     cfg = config or RenderConfig()
     if voice:
         cfg.audio.voice = voice

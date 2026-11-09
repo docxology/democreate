@@ -345,6 +345,68 @@ def test_wait_delays_untimed_events_and_commands_complete_after_duration(
     assert entry.state_at_ms(600, typing=typing).terminal_lines == ["$ echo ok", "ok"]
 
 
+@pytest.mark.parametrize("typing", [True, False])
+def test_terminal_completion_appends_without_reordering_visible_lines(
+    typing: bool,
+) -> None:
+    demo = Demo(title="Completions", scenes=[Scene(id="s", chunks=[
+        Chunk(id="first", text="slow", duration_ms=600, actions=[
+            Action(ActionType.RUN_COMMAND, {"command": "slow", "output": "late"},
+                   timestamp_ms=0, duration_ms=1000),
+            Action(ActionType.PRINT_OUTPUT, {"output": "early"}, timestamp_ms=500),
+        ]),
+        Chunk(id="second", text="finish", duration_ms=600),
+    ])])
+    authored = json.dumps(demo.to_dict())
+    timeline = build_timeline(demo)
+    stored = json.dumps(timeline.to_dict())
+    first, second = timeline.entries
+    expected = {
+        -1: [],
+        0: ["$ slow"],
+        499: ["$ slow"],
+        500: ["$ slow", "early"],
+        999: ["$ slow", "early"],
+        1000: ["$ slow", "early", "late"],
+        1100: ["$ slow", "early", "late"],
+    }
+    for at in (1000, 499, 999, -1, 500, 1100, 0, 1000):
+        for entry in (second, first):
+            state = entry.state_at_ms(at, typing=typing)
+            assert state.terminal_lines == expected[at]
+            state.terminal_lines.append("private edit")
+    previous: list[str] = []
+    for at in sorted(expected):
+        current = second.state_at_ms(at, typing=typing).terminal_lines
+        assert current[:len(previous)] == previous
+        previous = current
+    assert second.state.terminal_lines == expected[1000]
+    assert timeline.total_ms == 1200
+    assert json.dumps(timeline.to_dict()) == stored
+    assert json.dumps(demo.to_dict()) == authored
+
+
+def test_overlapping_commands_replay_by_start_and_completion_not_authored_order() -> None:
+    demo = Demo(title="Overlap", scenes=[Scene(id="s", chunks=[Chunk(
+        id="c", text="commands", duration_ms=1200, actions=[
+            Action(ActionType.RUN_COMMAND, {"command": "fast", "output": "fast done"},
+                   timestamp_ms=200, duration_ms=100),
+            Action(ActionType.RUN_COMMAND, {"command": "slow", "output": "slow done"},
+                   timestamp_ms=0, duration_ms=1000),
+        ],
+    )])])
+    entry = build_timeline(demo).entries[0]
+    assert entry.state_at_ms(199).terminal_lines == ["$ slow"]
+    assert entry.state_at_ms(200).terminal_lines == ["$ slow", "$ fast"]
+    assert entry.state_at_ms(999).terminal_lines == ["$ slow", "$ fast", "fast done"]
+    assert entry.state_at_ms(1000).terminal_lines == [
+        "$ slow", "$ fast", "fast done", "slow done",
+    ]
+    assert entry.state.terminal_lines == [
+        "$ slow", "$ fast", "fast done", "slow done",
+    ]
+
+
 def test_measured_fast_audio_keeps_synced_timeline_windows() -> None:
     demo = Demo(title="Fast", scenes=[Scene(id="s", chunks=[
         Chunk(id="a", text="one two three four", start_ms=300, duration_ms=400),

@@ -43,6 +43,7 @@ MODULES: list[str] = [
     "democreate.portfolio",
     "democreate.project_paths",
     "democreate.errors",
+    "democreate.evaluation",
     "democreate.api_docs",
     "democreate.manuscript",
     "democreate.cli",

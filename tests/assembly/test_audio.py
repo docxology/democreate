@@ -110,6 +110,52 @@ def test_concat_uses_clip_format_for_silence(tmp_path: Path) -> None:
     assert abs(measure_duration_ms(out) - 700) <= 4
 
 
+@pytest.mark.parametrize("channels", [1, 2])
+@pytest.mark.parametrize("sampwidth", [1, 2, 3, 4])
+def test_concat_padding_is_format_silence_and_preserves_real_clip_frames(
+    tmp_path: Path, channels: int, sampwidth: int,
+) -> None:
+    rate = 8000
+    # Non-silent, channel-distinct samples make dropped, shifted or rewritten
+    # source bytes observable rather than hiding them in silent source clips.
+    if sampwidth == 1:
+        first_frame = bytes(144 + channel * 16 for channel in range(channels))
+        second_frame = bytes(96 - channel * 16 for channel in range(channels))
+    else:
+        first_frame = b"".join(
+            (1000 + channel * 100).to_bytes(sampwidth, "little", signed=True)
+            for channel in range(channels)
+        )
+        second_frame = b"".join(
+            (-1000 - channel * 100).to_bytes(sampwidth, "little", signed=True)
+            for channel in range(channels)
+        )
+    payloads = [first_frame * 16, second_frame * 24]
+    paths = [tmp_path / "a.wav", tmp_path / "b.wav"]
+    for path, payload in zip(paths, payloads, strict=True):
+        with wave.open(str(path), "wb") as wav:
+            wav.setparams((channels, sampwidth, rate, 0, "NONE", "not compressed"))
+            wav.writeframes(payload)
+    originals = [path.read_bytes() for path in paths]
+    out = concat_with_gaps(
+        paths, tmp_path / "padded.wav", lead_ms=1, gap_ms=2, trail_ms=3,
+    )
+    silent_sample = b"\x80" if sampwidth == 1 else bytes(sampwidth)
+    silent_frame = silent_sample * channels
+    expected = (
+        silent_frame * 8 + payloads[0] + silent_frame * 16
+        + payloads[1] + silent_frame * 24
+    )
+    with wave.open(str(out), "rb") as wav:
+        assert (wav.getnchannels(), wav.getsampwidth(), wav.getframerate()) == (
+            channels, sampwidth, rate,
+        )
+        assert wav.getnframes() == 88
+        assert wav.readframes(89) == expected
+    assert measure_duration_ms(out) == 11
+    assert [path.read_bytes() for path in paths] == originals
+
+
 def test_concat_empty_list_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError):
         concat_with_gaps([], tmp_path / "out.wav")

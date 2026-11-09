@@ -76,6 +76,7 @@ the `codebase` extra does not wire multi-language parsing. See the authoritative
 | Author timed events and reusable scene content | [Schema 1.1](docs/schema.md), [architecture](docs/architecture.md) |
 | Select themes, geometry, pacing and motion | [Configuration and precedence](docs/config.md) |
 | Export posters, GIFs, chapters or inspect unsigned metadata | [Recipes](docs/recipes.md), [provenance](docs/provenance.md) |
+| Score supplied acoustic/visible-onset annotations without claiming study verification | [Annotation arithmetic and evidence limits](docs/evaluation.md) |
 | Diagnose missing tools or inspect test policy | [Troubleshooting](docs/troubleshooting.md), [testing](docs/testing_philosophy.md) |
 | Develop the package | [Source map](src/democreate/README.md), [script inventory](scripts/README.md), [generated API](docs/api.md) |
 

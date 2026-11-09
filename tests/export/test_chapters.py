@@ -169,3 +169,64 @@ def test_all_chapter_exports_follow_measured_chunk_windows() -> None:
     assert starts == [100, 3700]
     assert ends == [3700, 4950]
     assert ch.to_youtube_chapters(demo).splitlines() == ["0:00 first", "0:03 second"]
+
+
+def test_native_chapters_publish_atomically_on_real_write_failure(tmp_path: Path) -> None:
+    import json
+    import shutil
+    import subprocess
+    import sys
+
+    pytest.importorskip("resource", reason="requires POSIX RLIMIT_FSIZE")
+    if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+        pytest.skip("requires native ffmpeg/ffprobe with libx264 and AAC")
+    source = tmp_path / "source.mp4"
+    subprocess.run(
+        [
+            "ffmpeg", "-v", "error", "-y",
+            "-f", "lavfi", "-i", "testsrc2=size=160x90:rate=10:duration=1",
+            "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
+            "-c:v", "libx264", "-preset", "ultrafast", "-threads", "1",
+            "-c:a", "aac", str(source),
+        ],
+        capture_output=True, check=True,
+    )
+    metadata = tmp_path / "chapters.ffmeta"
+    metadata.write_text(
+        ";FFMETADATA1\n[CHAPTER]\nTIMEBASE=1/1000\n"
+        "START=0\nEND=1000\ntitle=Selected chapter\n", encoding="utf-8",
+    )
+    output = tmp_path / "final.mp4"
+    assert ch.embed_chapters(source, metadata, output) == output
+    probe = json.loads(subprocess.run(
+        ["ffprobe", "-v", "error", "-of", "json", "-show_chapters", str(output)],
+        capture_output=True, text=True, check=True,
+    ).stdout)
+    assert [item["tags"]["title"] for item in probe["chapters"]] == [
+        "Selected chapter"
+    ]
+    previous = output.read_bytes()
+    assert len(previous) > 2048
+    before = set(tmp_path.iterdir())
+    child = """
+import resource
+import sys
+from pathlib import Path
+from democreate.errors import RenderError
+from democreate.export.chapters import embed_chapters
+root = Path(sys.argv[1])
+resource.setrlimit(resource.RLIMIT_FSIZE, (2048, 2048))
+try:
+    embed_chapters(root / "source.mp4", root / "chapters.ffmeta", root / "final.mp4")
+except RenderError:
+    pass
+else:
+    raise AssertionError("native remux unexpectedly succeeded under RLIMIT_FSIZE")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", child, str(tmp_path)],
+        capture_output=True, text=True, check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert output.read_bytes() == previous
+    assert set(tmp_path.iterdir()) == before

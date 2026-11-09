@@ -14,6 +14,7 @@ This reference lists the public classes and functions of each documented module 
 - [`democreate.portfolio`](#democreateportfolio)
 - [`democreate.project_paths`](#democreateproject_paths)
 - [`democreate.errors`](#democreateerrors)
+- [`democreate.evaluation`](#democreateevaluation)
 - [`democreate.api_docs`](#democreateapi_docs)
 - [`democreate.manuscript`](#democreatemanuscript)
 - [`democreate.cli`](#democreatecli)
@@ -262,6 +263,20 @@ Exception hierarchy for DemoCreate.
 - **`SchemaValidationError`** — A :class:`~democreate.schema.Demo` failed structural validation.
 - **`SyncError`** — Audio/action synchronization failed (e.g. transcription mismatch).
 
+## `democreate.evaluation`
+
+Score supplied independent onset annotations without certifying an experiment.
+
+### Classes
+
+- **`SyncEvaluation`** *(dataclass)* — Diagnostic arithmetic and eligibility checks for one supplied cohort.
+  - `to_dict(self) -> 'dict[str, Any]'` — Return the JSON-serializable report with its evidence limits attached.
+
+### Functions
+
+- **`load_sync_annotations(path: 'Path') -> 'SyncEvaluation'`** — Read strict JSON and score annotations without opening referenced media.
+- **`score_sync_annotations(document: 'Mapping[str, Any]') -> 'SyncEvaluation'`** — Score one declared onset-annotation cohort under the existing H1 criteria.
+
 ## `democreate.api_docs`
 
 Generate ``docs/api.md`` — a Markdown API reference for ``democreate``.
@@ -303,10 +318,11 @@ The ``democreate`` command-line interface.
 - **`fetch_voice() -> 'None'`** — Download the Kokoro neural-TTS model files (~340 MB) for `--tts kokoro`.
 - **`init(path: 'Path' = PosixPath('demo.json'), fmt: 'str' = 'json') -> 'None'`** — Write a starter demo artifact you can edit and then ``build``.
 - **`inspect(demo: 'Path', json_out: 'bool' = False) -> 'None'`** — Validate a demo and print a structural summary.
-- **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = 'af_heart', theme: 'str' = 'noir', resolution: 'str' = '1080p', burn: 'bool' = False, asset_root: 'Path | None' = None) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
+- **`localize(demo: 'Path', output: 'Path' = PosixPath('output'), audio_lang: 'str' = 'en', subtitle_lang: 'str' = 'ru', source_lang: 'str' = 'en', pairs: 'str' = '', translator: 'str' = 'ollama', model: 'str' = 'smollm2', host: 'str' = 'http://localhost:11434', tts: 'str' = 'kokoro', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '', burn: 'bool' = False, asset_root: 'Path | None' = None) -> 'None'`** — Render localized videos — audio in one language, subtitles in another.
 - **`main() -> 'None'`** — Entry point for the ``democreate`` console script.
 - **`paper(pdf: 'Path', repo: 'Path' = None, figures: 'Path' = None, output: 'Path' = PosixPath('output'), pages: 'str' = '1', theme: 'str' = 'paper', voice: 'str' = '', tts: 'str' = 'system', aspect: 'str' = '', resolution: 'str' = '', author: 'str' = '', watermark: 'str' = '', max_figures: 'int' = 6, config: 'Path' = None, render_it: 'bool' = True) -> 'None'`** — Generate a narrated demo of a research paper (PDF + optional codebase).
 - **`portfolio(projects_dir: 'Path', output: 'Path' = PosixPath('output'), tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir', resolution: 'str' = '1080p', max_projects: 'int' = 0, max_modules: 'int' = 6, skip: 'str' = '') -> 'None'`** — Render a timestamped summary video for every project under a directory.
+- **`score_sync(annotations: 'Path') -> 'None'`** — Score supplied onset annotations, not study independence or release readiness.
 - **`tour(repo: 'Path', output: 'Path' = PosixPath('output'), title: 'str' = 'Codebase Tour', build_it: 'bool' = True, render_it: 'bool' = False, tts: 'str' = 'system', voice: 'str' = '', theme: 'str' = 'noir') -> 'None'`** — Generate a codebase tour demo from a repository (build and/or render it).
 - **`version() -> 'None'`** — Print the installed DemoCreate version.
 

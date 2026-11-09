@@ -385,12 +385,12 @@
       "chunks": [
         {
           "id": "outro-c",
-          "text": "Declarative. Deterministic. Dogfooded. This entire video was compiled by DemoCreate from one file. Edit it, re-render, and never record a take again.",
+          "text": "This showcase was compiled locally by DemoCreate. Edit the Demo and re-render with fixed configuration, assets and runtime. These synthetic visuals do not establish independent acoustic accuracy.",
           "actions": []
         }
       ],
       "context": {
-        "section": "Dogfooded",
+        "section": "Rebuild from explicit inputs",
         "subtitle": "github.com/docxology/democreate"
       }
     }

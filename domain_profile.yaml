@@ -35,7 +35,7 @@ validation_gates:
     description: "Independent visible-event/acoustic onset error on voiced animated demos; silent WAVs have no acoustic onsets."
     status: pending_unmet
     check: null
-    prerequisite: "Independent annotated >=30-demo voiced corpus and acoustic/video onset evaluator are not implemented/available."
+    prerequisite: "Independent >=30-demo voiced corpus and acoustic/visible-onset measurements are unavailable. Supplied-annotation arithmetic exists but cannot certify independence or replace the study."
     threshold: "pooled event median AND median of demo-level sync_error_ms medians <=120"
     blocking: true
   - id: sync_structure
@@ -71,7 +71,7 @@ empirical_study:
   hypothesis: "pooled event median AND median of demo-level error medians <=120 ms on >=30 independently annotated voiced demos"
   blocking_release: true
   gate: sync_accuracy
-  missing: "Annotated voiced corpus, acoustic/video evaluator, condition/baseline/ablation results."
+  missing: "Independent annotated voiced corpus/onset measurements and empirical condition/baseline/ablation results; supplied-data scoring is not those results."
 figure_types:
   - id: sync_error_distribution
     status: planned
@@ -85,5 +85,6 @@ benchmark_rubric:
   dimensions: [synchronization, determinism, narration_quality, visual_fidelity, coverage_completeness, latency, portability]
 
 # sync_accuracy remains a blocking legacy acceptance criterion. Its former
-# pytest recipe never measured acoustic error; no replacement evaluator or
-# passing receipt is invented. Candidate release/readiness remains blocked.
+# pytest recipe never measured acoustic error. Supplied-annotation arithmetic
+# does not invent independent measurements or a passing research receipt.
+# Candidate release/readiness remains blocked.

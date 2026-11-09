@@ -3,9 +3,9 @@
 [[dependency]]
 project_id  = "hum-dashboard"
 type        = "feeds"
-description = "DemoCreate produces versioned demo videos (MP4), interactive HTML players, transcripts, and provenance artifacts that hum-dashboard can surface on per-repo detail pages. The dashboard discovers rendered demos by scanning a shared output directory."
+description = "DemoCreate produces MP4, timed HTML image previews, transcripts and unsigned provenance artifacts for possible dashboard consumption. Shared-output discovery is declared, not verified."
 
 [[dependency]]
 project_id  = "hum-docxology"
 type        = "informs"
-description = "DemoCreate is managed and cloned via the hum-docxology repo manager under repos/public/DemoCreate/."
+description = "Historical management relationship with hum-docxology. A live manager connection and external checkout layout are not verified by this declaration."

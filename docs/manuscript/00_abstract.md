@@ -1,6 +1,6 @@
 # Abstract {#sec:abstract}
 
-![Conceptual compilation path: authored Demo data feeds measured clip windows, estimated word timing and scheduled synthetic visuals. Core exports and optional voiced-media prerequisites are distinguished; the schematic is not an acoustic-accuracy result or a publication-readiness claim.](figures/graphical_abstract.png){#fig:graphical_abstract}
+![Conceptual compilation and evidence boundaries: authored Demo data feeds measured clip windows, estimated word timing and scheduled synthetic visuals. Separate footer lanes distinguish timing/attribution limits, supplied-annotation arithmetic and the unmet independent study. Core and optional voiced exports are not acoustic-accuracy or publication-readiness evidence.](figures/graphical_abstract.png){#fig:graphical_abstract}
 
 DemoCreate compiles a declarative `Demo`—scenes, narration chunks and typed actions—into inspectable frames, captions, transcripts and a timed HTML image preview without audio playback. Optional system or implemented local Kokoro speech synthesis and ffmpeg enable voiced MP4 output. Its action-stream organization is related to CodeVideo [@codevideo2024]; narration is organized into chunks and word triggers.
 

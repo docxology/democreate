@@ -65,7 +65,7 @@ tuples and rejects unknown fields.
 | Field | Default | Meaning |
 |-------|---------|---------|
 | `backend` | `"system"` | Backend selector; implemented `system`, `silent`/`auto`, `kokoro`, `elevenlabs`; `chatterbox` is unwired. This field alone does not choose a library Pipeline's TTS instance. |
-| `voice` | `""` | Optional voice id for voiced backends; blank uses the OS default. |
+| `voice` | `""` | Optional Demo-default override; chunk casting wins. Blank retains the authored default, then the selected backend's fallback. |
 | `rate_wpm` | `None` | Optional speaking-rate override (system voices). |
 | `lead_silence_ms` | `300` | Silence prepended to the whole voiceover. |
 | `trail_silence_ms` | `600` | Silence appended to the whole voiceover. |
@@ -74,6 +74,17 @@ tuples and rejects unknown fields.
 | `fade_ms` | `180` | Fade-in/out applied to the final track. |
 
 See [audio.md](audio.md) for how these shape the assembled voiceover.
+
+The synthesis precedence is **per-chunk voice → nonempty configured Demo default
+→ authored Demo default → backend fallback**. An explicit CLI voice replaces the
+configured default, not deliberate chunk casting. Kokoro language fallbacks are
+Kokoro-specific; a blank system selection does not inject a Kokoro voice ID.
+
+`Pipeline.run` snapshots the supplied configuration. Changing the original config
+for a later build cannot retime an earlier result. `render_video` rejects changed
+lead/gap/trail padding, including mutation of `result.config`, before output
+writes: rebuild to establish a new synchronized timebase. Same-padding export
+options do not regenerate already synthesized speech or every supplied raster.
 
 ### `VideoConfig` — geometry + motion
 

@@ -371,3 +371,49 @@ claims:
     source: "2026-11-08 qualified Python 3.15.2: 931 passed, 11 skipped after obsolete tracked-video control removal; rounded combined coverage 90.88%, raw totals, skip reasons and current package hashes retained."
     status: verified
     receipt: "data/visual-refresh-2026-11-08.json#native_core"
+
+  - id: C37
+    claim: "The deep-audit production Python snapshot passed the configured combined core coverage gate; heavy-path exclusions and exact skip reasons remain explicit."
+    value: 92.37
+    unit: percent
+    direction: ">="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "2026-11-09 qualified Python 3.15.2: 1084 passed, 12 skipped; raw line/branch totals and unchanged production Python hashes retained."
+    status: verified
+    receipt: "data/deep-audit-2026-11-09.json#core_validation"
+  - id: C38
+    claim: "Two same-input starter builds in the fresh installed core-only prefix produced identical bytes for every generated core file."
+    value: 0
+    unit: bytes_delta
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#byte_reproducible"
+    source: "2026-11-09 offline wheel/install/init/inspect/build proof; not neural or cross-host determinism."
+    status: verified
+    receipt: "data/deep-audit-2026-11-09.json#core_reproducibility"
+  - id: C39
+    claim: "Actual native encoder/remux failures preserve the prior playable destination, while complete mapped-stream decoding rejects late corruption."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "2026-11-09 real FFmpeg failure/corruption regressions plus retained before/after consumer observations; later content rejection is intentionally not pipeline-transactional."
+    status: verified
+    receipt: "data/deep-audit-2026-11-09.json#consumer_observations"
+  - id: C40
+    claim: "Supplied-annotation arithmetic and CLI outcome distinctions are exercised with synthetic declarations, missing media and malformed JSON; this does not verify a corpus or acoustic study."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "2026-11-09 pure deterministic boundary tests and actual CLI exits 0/1/2; all evidence-verification fields remain not_verified."
+    status: verified
+    receipt: "data/deep-audit-2026-11-09.json#actual_scoring_cli"
+  - id: C41
+    claim: "The dated OSV response listed no advisories for the exact 170 locked PyPI versions; this is not comprehensive security or an installed-voice-environment audit."
+    value: 0
+    unit: packages_with_listed_advisories
+    direction: "=="
+    backed_by: "data/deep-audit-2026-11-09.json"
+    source: "2026-11-09 bounded public querybatch response, exact lock/request/response hashes retained; observation, not a formal scientific acceptance gate."
+    status: asserted
+    receipt: "data/deep-audit-2026-11-09.json#security"

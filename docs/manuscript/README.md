@@ -18,7 +18,7 @@ identifiers remain stable when titles improve. Each topic has one detailed home:
 | [Implementation](04_implementation.md) | Subsystem Responsibilities and Output Contracts |
 | [Composition](05_composition_and_configurability.md) | Configuring Layout, Motion, Audio, and Media Exports |
 | [Paper inputs](06_research_paper_demos.md) | From PDF Text and Supplied Figures to Demo Scenes |
-| [Evaluation](07_evaluation.md) | Evaluation: Source-Bound Observations and Blocking Acoustic Study |
+| [Evaluation](07_evaluation.md) | Runtime Observations, Annotation Scoring, and the Unmet Acoustic Study |
 | [Reproduction recipes](08_reproducibility.md) | Reproducing Core Builds and Optional Voiced Renders |
 | [Related work](09_scope_and_related_work.md) | Construction Models and Comparison Limits |
 | [Attribution](10_provenance_and_distribution.md) | Unsigned Attribution, Digest Scope, and Distribution |
@@ -91,6 +91,8 @@ unshipped external inputs, and is distinct from the historical template paper
 render. An identified candidate package render is now recorded, but no
 independent acoustic evaluation or release readiness is established.
 
-The pre-existing blocking `sync_accuracy` criterion is pending/unmet: there is
-no independently annotated corpus or executable acoustic oracle. Passing the
-engineering checks cannot establish release/manuscript readiness under that bar.
+The pre-existing blocking `sync_accuracy` criterion remains pending/unmet.
+Supplied-annotation scoring provides arithmetic and missing-data diagnostics, not
+independent measurements, media verification or an acoustic oracle. The corpus
+and measured result are absent; passing engineering checks cannot establish
+release/manuscript readiness under that bar.

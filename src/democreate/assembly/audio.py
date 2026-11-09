@@ -82,7 +82,7 @@ def write_silence(out_path: Path, ms: int, *, sample_rate: int = 22050) -> Path:
 
 
 def _silence_frames(n_frames: int, sampwidth: int, channels: int) -> bytes:
-    """Return ``n_frames`` of zeroed PCM data for the given format.
+    """Return silent PCM frames, using the unsigned midpoint for 8-bit samples.
 
     Args:
         n_frames: Number of audio frames.
@@ -90,9 +90,10 @@ def _silence_frames(n_frames: int, sampwidth: int, channels: int) -> bytes:
         channels: Channel count.
 
     Returns:
-        A bytes buffer of all-zero (silent) PCM samples.
+        A bytes buffer of silent PCM samples in the given format.
     """
-    return b"\x00" * (max(0, n_frames) * sampwidth * channels)
+    sample = b"\x80" if sampwidth == 1 else b"\x00" * sampwidth
+    return sample * (max(0, n_frames) * channels)
 
 
 def concat_with_gaps(

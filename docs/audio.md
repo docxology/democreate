@@ -29,12 +29,18 @@ Chatterbox is unwired and no published extra enables it. The
 resampling. All inputs must share channels, sample width and sample rate;
 mismatch raises `ValueError`. The high-level TTS paths use 16-bit mono PCM.
 Files are numbered `chunk_0000.wav`, etc.; chunk IDs are labels, not paths.
+Unsigned 8-bit PCM uses midpoint `0x80` for inserted silence; wider signed PCM
+uses zero. All channels and original source frames retain their format.
 
 [AudioConfig](config.md) defines the defaults: 300 ms
 lead, 220 ms gaps and 600 ms trail. `measure_duration_ms()` reads actual frame
 count/sample rate. Pauses do not extend subtitle cue windows. Static frame
 holds keep the preceding still until the next spoken start; animated playback
 can show the upcoming chunk during a gap. Neither silently speaks text in HTML.
+The build captures these padding values. Export rejects a different
+lead/gap/trail plan rather than assembling audio against stale caption windows;
+rebuild after changing timing. Later edits to the original config do not change
+an earlier result.
 
 ## Normalization and fade (ffmpeg, guarded)
 

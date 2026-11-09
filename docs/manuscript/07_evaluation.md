@@ -1,4 +1,4 @@
-# Evaluation: Source-Bound Observations and Blocking Acoustic Study {#sec:evaluation}
+# Runtime Observations, Annotation Scoring, and the Unmet Acoustic Study {#sec:evaluation}
 
 ## Unbound Historical Timing and Its Measurement Boundaries
 
@@ -45,6 +45,24 @@ The canonical package recipe remains **Kokoro `af_heart` at 2160p**. The refresh
 
 ![Six digest-checked decoded frames from the refreshed candidate package MP4, arranged in a 3×2 package-only montage. Encoded synthetic visuals include the updated cover/themes and an explicitly illustrative code panel. Labels are requested cue-midpoint seeks, not annotated event or acoustic onsets. Input, frame and MP4 identities are in data/visual-refresh-2026-11-08.json; sparse samples do not establish full-timeline quality or a paper-demo result.](figures/video_stills.png){#fig:video_stills}
 
+## Supplied-Annotation Arithmetic Without Evidence Certification
+
+`democreate score-sync` and `democreate.evaluation` score one declared fixed
+engine/voice/capture cohort. Expected events are separate from observations;
+missing onsets and whole failed demos remain explicit. Available pairs produce
+per-event errors, per-demo medians, the pooled event median and the median of
+demo medians. Both unrounded aggregates must meet the 120 ms bound, alongside
+fixed-mode counts and declared eligibility. Undefined values remain null rather
+than zero. Distinct event counts can make the two aggregates disagree.
+
+The scorer's complete-input safeguard prevents omitted measurements from being
+reported as a passing complete input; it is not a newly measured 100% success
+criterion. Synthetic regressions establish arithmetic/error handling, not H1.
+Media digests, annotator independence, predeclaration and completeness beyond the
+supplied inventory remain unverified. Missing media may have null identities and
+durations with a failure reason; no fabricated media identity is required.
+The complete format and exit contract live in `docs/evaluation.md`.
+
 ## Blocking Study: Independent Voiced-Event Annotation and Both Medians
 
-`experiment_plan.yaml` is the prospective protocol, not an executed result. Its independently annotated **voiced, animated** corpus remains **PLANNED** and blocking: at least 30 demos, with at least 10 each for codebase, website and terminal modes. Both the pooled event-error median and the median of demo-level error medians must be ≤120 ms; one weighting cannot substitute for the other. Annotators must identify actual encoded visible-event onsets and independent acoustic trigger-word onsets, retain media identities and annotation uncertainty, and account for frame cadence. Silent WAVs are ineligible because they contain no spoken words. No independent acoustic/visible-event corpus, executable acoustic evaluator, condition comparison, baseline or ablation result is supplied. Timestamp completeness, monotonicity and a non-silent MP4 cannot confirm those hypotheses. Silent-default reproducibility is a separate fixed-input/assets/configuration/environment engineering check. Operator-controlled release-class enablement and frozen-plan/exact confirmation are separate requirements; engineering gates waive neither permission nor the unmet scientific criterion.
+`experiment_plan.yaml` remains prospective. Its independently annotated **voiced, animated** corpus is **PLANNED** and blocking: at least 30 demos, with at least 10 each for codebase, website and terminal modes. Both pooled event-error median and median of demo-level error medians must be ≤120 ms; one weighting cannot substitute for the other. Annotators must identify actual encoded visible-event onsets and independent acoustic trigger-word onsets, retain media identities and uncertainty, and account for frame cadence. Silent WAVs contain no spoken words and are ineligible. Supplied-annotation arithmetic is implemented, but no independent corpus/onset measurements, empirical condition comparison, baseline or ablation result is supplied. Timestamp completeness, monotonicity and a non-silent MP4 cannot confirm those hypotheses. Silent-default reproducibility is a separate fixed-input/assets/configuration/environment check. Operator-controlled release-class enablement and frozen-plan/exact confirmation are separate requirements; engineering gates waive neither permission nor the unmet scientific criterion.

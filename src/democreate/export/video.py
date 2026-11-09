@@ -21,6 +21,7 @@ from pathlib import Path
 
 from .._logging import get_logger
 from ..errors import BackendUnavailableError, RenderError
+from ._atomic import _atomic_output
 
 __all__ = [
     "build_ffmpeg_command",
@@ -297,7 +298,6 @@ def assemble_video(
     if not ffmpeg_available():
         raise BackendUnavailableError("ffmpeg")
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     # The concat demuxer resolves `file` entries relative to the concat script's
     # own directory, so absolute frame paths are required for correctness
     # regardless of cwd or where the script is written.
@@ -307,8 +307,6 @@ def assemble_video(
             for p, ms in zip(frame_paths, durations_ms, strict=True)
         ]
     )
-    concat_file = out_path.parent / f"{out_path.stem}_frames.concat"
-    concat_file.write_text(concat_text, encoding="utf-8")
 
     vf_parts = []
     if size is not None:
@@ -322,25 +320,26 @@ def assemble_video(
     vf_parts.append("format=yuv420p")
     vf = ",".join(vf_parts)
 
-    cmd: list[str] = [
-        "ffmpeg", "-y",
-        "-f", "concat", "-safe", "0", "-i", str(concat_file),
-    ]
-    if audio_path is not None:
-        cmd += ["-i", str(audio_path)]
-    # Output constant-frame-rate H.264: the concat demuxer's per-image `duration`
-    # directives set presentation time; `-r` resamples to a clean CFR stream
-    # (broadly player-compatible). Avoid the deprecated `-vsync`, which conflicts
-    # with `-r` on ffmpeg >= 7.
-    cmd += ["-vf", vf, "-r", str(fps), "-c:v", "libx264",
-            "-crf", str(crf), "-preset", preset]
-    if audio_path is not None:
-        cmd += ["-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-shortest"]
-    cmd.append(str(out_path))
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise RenderError(f"ffmpeg assemble failed: {result.stderr.strip()[-800:]}")
+    with _atomic_output(out_path) as staged:
+        concat_file = staged.parent / "frames.concat"
+        concat_file.write_text(concat_text, encoding="utf-8")
+        cmd: list[str] = [
+            "ffmpeg", "-y",
+            "-f", "concat", "-safe", "0", "-i", str(concat_file),
+        ]
+        if audio_path is not None:
+            cmd += ["-i", str(audio_path)]
+        # The concat durations set presentation times; -r produces CFR output.
+        cmd += ["-vf", vf, "-r", str(fps), "-c:v", "libx264",
+                "-crf", str(crf), "-preset", preset]
+        if audio_path is not None:
+            cmd += ["-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-shortest"]
+        cmd.append(str(staged))
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RenderError(
+                f"ffmpeg assemble failed: {result.stderr.strip()[-800:]}"
+            )
     logger.info("assembled video (%d frames) → %s", len(frame_paths), out_path)
     return out_path
 
@@ -417,7 +416,6 @@ def encode_frame_sequence(
     if not ffmpeg_available():
         raise BackendUnavailableError("ffmpeg")
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     vf_parts = ["scale=trunc(iw/2)*2:trunc(ih/2)*2"]
     if captions is not None:
         vf_parts.append(_subtitle_filter(captions))
@@ -436,11 +434,13 @@ def encode_frame_sequence(
     ]
     if audio_path is not None:
         cmd += ["-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-shortest"]
-    cmd.append(str(out_path))
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise RenderError(f"ffmpeg image2 encode failed: {result.stderr.strip()[-800:]}")
+    with _atomic_output(out_path) as staged:
+        cmd.append(str(staged))
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RenderError(
+                f"ffmpeg image2 encode failed: {result.stderr.strip()[-800:]}"
+            )
     logger.info("encoded %d frame(s) @ %dfps → %s", len(frame_paths), fps, out_path)
     return out_path
 
@@ -523,16 +523,16 @@ def export_video(
 
     import subprocess
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = build_ffmpeg_command(
-        pattern,
-        str(audio_path) if audio_path else None,
-        out_path,
-        fps=fps,
-        start_number=start_number,
-        frame_count=len(frame_paths),
-    )
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise RenderError(f"ffmpeg failed: {result.stderr.strip()}")
+    with _atomic_output(out_path) as staged:
+        cmd = build_ffmpeg_command(
+            pattern,
+            str(audio_path) if audio_path else None,
+            staged,
+            fps=fps,
+            start_number=start_number,
+            frame_count=len(frame_paths),
+        )
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RenderError(f"ffmpeg failed: {result.stderr.strip()}")
     return out_path

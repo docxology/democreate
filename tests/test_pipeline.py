@@ -320,3 +320,55 @@ def test_animated_export_preserves_selected_compositor(tmp_path) -> None:
     actual = pixels[offset : offset + 3]
     assert len(actual) == 3
     assert max(abs(a - b) for a, b in zip(actual, expected, strict=True)) < 10
+
+
+@pytest.mark.parametrize("animate", [False, True])
+@pytest.mark.parametrize("field", ["lead_silence_ms", "gap_ms", "trail_silence_ms"])
+@pytest.mark.parametrize("override", [False, True])
+def test_export_rejects_retiming_without_touching_prior_output(
+    tmp_path, animate: bool, field: str, override: bool
+) -> None:
+    from copy import deepcopy
+
+    from democreate.config import RenderConfig
+    from democreate.errors import RenderError
+    from democreate.pipeline import render_video
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene
+
+    cfg = RenderConfig()
+    demo = Demo(title="Fixed timing", width=160, height=90, scenes=[
+        Scene(id="s", chunks=[Chunk(id="c", text="one")])
+    ])
+    result = build_demo(demo, Workspace(tmp_path / "workspace"), config=cfg)
+    captions = result.caption_paths["srt"].read_bytes()
+    changed = deepcopy(cfg) if override else result.config
+    setattr(changed.audio, field, getattr(changed.audio, field) + 700)
+    output = tmp_path / "previous.mp4"
+    output.write_bytes(b"previous successful artifact")
+    with pytest.raises(RenderError, match="rebuild"):
+        render_video(
+            result, output, config=changed if override else None, animate=animate
+        )
+    assert output.read_bytes() == b"previous successful artifact"
+    assert result.caption_paths["srt"].read_bytes() == captions
+    assert result.demo.iter_chunks()[0].start_ms == 300
+
+
+def test_reusing_pipeline_config_does_not_retime_prior_result(tmp_path) -> None:
+    from democreate.config import RenderConfig
+    from democreate.project_paths import Workspace
+    from democreate.schema import Chunk, Scene
+
+    cfg = RenderConfig()
+    pipeline = Pipeline(config=cfg)
+    demo = Demo(title="Reusable config", width=160, height=90, scenes=[
+        Scene(id="s", chunks=[Chunk(id="c", text="one")])
+    ])
+    first = pipeline.run(demo, Workspace(tmp_path / "first"))
+    cfg.audio.lead_silence_ms = 1000
+    second = pipeline.run(demo, Workspace(tmp_path / "second"))
+    assert "00:00:00,300 --> 00:00:00,700" in first.caption_paths["srt"].read_text()
+    assert "00:00:01,000 --> 00:00:01,400" in second.caption_paths["srt"].read_text()
+    assert first.config.audio.lead_silence_ms == first.demo.iter_chunks()[0].start_ms
+    assert second.config.audio.lead_silence_ms == second.demo.iter_chunks()[0].start_ms

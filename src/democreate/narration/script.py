@@ -73,7 +73,8 @@ def _build_action(spec: Any) -> Action:
 
     Args:
         spec: Either an :class:`Action`, or a dict with at least ``type`` and
-            optional ``params``/``trigger_word``/``duration_ms`` keys.
+            optional canonical action keys, including ``timestamp_ms`` and
+            ``timestamp_source`` (see :meth:`Action.from_dict`).
 
     Returns:
         A constructed :class:`Action`.
@@ -85,12 +86,7 @@ def _build_action(spec: Any) -> Action:
         return spec
     if "type" not in spec:
         raise ValueError(f"action spec missing 'type': {spec!r}")
-    return Action(
-        type=spec["type"],
-        params=dict(spec.get("params", {})),
-        trigger_word=spec.get("trigger_word"),
-        duration_ms=spec.get("duration_ms"),
-    )
+    return Action.from_dict(spec)
 
 
 class ScriptGenerator:
@@ -137,6 +133,8 @@ class TemplateScriptGenerator(ScriptGenerator):
     Each step becomes one :class:`Scene` containing a single :class:`Chunk` (the
     narration) plus that step's actions. This one-scene-per-step mapping keeps
     chunk ids stable and predictable for downstream sync and captioning.
+    Action mappings accept the canonical schema timing fields; existing Action
+    objects pass through unchanged.
     """
 
     name = "template"

@@ -34,6 +34,7 @@ True
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 from pathlib import Path
@@ -374,9 +375,9 @@ class Demo:
     def merge(self, other: Demo, *, offset: int = 0) -> Demo:
         """Append ``other``'s scenes onto this demo, returning a new :class:`Demo`.
 
-        Scene and chunk IDs from ``other`` are suffixed with ``_offset`` when a
-        collision would occur, so the merged demo is always valid. Metadata dicts
-        are shallow-merged (``other`` wins on key conflict).
+        Scene trees are independent of both inputs, including resolved audio and
+        timing fields. Scene/chunk IDs from ``other`` are suffixed with ``_offset``
+        on collision. Metadata dicts are shallow-merged (``other`` wins).
 
         Args:
             other: The demo whose scenes to append.
@@ -387,8 +388,9 @@ class Demo:
         """
         existing_scene_ids = {s.id for s in self.scenes}
         existing_chunk_ids = {c.id for c in self.iter_chunks()}
-        merged_scenes: list[Scene] = list(self.scenes)
-        for scene in other.scenes:
+        merged_scenes = deepcopy(self.scenes)
+        for source_scene in other.scenes:
+            scene = deepcopy(source_scene)
             sid = scene.id
             if sid in existing_scene_ids:
                 # Collision: find a unique suffix.
@@ -397,12 +399,7 @@ class Demo:
                     i += 1
                 sid = f"{scene.id}_{i}"
             existing_scene_ids.add(sid)
-            new_scene = Scene(
-                id=sid,
-                title=scene.title,
-                kind=scene.kind,
-                context=dict(scene.context),
-            )
+            scene.id = sid
             for chunk in scene.chunks:
                 cid = chunk.id
                 if cid in existing_chunk_ids:
@@ -411,15 +408,8 @@ class Demo:
                         i += 1
                     cid = f"{chunk.id}_{i}"
                 existing_chunk_ids.add(cid)
-                new_scene.chunks.append(
-                    Chunk(
-                        id=cid,
-                        text=chunk.text,
-                        actions=list(chunk.actions),
-                        voice=chunk.voice,
-                    )
-                )
-            merged_scenes.append(new_scene)
+                chunk.id = cid
+            merged_scenes.append(scene)
         return Demo(
             title=self.title,
             scenes=merged_scenes,

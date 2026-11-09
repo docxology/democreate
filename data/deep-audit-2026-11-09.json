@@ -1,0 +1,2063 @@
+{
+  "record_version": 1,
+  "recorded_at_utc": "2026-11-09T19:35:31.476937+00:00",
+  "repository": "docxology/democreate",
+  "candidate_version": "0.8.0",
+  "demo_schema_version": "1.1",
+  "annotation_version": "1",
+  "epoch": "Native engineering validation before publication; each observation retains its own source/input binding. Not an acoustic study or release.",
+  "base_commit": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+  "working_tree": "Task-owned changes; production Python hashes below match the package snapshot and subsequent central coverage run.",
+  "package_files": [
+    {
+      "path": "src/democreate/__init__.py",
+      "sha256": "31e50629afd34c83fb3e05aad060d580ba6d481aa6c4d12c7040a78c0c526577"
+    },
+    {
+      "path": "src/democreate/_cli_common.py",
+      "sha256": "0b032dc683a6d0d5b5551d4120438b71fd327c893a03aa26cc482dbb76742b99"
+    },
+    {
+      "path": "src/democreate/_cli_media.py",
+      "sha256": "b1ae2e2f4828d1bc0e9c867d0864138dfcf00a05c3b5ec249ee08ed2f5eb2de4"
+    },
+    {
+      "path": "src/democreate/_logging.py",
+      "sha256": "197bfccf899003799c6e4b145de496000c640348f02dc9925a7ffe4d024a647c"
+    },
+    {
+      "path": "src/democreate/_portfolio_facts.py",
+      "sha256": "3fd3bf9b936a29c0da7b8e38d0eaeb7fb69370a7075d81bf60206239415862d5"
+    },
+    {
+      "path": "src/democreate/_portfolio_render.py",
+      "sha256": "678079d259d4b23b0e82cb53f2d55e767c1dd2ef6521b44178681ce1e9748e63"
+    },
+    {
+      "path": "src/democreate/animation/__init__.py",
+      "sha256": "15eece31cadd583e77c6c60fe51c5643a3dfd9e19614ef2441be3257e0075b31"
+    },
+    {
+      "path": "src/democreate/animation/diagram.py",
+      "sha256": "30477b6263d65599e8b3bf3229ef4f9aa1f6e2580c4d6b934658c164a1537dd6"
+    },
+    {
+      "path": "src/democreate/animation/fonts.py",
+      "sha256": "75e08c95069442ecb429f6e4e3482b397ae5760c0258843ee559cb52b05781b1"
+    },
+    {
+      "path": "src/democreate/animation/highlights.py",
+      "sha256": "b6b321b6bb4928bb94f741c47e63371a8fff060f0ba8da0219bc8bc662acb5ca"
+    },
+    {
+      "path": "src/democreate/animation/manim_scenes.py",
+      "sha256": "c28672ab4d167fa30292b54a827db34f2738df1f7bf5ce6da8784875cab6bc47"
+    },
+    {
+      "path": "src/democreate/animation/waveform.py",
+      "sha256": "28e5fd2130c2430712ab3cd300ffc71fddd184846c748978463d4e10f11459e2"
+    },
+    {
+      "path": "src/democreate/animation/zoom.py",
+      "sha256": "044d3b544efb3079bd069e10e46162fbbae43f1e958434adf491a311a73b6af7"
+    },
+    {
+      "path": "src/democreate/api_docs.py",
+      "sha256": "a127ba29f192a911bf36e56034c75bc6eb5f3cd90188a6283c59799724266510"
+    },
+    {
+      "path": "src/democreate/assembly/__init__.py",
+      "sha256": "189933aac7e07f5d14f4f84bb0756ff35e051a50247c300fa34e425189f94b18"
+    },
+    {
+      "path": "src/democreate/assembly/animator.py",
+      "sha256": "3f837ae4358e5fa49e20f363fe73d66d4fe8815d3faa917cffac49e9f948d4fa"
+    },
+    {
+      "path": "src/democreate/assembly/audio.py",
+      "sha256": "3bcf1191e1760abad4cf148b746cbfc9c9781e33a7e43b928dedd98cb9fc2d21"
+    },
+    {
+      "path": "src/democreate/assembly/captions.py",
+      "sha256": "d284cfa7b3ccb6e5f172d5403c91e3b6de1be4bef1d91f5e95202f165d653770"
+    },
+    {
+      "path": "src/democreate/assembly/compositor.py",
+      "sha256": "1003175eb20357de659884446d87d78aabace09d5edaedb02c1530579cc0f017"
+    },
+    {
+      "path": "src/democreate/assembly/effects.py",
+      "sha256": "847cce20f5a7a50da8a65cbdcc796bea2287de85336758c9c8da2921e5412a40"
+    },
+    {
+      "path": "src/democreate/capture/__init__.py",
+      "sha256": "40a85ec07450cd4ff623e7630b78b41966e7f4b9381cd11a253c7c107ca1c784"
+    },
+    {
+      "path": "src/democreate/capture/_screen_renderer.py",
+      "sha256": "10f634d16333d85168b2bf5ed48b19784cbbf798ff09d1674d452e02ffc1195a"
+    },
+    {
+      "path": "src/democreate/capture/browser.py",
+      "sha256": "984595acf789b42df63ca828707765b6de17018482057bf878d583c4f517e7b7"
+    },
+    {
+      "path": "src/democreate/capture/replay.py",
+      "sha256": "888f0293c41bfe267fbd58d6b535f1d19d2782a106b3fca696223a5a1f599c74"
+    },
+    {
+      "path": "src/democreate/capture/screen.py",
+      "sha256": "1bfb58b9b45631f72d9a7c737f716b621782c54167ca6857b05831cb393a251c"
+    },
+    {
+      "path": "src/democreate/capture/terminal.py",
+      "sha256": "85f47da97f49fbc3c28e96e375046837ad0f58b3fbd20dc537b468ea3b76f7f5"
+    },
+    {
+      "path": "src/democreate/cli.py",
+      "sha256": "6f2e8cbb4d1b183cdcc5374ec263047c8489d3318400e4807cfd67cb01acbadd"
+    },
+    {
+      "path": "src/democreate/codebase/__init__.py",
+      "sha256": "8833d5ef8d2619271659a39af5d5ec67f954fad484a6f72a8ab35e7bfe92745d"
+    },
+    {
+      "path": "src/democreate/codebase/ast_viz.py",
+      "sha256": "f1f84788a25c8cc5de3728fce68c62629f0f5a1586e90d20dcf4b7114fd96e2d"
+    },
+    {
+      "path": "src/democreate/codebase/dependency.py",
+      "sha256": "91b4dd0a1cd3b894e240c0e87debcf3b08895a5b48fa028bb69c89ddb8195ea5"
+    },
+    {
+      "path": "src/democreate/codebase/walker.py",
+      "sha256": "35f10b210b39b3c766d5ca4ccea02b6ac97855d695db2aa5ffd93d6edd51023e"
+    },
+    {
+      "path": "src/democreate/config.py",
+      "sha256": "7d012aac3f551d06fd36507deeca2c3c3e04c3a873fe6cfafe908f630b171f6a"
+    },
+    {
+      "path": "src/democreate/errors.py",
+      "sha256": "7f2921b50f0eeffda63f621020f0dc688992840ee32225b7fa172060ee31ce88"
+    },
+    {
+      "path": "src/democreate/evaluation.py",
+      "sha256": "2d4b0ca3531a21cd1c13257047b373d230ed4d77993307d0c198db59daf4d498"
+    },
+    {
+      "path": "src/democreate/export/__init__.py",
+      "sha256": "cca94f8c5d0ff875809b844202d1c9320c8499b0546184853b881fdb2acb867a"
+    },
+    {
+      "path": "src/democreate/export/_atomic.py",
+      "sha256": "c81f121be160402e61b454a548e4cb4816dd388117842e5c3a058c8cfa96ac1e"
+    },
+    {
+      "path": "src/democreate/export/chapters.py",
+      "sha256": "78ff132913e77092edc934c435e6169c9685e8f5169dded964ba78d02079c2a4"
+    },
+    {
+      "path": "src/democreate/export/formats.py",
+      "sha256": "6e5888d95b6699e8df48e07b380dbb713b3ce96a9152f7cb8981dd9b08c6c124"
+    },
+    {
+      "path": "src/democreate/export/interactive.py",
+      "sha256": "5e5faeb29aac4d5be22e5d646658cc1e088a1d285b7627888ede0fd5544b2ff8"
+    },
+    {
+      "path": "src/democreate/export/metadata.py",
+      "sha256": "423e6c9c6d436aae71e98790d71c68f9ec22068c5a4ea73fc60672ccf68b63e4"
+    },
+    {
+      "path": "src/democreate/export/overlay.py",
+      "sha256": "924d0da18046a93c3b485845081123b03e84970cea3b517dc8dbb2b05935cff6"
+    },
+    {
+      "path": "src/democreate/export/poster.py",
+      "sha256": "8a1375d51a2a0d5dd127a55088cfef035ce22ea4cf110cd7541a20d55fdb9fe6"
+    },
+    {
+      "path": "src/democreate/export/stego.py",
+      "sha256": "338ad10cd95f132d15ae15419be47e12618269d66e1eec3c7d4c98b4b3c63e0e"
+    },
+    {
+      "path": "src/democreate/export/verify.py",
+      "sha256": "ecccf7f0e36da669742e3173a4ff64f79cc712796e5ec153c7e296baa4109ef6"
+    },
+    {
+      "path": "src/democreate/export/video.py",
+      "sha256": "56e28decbdaa3b2cae5c2ebaf74d2a0202b051bfbf491ff61929b905a5b4b280"
+    },
+    {
+      "path": "src/democreate/manuscript.py",
+      "sha256": "1fccaeccd444622a9edf8af0d4207ec618ec7a4fdf87c947774183def8e24c04"
+    },
+    {
+      "path": "src/democreate/media.py",
+      "sha256": "165b1496366f98808357fdde9d44e27aab685d3d8a26413d1c188295b51912b6"
+    },
+    {
+      "path": "src/democreate/narration/__init__.py",
+      "sha256": "65f6362c911371deaa6c3c58b2406b8e83ee827ee8d63409fcdb628533ab597b"
+    },
+    {
+      "path": "src/democreate/narration/_tts_audio.py",
+      "sha256": "b63a22ba6ca50a8ba9933d2a27cee310ca5babef5e7c509c3faeeb23d7efb6e2"
+    },
+    {
+      "path": "src/democreate/narration/_tts_backends.py",
+      "sha256": "7b8da70fd18b9e330946cceb664c5d42f37d2fb56f79dc910f432b517a291de9"
+    },
+    {
+      "path": "src/democreate/narration/_tts_kokoro.py",
+      "sha256": "cf82fa055124d494b164c8c0eb074f7fa7d524e18ab4465484b00db17ffff016"
+    },
+    {
+      "path": "src/democreate/narration/llm.py",
+      "sha256": "621b48ed828aa7f39803406cf52fdb042b6abb38055e824561bd20cf51c91d33"
+    },
+    {
+      "path": "src/democreate/narration/project_summary.py",
+      "sha256": "4c9cde7c0b6979d937f13321583b80d3ec7ae6ef97a516eec95efccc9adc5502"
+    },
+    {
+      "path": "src/democreate/narration/script.py",
+      "sha256": "04af92808527c8a79d216cfb866d39a47c14b000bfd999bad8bde66009619f6a"
+    },
+    {
+      "path": "src/democreate/narration/sync.py",
+      "sha256": "6dbaf7ef062d5a323d4b502d96d4acb64741f0a0c446b89a05a3758225bc2793"
+    },
+    {
+      "path": "src/democreate/narration/tts.py",
+      "sha256": "33046f015e949031c141020ebc82ad120c1b389525be18591fc4d5db5edd6037"
+    },
+    {
+      "path": "src/democreate/paper/__init__.py",
+      "sha256": "31190857722bdd45818d01a647e2a524191920d84f3e4c26eca3b2e4d835e27c"
+    },
+    {
+      "path": "src/democreate/paper/extract.py",
+      "sha256": "363e36e6c76928811a4903092ee83902a2b7f63ade36dca0105b85c5f05cad01"
+    },
+    {
+      "path": "src/democreate/paper/pdf.py",
+      "sha256": "9936ae8e777b5d559b5dfcfe9d0a49a10bc2813691801679037fe3d162715cb0"
+    },
+    {
+      "path": "src/democreate/paper/script.py",
+      "sha256": "1fdbee1542d7a7d0bf56ebf2e65c5f9341836bf21eb621219a4c830e251a250e"
+    },
+    {
+      "path": "src/democreate/paper/structure.py",
+      "sha256": "ee7dee3954bca5afde86e3026521fdadad4a0c2e9a63c476fb70eafd5c9d2bdb"
+    },
+    {
+      "path": "src/democreate/pipeline.py",
+      "sha256": "d74a351e7b8d8938f93c30014ed6d23480bf05446787c1eeeec4ca44e7f97ce4"
+    },
+    {
+      "path": "src/democreate/portfolio.py",
+      "sha256": "028691539eea38b690a56d2a945d6a35177a4083b889ceefbc782b2d1449d036"
+    },
+    {
+      "path": "src/democreate/project_paths.py",
+      "sha256": "c5b5df1369f4a8963edfdcc6e4fe96e1773172d30a63d070c5843fffa93caff5"
+    },
+    {
+      "path": "src/democreate/schema.py",
+      "sha256": "ee8588c3da6eec5c200d22666d69a0c17f99b1a8a92f7afe27914cc9fedf1a38"
+    },
+    {
+      "path": "src/democreate/translation/__init__.py",
+      "sha256": "a0c9e0e3b859de27f5fa17cae79defb24008d890050604a5e822ebb765a65ba0"
+    },
+    {
+      "path": "src/democreate/translation/localize.py",
+      "sha256": "36ec707663bbd39e5c71ad19098124a21a1ddd92f77591faf5debf8f3e47d071"
+    },
+    {
+      "path": "src/democreate/translation/translator.py",
+      "sha256": "be428757a0be7d4c533181212b93a739345714d685a6bef4a6fc5bae2b3a1c1b"
+    }
+  ],
+  "core_validation": {
+    "python": "3.15.2",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--cov=democreate",
+      "--cov-report=term-missing",
+      "--cov-report=json:output/deep-release-2026-11-09/artifacts/coverage.json",
+      "--cov-report=xml:output/deep-release-2026-11-09/artifacts/coverage.xml",
+      "--junitxml=output/deep-release-2026-11-09/artifacts/tests.xml",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "passed": 1084,
+    "skipped": 12,
+    "collected": 1096,
+    "elapsed_pytest_seconds": 95.74,
+    "totals": {
+      "covered_lines": 5668,
+      "num_statements": 6018,
+      "percent_covered": 92.36660709726831,
+      "percent_covered_display": "92.37",
+      "missing_lines": 350,
+      "excluded_lines": 1186,
+      "percent_statements_covered": 94.18411432369558,
+      "percent_statements_covered_display": "94.18",
+      "num_branches": 1816,
+      "num_partial_branches": 182,
+      "covered_branches": 1568,
+      "missing_branches": 248,
+      "percent_branches_covered": 86.34361233480176,
+      "percent_branches_covered_display": "86.34"
+    },
+    "skip_reasons": [
+      {
+        "test": "tests.animation.test_manim::test_render_with_manim_if_installed",
+        "reason": "could not import 'manim': No module named 'manim'"
+      },
+      {
+        "test": "tests.assembly.test_audio::test_normalize_audio_raises_without_ffmpeg",
+        "reason": "ffmpeg present; guard cannot be exercised"
+      },
+      {
+        "test": "tests.assembly.test_audio::test_apply_fade_raises_without_ffmpeg",
+        "reason": "ffmpeg present; guard cannot be exercised"
+      },
+      {
+        "test": "tests.capture.test_browser::test_playwright_missing_binary_is_typed_and_unwinds",
+        "reason": "playwright package not installed"
+      },
+      {
+        "test": "tests.capture.test_browser::test_real_browser_consumes_fill_click_and_directional_scroll",
+        "reason": "playwright package not installed"
+      },
+      {
+        "test": "tests.export.test_interactive::test_native_browser_clears_captions_outside_measured_windows",
+        "reason": "could not import 'playwright.sync_api': No module named 'playwright'"
+      },
+      {
+        "test": "tests.narration.test_tts_kokoro::test_kokoro_real_synthesis",
+        "reason": "kokoro-onnx + model files not present"
+      },
+      {
+        "test": "tests.narration.test_tts_kokoro::test_kokoro_unknown_voice_falls_back",
+        "reason": "kokoro-onnx + model files not present"
+      },
+      {
+        "test": "tests.narration.test_tts_system::test_system_tts_speaks_real_audio",
+        "reason": "no usable system TTS on this host"
+      },
+      {
+        "test": "tests.narration.test_tts_system::test_system_tts_empty_text_is_silent_beat",
+        "reason": "no usable system TTS on this host"
+      },
+      {
+        "test": "tests.test_cli_commands::test_render_then_verify_real_video",
+        "reason": "no usable system TTS voice (say/espeak)"
+      },
+      {
+        "test": "tests.translation.test_localize::test_localized_blank_system_voice_uses_native_default",
+        "reason": "no usable native speech engine"
+      }
+    ],
+    "ruff": {
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        ".",
+        "--cache-dir",
+        "output/deep-release-2026-11-09/cache/ruff"
+      ],
+      "outcome": "passed"
+    },
+    "mypy": {
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "mypy",
+        "src",
+        "--cache-dir",
+        "output/deep-release-2026-11-09/cache/mypy"
+      ],
+      "source_files": 68,
+      "outcome": "passed",
+      "note": "Existing capture/_screen_renderer.py untyped-function body note retained."
+    }
+  },
+  "scoped_validation": {
+    "final_native": {
+      "passed": 757,
+      "skipped": 9,
+      "collected": 766,
+      "seconds": 54.05
+    },
+    "earlier_failure": {
+      "passed": 754,
+      "skipped": 11,
+      "failed": 1,
+      "cause": "Test RLIMIT of 2048 bytes also prevented writing a long-path concat manifest before FFmpeg ran. Corrected fixture bounds the actual manifest size plus one, asserts prior playable MP4 exceeds that limit, and retains real native failure/preservation assertions."
+    }
+  },
+  "core_reproducibility": {
+    "wheel_sha256": "0ba45a17cc9a00f162cb3cbcd47911e7fea2d0595c7ab0141e6f8f590b8b5529",
+    "sdist_sha256": "7acfa5029265bb134ff1135b55f1fd03fed53db8f0d3d4305fa74f4a70b8a13a",
+    "source_manifest_sha256": "b7aa7128425d20719d26c127650d03f7d4c52810deef4394cf5aea93ad422926",
+    "all_core_file_bytes_equal": true,
+    "core_files": {
+      "captions/captions.vtt": "34a38a82ca57281007ec01ef7c889200b732abf7446ea903ed90c4ff1c12a2f9",
+      "captions/captions.srt": "26a5d6b97644b28e534e0a05d04ca4d4e549fb315ae2ef80cc3dfe22440c6232",
+      "web/player.html": "d8aaa4c37e0f02b1c09e4bc305588fdc68d16e74d81341a22dd5efa6690e0002",
+      "frames/frame_0000.png": "801cfba20de3ad1606ce786da3b86852423d890ae4bfa37945f9bf41ddb3bc9c",
+      "frames/frame_0001.png": "e76892b8e894e8149d5639892e830059532ac8a2be07ec675b15f772f28a13c6",
+      "audio/chunk_0001.wav": "1ce7196c0bfc6545240d8651f59b0e575165a9f7d63488daf6e2284e5c10cec8",
+      "audio/chunk_0000.wav": "9954b1ec94cd58bd7debcf5e3a34585c545100427917cee822de476787090e3c",
+      "manifests/render_manifest.json": "3355318c27c1a163bcedf4e1a034c8d16f8309cd787d2f991cea230b368d7a37",
+      "demos/demo.json": "f69f55c748f02382e6bcb34efb92d91dcd7af49423988734092da28a4e2d31f5",
+      "demos/transcript.md": "00807a60dea39fd1caf33a5b28b8612464ac054410a0be3cc312fcf7a864ec10"
+    },
+    "installed_scoring_cli_exits": {
+      "positive_synthetic": 0,
+      "missing_example": 1
+    },
+    "independent_study_verified": false
+  },
+  "installed_runtime": {
+    "python": "3.15.2 (main, Oct 26 2026, 13:59:33) [Clang 23.1.3 ]",
+    "version": "0.8.0",
+    "schema_version": "1.1",
+    "package_from_fresh_prefix": true,
+    "optional_modules_loaded": [],
+    "distributions": [
+      [
+        "Jinja2",
+        "3.1.6"
+      ],
+      [
+        "MarkupSafe",
+        "3.0.3"
+      ],
+      [
+        "PyYAML",
+        "6.0.3"
+      ],
+      [
+        "Pygments",
+        "2.20.0"
+      ],
+      [
+        "annotated-doc",
+        "0.0.4"
+      ],
+      [
+        "democreate",
+        "0.8.0"
+      ],
+      [
+        "markdown-it-py",
+        "4.2.0"
+      ],
+      [
+        "mdurl",
+        "0.1.2"
+      ],
+      [
+        "pillow",
+        "13.0.0"
+      ],
+      [
+        "rich",
+        "15.0.0"
+      ],
+      [
+        "shellingham",
+        "1.5.4"
+      ],
+      [
+        "typer",
+        "0.26.7"
+      ]
+    ]
+  },
+  "security": {
+    "observed_at": "2026-11-09T19:21:37.640799+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "uv_lock_sha256": "f4f39874c4f136068a862ab54fdb0dd4bef2a56bcfeb79f3c900ae37454bbe9a",
+    "request_sha256": "1396f6941c6276713e3dc2e393332e2a1c5815828e989fe09bca7b266f114cf9",
+    "scope": "Exact locked PyPI registry versions, including optional/platform variants; not every declared range, authenticity or comprehensive security.",
+    "status": "observed",
+    "package_versions": 170,
+    "response_sha256": "0055b052e3ededf1a8d195e02f178a7b7ea8c179b573816fed084929e0bc15c1",
+    "packages_with_advisories": 0,
+    "incomplete_pagination": false
+  },
+  "consumer_observations": {
+    "before-core": {
+      "merge": {
+        "original": {
+          "id": "c",
+          "text": "hi",
+          "actions": [],
+          "audio_path": "audio/kept.wav",
+          "start_ms": 1000,
+          "duration_ms": 100
+        },
+        "merged": {
+          "id": "c",
+          "text": "hi",
+          "actions": []
+        },
+        "original_window": [
+          [
+            1000,
+            1100
+          ]
+        ],
+        "merged_window": [
+          [
+            0,
+            400
+          ]
+        ]
+      },
+      "terminal": {
+        "at_999": [
+          "$ slow",
+          "early"
+        ],
+        "at_1000": [
+          "$ slow",
+          "late",
+          "early"
+        ],
+        "append_only": false
+      },
+      "horizon": {
+        "event_ms": 2300,
+        "timeline_total_ms": 1300,
+        "event_within_horizon": false,
+        "caption_srt": "1\n00:00:00,300 --> 00:00:00,700\nhi\n"
+      },
+      "u8": {
+        "padding_values": [
+          0
+        ],
+        "input_values": [
+          128
+        ]
+      },
+      "template": {
+        "dict_action": {
+          "type": "type_code",
+          "params": {
+            "code": "x"
+          },
+          "timestamp_source": "authored",
+          "duration_ms": 0
+        },
+        "object_action": {
+          "type": "type_code",
+          "params": {
+            "code": "x"
+          },
+          "timestamp_ms": 500,
+          "timestamp_source": "authored",
+          "duration_ms": 0
+        }
+      },
+      "walker": {
+        "build": [],
+        "dist": [],
+        "plain": [
+          "main"
+        ]
+      },
+      "imports": {
+        "nodes": [
+          "leaf",
+          "sub",
+          "sub.leaf"
+        ],
+        "edges": [
+          [
+            "sub",
+            "leaf"
+          ]
+        ]
+      },
+      "image": {
+        "container_verify_passed": true,
+        "pipeline_error": "RenderError: cannot decode background image: <repository>/output/deep-release-2026-11-09/artifacts/before-core/image/workspace/assets/5e1b5a7463ac5775a214fbbdfd951e45592e07b9ced3e2fbf06fc72204a22467.png",
+        "prior_audio_preserved": false
+      },
+      "pdf": {
+        "ordinary.pdf": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        },
+        "-v": {
+          "error": "DemoCreateError",
+          "detail": "pdftoppm produced no output at <repository>/output/deep-release-2026-11-09/artifacts/before-core/"
+        },
+        "-h.pdf": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        },
+        "-": {
+          "error": "DemoCreateError",
+          "detail": "pdfinfo failed for -: Syntax Error: Document stream is empty"
+        }
+      },
+      "portfolio": {
+        "portfolio_index.json": {
+          "returned_report": true,
+          "failures": [
+            "unknown TTS backend 'unsupported-probe'; expected one of 'auto', 'silent', 'system', 'kokoro', 'elevenlabs', 'chatterbox'"
+          ]
+        },
+        "portfolio_index.html": {
+          "returned_report": true,
+          "failures": [
+            "unknown TTS backend 'unsupported-probe'; expected one of 'auto', 'silent', 'system', 'kokoro', 'elevenlabs', 'chatterbox'"
+          ]
+        }
+      }
+    },
+    "before-portfolio": {
+      "portfolio": {
+        "portfolio_index.json": {
+          "error": "IsADirectoryError",
+          "detail": "[Errno 21] Is a directory: '<repository>/output/deep-release-2026-11-09/artifacts/before-portfolio/portfolio/portfolio_index.json/result/portfolio_index.json'"
+        },
+        "portfolio_index.html": {
+          "error": "IsADirectoryError",
+          "detail": "[Errno 21] Is a directory: '<repository>/output/deep-release-2026-11-09/artifacts/before-portfolio/portfolio/portfolio_index.html/result/portfolio_index.html'"
+        }
+      }
+    },
+    "before-media": {
+      "remux": {
+        "original": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "fra"
+          }
+        ],
+        "tagged": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          }
+        ],
+        "chaptered": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          },
+          {
+            "codec_type": "data",
+            "codec_name": "bin_data",
+            "language": "eng"
+          }
+        ]
+      },
+      "short": {
+        "video_duration": "0.300000",
+        "ok": false,
+        "problems": [
+          "could not sample a video frame (probe returned no reading)"
+        ]
+      },
+      "corrupt": {
+        "damaged_video_packets": 15,
+        "verify_ok": true,
+        "problems": [],
+        "strict_decode_exit": 183,
+        "strict_decode_error": "nput into NAL units.\n[h264 @ 0x76dd180380] Invalid NAL unit size (0 > 1877).\n[h264 @ 0x76dd180380] Error splitting the input into NAL units.\n[h264 @ 0x76dd180700] Invalid NAL unit size (0 > 1998).\n[h264 @ 0x76dd180700] Error splitting the input into NAL units.\n[vist#0:0/h264 @ 0x76dd040600] [dec:h264 @ 0x76dd048780] Decoding error: Invalid data found when processing input\n[vist#0:0/h264 @ 0x76dd040600] [dec:h264 @ 0x76dd048780] Error processing packet in decoder: Invalid data found when processing input\n[vist#0:0/h264 @ 0x76dd040600] [dec:h264 @ 0x76dd048780] Task finished with error code: -1094995529 (Invalid data found when processing input)\n[vist#0:0/h264 @ 0x76dd040600] [dec:h264 @ 0x76dd048780] Terminating thread with return code -1094995529 (Invalid data found when processing input)\n"
+      },
+      "atomic": {
+        "forced_real_write_failure_exit": 1,
+        "previous_final_preserved": false,
+        "surviving_size": 2048,
+        "error": " to '<repository>/output/deep-release-2026-11-09/artifacts/before-media/atomic/final.mp4':\n  Metadata:\n    encoder         : Lavf63.1.102\n  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, progressive), 160x90, q=2-31, 10 fps, 10240 tbn\n    Metadata:\n      encoder         : Lavc63.1.102 libx264\n    Side data:\n      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A\n  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, mono, fltp, 160 kb/s\n    Metadata:\n      encoder         : Lavc63.1.102 aac\n"
+      },
+      "rejected": {
+        "verification_ok": false,
+        "problems": [
+          "audio is effectively silent (mean volume -91.0 dB)"
+        ],
+        "prior_final_preserved": false,
+        "returned_path": "final.mp4",
+        "returned_exists": true
+      },
+      "geometry": {
+        "probe_exception": "TypeError",
+        "detail": "Demo.to_json() takes 1 positional argument but 2 were given"
+      }
+    },
+    "before-geometry": {
+      "geometry": {
+        "exit_code": 1,
+        "requested": [
+          1280,
+          720
+        ],
+        "encoded": [
+          {
+            "path": "geometry-control-audio_en-subs_en.mp4",
+            "geometry": [
+              [
+                160,
+                90
+              ]
+            ]
+          }
+        ],
+        "output_tail": "localizing 1 pair(s) via 'identity' (smollm2)\u2026 source=en\n  \u2717 audio=en subs=en: failed\n"
+      }
+    },
+    "before-config": {
+      "explicit_override": {
+        "input_config_aliases_result": true,
+        "resolved_start_ms": 300,
+        "resolved_action_ms": 300,
+        "srt_before": "1\n00:00:00,300 --> 00:00:00,700\none\n",
+        "rendered": true,
+        "voiceover_duration_ms": 2000.0,
+        "caption_after": "1\n00:00:00,300 --> 00:00:00,700\none\n"
+      },
+      "mutate_original": {
+        "input_config_aliases_result": true,
+        "resolved_start_ms": 300,
+        "resolved_action_ms": 300,
+        "srt_before": "1\n00:00:00,300 --> 00:00:00,700\none\n",
+        "rendered": true,
+        "voiceover_duration_ms": 2000.0,
+        "caption_after": "1\n00:00:00,300 --> 00:00:00,700\none\n"
+      },
+      "paper_rate": [
+        {
+          "requested_wpm": 90,
+          "actual_backend_construction_calls": [
+            {
+              "name": "system",
+              "voice": "default",
+              "rate_wpm": null
+            }
+          ],
+          "exit_code": 1,
+          "output_tail": "reading paper \n<repository>/outp\nut/deep-release-2026-11-09/artifacts/before-config/paper/sample-paper.pdf\n\u2713 'Portable PDF Fixture' \u2014 2 pages, 0 figures, 3 sections\n\u2713 generated demo with 5 scenes\n",
+          "exception": "BackendUnavailableError: backend 'system speech engine (install a usable say/espeak voice and ffmpeg)' is unavailable"
+        },
+        {
+          "requested_wpm": 180,
+          "actual_backend_construction_calls": [
+            {
+              "name": "system",
+              "voice": "default",
+              "rate_wpm": null
+            }
+          ],
+          "exit_code": 1,
+          "output_tail": "reading paper \n<repository>/outp\nut/deep-release-2026-11-09/artifacts/before-config/paper/sample-paper.pdf\n\u2713 'Portable PDF Fixture' \u2014 2 pages, 0 figures, 3 sections\n\u2713 generated demo with 5 scenes\n",
+          "exception": "BackendUnavailableError: backend 'system speech engine (install a usable say/espeak voice and ffmpeg)' is unavailable"
+        }
+      ]
+    },
+    "before-voice2": {
+      "python": "3.14.10 (main, Oct 26 2026, 13:59:48) [Clang 23.1.3 ]",
+      "source": "src/democreate/__init__.py",
+      "operator_voice": "af_sky",
+      "authored_voice": "af_heart",
+      "actual_model_voices": [
+        "af_heart"
+      ],
+      "durations_ms": [
+        2304
+      ],
+      "wav_sha256": [
+        "f96688027c30f1d6dbd7937f152b6ce4a504b91bbe9f6e048fb5c49abc24373c"
+      ],
+      "models_before_after": {
+        "kokoro-v1.0.onnx": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+        "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+      },
+      "operator_override_effective": false,
+      "listening_or_acoustic_accuracy_assessed": false
+    },
+    "before-integrated-boundaries": {
+      "merge_html": {
+        "html_windows": [
+          [
+            0,
+            1000
+          ],
+          [
+            0,
+            1000
+          ]
+        ],
+        "playback_windows": [
+          [
+            0,
+            1000
+          ],
+          [
+            1000,
+            2000
+          ]
+        ],
+        "html_total_ms": 1000,
+        "playback_total_ms": 2000,
+        "srt": "1\n00:00:00,000 --> 00:00:01,000\nFirst scene caption\n\n2\n00:00:01,000 --> 00:00:02,000\nSecond scene caption\n",
+        "player": "output/deep-release-2026-11-09/artifacts/before-integrated-boundaries/merge_html/player.html",
+        "input_starts": [
+          0,
+          0
+        ]
+      },
+      "long_output": {
+        "basename_bytes": 254,
+        "name_max": 255,
+        "error": {
+          "type": "OSError",
+          "errno": 63,
+          "message": "[Errno 63] File name too long: '<repository>/output/deep-release-2026-11-09/artifacts/before-integrated-boundaries/long_output/.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-obk54d5x'"
+        },
+        "previous_preserved": true,
+        "geometry": [
+          [
+            160,
+            90
+          ]
+        ],
+        "strict_decode_exit": 0
+      },
+      "nonfinite_duration": {
+        "fixture": "synthetic malformed ffprobe response; no video quality inference",
+        "ok": true,
+        "duration_s": 0.0,
+        "problems": []
+      }
+    },
+    "after-core": {
+      "merge": {
+        "original": {
+          "id": "c",
+          "text": "hi",
+          "actions": [],
+          "audio_path": "audio/kept.wav",
+          "start_ms": 1000,
+          "duration_ms": 100
+        },
+        "merged": {
+          "id": "c",
+          "text": "hi",
+          "actions": [],
+          "audio_path": "audio/kept.wav",
+          "start_ms": 1000,
+          "duration_ms": 100
+        },
+        "original_window": [
+          [
+            1000,
+            1100
+          ]
+        ],
+        "merged_window": [
+          [
+            1000,
+            1100
+          ]
+        ]
+      },
+      "terminal": {
+        "at_999": [
+          "$ slow",
+          "early"
+        ],
+        "at_1000": [
+          "$ slow",
+          "early",
+          "late"
+        ],
+        "append_only": true
+      },
+      "horizon": {
+        "event_ms": 2300,
+        "timeline_total_ms": 1300,
+        "event_within_horizon": false,
+        "caption_srt": "1\n00:00:00,300 --> 00:00:00,700\nhi\n"
+      },
+      "u8": {
+        "padding_values": [
+          128
+        ],
+        "input_values": [
+          128
+        ]
+      },
+      "template": {
+        "dict_action": {
+          "type": "type_code",
+          "params": {
+            "code": "x"
+          },
+          "timestamp_ms": 500,
+          "timestamp_source": "authored",
+          "duration_ms": 0
+        },
+        "object_action": {
+          "type": "type_code",
+          "params": {
+            "code": "x"
+          },
+          "timestamp_ms": 500,
+          "timestamp_source": "authored",
+          "duration_ms": 0
+        }
+      },
+      "walker": {
+        "build": [
+          "main"
+        ],
+        "dist": [
+          "main"
+        ],
+        "plain": [
+          "main"
+        ]
+      },
+      "imports": {
+        "nodes": [
+          "leaf",
+          "sub",
+          "sub.leaf"
+        ],
+        "edges": [
+          [
+            "sub",
+            "sub.leaf"
+          ]
+        ]
+      },
+      "image": {
+        "container_verify_passed": true,
+        "pipeline_error": "RenderError: cannot decode background image: <repository>/output/deep-release-2026-11-09/artifacts/after-core/image/invalid-pixels.png",
+        "prior_audio_preserved": true
+      },
+      "pdf": {
+        "ordinary.pdf": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        },
+        "-v": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        },
+        "-h.pdf": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        },
+        "-": {
+          "pages": "2",
+          "text_has_fixture": true,
+          "rendered": true
+        }
+      },
+      "portfolio": {
+        "portfolio_index.json": {
+          "returned_report": true,
+          "failures": [
+            "project name 'portfolio_index.json' is reserved for the portfolio index"
+          ]
+        },
+        "portfolio_index.html": {
+          "returned_report": true,
+          "failures": [
+            "project name 'portfolio_index.html' is reserved for the portfolio index"
+          ]
+        }
+      }
+    },
+    "after-media": {
+      "remux": {
+        "original": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "fra"
+          }
+        ],
+        "tagged": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "fra"
+          }
+        ],
+        "chaptered": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "language": "und"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "eng"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "language": "fra"
+          },
+          {
+            "codec_type": "data",
+            "codec_name": "bin_data",
+            "language": "eng"
+          }
+        ]
+      },
+      "short": {
+        "video_duration": "0.300000",
+        "ok": true,
+        "problems": []
+      },
+      "corrupt": {
+        "damaged_video_packets": 15,
+        "verify_ok": false,
+        "problems": [
+          "could not strictly decode audio/video and measure audio volume",
+          "could not sample a video frame (probe returned no reading)"
+        ],
+        "strict_decode_exit": 183,
+        "strict_decode_error": "nput into NAL units.\n[h264 @ 0x74a0d0c380] Invalid NAL unit size (0 > 1877).\n[h264 @ 0x74a0d0c380] Error splitting the input into NAL units.\n[h264 @ 0x74a0d0c700] Invalid NAL unit size (0 > 1998).\n[h264 @ 0x74a0d0c700] Error splitting the input into NAL units.\n[vist#0:0/h264 @ 0x74a0c20600] [dec:h264 @ 0x74a0c28780] Decoding error: Invalid data found when processing input\n[vist#0:0/h264 @ 0x74a0c20600] [dec:h264 @ 0x74a0c28780] Error processing packet in decoder: Invalid data found when processing input\n[vist#0:0/h264 @ 0x74a0c20600] [dec:h264 @ 0x74a0c28780] Task finished with error code: -1094995529 (Invalid data found when processing input)\n[vist#0:0/h264 @ 0x74a0c20600] [dec:h264 @ 0x74a0c28780] Terminating thread with return code -1094995529 (Invalid data found when processing input)\n"
+      },
+      "atomic": {
+        "forced_real_write_failure_exit": 1,
+        "previous_final_preserved": true,
+        "surviving_size": 29752,
+        "error": "/Documents/Git/gitvault/Username/docxology/Public/democreate/output/deep-release-2026-11-09/artifacts/after-media/atomic/.democreate-azd07_cz/final.mp4':\n  Metadata:\n    encoder         : Lavf63.1.102\n  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, progressive), 160x90, q=2-31, 10 fps, 10240 tbn\n    Metadata:\n      encoder         : Lavc63.1.102 libx264\n    Side data:\n      CPB properties: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A\n  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, mono, fltp, 160 kb/s\n    Metadata:\n      encoder         : Lavc63.1.102 aac\n"
+      },
+      "rejected": {
+        "verification_ok": false,
+        "problems": [
+          "audio is effectively silent (mean volume -91.0 dB)"
+        ],
+        "prior_final_preserved": false,
+        "returned_path": "final.mp4",
+        "returned_exists": true
+      },
+      "geometry": {
+        "exit_code": 1,
+        "requested": [
+          1280,
+          720
+        ],
+        "encoded": [
+          {
+            "path": "geometry-control-audio_en-subs_en.mp4",
+            "geometry": [
+              [
+                1280,
+                720
+              ]
+            ]
+          }
+        ],
+        "output_tail": "localizing 1 pair(s) via 'identity' (smollm2)\u2026 source=en\n  \u2717 audio=en subs=en: failed\n"
+      }
+    },
+    "after-config": {
+      "explicit_override": {
+        "input_config_aliases_result": false,
+        "resolved_start_ms": 300,
+        "resolved_action_ms": 300,
+        "srt_before": "1\n00:00:00,300 --> 00:00:00,700\none\n",
+        "error": "RenderError: audio padding differs from the built timeline; rebuild the demo before changing lead, gap or trailing silence"
+      },
+      "mutate_original": {
+        "input_config_aliases_result": false,
+        "resolved_start_ms": 300,
+        "resolved_action_ms": 300,
+        "srt_before": "1\n00:00:00,300 --> 00:00:00,700\none\n",
+        "rendered": true,
+        "voiceover_duration_ms": 1300.0,
+        "caption_after": "1\n00:00:00,300 --> 00:00:00,700\none\n"
+      },
+      "paper_rate": [
+        {
+          "requested_wpm": 90,
+          "actual_backend_construction_calls": [
+            {
+              "name": "system",
+              "voice": "default",
+              "rate_wpm": 90
+            }
+          ],
+          "exit_code": 1,
+          "output_tail": "reading paper \n<repository>/outp\nut/deep-release-2026-11-09/artifacts/after-config/paper/sample-paper.pdf\n\u2713 'Portable PDF Fixture' \u2014 2 pages, 0 figures, 3 sections\n\u2713 generated demo with 5 scenes\n",
+          "exception": "BackendUnavailableError: backend 'system speech engine (install a usable say/espeak voice and ffmpeg)' is unavailable"
+        },
+        {
+          "requested_wpm": 180,
+          "actual_backend_construction_calls": [
+            {
+              "name": "system",
+              "voice": "default",
+              "rate_wpm": 180
+            }
+          ],
+          "exit_code": 1,
+          "output_tail": "reading paper \n<repository>/outp\nut/deep-release-2026-11-09/artifacts/after-config/paper/sample-paper.pdf\n\u2713 'Portable PDF Fixture' \u2014 2 pages, 0 figures, 3 sections\n\u2713 generated demo with 5 scenes\n",
+          "exception": "BackendUnavailableError: backend 'system speech engine (install a usable say/espeak voice and ffmpeg)' is unavailable"
+        }
+      ]
+    },
+    "after-voice": {
+      "python": "3.14.10 (main, Oct 26 2026, 13:59:48) [Clang 23.1.3 ]",
+      "source": "src/democreate/__init__.py",
+      "operator_voice": "af_sky",
+      "authored_voice": "af_heart",
+      "actual_model_voices": [
+        "af_sky"
+      ],
+      "durations_ms": [
+        2624
+      ],
+      "wav_sha256": [
+        "ac76eeb1ab2362f8c06f50218d65ac1fb94721b87f5a3c5a10fabfc7eac28b9b"
+      ],
+      "models_before_after": {
+        "kokoro-v1.0.onnx": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+        "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+      },
+      "operator_override_effective": true,
+      "chunk_casting_preserved": null,
+      "listening_or_acoustic_accuracy_assessed": false
+    },
+    "actual-chunk-casting": {
+      "python": "3.14.10 (main, Oct 26 2026, 13:59:48) [Clang 23.1.3 ]",
+      "source": "src/democreate/__init__.py",
+      "operator_voice": "af_sky",
+      "authored_voice": "af_heart",
+      "actual_model_voices": [
+        "af_sky",
+        "af_heart"
+      ],
+      "durations_ms": [
+        2624,
+        2368
+      ],
+      "wav_sha256": [
+        "ac76eeb1ab2362f8c06f50218d65ac1fb94721b87f5a3c5a10fabfc7eac28b9b",
+        "ed6ebd6bf6a999098241b4a8b9fd7a583be6966e5127e5cb745d0ab74c66bc79"
+      ],
+      "models_before_after": {
+        "kokoro-v1.0.onnx": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+        "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+      },
+      "operator_override_effective": true,
+      "chunk_casting_preserved": true,
+      "listening_or_acoustic_accuracy_assessed": false
+    },
+    "after-integrated-boundaries": {
+      "merge_html": {
+        "html_windows": [
+          [
+            0,
+            1000
+          ],
+          [
+            1000,
+            2000
+          ]
+        ],
+        "playback_windows": [
+          [
+            0,
+            1000
+          ],
+          [
+            1000,
+            2000
+          ]
+        ],
+        "html_total_ms": 2000,
+        "playback_total_ms": 2000,
+        "srt": "1\n00:00:00,000 --> 00:00:01,000\nFirst scene caption\n\n2\n00:00:01,000 --> 00:00:02,000\nSecond scene caption\n",
+        "player": "output/deep-release-2026-11-09/artifacts/after-integrated-boundaries/merge_html/player.html",
+        "input_starts": [
+          0,
+          0
+        ]
+      },
+      "long_output": {
+        "basename_bytes": 254,
+        "name_max": 255,
+        "error": null,
+        "previous_preserved": false,
+        "geometry": [
+          [
+            160,
+            90
+          ]
+        ],
+        "strict_decode_exit": 0
+      },
+      "nonfinite_duration": {
+        "fixture": "synthetic malformed ffprobe response; no video quality inference",
+        "ok": false,
+        "duration_s": 0.0,
+        "problems": [
+          "video duration is unavailable or nonpositive"
+        ]
+      }
+    },
+    "browser-html-merge": {
+      "before_initial": {
+        "caption": "Second scene caption",
+        "clock": "0.0s",
+        "frame": "frames/frame_0001.png",
+        "loaded": true
+      },
+      "after_initial": {
+        "caption": "First scene caption",
+        "clock": "0.0s",
+        "frame": "frames/frame_0000.png",
+        "loaded": true
+      },
+      "after_next": {
+        "caption": "Second scene caption",
+        "clock": "1.0s",
+        "frame": "frames/frame_0001.png",
+        "loaded": true
+      },
+      "after_previous": {
+        "caption": "First scene caption",
+        "clock": "0.0s",
+        "frame": "frames/frame_0000.png",
+        "loaded": true
+      },
+      "after_end": {
+        "caption": "",
+        "clock": "2.0s",
+        "button": "Play"
+      },
+      "hostile_content": {
+        "title": "</script><img src=x onerror='window.__democreateInjected=1'>",
+        "caption": "</script><img src=x onerror='window.__democreateInjected=1'>",
+        "injected": false,
+        "handlerImages": 0
+      },
+      "profile": "repository-local owned headless Chrome",
+      "outer_offline_sandbox": true,
+      "chrome_inner_sandbox_disabled": true,
+      "proof_driver_correction": "CDP handles initially aliased one target; actual before/after proof used sequential navigation of the owned page."
+    }
+  },
+  "actual_scoring_cli": {
+    "command": "python -m democreate.cli score-sync INPUT.json",
+    "exits": {
+      "valid_synthetic_arithmetic": 0,
+      "shipped_missing_media_negative_control": 1,
+      "malformed_duplicate_key_json": 2
+    },
+    "positive_input_is_synthetic": true,
+    "media_and_independence_verified": false
+  },
+  "initial_staged_manuscript": {
+    "python": "3.15.2 (main, Oct 26 2026, 13:59:33) [Clang 23.1.3 ]",
+    "pillow": "13.0.0",
+    "freetype": "2.14.3",
+    "pdf_sha256": "d99f694cb8ffd6ca88d9c73310a9a499cd7c98955a01be37cbfa528ea2a26c75",
+    "pages": 26,
+    "checked_local_links": 386,
+    "missing_links": [],
+    "external_http": "not exhaustively checked",
+    "generated": [
+      {
+        "path": "docs/_gallery/_figure_bg.png",
+        "sha256": "570c1ee362452bdf6dc3bbd38a961adde320e7cb224782046bafc545c5d746f4"
+      },
+      {
+        "path": "docs/_gallery/architecture.png",
+        "sha256": "5a63926f8630e21f6d10dd21b38924346e9ab283364cec3ccd29fc7172882181"
+      },
+      {
+        "path": "docs/_gallery/paper_figure.png",
+        "sha256": "10c4ce4d5b2adf632a08b14b643f6301c241734bdba448ee576173de73df971c"
+      },
+      {
+        "path": "docs/_gallery/themes_strip.png",
+        "sha256": "bc898db7310a6719a788e373a339467f3935e0a630887e4199f29164c91f6c1a"
+      },
+      {
+        "path": "docs/_gallery/title_slide.png",
+        "sha256": "50260553c3bf0f879aaf70264f6604a78f83b07b0f31eb7ece0f9aefd975803a"
+      },
+      {
+        "path": "docs/_gallery/typing.png",
+        "sha256": "6227226d7abdc8f6fb2230eee3fd41cc36cec000e0de45615a14d97f89add4e7"
+      },
+      {
+        "path": "docs/api.md",
+        "sha256": "8122b92ebfe430ca2e5fcd828f0b89c6e1a478e5d896369114be5fac12a30d04"
+      },
+      {
+        "path": "docs/manuscript/figures/architecture.png",
+        "sha256": "1f11b0b091eba709b1479294261d5f48547fe5c43fcc325cedaf2628074b7ea4"
+      },
+      {
+        "path": "docs/manuscript/figures/frame_code.png",
+        "sha256": "5dae46604e6be7d6765de07fb5dbddc695f1558bf24ab1a9dbdfef9b9421f8a9"
+      },
+      {
+        "path": "docs/manuscript/figures/frame_paper.png",
+        "sha256": "e1da90f26888b4c28d3cbeee5c9ad4e47ddde60eb6c048811ab9cf47763686c7"
+      },
+      {
+        "path": "docs/manuscript/figures/frame_title.png",
+        "sha256": "d0da26d1659c5d0c1278902f04a3f997c42869c152e2e55c0c92dae3a5f08dc2"
+      },
+      {
+        "path": "docs/manuscript/figures/graphical_abstract.png",
+        "sha256": "abfe6bb00e4375fb236ae6d4ac2707f13c30c16f1eb27765a14915a25505a3a8"
+      },
+      {
+        "path": "docs/manuscript/figures/latency.png",
+        "sha256": "f8641327b908b47a6aaec653c0fce249d2bd4790d39bb76590063bd5a1eba6e2"
+      },
+      {
+        "path": "docs/manuscript/figures/paper_fig.png",
+        "sha256": "6def69a55e5bd918a3a70bb473e377fdef5e595015cc04e6a8dc5f4833d905df"
+      },
+      {
+        "path": "docs/manuscript/figures/paper_flow.png",
+        "sha256": "e893eaead2c009116f59d99a9fd52b0217a25084f025e58bdcdc819a0424c3e3"
+      },
+      {
+        "path": "docs/manuscript/figures/provenance.png",
+        "sha256": "405ede4aa694543855f6b0c1d4b76faaeb4615e66ea12a38186823e836fa210e"
+      },
+      {
+        "path": "docs/manuscript/figures/themes.png",
+        "sha256": "7a2c62f472688c318fed6ab3029601672a192bdb43c6ddb514c13ec1e26a8c8d"
+      },
+      {
+        "path": "docs/manuscript/figures/typing_filmstrip.png",
+        "sha256": "4031d36cd6e752b735125a09db03435194b2049f98c760a2f82ce9b010d21a35"
+      },
+      {
+        "path": "docs/manuscript/figures/video_stills.png",
+        "sha256": "866a4db9f02dbcb7ee5e24db2f2e22c80253296da0a269b105a6b143343a287d"
+      },
+      {
+        "path": "docs/manuscript/figures/waveform.png",
+        "sha256": "4a4be23bed26956afd1e91f79860871a3f3cfbb2aca1de13380bcda517f38851"
+      },
+      {
+        "path": "examples/assets/graphical_abstract.png",
+        "sha256": "abfe6bb00e4375fb236ae6d4ac2707f13c30c16f1eb27765a14915a25505a3a8"
+      },
+      {
+        "path": "examples/assets/paper_fig.png",
+        "sha256": "6def69a55e5bd918a3a70bb473e377fdef5e595015cc04e6a8dc5f4833d905df"
+      },
+      {
+        "path": "examples/assets/themes.png",
+        "sha256": "7a2c62f472688c318fed6ab3029601672a192bdb43c6ddb514c13ec1e26a8c8d"
+      },
+      {
+        "path": "examples/democreate_showcase.json",
+        "sha256": "7ad22d33dc1d5019f313b5553e18ebc4304b957583e1d0ee4e95b46b4205850f"
+      }
+    ],
+    "scope": "Inspected graphical abstract and all rendered pages. This staged PDF predates the subsequent implementation-table evaluation.py row; not final publication proof."
+  },
+  "execution_receipts": [
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-actual-chunk-casting",
+        "generation": "29486-c7b35c79ef92446881333491ecbbb5d3"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:51:48.560763+00:00",
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "5cb7cdeea42742b30ae5d6a2652f168a1d1703dc94951d27e757b205124854a6",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/output/wfz/voice-env/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/voice_probe.py",
+        "actual-chunk-casting",
+        "casting",
+        "output/wfz/models/voices-v1.0.bin"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-actual-scoring-cli",
+        "generation": "29465-dfd2e3283fe848de99dcdc2df527f159"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:50:37.036161+00:00",
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "aebeb56696ce34e2b397019c07c3a7f4541ff7d8e447c8cb5e59f7d1a7fcec95",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/cli_scoring_probe.py",
+        "actual-scoring-cli",
+        "examples/sync_annotations_missing.json"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-config",
+        "generation": "29480-4b529ff614ab45278f3fa3d5a15a0187"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:51:15.996720+00:00",
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "5fd051200cdfdcad6bdb33f747091c3af4a153b28ca3d6841fc28e88d5719835",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/consumer_probes.py",
+        "after-config"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-core",
+        "generation": "29468-3a0546ab047746cab9918aa0f518dc1d"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:50:43.044096+00:00",
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "7d649d0e3f33aa2bda161b85026b35731bf650ee321e8073400b56a0b441522c",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/core_probes.py",
+        "after-core"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-integrated-boundaries",
+        "generation": "29255-7dece91f5047433ca52ea40bd24d70af"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:17:35.910382+00:00",
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "0652bacc6e6cfa05a651b05b357de091c0f987c14e3ef86f6aca5190dc07c174",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/integration_probes.py",
+        "after-integrated-boundaries"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-media",
+        "generation": "29472-24ebe34d0c98478591d969c8e92ea489"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:51:01.778376+00:00",
+      "classification": "test",
+      "timeout_seconds": 300,
+      "source_after_sha256": "7d649d0e3f33aa2bda161b85026b35731bf650ee321e8073400b56a0b441522c",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/media_probes.py",
+        "after-media"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-after-voice",
+        "generation": "29483-29aab1498acb4c6290cf79e71432e7a6"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:51:32.172470+00:00",
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "f7eb94c6f238d694afac02e1facd390450312e6af998993beb10e7ea9c0df86c",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/output/wfz/voice-env/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/voice_probe.py",
+        "after-voice",
+        "single",
+        "output/wfz/models/voices-v1.0.bin"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-config",
+        "generation": "28914-4ef5c3c1910541e69c9ff52285bdb9a1"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:20:51.544001+00:00",
+      "classification": "test",
+      "timeout_seconds": 150,
+      "source_after_sha256": "d7a2d3fba81d84b73570b683df847b864074e31ed5bc2c0579706ea9dcd019e2",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/consumer_probes.py",
+        "before-config"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-core",
+        "generation": "28611-6d9492757f0a4f6cad2f8b4da95327ad"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:03:11.705304+00:00",
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "76e5345b2c72a96f2bc06fa5d0e4b36aec3e373fccc731b29496dde6d0177d81",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/core_probes.py",
+        "before-core"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-geometry",
+        "generation": "28910-c16038006dab4d4abb8bc29a0b1d0a3e"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:20:43.931359+00:00",
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "5afb286e8362d03ad6e9b70a42783225bcd9e7d864f36430cef3dcef5f1fa88f",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/media_probes.py",
+        "before-geometry",
+        "geometry"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-integrated-boundaries",
+        "generation": "29232-f47039085c884ccd93b9f150245ce403"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:14:02.829347+00:00",
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "fbc3e65c6b61c3968d3958009fa4c1e2fcaf284d2068fb36ebe19e5ddee0be13",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/integration_probes.py",
+        "before-integrated-boundaries"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-media",
+        "generation": "28718-85cfedb990b1411f8155c414aa560aba"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:13:33.626172+00:00",
+      "classification": "test",
+      "timeout_seconds": 240,
+      "source_after_sha256": "0a61efcfd6bdda879712fb6ed959e67f5475665cbc6ffd2db1634328c9864339",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/media_probes.py",
+        "before-media"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-portfolio",
+        "generation": "28907-63049bd17c3c4b9f92222f05a627d0e7"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:20:37.061613+00:00",
+      "classification": "test",
+      "timeout_seconds": 90,
+      "source_after_sha256": "9b878a959c304930a39e6cbb8be0467bf08a0ff5f4bca5ffc8c9eec51081a122",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/core_probes.py",
+        "before-portfolio",
+        "portfolio"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-voice",
+        "generation": "28721-d71889954192438f89039fd1b336feed"
+      },
+      "outcome": "FAILED",
+      "returncode": 1,
+      "finished": "2026-11-09T17:13:41.302731+00:00",
+      "classification": "test",
+      "timeout_seconds": 150,
+      "source_after_sha256": "4508eeb6436f80d4ef4f328871efc971f0c741e80b9794397ff85a3e768ef860",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/output/wfz/voice-env/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/voice_probe.py",
+        "before-voice",
+        "output/wfz/models/voices-v1.0.bin"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-before-voice2",
+        "generation": "28917-90799619d8c24262b79f6dc44fdefad8"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T17:21:02.737402+00:00",
+      "classification": "test",
+      "timeout_seconds": 150,
+      "source_after_sha256": "9981567109bf2fe12705ef013a28f6cff23f515337ff74a7db66c963274c865a",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/output/wfz/voice-env/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/voice_probe.py",
+        "before-voice2",
+        "output/wfz/models/voices-v1.0.bin"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-browser-html",
+        "generation": "29604-44edbe3aa40b43bfbba3bb261e0e31c6"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:15:30.969553+00:00",
+      "classification": "test",
+      "timeout_seconds": 360,
+      "source_after_sha256": "cf03d1638518d8806048693dd10a7d917ec75c5ddc3187ee0032d077decfefe1",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/ui_proof.py"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-exact-lock-security",
+        "generation": "29656-63b6a734cd8b4c3db5340c4f80b8fcf8"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:21:38.306396+00:00",
+      "command": [
+        "<operator-python>",
+        "-B",
+        "output/deep-release-2026-11-09/security_probe.py",
+        "uv.lock"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-final-ruff",
+        "generation": "29453-ff3b1d9d57a24ab49618c15b0a041133"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:49:52.583325+00:00",
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "4e1c813fc1c21e220b5cc2348f5beb772e2c908c5d9efe136ac78fda1a7b2971",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        ".",
+        "--cache-dir",
+        "output/deep-release-2026-11-09/cache/ruff"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-full-core-coverage",
+        "generation": "29676-9d123a6343734536b4c0e28cbe51eca5"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:28:19.307920+00:00",
+      "classification": "test",
+      "timeout_seconds": 1200,
+      "source_after_sha256": "15c1988c20bb36b2073547fd97d9c3a3d0e5664f9bf7180f51e0fb03a967b9df",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--cov=democreate",
+        "--cov-report=term-missing",
+        "--cov-report=json:output/deep-release-2026-11-09/artifacts/coverage.json",
+        "--cov-report=xml:output/deep-release-2026-11-09/artifacts/coverage.xml",
+        "--junitxml=output/deep-release-2026-11-09/artifacts/tests.xml",
+        "-p",
+        "no:cacheprovider"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-integrated-mypy",
+        "generation": "29460-b9fb2ff7bf634e41b9de8fd6c3d42e6f"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:50:30.142940+00:00",
+      "classification": "test",
+      "timeout_seconds": 180,
+      "source_after_sha256": "4e1c813fc1c21e220b5cc2348f5beb772e2c908c5d9efe136ac78fda1a7b2971",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "mypy",
+        "src",
+        "--cache-dir",
+        "output/deep-release-2026-11-09/cache/mypy"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-integrated-ruff",
+        "generation": "29321-84f1a21719cd4b19865e6b14cd24d0ef"
+      },
+      "outcome": "FAILED",
+      "returncode": 1,
+      "finished": "2026-11-09T18:25:56.435762+00:00",
+      "classification": "test",
+      "timeout_seconds": 120,
+      "source_after_sha256": "0eb6e87e88c8a1b44a65c12018e19ea29bea5b0422edd87f77fa4c57ff01e909",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        ".",
+        "--cache-dir",
+        "output/deep-release-2026-11-09/cache/ruff"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-integrated-scoped-native",
+        "generation": "29296-eaa70fe83533482881c01527b2597c6f"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:23:16.641217+00:00",
+      "classification": "test",
+      "timeout_seconds": 1200,
+      "source_after_sha256": "b1aad84deecf1d1891e5982ce0c65fa35fe1e84d58d4ad3526598c25393929bd",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--no-cov",
+        "-p",
+        "no:cacheprovider",
+        "tests/assembly/",
+        "tests/codebase/",
+        "tests/paper/",
+        "tests/export/",
+        "tests/translation/",
+        "tests/narration/",
+        "tests/test_project_paths.py",
+        "tests/test_schema.py",
+        "tests/test_pipeline.py",
+        "tests/test_cli.py",
+        "tests/test_cli_commands.py",
+        "tests/test_portfolio.py",
+        "tests/test_evaluation.py"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-integrated-scoped",
+        "generation": "29260-93e6ee19c0bf44a79de15ae7ed98badd"
+      },
+      "outcome": "FAILED",
+      "returncode": 1,
+      "finished": "2026-11-09T18:18:14.584494+00:00",
+      "classification": "test",
+      "timeout_seconds": 1200,
+      "source_after_sha256": "0652bacc6e6cfa05a651b05b357de091c0f987c14e3ef86f6aca5190dc07c174",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--no-cov",
+        "-p",
+        "no:cacheprovider",
+        "tests/assembly/",
+        "tests/codebase/",
+        "tests/paper/",
+        "tests/export/",
+        "tests/translation/",
+        "tests/narration/",
+        "tests/test_project_paths.py",
+        "tests/test_schema.py",
+        "tests/test_pipeline.py",
+        "tests/test_cli.py",
+        "tests/test_cli_commands.py",
+        "tests/test_portfolio.py",
+        "tests/test_evaluation.py"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-native-preflight",
+        "generation": "28508-104a184a54aa4713adc653cab959b748"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T16:55:53.023575+00:00",
+      "classification": "test",
+      "timeout_seconds": 45,
+      "source_after_sha256": "7bb7c0307a552d56ff551a171fab36195bfff3fb2d0d524ff22f29e7db3bdc40",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "scripts/00_preflight.py"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-offline-distributions",
+        "generation": "29655-2f9e8ac9fdcc440581a9386700613f20"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T19:21:36.434217+00:00",
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "9d62a63dfa270d70db38dba7ccea9a73271f04bc407d435ed3b9072e77f5fa6a",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/package_probe.py",
+        "uv.lock",
+        "examples/sync_annotations_missing.json",
+        "output/deep-release-2026-11-09/artifacts/actual-scoring-cli/synthetic-arithmetic.json"
+      ]
+    },
+    {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "038bcb9532e206ed3331e5f299f69ebf95baed7d",
+        "run": "deep-staged-visuals-manuscript",
+        "generation": "29500-76213989b0234268820b63e6f67bd2c3"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T18:56:01.571747+00:00",
+      "classification": "test",
+      "timeout_seconds": 900,
+      "source_after_sha256": "4a06a57a297412d07d5ec9211af711cc74b5fff13e4d210a2d5c83b72607493a",
+      "source_unchanged": true,
+      "command": [
+        "<repository>/.venv/bin/python",
+        "-B",
+        "output/deep-release-2026-11-09/visual_proof.py",
+        "staged-visuals-manuscript"
+      ]
+    }
+  ],
+  "release": {
+    "candidate_published": false,
+    "new_tag_created": false,
+    "last_observed_public_release": "v0.6.2",
+    "research_gate": "pending_unmet",
+    "independent_corpus_available": false,
+    "release_api_admission": "Disabled in the freshly observed configured policy; no bypass attempted."
+  },
+  "limits": [
+    "No independently annotated voiced corpus, acoustic alignment result, intelligibility/listening assessment or passing sync_accuracy gate.",
+    "Annotation scoring computes supplied declarations only; synthetic success is not independent evidence.",
+    "Narration-bounded video horizon remains intentional; WAIT/late actions do not extend it.",
+    "A completed MP4 rejected by later content verification remains at the requested path; only native encode/remux operations are atomic.",
+    "Kokoro clip probes used existing Python 3.14.10/model bytes; no general neural or cross-host determinism claim. The large ONNX model was hash-checked before/after, not kernel-protected as a seed.",
+    "HTML UI playback covers timed frames/captions, not synthesized audio.",
+    "OSV scope is exact locked PyPI versions at the observation time, not all declared ranges, installed voice packages, authenticity or comprehensive security.",
+    "External HTTP links were not exhaustively checked; absent heavy/capture adapters and skip reasons are explicit.",
+    "The prior dated canonical showcase remains a separate input epoch; this native engineering record does not claim a new full showcase render."
+  ]
+}

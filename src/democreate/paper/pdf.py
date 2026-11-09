@@ -88,7 +88,7 @@ def pdf_info(pdf: Path) -> dict[str, str]:
         raise DemoCreateError(f"pdf not found: {pdf}")
     try:
         completed = subprocess.run(  # pragma: no cover
-            [binary, str(pdf)],
+            [binary, str(pdf.resolve())],
             capture_output=True,
             text=True,
             check=True,
@@ -172,7 +172,7 @@ def extract_text(
         cmd += ["-f", str(first)]
     if last is not None:
         cmd += ["-l", str(last)]
-    cmd += [str(pdf), "-"]
+    cmd += [str(pdf.resolve()), "-"]
     try:
         completed = subprocess.run(  # pragma: no cover
             cmd,
@@ -222,8 +222,8 @@ def render_page(pdf: Path, page: int, out_path: Path, *, dpi: int = 150) -> Path
         "-l",
         str(page),
         "-singlefile",
-        str(pdf),
-        str(stem),
+        str(pdf.resolve()),
+        str(stem.resolve()),
     ]
     try:
         subprocess.run(  # pragma: no cover

@@ -31,6 +31,17 @@ Encoded video is quantized to output frames; container/video/audio durations can
 differ by a frame or codec padding. A shared planned timebase is not a measured
 acoustic-alignment guarantee.
 
+Padding is bound at build time; changing lead/gap/trail during export raises
+`RenderError` before output writes. Rebuild rather than retiming only the audio.
+
+The playback horizon remains narration-bounded. `WAIT`, explicit timestamps and
+long action durations do not extend narration or guarantee their effects occur
+inside an encoded scene. Keep intended effects inside that scene's playback
+window; static representative stills are not evidence of animated reachability.
+Terminal prompt/start and output/completion effects replay chronologically;
+late output appends without rewriting earlier visible lines or switching away
+from the currently active editor/browser surface.
+
 ## What the animator draws on each frame
 
 For each instant, on top of the active chunk's base content frame:
@@ -212,12 +223,24 @@ Both paths require **`ffmpeg` on `PATH`** (no pip install needed); absence raise
 Every render is content-verified by default (`verify_video()` in
 `export/verify.py`) — see [the `verify` command](cli.md#verify). It asserts a
 real video stream of the expected size, an audio stream, **non-silent** audio
-(ffmpeg `volumedetect` mean volume above a floor), and a **non-black** sampled
+(ffmpeg `volumedetect` mean volume above a floor), and a **nonblank** sampled
 frame (grayscale pixel variance above a floor). `render` exits non-zero if
 verification fails. These checks do not establish intelligibility, scientific
 accuracy, scene fidelity or acoustic synchronization. [Media identities](videos.md)
 and the immutable [engineering receipt](release-0.8.0.md) separate identified
 historical observations from future renders; no old duration proves this tree.
+
+The existing volume pass strictly decodes every selected video/audio stream;
+native decode errors or unavailable measurements fail closed without a duplicate
+full decode. Frame sampling uses the video's midpoint timestamp, including short
+and nonzero-start streams. Missing stream duration can fall back to container
+duration; a failed sample is not a pass. Structural-only verification does not
+decode content, but still requires a known positive duration even with minimum 0.
+
+Each encode/remux stages beside its destination and replaces it only on native
+success; a native failure preserves prior bytes. This is not a whole-pipeline
+transaction: a completed MP4 rejected by subsequent verification remains at the
+requested path for diagnosis, with a failed report/nonzero CLI status.
 
 ## See also
 

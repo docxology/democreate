@@ -79,6 +79,10 @@ Demo + clips ──sync.absolute_word_timestamps──▶ [WordTimestamp]  (for 
 - `ScriptGenerator` (ABC): `generate(context) -> Demo`.
 - `TemplateScriptGenerator` — **default**, deterministic. One scene per `step`
   in `{"title", "steps": [{"narration", "kind", "actions": [...]}]}`.
+  Action mappings use `Action.from_dict`: `timestamp_ms`, `timestamp_source`,
+  `duration_ms` (including zero), `trigger_word` and `params` retain their schema
+  meanings. Untriggered authored times survive sync; derived `"sync"` times
+  refresh against narration. Existing `Action` objects retain their identity.
 - `generate_codebase_demo(summaries, *, title) -> Demo` — duck-typed over
   `.name/.path/.functions/.classes` (objects **or** dicts). Emits `OPEN_FILE` +
   `HIGHLIGHT_LINES` actions. Does **not** import the codebase subsystem.

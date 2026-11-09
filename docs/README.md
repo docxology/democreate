@@ -27,6 +27,7 @@ subsystem has an abstract backend or a core replacement for external tools.
 | Scheduled animation, static holds, captions, quantization and encode limits | [Video](video.md) |
 | WAV assembly, pauses, normalization and fades | [Audio](audio.md) |
 | Visible/container metadata and unsigned poster digest limitations | [Provenance](provenance.md) |
+| Supplied onset annotations, both medians and missing-data accounting | [Annotation scoring](evaluation.md) — arithmetic, not independent study verification |
 | Public library signatures generated from source | [API reference](api.md) — generated, not hand-edited |
 
 Procedural guides link to these references rather than redefining their option
@@ -49,6 +50,10 @@ compositor are unwired. Dependency presence does not certify readiness.
 - [Visual/documentation refresh receipt](visual-refresh.md), backed by
   [fresh native engineering evidence](../data/visual-refresh-2026-11-08.json):
   package-byte binding, regression proof and the canonical reproduction.
+- [Timing/input/export and scoring audit](deep-audit.md), backed by
+  [the 2026-11-09 native epoch](../data/deep-audit-2026-11-09.json):
+  source-bound regression, installation, real-consumer and annotation-arithmetic
+  proof, with unperformed research explicitly separate.
 - [Manuscript](manuscript/README.md): scientific framing, figures and evaluation
   limits. Measured clip windows are not acoustic word onsets.
 - [Testing policy](testing_philosophy.md): no mocked core computation, lazy heavy
