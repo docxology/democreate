@@ -1,0 +1,548 @@
+{
+  "record_version": 1,
+  "recorded_at_utc": "2026-11-09T20:30:27.157904+00:00",
+  "candidate_version": "0.8.0",
+  "schema_version": "1.1",
+  "source_commit": "fd4a78f283d76d944fcb60b1b2717d4bba6726ee",
+  "source_working_tree": "clean for the governed canonical run",
+  "package_files": [
+    {
+      "path": "src/democreate/__init__.py",
+      "sha256": "31e50629afd34c83fb3e05aad060d580ba6d481aa6c4d12c7040a78c0c526577"
+    },
+    {
+      "path": "src/democreate/_cli_common.py",
+      "sha256": "0b032dc683a6d0d5b5551d4120438b71fd327c893a03aa26cc482dbb76742b99"
+    },
+    {
+      "path": "src/democreate/_cli_media.py",
+      "sha256": "b1ae2e2f4828d1bc0e9c867d0864138dfcf00a05c3b5ec249ee08ed2f5eb2de4"
+    },
+    {
+      "path": "src/democreate/_logging.py",
+      "sha256": "197bfccf899003799c6e4b145de496000c640348f02dc9925a7ffe4d024a647c"
+    },
+    {
+      "path": "src/democreate/_portfolio_facts.py",
+      "sha256": "3fd3bf9b936a29c0da7b8e38d0eaeb7fb69370a7075d81bf60206239415862d5"
+    },
+    {
+      "path": "src/democreate/_portfolio_render.py",
+      "sha256": "678079d259d4b23b0e82cb53f2d55e767c1dd2ef6521b44178681ce1e9748e63"
+    },
+    {
+      "path": "src/democreate/animation/__init__.py",
+      "sha256": "15eece31cadd583e77c6c60fe51c5643a3dfd9e19614ef2441be3257e0075b31"
+    },
+    {
+      "path": "src/democreate/animation/diagram.py",
+      "sha256": "30477b6263d65599e8b3bf3229ef4f9aa1f6e2580c4d6b934658c164a1537dd6"
+    },
+    {
+      "path": "src/democreate/animation/fonts.py",
+      "sha256": "75e08c95069442ecb429f6e4e3482b397ae5760c0258843ee559cb52b05781b1"
+    },
+    {
+      "path": "src/democreate/animation/highlights.py",
+      "sha256": "b6b321b6bb4928bb94f741c47e63371a8fff060f0ba8da0219bc8bc662acb5ca"
+    },
+    {
+      "path": "src/democreate/animation/manim_scenes.py",
+      "sha256": "c28672ab4d167fa30292b54a827db34f2738df1f7bf5ce6da8784875cab6bc47"
+    },
+    {
+      "path": "src/democreate/animation/waveform.py",
+      "sha256": "28e5fd2130c2430712ab3cd300ffc71fddd184846c748978463d4e10f11459e2"
+    },
+    {
+      "path": "src/democreate/animation/zoom.py",
+      "sha256": "044d3b544efb3079bd069e10e46162fbbae43f1e958434adf491a311a73b6af7"
+    },
+    {
+      "path": "src/democreate/api_docs.py",
+      "sha256": "a127ba29f192a911bf36e56034c75bc6eb5f3cd90188a6283c59799724266510"
+    },
+    {
+      "path": "src/democreate/assembly/__init__.py",
+      "sha256": "189933aac7e07f5d14f4f84bb0756ff35e051a50247c300fa34e425189f94b18"
+    },
+    {
+      "path": "src/democreate/assembly/animator.py",
+      "sha256": "3f837ae4358e5fa49e20f363fe73d66d4fe8815d3faa917cffac49e9f948d4fa"
+    },
+    {
+      "path": "src/democreate/assembly/audio.py",
+      "sha256": "3bcf1191e1760abad4cf148b746cbfc9c9781e33a7e43b928dedd98cb9fc2d21"
+    },
+    {
+      "path": "src/democreate/assembly/captions.py",
+      "sha256": "d284cfa7b3ccb6e5f172d5403c91e3b6de1be4bef1d91f5e95202f165d653770"
+    },
+    {
+      "path": "src/democreate/assembly/compositor.py",
+      "sha256": "1003175eb20357de659884446d87d78aabace09d5edaedb02c1530579cc0f017"
+    },
+    {
+      "path": "src/democreate/assembly/effects.py",
+      "sha256": "847cce20f5a7a50da8a65cbdcc796bea2287de85336758c9c8da2921e5412a40"
+    },
+    {
+      "path": "src/democreate/capture/__init__.py",
+      "sha256": "40a85ec07450cd4ff623e7630b78b41966e7f4b9381cd11a253c7c107ca1c784"
+    },
+    {
+      "path": "src/democreate/capture/_screen_renderer.py",
+      "sha256": "10f634d16333d85168b2bf5ed48b19784cbbf798ff09d1674d452e02ffc1195a"
+    },
+    {
+      "path": "src/democreate/capture/browser.py",
+      "sha256": "984595acf789b42df63ca828707765b6de17018482057bf878d583c4f517e7b7"
+    },
+    {
+      "path": "src/democreate/capture/replay.py",
+      "sha256": "888f0293c41bfe267fbd58d6b535f1d19d2782a106b3fca696223a5a1f599c74"
+    },
+    {
+      "path": "src/democreate/capture/screen.py",
+      "sha256": "1bfb58b9b45631f72d9a7c737f716b621782c54167ca6857b05831cb393a251c"
+    },
+    {
+      "path": "src/democreate/capture/terminal.py",
+      "sha256": "85f47da97f49fbc3c28e96e375046837ad0f58b3fbd20dc537b468ea3b76f7f5"
+    },
+    {
+      "path": "src/democreate/cli.py",
+      "sha256": "6f2e8cbb4d1b183cdcc5374ec263047c8489d3318400e4807cfd67cb01acbadd"
+    },
+    {
+      "path": "src/democreate/codebase/__init__.py",
+      "sha256": "8833d5ef8d2619271659a39af5d5ec67f954fad484a6f72a8ab35e7bfe92745d"
+    },
+    {
+      "path": "src/democreate/codebase/ast_viz.py",
+      "sha256": "f1f84788a25c8cc5de3728fce68c62629f0f5a1586e90d20dcf4b7114fd96e2d"
+    },
+    {
+      "path": "src/democreate/codebase/dependency.py",
+      "sha256": "91b4dd0a1cd3b894e240c0e87debcf3b08895a5b48fa028bb69c89ddb8195ea5"
+    },
+    {
+      "path": "src/democreate/codebase/walker.py",
+      "sha256": "35f10b210b39b3c766d5ca4ccea02b6ac97855d695db2aa5ffd93d6edd51023e"
+    },
+    {
+      "path": "src/democreate/config.py",
+      "sha256": "7d012aac3f551d06fd36507deeca2c3c3e04c3a873fe6cfafe908f630b171f6a"
+    },
+    {
+      "path": "src/democreate/errors.py",
+      "sha256": "7f2921b50f0eeffda63f621020f0dc688992840ee32225b7fa172060ee31ce88"
+    },
+    {
+      "path": "src/democreate/evaluation.py",
+      "sha256": "3e27987866b7066b76c7262ec831fa92e3d186dcc62ed9de0247590dc83d74ce"
+    },
+    {
+      "path": "src/democreate/export/__init__.py",
+      "sha256": "cca94f8c5d0ff875809b844202d1c9320c8499b0546184853b881fdb2acb867a"
+    },
+    {
+      "path": "src/democreate/export/_atomic.py",
+      "sha256": "c81f121be160402e61b454a548e4cb4816dd388117842e5c3a058c8cfa96ac1e"
+    },
+    {
+      "path": "src/democreate/export/chapters.py",
+      "sha256": "78ff132913e77092edc934c435e6169c9685e8f5169dded964ba78d02079c2a4"
+    },
+    {
+      "path": "src/democreate/export/formats.py",
+      "sha256": "6e5888d95b6699e8df48e07b380dbb713b3ce96a9152f7cb8981dd9b08c6c124"
+    },
+    {
+      "path": "src/democreate/export/interactive.py",
+      "sha256": "5e5faeb29aac4d5be22e5d646658cc1e088a1d285b7627888ede0fd5544b2ff8"
+    },
+    {
+      "path": "src/democreate/export/metadata.py",
+      "sha256": "423e6c9c6d436aae71e98790d71c68f9ec22068c5a4ea73fc60672ccf68b63e4"
+    },
+    {
+      "path": "src/democreate/export/overlay.py",
+      "sha256": "924d0da18046a93c3b485845081123b03e84970cea3b517dc8dbb2b05935cff6"
+    },
+    {
+      "path": "src/democreate/export/poster.py",
+      "sha256": "8a1375d51a2a0d5dd127a55088cfef035ce22ea4cf110cd7541a20d55fdb9fe6"
+    },
+    {
+      "path": "src/democreate/export/stego.py",
+      "sha256": "338ad10cd95f132d15ae15419be47e12618269d66e1eec3c7d4c98b4b3c63e0e"
+    },
+    {
+      "path": "src/democreate/export/verify.py",
+      "sha256": "ecccf7f0e36da669742e3173a4ff64f79cc712796e5ec153c7e296baa4109ef6"
+    },
+    {
+      "path": "src/democreate/export/video.py",
+      "sha256": "56e28decbdaa3b2cae5c2ebaf74d2a0202b051bfbf491ff61929b905a5b4b280"
+    },
+    {
+      "path": "src/democreate/manuscript.py",
+      "sha256": "1fccaeccd444622a9edf8af0d4207ec618ec7a4fdf87c947774183def8e24c04"
+    },
+    {
+      "path": "src/democreate/media.py",
+      "sha256": "165b1496366f98808357fdde9d44e27aab685d3d8a26413d1c188295b51912b6"
+    },
+    {
+      "path": "src/democreate/narration/__init__.py",
+      "sha256": "65f6362c911371deaa6c3c58b2406b8e83ee827ee8d63409fcdb628533ab597b"
+    },
+    {
+      "path": "src/democreate/narration/_tts_audio.py",
+      "sha256": "b63a22ba6ca50a8ba9933d2a27cee310ca5babef5e7c509c3faeeb23d7efb6e2"
+    },
+    {
+      "path": "src/democreate/narration/_tts_backends.py",
+      "sha256": "7b8da70fd18b9e330946cceb664c5d42f37d2fb56f79dc910f432b517a291de9"
+    },
+    {
+      "path": "src/democreate/narration/_tts_kokoro.py",
+      "sha256": "cf82fa055124d494b164c8c0eb074f7fa7d524e18ab4465484b00db17ffff016"
+    },
+    {
+      "path": "src/democreate/narration/llm.py",
+      "sha256": "621b48ed828aa7f39803406cf52fdb042b6abb38055e824561bd20cf51c91d33"
+    },
+    {
+      "path": "src/democreate/narration/project_summary.py",
+      "sha256": "4c9cde7c0b6979d937f13321583b80d3ec7ae6ef97a516eec95efccc9adc5502"
+    },
+    {
+      "path": "src/democreate/narration/script.py",
+      "sha256": "04af92808527c8a79d216cfb866d39a47c14b000bfd999bad8bde66009619f6a"
+    },
+    {
+      "path": "src/democreate/narration/sync.py",
+      "sha256": "6dbaf7ef062d5a323d4b502d96d4acb64741f0a0c446b89a05a3758225bc2793"
+    },
+    {
+      "path": "src/democreate/narration/tts.py",
+      "sha256": "33046f015e949031c141020ebc82ad120c1b389525be18591fc4d5db5edd6037"
+    },
+    {
+      "path": "src/democreate/paper/__init__.py",
+      "sha256": "31190857722bdd45818d01a647e2a524191920d84f3e4c26eca3b2e4d835e27c"
+    },
+    {
+      "path": "src/democreate/paper/extract.py",
+      "sha256": "363e36e6c76928811a4903092ee83902a2b7f63ade36dca0105b85c5f05cad01"
+    },
+    {
+      "path": "src/democreate/paper/pdf.py",
+      "sha256": "9936ae8e777b5d559b5dfcfe9d0a49a10bc2813691801679037fe3d162715cb0"
+    },
+    {
+      "path": "src/democreate/paper/script.py",
+      "sha256": "1fdbee1542d7a7d0bf56ebf2e65c5f9341836bf21eb621219a4c830e251a250e"
+    },
+    {
+      "path": "src/democreate/paper/structure.py",
+      "sha256": "ee7dee3954bca5afde86e3026521fdadad4a0c2e9a63c476fb70eafd5c9d2bdb"
+    },
+    {
+      "path": "src/democreate/pipeline.py",
+      "sha256": "d74a351e7b8d8938f93c30014ed6d23480bf05446787c1eeeec4ca44e7f97ce4"
+    },
+    {
+      "path": "src/democreate/portfolio.py",
+      "sha256": "028691539eea38b690a56d2a945d6a35177a4083b889ceefbc782b2d1449d036"
+    },
+    {
+      "path": "src/democreate/project_paths.py",
+      "sha256": "c5b5df1369f4a8963edfdcc6e4fe96e1773172d30a63d070c5843fffa93caff5"
+    },
+    {
+      "path": "src/democreate/schema.py",
+      "sha256": "ee8588c3da6eec5c200d22666d69a0c17f99b1a8a92f7afe27914cc9fedf1a38"
+    },
+    {
+      "path": "src/democreate/translation/__init__.py",
+      "sha256": "a0c9e0e3b859de27f5fa17cae79defb24008d890050604a5e822ebb765a65ba0"
+    },
+    {
+      "path": "src/democreate/translation/localize.py",
+      "sha256": "36ec707663bbd39e5c71ad19098124a21a1ddd92f77591faf5debf8f3e47d071"
+    },
+    {
+      "path": "src/democreate/translation/translator.py",
+      "sha256": "be428757a0be7d4c533181212b93a739345714d685a6bef4a6fc5bae2b3a1c1b"
+    }
+  ],
+  "hosted_source_workflow": {
+    "commit": "fd4a78f283d76d944fcb60b1b2717d4bba6726ee",
+    "checks": [
+      {
+        "name": "test (py3.12)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413661435"
+      },
+      {
+        "name": "test (py3.15)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413661415"
+      },
+      {
+        "name": "test (py3.14)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413661333"
+      },
+      {
+        "name": "test (py3.11)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413661243"
+      },
+      {
+        "name": "test (py3.13)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413661217"
+      },
+      {
+        "name": "docs / figures / manuscript",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966/job/129413660852"
+      }
+    ],
+    "runs": [
+      {
+        "id": 42691945966,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/docxology/democreate/actions/runs/42691945966",
+        "head_sha": "fd4a78f283d76d944fcb60b1b2717d4bba6726ee",
+        "branch": "chore/deep-audit-20261109",
+        "event": "push"
+      }
+    ]
+  },
+  "canonical": {
+    "voice_backend": "kokoro",
+    "voice": "af_heart",
+    "python": "3.14.10",
+    "width": 3840,
+    "height": 2160,
+    "animation_fps": 15,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "video_duration_s": 162.8,
+    "audio_duration_s": 162.849354,
+    "video_sha256": "1b0bf706335d2465e85f91ec3f241b68acf1d68d38cef9566282d58fd25f52ff",
+    "video_bytes": 10693130,
+    "mean_volume_db": -16.4,
+    "structural_verification_ok": true,
+    "caption_cues": 15,
+    "chapters": 15,
+    "caption_sha256": {
+      "srt": "c56ec00b4a473967adfd4d23bf9f7ef844a569f4865dd2bc5354b994e02b2c32",
+      "vtt": "65303c45e006964a673e94847e92c498ba49834747d822e3822e5f7224f12875"
+    },
+    "decoded_frames": [
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cover-cue-01.png",
+        "sha256": "f1736835f5b4ad9b8ac8e3400f795239919349afd0eebe08f9a1d5c8f840fdbf",
+        "cue": 2,
+        "caption": "One declarative artifact describes a codebase or research paper and compiles into frames, captions and video. Its provenance records are unsigned, not authentication.",
+        "seek_seconds": 12.050500000000001
+      },
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-02.png",
+        "sha256": "580c49534c7262b47d1a7c35c9d6cd2e82ff0e3f2e90448bbec216fd5ecd2585",
+        "cue": 3,
+        "caption": "A demo is a declarative spine: scenes of narration chunks, each an ordered stream of typed actions. Three ideas carry the whole system.",
+        "seek_seconds": 22.3185
+      },
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-05.png",
+        "sha256": "448db604daadfa105f7fc04ff428c18f7ad5665c7f6cf50df4ad3bec15f160ed",
+        "cue": 6,
+        "caption": "Clip duration is measured. Word timing is estimated: the default transcriber spreads known text across the clip by character length. It does not detect spoken word onsets.",
+        "seek_seconds": 57.9435
+      },
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-07.png",
+        "sha256": "cc7154a572b41b731be62ced628dce50a08bcb5904eaf32304cdb1b76100ff06",
+        "cue": 8,
+        "caption": "YAML configuration selects themes, layout, resolution presets including four K, and encoding controls. Actual quality depends on input detail and encoding settings.",
+        "seek_seconds": 76.5165
+      },
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-10.png",
+        "sha256": "4dd1f2c099d4fd5dcfe1950c9d20a0b4457b7cbdcbf99e3c01a470f0a717ceb8",
+        "cue": 11,
+        "caption": "Eight subsystems share a declarative spine. Narration, rendering and export also depend on configuration, assets and the selected runtime environment.",
+        "seek_seconds": 112.3125
+      },
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-14.png",
+        "sha256": "d1dd7219d2a3b0a0a284b9968789a80fcd3d742379137730463f7ff7b09668f3",
+        "cue": 15,
+        "caption": "This showcase was compiled locally by DemoCreate. Edit the Demo and re-render with fixed configuration, assets and runtime. These synthetic visuals do not establish independent acoustic accuracy.",
+        "seek_seconds": 155.66649999999998
+      }
+    ],
+    "additional_decoded_frames": [
+      {
+        "path": "docs/_videoframes/deep-audit-2026-11-09/cue-00.png",
+        "sha256": "2315a02e9e6e4765b8f28141370eacf94d7e59e1e76160134f53e45918af240a",
+        "cue": 1,
+        "caption": "What if a demo video was not a recording you capture, but a value you compile? This is DemoCreate.",
+        "seek_seconds": 3.2439999999999998
+      }
+    ],
+    "frame_time_basis": "Requested cue-midpoint ffmpeg seeks, not decoded PTS or independently annotated event/acoustic onsets.",
+    "synthetic_visuals": true,
+    "audio_inspection": {
+      "sample_rate_for_inspection": 16000,
+      "mono_samples": 2605590,
+      "rms_dbfs": -16.502553166246063,
+      "peak_dbfs": -1.3938019694217376,
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "processing_wavs": {
+      "voiceover_raw.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3590828,
+        "duration_s": 162.84934240362813
+      },
+      "voiceover_norm.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3590828,
+        "duration_s": 162.84934240362813
+      },
+      "voiceover.wav": {
+        "channels": 1,
+        "sample_width": 2,
+        "sample_rate": 22050,
+        "frames": 3590828,
+        "duration_s": 162.84934240362813
+      }
+    },
+    "local_video": "output/deep-release-2026-11-09/canonical-current-source/video/demo.mp4",
+    "media_published": false,
+    "demo_input": {
+      "path": "examples/democreate_showcase.json",
+      "sha256": "230b0f632148b53356a62782a2d48182bb6d0259d0ec6fcfd033a809afd63d88"
+    },
+    "input_assets": [
+      {
+        "path": "examples/assets/graphical_abstract.png",
+        "sha256": "8063feb7fac3d05ad7abe8431fd0f3140cb5ff1fbefe75e16ea806439c23fdd3"
+      },
+      {
+        "path": "examples/assets/themes.png",
+        "sha256": "60248166a8d4e711acdfc648dfe676e935b958862a3b47dcd2e27c563de1e6ee"
+      },
+      {
+        "path": "examples/assets/paper_fig.png",
+        "sha256": "6def69a55e5bd918a3a70bb473e377fdef5e595015cc04e6a8dc5f4833d905df"
+      }
+    ],
+    "model_assets": {
+      "assets_before": [
+        {
+          "name": "voices-v1.0.bin",
+          "size": 28214398,
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "size": 325532387,
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+        }
+      ],
+      "assets_after": [
+        {
+          "name": "voices-v1.0.bin",
+          "size": 28214398,
+          "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+        },
+        {
+          "name": "kokoro-v1.0.onnx",
+          "size": 325532387,
+          "sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+        }
+      ],
+      "large_model_kernel_seed_protected": false,
+      "large_model_seed_limit_bytes": 268435456,
+      "supplier_digests_available": false,
+      "current_source_override": "repository src via process-local PYTHONPATH",
+      "intelligibility_assessed": false,
+      "acoustic_alignment_annotated": false
+    },
+    "runtime": {
+      "python": "3.14.10",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "democreate": "0.8.0",
+        "kokoro-onnx": "0.5.0",
+        "onnxruntime": "1.26.0",
+        "numpy": "2.4.6",
+        "soundfile": "0.14.0",
+        "Pillow": "13.0.0",
+        "phonemizer-fork": "3.3.2",
+        "espeakng-loader": "0.2.4"
+      },
+      "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+      "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+    },
+    "source_receipt": {
+      "binding": {
+        "source": "docxology/democreate",
+        "revision": "fd4a78f283d76d944fcb60b1b2717d4bba6726ee",
+        "run": "deep-current-source-canonical",
+        "generation": "30165-16a7240797f646bb93f863b1f628567d"
+      },
+      "outcome": "SUCCEEDED",
+      "returncode": 0,
+      "finished": "2026-11-09T20:23:23.349129+00:00",
+      "classification": "test",
+      "timeout_seconds": 3300,
+      "source_after_sha256": "b8916ddd7a320eaf4bca276c1a140af33ea7270912cf41395ec69ab8a1d8f5e8",
+      "source_unchanged": true
+    },
+    "changed_input_note": "New evidence-boundary graphic and accurate outro; different authored/assets inputs, not a neural same-input byte-determinism experiment."
+  },
+  "post_refutation": {
+    "precision_receipt": "data/annotation-precision-2026-11-09.json",
+    "native_export_subsystem": {
+      "passed": 174,
+      "skipped": 1,
+      "collected": 175
+    },
+    "hosted_initial_failure": {
+      "commit": "dac0a49c5c71c08ec71f5e87b0b6d68e7f12098a",
+      "workflow_url": "https://github.com/docxology/democreate/actions/runs/42689561517",
+      "core": "All five Python jobs failed the fixture assumption that a midpoint before damaged packet PTS remains independently decodable; actual full decode correctly rejected corruption.",
+      "repair": "All-intra fixture with a distant damaged suffix retains intact-midpoint and full-stream-failure assertions. No check removed or production error suppressed.",
+      "figures": "Two PNGs differed in encoding bytes from hosted generation; exact manifest-verified hosted bytes adopted after pixel equality proof. Freshness gate unchanged."
+    }
+  },
+  "limits": [
+    "No listening/intelligibility assessment or independent word-onset annotations. Sparse frames do not certify full-timeline quality, paper demos or real website behavior.",
+    "Core full-suite observations and the later precision refutation retain separate source epochs. Hosted source workflow above passed all six required jobs.",
+    "Model hashes are comparisons, not supplier authentication; the large ONNX file was not a kernel-protected seed.",
+    "No general neural/cross-host byte determinism, speedup, acoustic accuracy or publication-readiness claim.",
+    "The independently annotated >=30-demo voiced study (>=10/mode; both required medians <=120ms) remains unmet. Candidate remains untagged/unpublished; earlier receipts stay unchanged."
+  ]
+}

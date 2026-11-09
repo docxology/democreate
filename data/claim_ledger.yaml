@@ -417,3 +417,30 @@ claims:
     source: "2026-11-09 bounded public querybatch response, exact lock/request/response hashes retained; observation, not a formal scientific acceptance gate."
     status: asserted
     receipt: "data/deep-audit-2026-11-09.json#security"
+  - id: C42
+    claim: "Lossy integer inputs cannot silently turn a failing supplied annotation error into a passing threshold decision; lossless large integers remain supported."
+    value: 1
+    unit: boolean
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#coverage_core"
+    source: "2026-11-09 reproduced actual CLI misclassification; 82 scoped scoring tests and corrected CLI passed, followed by all required hosted source jobs on fd4a78f."
+    status: verified
+    receipt: "data/annotation-precision-2026-11-09.json#counterexample"
+  - id: C43
+    claim: "The identified 2026-11-09 current-source Kokoro af_heart candidate MP4 passes structural/content-presence checks; sparse decoded samples and audio signal are not perceptual or acoustic-study evidence."
+    value: "3840x2160"
+    unit: pixels
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#canonical_media"
+    source: "Bounded existing-runtime render; source/input/model/video identities, cue-window checks, six montage samples and an additional opening-title check retained."
+    status: verified
+    receipt: "data/showcase-2026-11-09.json#canonical"
+  - id: C44
+    claim: "Two same-input builds in the later final-source installed core-only prefix produced identical bytes in every generated core file, and the installed scorer rejects lossy integer input."
+    value: 0
+    unit: bytes_delta
+    direction: "=="
+    backed_by: "domain_profile.yaml:validation_gates#byte_reproducible"
+    source: "2026-11-09 fresh offline wheel/sdist and isolated prefix; actual init/inspect/build and scoring exits 0/1/2 exercised. This is not neural or cross-host determinism."
+    status: verified
+    receipt: "data/final-validation-2026-11-09.json#distribution"

@@ -63,6 +63,11 @@ resolves to archived 0.6.2, not this candidate.
   An initial same-input Kokoro `af_heart` 2160p run reproduced the earlier MP4 bytes;
   the refreshed showcase has changed inputs and a distinct recorded video identity.
   Neither observation establishes acoustic accuracy or general neural determinism.
+- Added the source-bound `docs/deep-audit.md` engineering epoch, explicit
+  integer-precision refutation proof, and `data/showcase-2026-11-09.json`.
+  The later real Kokoro showcase includes the evidence-boundary graphic and
+  qualified outro; decoded frames/cues/audio signal remain distinct from
+  listening quality, independent acoustic accuracy and release authorization.
 - Public API reference inventories curated public modules, includes classmethod factories
   and uses working CommonMark navigation. CI checks local file/fragment links,
   real localized MP4 output, full manuscript rendering and generated-file freshness.

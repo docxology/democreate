@@ -134,7 +134,7 @@ voiced demos (≥10 per declared mode), with both pooled absolute-event-error
 median and median of demo-level absolute-error medians ≤120 ms. Silent controls
 and generated timestamps do not qualify. Media checks establish stream presence,
 energy and sampled image variance, not intelligibility or onset accuracy.
-The [earlier receipt](release-0.8.0.md) and [current source-bound observation](../data/visual-refresh-2026-11-08.json)
+The [earlier receipt](release-0.8.0.md) and [identified 2026-11-09 observation](../data/showcase-2026-11-09.json)
 identify their executed snapshots, not future edited trees. Operator-controlled
 write-class enablement and exact reviewed-plan confirmation are separate
 requirements, not publication readiness or permission to waive the study.

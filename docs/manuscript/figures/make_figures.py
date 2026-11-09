@@ -56,7 +56,7 @@ PAPER_FIG = HERE / "paper_fig.png"
 # Separate records preserve historical measurements without relabelling them.
 BENCHMARKS = REPO / "data" / "benchmarks-0.8.0.json"
 EVIDENCE = REPO / "data" / "release-0.8.0.json"
-MEDIA_EVIDENCE = REPO / "data" / "visual-refresh-2026-11-08.json"
+MEDIA_EVIDENCE = REPO / "data" / "showcase-2026-11-09.json"
 
 # Current public timing source, obtained from the installed checkout rather than
 # a hand-maintained copy of a removed implementation.
@@ -592,7 +592,7 @@ def make_video_stills() -> Path:
     text(draw, (64, 768, 1536, 806),
          "Recorded MP4 SHA-256: " + canonical["video_sha256"], size=22, fill=DIM)
     text(draw, (64, 816, 1536, 882),
-         "Source: data/visual-refresh-2026-11-08.json; six PNG digests checked. "
+         f"Source: {MEDIA_EVIDENCE.relative_to(REPO)}; six PNG digests checked. "
          "Seek labels are requested offsets, not decoded PTS or annotated onsets. "
          "No listening / alignment validation.", size=24, fill=DIM)
     return _save(img, "video_stills.png")

@@ -51,3 +51,15 @@ per-run commands/bindings distinguish it from earlier epochs. See the
 [native audit receipt](../docs/deep-audit.md). Its initial staged manuscript and
 earlier canonical-video references are dated observations, not final publication
 or independent acoustic evidence.
+
+`annotation-precision-2026-11-09.json` records the later reproduced precision-loss
+counterexample, corrected binary64 input boundary and scoped proof.
+`showcase-2026-11-09.json` binds the subsequent real Kokoro render, exact source
+and runtime, decoded PNGs/captions/audio signal, and green hosted source workflow.
+These do not authenticate measurements, establish the independent study or
+publish the candidate. Earlier records remain separate, immutable epochs.
+
+`final-validation-2026-11-09.json` records the later installed-source distribution,
+precision-boundary CLI, complete core-byte comparison and reviewed manuscript
+epoch. It retains commands/source/runtime bindings and explicit scientific,
+optional-runtime and remote-metadata/publication gaps.

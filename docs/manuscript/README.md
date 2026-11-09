@@ -48,7 +48,7 @@ criteria in evaluation, and digest field coverage in attribution.
   illustrations, not empirical results. Editor/slide/theme/typing images are
   generated synthetic states; the waveform uses a synthetic tone, not speech.
 - The package-only 3×2 montage uses six digest-checked decoded stills identified
-  in `data/visual-refresh-2026-11-08.json`. Changed samples have new retained paths;
+  in `data/showcase-2026-11-09.json`. Changed samples have new retained paths;
   labels are requested cue-midpoint seeks, not independent acoustic annotations.
 - `figures/paper_fig.png` is a retained external background input with an
   unrecorded extraction date. A newly composed paper-theme slide does not turn
@@ -59,7 +59,7 @@ criteria in evaluation, and digest field coverage in attribution.
 | Package behavior and dependency floors | [`src/democreate/`](../../src/democreate/) and [`pyproject.toml`](../../pyproject.toml) | A passing run or optional runtime availability |
 | Old aggregate timing | [`data/benchmarks.json`](../../data/benchmarks.json) | Original run identity or current performance |
 | Source-bound silent-starter timing | [`data/benchmarks-0.8.0.json`](../../data/benchmarks-0.8.0.json) | Neural-TTS performance or performance of a later edited tree |
-| Fresh identified MP4, package bytes, sidecars and decoded samples | [`data/visual-refresh-2026-11-08.json`](../../data/visual-refresh-2026-11-08.json) | Listening quality, acoustic accuracy, general neural determinism or certification of later code edits |
+| Identified 2026-11-09 MP4, package bytes, sidecars and decoded samples | [`data/showcase-2026-11-09.json`](../../data/showcase-2026-11-09.json) | Listening quality, acoustic accuracy, general neural determinism or certification of later code edits |
 | Prospective acoustic study | [`experiment_plan.yaml`](../../experiment_plan.yaml) | A supplied corpus or measured result |
 | Engineering/release requirements | [`domain_profile.yaml`](../../domain_profile.yaml) | Passing receipts or permission to waive the blocking study |
 
@@ -76,7 +76,7 @@ The figure generator uses committed repository inputs, including local
 `figures/paper_fig.png`; it neither searches nor writes sibling repositories.
 It mirrors figures into root `output/figures/`. Timing consumes the retained
 source-bound `data/benchmarks-0.8.0.json` observation; the montage verifies
-committed decoded-frame hashes against `data/visual-refresh-2026-11-08.json`. These records
+committed decoded-frame hashes against `data/showcase-2026-11-09.json`. These records
 are not measurements of subsequent edits. Old unbound inputs remain historical,
 not fallbacks. A paper-figure refresh is an explicit input replacement, not automatic
 acquisition of an external paper.

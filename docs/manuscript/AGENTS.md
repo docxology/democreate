@@ -61,7 +61,7 @@ From the repository root:
 | `figures/latency.png` | `#fig:latency` | separate-unit cards from `data/benchmarks-0.8.0.json` | `07_evaluation.md` |
 | `figures/paper_flow.png` | `#fig:paper_flow` | `make_paper_flow`: extraction/authored-Demo/output schematic | `06_research_paper_demos.md` |
 | `figures/provenance.png` | `#fig:provenance` | diagram of distinct unsigned carriers with `MetadataConfig` examples | `10_provenance_and_distribution.md` |
-| `figures/video_stills.png` | `#fig:video_stills` | six digest-checked decoded frames revalidated by `data/visual-refresh-2026-11-08.json` | `07_evaluation.md` |
+| `figures/video_stills.png` | `#fig:video_stills` | six digest-checked decoded frames revalidated by `data/showcase-2026-11-09.json` | `07_evaluation.md` |
 | `figures/paper_fig.png` | — | retained external background input; extraction date/publication status unestablished here | — |
 
 ## Invariants for agents

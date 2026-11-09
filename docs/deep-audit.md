@@ -66,9 +66,21 @@ show timed images/captions, not synthesized-audio playback. Neural/cross-host
 byte determinism, listening, intelligibility and acoustic alignment are not
 established. External HTTP links were not exhaustively checked.
 
-The prior [dated showcase](../data/visual-refresh-2026-11-08.json) is a separate
-input epoch, not a new full render for this code snapshot. The blocking ≥30-demo
-independent voiced study (≥10 per mode and both medians ≤120 ms) remains unmet;
+The [current-source showcase receipt](../data/showcase-2026-11-09.json) records
+the later real Kokoro render and all required green hosted source jobs. Earlier
+media epochs remain separate. The blocking ≥30-demo independent voiced study
+(≥10 per mode and both medians ≤120 ms) remains unmet;
 release API admission was also unavailable in the fresh policy observation.
 Candidate 0.8.0 remains untagged/unpublished. Engineering success cannot waive
 research or publication admission.
+
+## Final installed-source and manuscript proof
+
+The [later validation receipt](../data/final-validation-2026-11-09.json) records
+fresh offline distribution installation, installed CLI outcomes, core-byte
+comparison, manuscript/rendered-page review and exact native command bindings.
+It distinguishes the earlier full-suite snapshot from later source epochs.
+The live repository About description still overstates unwired adapters; its
+metadata write admission, like release admission, was disabled. No alternate
+write route or account-setting change was used.
+

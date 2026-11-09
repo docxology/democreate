@@ -63,5 +63,8 @@ adapter-backed artifacts belong in `output/`.
 | `release-0.8.0.json` | Immutable earlier engineering epoch and then-observed publication blockers. |
 | `visual-refresh-2026-11-08.json` | Source-bound visual/API/core/media epochs; preserve earlier observations separately. |
 | `deep-audit-2026-11-09.json` | Source-bound native timing/input/export/scoring engineering epoch; not the independent acoustic study. |
+| `annotation-precision-2026-11-09.json` | Source-bound final integer-precision counterexample and scoped correction proof. |
+| `showcase-2026-11-09.json` | Identified current-source Kokoro media, decoded samples and green hosted source workflow; no independent study. |
+| `final-validation-2026-11-09.json` | Later installed-distribution/manuscript source epoch, commands, visual-review scope and explicit publication gaps. |
 | `README.md` | Maintainers documenting the data contract. |
 | `AGENTS.md` | Maintainers (this file). |

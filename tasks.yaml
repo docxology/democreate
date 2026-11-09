@@ -155,6 +155,12 @@ tasks:
     arithmetic added without claiming an independent study. See
     data/deep-audit-2026-11-09.json. Release remains blocked by the unmet voiced
     corpus criterion and unavailable release admission; no new tag created.
+    Current-source follow-through 2026-11-09 UTC: the final precision correction
+    passed scoped API/real-CLI/static checks; all required hosted source jobs are
+    green on fd4a78f. Real Kokoro af_heart 2160p media passed verification; decoded
+    cover/code/theme/architecture/outro frames and audio signal inspected.
+    See data/annotation-precision-2026-11-09.json and data/showcase-2026-11-09.json.
+    This is engineering proof, not the absent independent acoustic study.
     Historical work-log assertion, not current evidence:
     Closed on 2026-07-20 with v0.7.0 shipped. 724 tests pass (20 skipped),
     90.19% coverage. ruff clean, mypy clean. New features: translation subsystem

@@ -14,8 +14,9 @@
   cannot verify independent measurements or replace that study. Engineering
   checks do not establish release/manuscript readiness; `experiment_plan.yaml`
   remains prospective.
-- **Earlier media epoch:** the 2026-11-08 Kokoro `af_heart` 2160p candidate was
-  rendered and structurally verified; six decoded frames and audio signal were
-  inspected. No listening/onset-accuracy claim. That identified local/unpublished
-  MP4 binds its earlier inputs, not the subsequently edited tree; see
-  `data/visual-refresh-2026-11-08.json`.
+- **Identified media epoch:** the 2026-11-09 Kokoro `af_heart` 2160p candidate
+  passed structural/content-presence and cue-window checks. Six montage samples,
+  an additional opening-title sample and decoded audio signal were inspected;
+  the encoded graphical abstract was checked explicitly. No listening/onset
+  claim. This local/unpublished MP4 binds its recorded source/inputs, not future
+  edits; see `data/showcase-2026-11-09.json`. Earlier media epochs stay preserved.

@@ -6,22 +6,22 @@ identity. Verification checks streams, duration, audio energy and sampled pictur
 variance—not intelligibility, scene correctness, acoustic synchronization or
 cryptographic authenticity.
 
-## Canonical package showcase
+## Canonical recipe and identified 2026-11-09 showcase
 
 The canonical recipe remains **Kokoro `af_heart`, 2160p**. Required prerequisites:
 installed `tts` extra in a compatible runtime, locally acquired model/voices and
-ffmpeg/ffprobe. The **2026-11-08 refreshed source-bound run** reused the existing
+ffmpeg/ffprobe. The **2026-11-09 source-bound run** reused the existing
 Python 3.14.10 voice environment with asserted current-source imports, without
-changing the core 3.15 pin. Updated cover/theme inputs and `illustrative_*.py`
-code labels produced this distinct 3840×2160 H.264/AAC MP4:
-`61fbcb84681f5cf20678c905c12004e59af8d20edcf9153b85f2598801ca16d4`.
-Video/audio durations are 159.867/159.905 s. All fifteen SRT/VTT windows agree;
-six decoded samples and audio amplitude were inspected. The
-[structured receipt](../data/visual-refresh-2026-11-08.json) binds package, authored
-Demo, background PNGs, model, caption, frame and video identities. An earlier
-same-input reproduction is retained separately; it is not a claim of equality
-after changed inputs, general neural determinism, listening or onset accuracy.
-The [original record](release-0.8.0.md) remains immutable history. The MP4 is
+changing the core 3.15 pin. The improved evidence-boundary graphic and qualified
+outro produced this distinct 3840×2160 H.264/AAC MP4:
+`1b0bf706335d2465e85f91ec3f241b68acf1d68d38cef9566282d58fd25f52ff`.
+Video/audio durations are 162.800/162.849 s. All fifteen SRT/VTT windows agree;
+six montage samples, an additional opening-title sample and decoded audio signal
+were inspected, including the graphical abstract as actually encoded. The
+[structured receipt](../data/showcase-2026-11-09.json) binds source, authored Demo,
+backgrounds, models, runtime, captions, frames and video. Earlier
+[visual-refresh](visual-refresh.md) and [original](release-0.8.0.md) records remain
+separate history, not equality after changed inputs or neural determinism. The MP4 is
 unpublished; silent output is not an interchangeable replacement.
 
 ```bash
@@ -36,7 +36,7 @@ democreate verify output/video/demo.mp4 --width 3840 --height 2160
 The recorded run used a repository-local **Python 3.14.10** voice environment;
 the locked ONNX distribution has no CPython 3.15 wheel. The core pin remains
 3.15. Run the media command with that compatible voice environment's executable,
-not an assumed core `.venv` install. Model and voices paths were explicit.
+not an assumed core `.venv` install. Model and voices paths were explicit; hashes
 matched before/after, but supplier digests were unavailable; hashes are not
 publisher authentication. The 325 MB model exceeded the runner's 256 MiB
 per-seed cap and was a manifest-bound runtime asset, not a kernel-protected seed.

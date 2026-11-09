@@ -15,7 +15,7 @@ impersonating current source files. Stat cards describe gates, not a test total.
 
 The canonical render is **Kokoro `af_heart`, 2160p**, requiring the `tts` extra,
 model/voice files and ffmpeg. Source-bound runs, exact inputs and limitations
-are recorded in [`data/visual-refresh-2026-11-08.json`](../data/visual-refresh-2026-11-08.json);
+are recorded in [`data/showcase-2026-11-09.json`](../data/showcase-2026-11-09.json);
 this is engineering media proof, not listening or acoustic accuracy.
 
 ```bash

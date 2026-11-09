@@ -41,9 +41,9 @@ Unsigned poster payloads associate a content digest with a Demo ([@sec:provenanc
 
 The historical template-paper run and distinct curated showcase are described in [@sec:paper]. Earlier documentation also recorded a 3840×2160, 155.6-second package showcase; that record alone does not identify or verify a 0.8.0 output.
 
-The canonical package recipe remains **Kokoro `af_heart` at 2160p**. The refreshed 2026-11-08 native run reused repository-local Python 3.14.10 with an asserted import of current repository source; the core pin remains 3.15. `data/visual-refresh-2026-11-08.json` binds package Python bytes, authored Demo, staged cover/theme images, operator snapshot and before/after model hashes to the verified 3840×2160 H.264/AAC output. The MP4 identity is `61fbcb84681f5cf20678c905c12004e59af8d20edcf9153b85f2598801ca16d4`; its 15-cue SRT/VTT windows agree. Six decoded samples include the updated cover/themes and explicitly illustrative code label. Earlier same-input byte equality is retained as a separate observation, not transferred to these changed inputs or generalized to neural-model determinism. Audio signal and representative frames were inspected; no listening or independent word-onset annotation was performed. The local, unpublished MP4 does not replace the blocking study or certify later code edits.
+The canonical package recipe remains **Kokoro `af_heart` at 2160p**. The 2026-11-09 native run reused repository-local Python 3.14.10 with an asserted import of current repository source and candidate version; the core pin remains 3.15. `data/showcase-2026-11-09.json` binds package Python bytes, authored Demo, background images, runtime and before/after model hashes to the verified 3840×2160 H.264/AAC output. The MP4 identity is `1b0bf706335d2465e85f91ec3f241b68acf1d68d38cef9566282d58fd25f52ff`; its 15-cue SRT/VTT windows agree. Six montage samples include the encoded evidence-boundary graphic, themes and explicitly illustrative code; an additional opening-title sample is retained. Earlier same-input byte equality remains a separate observation, not transferred to these changed inputs or generalized to neural-model determinism. Decoded audio signal and representative frames were inspected; no listening or independent word-onset annotation was performed. The local, unpublished MP4 does not replace the blocking study or certify later code edits.
 
-![Six digest-checked decoded frames from the refreshed candidate package MP4, arranged in a 3×2 package-only montage. Encoded synthetic visuals include the updated cover/themes and an explicitly illustrative code panel. Labels are requested cue-midpoint seeks, not annotated event or acoustic onsets. Input, frame and MP4 identities are in data/visual-refresh-2026-11-08.json; sparse samples do not establish full-timeline quality or a paper-demo result.](figures/video_stills.png){#fig:video_stills}
+![Six digest-checked decoded frames from the 2026-11-09 candidate package MP4, arranged in a 3×2 package-only montage. Encoded synthetic visuals include the evidence-boundary graphic, themes and explicitly illustrative code. Labels are requested cue-midpoint seeks, not annotated event or acoustic onsets. Input, frame and MP4 identities are in data/showcase-2026-11-09.json; sparse samples do not establish full-timeline quality or a paper-demo result.](figures/video_stills.png){#fig:video_stills}
 
 ## Supplied-Annotation Arithmetic Without Evidence Certification
 
@@ -55,13 +55,12 @@ demo medians. Both unrounded aggregates must meet the 120 ms bound, alongside
 fixed-mode counts and declared eligibility. Undefined values remain null rather
 than zero. Distinct event counts can make the two aggregates disagree.
 
-The scorer's complete-input safeguard prevents omitted measurements from being
-reported as a passing complete input; it is not a newly measured 100% success
-criterion. Synthetic regressions establish arithmetic/error handling, not H1.
-Media digests, annotator independence, predeclaration and completeness beyond the
-supplied inventory remain unverified. Missing media may have null identities and
-durations with a failure reason; no fabricated media identity is required.
-The complete format and exit contract live in `docs/evaluation.md`.
+Missing measurements cannot yield a passing complete-input report; this is not
+a measured 100% success criterion. Synthetic regressions establish arithmetic
+and error handling, not H1. Media identity, independence, predeclaration and
+completeness beyond the supplied inventory remain unverified. Unavailable media
+permit null identities/durations only with a failure reason. See
+`docs/evaluation.md` for the input/exit contract.
 
 ## Blocking Study: Independent Voiced-Event Annotation and Both Medians
 

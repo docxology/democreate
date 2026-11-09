@@ -7,8 +7,13 @@ Seek offsets are not independently annotated event/onset timestamps.
 
 `visual-refresh-2026-11-08/` retains four changed decoded samples from the refreshed
 cover/theme/illustrative-code showcase. Two byte-identical samples reuse their
-`candidate-0.8.0/` paths. The current six-frame selection, updated MP4 identity and
-bounded source/extraction receipt are in `data/visual-refresh-2026-11-08.json`.
+`candidate-0.8.0/` paths. That earlier six-frame selection, MP4 identity and
+bounded extraction receipt are in `data/visual-refresh-2026-11-08.json`.
+
+`deep-audit-2026-11-09/` contains the later six montage samples and an additional
+opening-title check. `data/showcase-2026-11-09.json` binds the fresh source,
+qualified outro, updated graphic, model/runtime, caption and MP4 identities.
+The graphical abstract was also inspected as actually encoded, not just as PNG.
 
 The older top-level stills predate the 2026-11-07 repair. Original extraction
 dates and source-video digests are unrecorded; their embedded suite counts and

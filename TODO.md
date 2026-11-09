@@ -177,3 +177,8 @@ unrecorded; they are explicitly historical.
 - [x] Add strict supplied-onset scoring and missing-data diagnostics without
       certifying media/independence. Closed 2026-11-09; `evaluation.py`,
       `docs/evaluation.md`. The independent study above remains open.
+- [x] Separate graphical-abstract timing/attribution, annotation arithmetic and
+      unmet-study boundaries; qualify showcase narration and retain fresh
+      current-source decoded media evidence. Closed 2026-11-09;
+      `docs/manuscript/figures/`, `examples/make_showcase.py`,
+      `data/showcase-2026-11-09.json`.
