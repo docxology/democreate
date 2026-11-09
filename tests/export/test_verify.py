@@ -133,7 +133,7 @@ def test_verify_video_reports_missing_ffmpeg_even_with_ffprobe(
 
 def _native_video(
     path: Path, *, duration: float = 0.3, silent: bool = False,
-    blank: bool = False, start_s: int = 0,
+    blank: bool = False, start_s: int = 0, gop: int = 10,
 ) -> Path:
     """Create actual H.264/AAC content, not a probe-output substitute."""
     import shutil
@@ -151,7 +151,7 @@ def _native_video(
             "ffmpeg", "-v", "error", "-y",
             "-f", "lavfi", "-i", video, "-f", "lavfi", "-i", audio,
             "-t", str(duration), "-c:v", "libx264", "-preset", "ultrafast",
-            "-threads", "1", "-g", "10", "-bf", "0", "-c:a", "aac",
+            "-threads", "1", "-g", str(gop), "-bf", "0", "-c:a", "aac",
             "-output_ts_offset", str(start_s), "-movflags", "+faststart", str(path),
         ],
         capture_output=True, check=True,
@@ -194,7 +194,9 @@ def test_native_damaged_tail_fails_strict_existing_volume_decode(tmp_path: Path)
 
     from democreate.export.verify import verify_video
 
-    source = _native_video(tmp_path / "source.mp4", duration=3)
+    # Independent frames and a distant damaged suffix keep midpoint sampling
+    # separate from full-stream rejection across native decoder versions.
+    source = _native_video(tmp_path / "source.mp4", duration=6, gop=1)
     probe = json.loads(subprocess.run(
         [
             "ffprobe", "-v", "error", "-of", "json", "-show_packets",
@@ -205,7 +207,7 @@ def test_native_damaged_tail_fails_strict_existing_volume_decode(tmp_path: Path)
     data = bytearray(source.read_bytes())
     damaged = 0
     for packet in probe["packets"]:
-        if packet["codec_type"] == "video" and float(packet["pts_time"]) >= 2.3:
+        if packet["codec_type"] == "video" and float(packet["pts_time"]) >= 5.3:
             start, size = int(packet["pos"]), int(packet["size"])
             data[start : start + size] = bytes(size)
             damaged += 1
