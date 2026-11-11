@@ -182,3 +182,7 @@ unrecorded; they are explicitly historical.
       current-source decoded media evidence. Closed 2026-11-09;
       `docs/manuscript/figures/`, `examples/make_showcase.py`,
       `data/showcase-2026-11-09.json`.
+
+## Workflowz review — 2026-11-10
+
+Coverage note: reviewed the supplied project guidance, README, existing TODO/task history, manifest/runtime pins, and bounded excerpts of `api_docs.py`, `pipeline.py`, `cli.py`, and `export/_atomic.py`; no concrete actionable improvement survived with exact visible evidence. CI workflow contents and most source files were not included, so this is not a whole-repository correctness certification. Re-review on a concrete failure or source change.
