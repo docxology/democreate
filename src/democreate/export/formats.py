@@ -210,7 +210,7 @@ def export_pdf(demo: Demo, out_path: Path) -> Path:  # pragma: no cover - needs 
         BackendUnavailableError: If no Markdown→PDF engine is installed.
     """
     if not _has_pdf_engine():
-        raise BackendUnavailableError("pdf", extra="docs")
+        raise BackendUnavailableError("pdf")
 
     import weasyprint
 
