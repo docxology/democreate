@@ -61,8 +61,8 @@ display, a window server, or a missing browser.
 **Symptom.** MP4 encoding, verification or audio filtering fails because ffmpeg
 or ffprobe is missing. Pillow GIF export does not require either binary.
 
-**Cause.** The `video` extra installs the Python wrappers (`moviepy`,
-`ffmpeg-python`) but **not** the `ffmpeg` binary. DemoCreate builds the ffmpeg
+**Cause.** The `video` extra installs the guarded `moviepy` adapter slot but
+**not** the `ffmpeg` binary. DemoCreate builds the ffmpeg
 argv purely; actually encoding shells out to `ffmpeg`, which must be on `PATH`.
 
 **Fix.** Install ffmpeg with your OS package manager and verify:
