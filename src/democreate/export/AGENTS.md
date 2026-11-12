@@ -21,7 +21,8 @@ Guidance for agents editing this subsystem. Read `../schema.py`, `../media.py`,
   - `video.export_video` → needs the `ffmpeg` binary
     (`BackendUnavailableError("ffmpeg")`; install the native system binary).
   - `formats.export_pdf` → needs a Markdown→PDF engine
-    (`BackendUnavailableError("pdf", extra="docs")`).
+    (`BackendUnavailableError("pdf")`; no pyproject extra provides it — install
+    an engine such as `weasyprint` directly).
   Their backend-detection helpers (`ffmpeg_available`, `_has_pdf_engine`) stay pure
   and ARE tested (via `monkeypatch` of the helper).
 
