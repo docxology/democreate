@@ -1,11 +1,24 @@
-# Dependency refresh for this repository, per the docxology currency standard (CUR-11).
+# Dependabot — version updates for the manifest this repository ships.
+#
+# pip: `/` — 77 of the 77 open records read on 2026-11-04 sit here.
+# No github-actions entry: the tree tracks no workflow files, so such an entry would name
+# something that does not exist.
+#
+# Archived paths: the tree contains no directory matching archive / archived / deprecated /
+# legacy / old / attic / `_archive`, so no path is excluded and nothing inactive is watched.
+#
+# Hosted CI cannot run here (private-partition billing lapse); the shape below is validated
+# locally against the tracked tree before merge.
 version: 2
 updates:
-  - package-ecosystem: github-actions
+  - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: weekly
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
     open-pull-requests-limit: 5
     groups:
-      github-actions:
+      python:
         patterns: ["*"]
