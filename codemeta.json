@@ -74,35 +74,31 @@
   "referencePublication": [
     {
       "@type": "SoftwareSourceCode",
-      "name": "CodeVideo: An event-sourced virtual-IDE model for code walkthroughs"
+      "name": "CodeVideo"
     },
     {
       "@type": "SoftwareSourceCode",
-      "name": "VSpeak: Chunk/trigger narration model"
+      "name": "asciinema"
     },
     {
       "@type": "SoftwareSourceCode",
-      "name": "asciinema: Terminal session recorder"
+      "name": "termtosvg"
     },
     {
       "@type": "SoftwareSourceCode",
-      "name": "termtosvg: Terminal recorder producing SVG animations"
+      "name": "Recordly"
     },
     {
       "@type": "SoftwareSourceCode",
-      "name": "Recordly: Screen and demo recording"
-    },
-    {
-      "@type": "SoftwareSourceCode",
-      "name": "code-video-generator: Manim-based code walkthrough videos"
+      "name": "Code Video Generator"
     },
     {
       "@type": "ScholarlyArticle",
-      "name": "Code2Video: Generating videos from code"
+      "name": "Code2Video: A Code-centric Paradigm for Educational Video Generation"
     },
     {
       "@type": "ScholarlyArticle",
-      "name": "Paper2Video: Generating presentation videos from papers"
+      "name": "Paper2Video: Automatic Video Generation from Scientific Papers"
     }
   ]
 }
