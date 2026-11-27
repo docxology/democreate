@@ -19,8 +19,8 @@ adapter-backed artifacts belong in `output/`.
    a row.
 
 2. **Status discipline.** Do not set `status: verified` unless the referenced
-   gate (`domain_profile.yaml:validation_gates`) or experiment
-   (`experiment_plan.yaml`) has actually passed and a specific receipt is recorded.
+   gate (`docs/engineering-gates.yaml:validation_gates`) or experiment
+   (`docs/experiment-plan.yaml`) has actually passed and a specific receipt is recorded.
    Historical reports do not establish current artifact identity; planned studies
    are not measured results.
    When in doubt, use `estimate`.
@@ -34,7 +34,7 @@ adapter-backed artifacts belong in `output/`.
 
 4. **Primary metric is fixed.** The headline benchmark metric is
    `sync_error_ms` (direction: minimize). Do not silently swap or re-scale it;
-   add secondary metrics instead and document them in `experiment_plan.yaml`.
+   add secondary metrics instead and document them in `docs/experiment-plan.yaml`.
 
 5. **Deterministic-default invariant.** Core builds require only the light/default
    dependencies (pyyaml, typer, rich, jinja2, pillow). They emit inspectable

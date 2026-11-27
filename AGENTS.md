@@ -22,7 +22,7 @@ input, assets, config and runtime. See [README](README.md) and
   dated evidence notes) and the `## [Unreleased]` section of
   [`CHANGELOG.md`](CHANGELOG.md). Do not trust memory or prose tables; check
   those two files.
-- **What to do next:** [`TODO.md`](TODO.md) — the backlog file (Minor/Medium/
+- **What to do next:** [backlog](docs/backlog.md) — the backlog file (Minor/Medium/
   Major, one line + paths each). Add new findings there as entries; mark
   closed items `[x]` with a date rather than deleting them.
 - **How to verify:** run `.venv/bin/python -m pytest -q` (full suite),

@@ -21,6 +21,7 @@ Two build gates protect "properly rendering":
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import subprocess
@@ -38,6 +39,7 @@ __all__ = [
     "figure_insertions",
     "load_config",
     "pick_engine",
+    "stage_template_inputs",
     "used_citation_keys",
 ]
 
@@ -90,6 +92,66 @@ def figure_insertions(chapters: list[Path]) -> list[str]:
         # Match the ](figures/x.png) tail; alt text may itself contain ] (e.g. [@sec:x]).
         found += re.findall(r"\]\((figures/[^)]+)\)", ch.read_text(encoding="utf-8"))
     return found
+
+
+_FIGURE_LINK = re.compile(
+    r"!\[(?P<alt>[^\n]+?)\]\(figures/(?P<name>[\w.-]+\.png)\)"
+    r"\{#(?P<label>fig:[\w-]+)\}"
+)
+
+
+def stage_template_inputs(config: Path, manuscript_dir: Path, output: Path) -> Path:
+    """Copy the checked manuscript and PNGs to Template's render layout.
+
+    The standalone builder reads the authored image paths. Template consumes
+    a derived tree with each image rebased to the generated figure directory.
+    """
+    cfg = load_config(config)
+    manuscripts = output / "manuscript"
+    figures = output / "figures"
+    chapter_names = cfg["chapters"]
+    auxiliaries = (cfg["bibliography"], cfg.get("preamble", "preamble.md"))
+    for name in (*chapter_names, *auxiliaries):
+        if Path(name).name != name or name in {"", ".", ".."}:
+            raise ValueError(f"Template inputs must be manuscript filenames: {name!r}")
+    chapter_paths = [manuscript_dir / name for name in chapter_names]
+    chapters = {path.name: path.read_text(encoding="utf-8") for path in chapter_paths}
+    registry = []
+    for body in chapters.values():
+        for match in _FIGURE_LINK.finditer(body):
+            name = match["name"]
+            registry.append(
+                {
+                    "label": match["label"],
+                    "filename": name,
+                    "caption": match["alt"],
+                    "alt_text": match["alt"],
+                    "generated_by": "scripts/build_manuscript.py --stage-template",
+                }
+            )
+    if len(registry) != len(figure_insertions(chapter_paths)):
+        raise ValueError("Template staging requires labelled PNGs and alt text")
+
+    manuscripts.mkdir(parents=True, exist_ok=True)
+    figures.mkdir(parents=True, exist_ok=True)
+    for name, body in chapters.items():
+        rebased = _FIGURE_LINK.sub(
+            lambda match: match[0].replace("](figures/", "](../../output/figures/", 1),
+            body,
+        )
+        (manuscripts / name).write_text(rebased, encoding="utf-8")
+    for name in auxiliaries:
+        shutil.copyfile(manuscript_dir / name, manuscripts / name)
+    shutil.copyfile(config, manuscripts / "config.yaml")
+    for item in registry:
+        name = item["filename"]
+        shutil.copyfile(manuscript_dir / "figures" / name, figures / name)
+    path = figures / "figure_registry.json"
+    path.write_text(
+        json.dumps({"schema_version": 1, "figures": registry}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return path
 
 
 def pick_engine() -> str:

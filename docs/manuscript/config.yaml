@@ -69,3 +69,11 @@ llm:
     enabled: false
   translations:
     enabled: false
+
+render:
+  formats:
+    pdf: true
+    html: true
+    slides: false
+    docx: false
+    epub: false

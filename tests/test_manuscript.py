@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from democreate.manuscript import (
     extract_preamble,
     figure_insertions,
     pick_engine,
+    stage_template_inputs,
     used_citation_keys,
 )
 
@@ -182,3 +184,29 @@ def test_manuscript_check_refuses_missing_asset(tmp_path: Path) -> None:
                  "chapters: [chapter.md]\nbibliography: references.bib\n")
     with pytest.raises(SystemExit, match="missing image assets"):
         build_manuscript(cfg, tmp_path, tmp_path / "out.pdf", check=True)
+
+
+def test_stage_template_inputs_preserves_authored_paths_and_figure_bytes(tmp_path: Path) -> None:
+    source = tmp_path / "docs" / "manuscript"
+    assets = source / "figures"
+    assets.mkdir(parents=True)
+    config = _write(source / "config.yaml", "chapters: [00_body.md]\nbibliography: references.bib\n")
+    chapter = _write(
+        source / "00_body.md",
+        "![Alt [@sec:body] text](figures/example.png){#fig:example}\n",
+    )
+    _write(source / "references.bib", "")
+    _write(source / "preamble.md", "")
+    asset = assets / "example.png"
+    asset.write_bytes(b"retained image fixture")
+
+    output = tmp_path / "output"
+    registry = stage_template_inputs(config, source, output)
+    figure = json.loads(registry.read_text())["figures"][0]
+    assert figure["label"] == "fig:example"
+    assert figure["alt_text"] == "Alt [@sec:body] text"
+    assert (registry.parent / "example.png").read_bytes() == asset.read_bytes()
+    assert "](figures/example.png)" in chapter.read_text()
+    assert "](../../output/figures/example.png)" in (
+        output / "manuscript" / chapter.name
+    ).read_text()

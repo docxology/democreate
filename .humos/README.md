@@ -24,7 +24,7 @@ descriptions.
 
 [`tasks.yaml`](../tasks.yaml) is the native task/Gantt history with its existing
 `demo_create` project key, task IDs, status vocabulary and dated notes.
-[`TODO.md`](../TODO.md) is the native agent-facing backlog using Markdown
+[backlog](../docs/backlog.md) is the native agent-facing backlog using Markdown
 checkboxes. Session Workflowz todos are execution aids, not automatically
 persisted taskboard updates. No live taskboard or shared-schema synchronization
 is verified by these files.

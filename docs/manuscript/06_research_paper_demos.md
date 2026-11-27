@@ -30,4 +30,4 @@ The authoritative two-step CLI recipe is in [@sec:reproducibility]: generate and
 
 Historical documentation reported a template paper run from a 170-page *Policy Entanglement* PDF and associated codebase, producing 12 scenes and a 188.0-second video. This is not a current 0.8.0 receipt. The curated showcase is a distinct hand-authored artifact, with separately supplied external paper inputs; neither workflow substitutes an unrelated paper when inputs are absent.
 
-The historical report describes 1920×1080 H.264 output and −15.5 dB mean volume. Mean dB is not integrated LUFS, not proof of the configured −16 LUFS target, and not proof of intelligible speech. A fresh output needs its own stream, energy, picture and identity evidence.
+The historical report describes 1920×1080 H.264 output and $-15.5$ dB mean volume. Mean dB is not integrated LUFS, not proof of the configured −16 LUFS target, and not proof of intelligible speech. A fresh output needs its own stream, energy, picture and identity evidence.

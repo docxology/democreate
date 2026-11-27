@@ -54,6 +54,7 @@ compositor are unwired. Dependency presence does not certify readiness.
   [the 2026-11-09 native epoch](../data/deep-audit-2026-11-09.json):
   source-bound regression, installation, real-consumer and annotation-arithmetic
   proof, with unperformed research explicitly separate.
+- [Local reproduction](reproduction.md) covers silent preview verification and the pinned Template render.
 - [Manuscript](manuscript/README.md): scientific framing, figures and evaluation
   limits. Measured clip windows are not acoustic word onsets.
 - [Testing policy](testing_philosophy.md): no mocked core computation, lazy heavy
@@ -72,5 +73,5 @@ The [source map](../src/democreate/README.md) links each subsystem's local
 README/AGENTS pair. [Scripts](../scripts/README.md) cover standalone front doors,
 API generation, benchmarking and manuscript tooling. [Root AGENTS](../AGENTS.md)
 and [documentation guidance](AGENTS.md) define contribution invariants;
-[CHANGELOG](../CHANGELOG.md), [TODO](../TODO.md) and [tasks](../tasks.yaml) track
+[CHANGELOG](../CHANGELOG.md), [backlog](backlog.md) and [tasks](../tasks.yaml) track
 changes and work, not substitute media evidence.

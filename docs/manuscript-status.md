@@ -7,12 +7,12 @@
   skip reasons and real consumers are in `data/deep-audit-2026-11-09.json`.
   The later scorer correction has separate source-bound test/CLI/static proof in
   `data/annotation-precision-2026-11-09.json`; neither receipt proves future edits.
-- **Blocking research criterion:** `domain_profile.yaml` `sync_accuracy` remains
+- **Blocking research criterion:** `docs/engineering-gates.yaml` `sync_accuracy` remains
   pending/unmet. The independently annotated ≥30-demo voiced corpus (≥10/mode)
   and measured result establishing both required medians ≤120 ms are absent.
   Supplied-annotation arithmetic and missing-data diagnostics now exist, but
   cannot verify independent measurements or replace that study. Engineering
-  checks do not establish release/manuscript readiness; `experiment_plan.yaml`
+  checks do not establish release/manuscript readiness; `docs/experiment-plan.yaml`
   remains prospective.
 - **Identified media epoch:** the 2026-11-09 Kokoro `af_heart` 2160p candidate
   passed structural/content-presence and cue-window checks. Six montage samples,

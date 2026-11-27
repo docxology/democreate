@@ -148,7 +148,7 @@ observations were intentionally not repinned.
 
 The pre-existing **≥30 independently annotated voiced demos, ≥10 per eligible
 mode**, with both required error medians ≤120 ms, remains unavailable/unmet.
-`experiment_plan.yaml` is prospective; engineering tests and non-silent audio do
+`docs/experiment-plan.yaml` is prospective; engineering tests and non-silent audio do
 not satisfy it. Operator-controlled write classes changed during this work:
 release enablement was observed on revision
 `a12de23f5d4bc3f4278fbd2b583aa645dc4f1ef1dbcfcd91ce4c6fa40f3522eb`,
