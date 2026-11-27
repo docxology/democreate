@@ -5,7 +5,7 @@ abstract: >-
   DemoCreate generates audio-visual demos of software — codebase tours, website
   walkthroughs, and terminal/CLI demos — from a single declarative,
   deterministic spine. A Demo is an ordered action stream plus narration chunks,
-  related to CodeVideo's virtual-IDE model and VSpeak's chunk/trigger model.
+  related to CodeVideo's virtual-IDE model.
   Core outputs include silent WAVs, synthetic frames, captions, transcripts and
   a timed HTML image preview without audio playback. Byte reproducibility
   requires fixed inputs, assets, configuration and environment. Real speech,
@@ -61,26 +61,60 @@ preferred-citation:
   year: 2026
 references:
   - type: software
-    title: "CodeVideo: An event-sourced virtual-IDE model for code walkthroughs"
+    title: "CodeVideo"
+    authors:
+      - name: CodeVideo
+    url: https://codevideo.io
     notes: "Prior art — event-sourced virtual-IDE action stream."
   - type: software
-    title: "VSpeak: Chunk/trigger narration model"
-    notes: "Prior art — chunk/trigger narration synchronization."
-  - type: software
-    title: "asciinema: Terminal session recorder"
+    title: "asciinema"
+    authors:
+      - given-names: Marcin
+        family-names: Kulik
+      - name: asciinema contributors
+    url: https://asciinema.org
     notes: "Prior art — terminal capture and replay."
   - type: software
-    title: "termtosvg: Terminal recorder producing SVG animations"
+    title: "termtosvg"
+    authors:
+      - given-names: Nicolas
+        family-names: Bedos
+    url: https://github.com/nbedos/termtosvg
     notes: "Prior art — terminal-to-vector capture."
   - type: software
-    title: "Recordly: Screen and demo recording"
+    title: "Recordly"
+    authors:
+      - name: webadderall
+    url: https://github.com/webadderallorg/Recordly
     notes: "Prior art — screen capture demo tooling."
   - type: software
-    title: "code-video-generator: Manim-based code walkthrough videos"
+    title: "Code Video Generator"
+    authors:
+      - given-names: Don
+        family-names: Brown
+    url: https://github.com/sleuth-io/code-video-generator
     notes: "Prior art — animated code video generation."
   - type: article
-    title: "Code2Video: Generating videos from code"
+    title: "Code2Video: A Code-centric Paradigm for Educational Video Generation"
+    authors:
+      - given-names: Yanzhe
+        family-names: Chen
+      - given-names: Kevin Qinghong
+        family-names: Lin
+      - given-names: Mike Zheng
+        family-names: Shou
+    doi: 10.48550/arXiv.2510.01174
+    year: 2025
     notes: "Prior art — code-to-video generation."
   - type: article
-    title: "Paper2Video: Generating presentation videos from papers"
+    title: "Paper2Video: Automatic Video Generation from Scientific Papers"
+    authors:
+      - given-names: Zeyu
+        family-names: Zhu
+      - given-names: Kevin Qinghong
+        family-names: Lin
+      - given-names: Mike Zheng
+        family-names: Shou
+    doi: 10.48550/arXiv.2510.05096
+    year: 2025
     notes: "Prior art — document-to-video generation."

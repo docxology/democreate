@@ -7,6 +7,7 @@ automatically update these files.
 
 ## Minor
 
+- [ ] Reconcile `CITATION.cff` and `codemeta.json` prior-art references with their verified sources and remove the withdrawn VSpeak attribution. [#9](https://github.com/docxology/democreate/issues/9)
 - [x] `docs/README.md` stated "(744 collected, ≥90% coverage)" as a bare number.
       Fixed 2026-08-31: the line now points to the command
       (`.venv/bin/python -m pytest --collect-only -q | tail -1`) with a dated
