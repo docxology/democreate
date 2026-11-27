@@ -166,6 +166,7 @@ jobs:
           mkdir -p output/ci-visual/pages
           python scripts/build_manuscript.py --check -o output/ci-visual/manuscript.pdf
           python scripts/build_manuscript.py -o output/ci-visual/manuscript.pdf
+          python scripts/build_manuscript.py --stage-template -o output/ci-visual/template-input-check.pdf
           pdftoppm -scale-to 1200 -png output/ci-visual/manuscript.pdf output/ci-visual/pages/page
       - name: Require committed API and figures to match their generators
         id: generated_current

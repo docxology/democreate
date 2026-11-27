@@ -43,7 +43,7 @@ def test_declared_evidence_anchors_resolve(ledger: dict) -> None:
     """Check referenced gate, hypothesis, condition and metric IDs structurally."""
     for claim in ledger["claims"]:
         ref = claim["backed_by"]
-        match = re.search(r"([\w/]+\.yaml):([\w]+)#([\w]+)", ref)
+        match = re.search(r"([\w./-]+\.yaml):([\w]+)#([\w]+)", ref)
         if not match:
             continue
         filename, section, anchor = match.groups()
@@ -73,7 +73,7 @@ def test_current_metadata_versions_agree(ledger: dict) -> None:
     citation = yaml.safe_load((ROOT / "CITATION.cff").read_text())
     codemeta = json.loads((ROOT / "codemeta.json").read_text())
     zenodo = json.loads((ROOT / ".zenodo.json").read_text())
-    experiment = yaml.safe_load((ROOT / "experiment_plan.yaml").read_text())
+    experiment = yaml.safe_load((ROOT / "docs" / "experiment-plan.yaml").read_text())
     manuscript = yaml.safe_load((ROOT / "docs/manuscript/config.yaml").read_text())
     versions = {
         ledger["version"], citation["version"],

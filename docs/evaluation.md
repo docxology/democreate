@@ -3,8 +3,8 @@
 `democreate score-sync ANNOTATIONS.json` scores supplied onset annotations. It
 neither detects acoustic/visual onsets nor verifies media, annotator independence
 or inventory predeclaration. **No empirical corpus or passing study is bundled.**
-The unchanged research gate in [`domain_profile.yaml`](../domain_profile.yaml)
-remains pending; [`experiment_plan.yaml`](../experiment_plan.yaml) owns the
+The unchanged research gate in [engineering gates](engineering-gates.yaml)
+remains pending; [experiment plan](experiment-plan.yaml) owns the
 prospective scientific criteria.
 
 ## Run the complete missing-data example

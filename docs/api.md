@@ -303,6 +303,7 @@ Build the DemoCreate manuscript PDF from its declarative ``config.yaml``.
 - **`figure_insertions(chapters: 'list[Path]') -> 'list[str]'`** — The ``figures/x.png`` paths inserted as images across the chapters.
 - **`load_config(path: 'Path') -> 'dict[str, Any]'`** — Load the manuscript ``config.yaml``.
 - **`pick_engine() -> 'str'`** — Return the first available XeLaTeX-class PDF engine on ``PATH``.
+- **`stage_template_inputs(config: 'Path', manuscript_dir: 'Path', output: 'Path') -> 'Path'`** — Copy the checked manuscript and PNGs to Template's render layout.
 - **`used_citation_keys(chapters: 'list[Path]') -> 'set[str]'`** — Citation keys actually used in prose (``[@key]`` / ``@key``), excluding
 
 ## `democreate.cli`

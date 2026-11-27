@@ -1,0 +1,37 @@
+# Manuscript quantities traceable to code, examples, or a dated observation.
+# These values do not represent a new measurement or an executed study.
+demo_schema:
+  source: src/democreate/schema.py#SCHEMA_VERSION
+  version: 1.1
+core_python:
+  source: .python-version
+  development_pin: 3.15
+paper_extraction:
+  source: src/democreate/paper/structure.py
+  minimum_abstract_characters: 200
+  default_text_pages: 14
+audio:
+  pcm_source: src/democreate/animation/waveform.py#compute_envelope
+  pcm_sample_bits: 16
+  normalization_source: src/democreate/assembly/audio.py#normalize_audio
+  default_lufs_target: -16
+figure_inputs:
+  source: docs/manuscript/figures/make_figures.py
+  waveform_and_middle_typing_progress_fraction: 0.55
+font_example:
+  source: src/democreate/animation/fonts.py#scaled_font
+  calculation: integer part of 0.094 times 1080
+  example_pixels: 101
+preview_geometry:
+  source: src/democreate/config.py#ASPECTS
+  standard_ratio_width_pixels: 1440
+  portrait_ratio_height_pixels: 1350
+  resolution_source: src/democreate/config.py#RESOLUTIONS
+  qhd_width_pixels: 2560
+display_interval:
+  source: docs/manuscript/07_evaluation.md
+  calculation: 1000 milliseconds divided by 60 frames per second
+  rounded_milliseconds: 16.7
+historical_paper_demo:
+  source: data/claim_ledger.yaml
+  reported_mean_volume_db: -15.5

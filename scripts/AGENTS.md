@@ -12,7 +12,7 @@ contract agents must keep when touching the tree.
 | `generate_demo.py` | `democreate.pipeline.build_demo` | |
 | `generate_portfolio.py` | `democreate.portfolio.render_portfolio` | |
 | `generate_api_docs.py` | `democreate.api_docs.generate` | Regenerates `docs/api.md`; deterministic, checked in. |
-| `build_manuscript.py` | `democreate.manuscript.build_manuscript` | Citation + figure gates; writes `docs/manuscript/output/`. |
+| `build_manuscript.py` | `democreate.manuscript.build_manuscript` | Citation + figure gates; writes derived artifacts under `output/`. |
 | `benchmark.py` | `democreate.pipeline` / `narration` backends | Writes `data/benchmarks.json` — the source the manuscript's evaluation prose is bound to; treat changes to that file as claim-affecting. |
 
 ## Design contract

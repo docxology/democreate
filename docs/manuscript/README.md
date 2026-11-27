@@ -30,6 +30,10 @@ criteria in evaluation, and digest field coverage in attribution.
 
 ## Evidence boundaries
 
+The [manuscript parameters](../../data/manuscript-parameters.yaml) trace
+quantities used in prose to source defaults, derived examples, and retained
+observations.
+
 - Clip durations are measured; default word timestamps interpolate known text
   by character length. No acoustic recognition or measured onset accuracy is
   claimed. Whisper, Chatterbox and Manim remain unwired slots; Kokoro is implemented.
@@ -60,10 +64,13 @@ criteria in evaluation, and digest field coverage in attribution.
 | Old aggregate timing | [`data/benchmarks.json`](../../data/benchmarks.json) | Original run identity or current performance |
 | Source-bound silent-starter timing | [`data/benchmarks-0.8.0.json`](../../data/benchmarks-0.8.0.json) | Neural-TTS performance or performance of a later edited tree |
 | Identified 2026-11-09 MP4, package bytes, sidecars and decoded samples | [`data/showcase-2026-11-09.json`](../../data/showcase-2026-11-09.json) | Listening quality, acoustic accuracy, general neural determinism or certification of later code edits |
-| Prospective acoustic study | [`experiment_plan.yaml`](../../experiment_plan.yaml) | A supplied corpus or measured result |
-| Engineering/release requirements | [`domain_profile.yaml`](../../domain_profile.yaml) | Passing receipts or permission to waive the blocking study |
+| Prospective acoustic study | [Experiment plan](../experiment-plan.yaml) | A supplied corpus or measured result |
+| Engineering/release requirements | [Engineering gates](../engineering-gates.yaml) | Passing receipts or permission to waive the blocking study |
 
 ## Regeneration from the repository root
+
+Use the [pinned reproduction guide](../reproduction.md) to render the paper
+as PDF and HTML without regenerating the retained evidence figures.
 
 ```bash
 .venv/bin/python docs/manuscript/figures/make_figures.py
@@ -82,7 +89,7 @@ not fallbacks. A paper-figure refresh is an explicit input replacement, not auto
 acquisition of an external paper.
 
 Pandoc, pandoc-crossref and a compatible LaTeX engine are prerequisites for the
-manuscript gates/full PDF. Engineering gate declarations in `domain_profile.yaml`
+manuscript gates/full PDF. Engineering gate declarations in `docs/engineering-gates.yaml`
 are not evidence of passing runs. Source-identified run receipts hold exercised results.
 
 The canonical package-video recipe remains Kokoro `af_heart` at 2160p; see

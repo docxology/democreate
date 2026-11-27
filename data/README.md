@@ -28,7 +28,7 @@ compositing compute. Silent-audio timestamp sanity is not acoustic accuracy.
 
 The ≥30-demo independently annotated corpus, ≤120 ms median-error hypothesis,
 condition comparisons, baselines and ablations remain **PLANNED**, separate from
-engineering release checks in `domain_profile.yaml`.
+engineering release checks in `docs/engineering-gates.yaml`.
 
 `release-0.8.0.json` preserves the earlier engineering epoch: exercised gates,
 source bindings, then-rendered Kokoro MP4, decoded samples, toolchain, core-only
